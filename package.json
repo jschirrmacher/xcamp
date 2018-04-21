@@ -1,0 +1,14 @@
+{
+  "name": "xcamp",
+  "version": "1.0.0",
+  "description": "xcamp backend",
+  "main": "index.js",
+  "author": "Joachim Schirrmacher <joachim.schirrmacher@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dgraph-js": "^1.2.1",
+    "express": "^4.16.3",
+    "grpc": "^1.10.1"
+  }
+}
