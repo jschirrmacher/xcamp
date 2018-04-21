@@ -29,6 +29,9 @@ async function setSchema(dgraphClient) {
   await dgraphClient.alter(op)
 }
 
+app.use('/', express.static(__dirname + '/public'))
+app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis'))
+
 app.post('/person', (req, res) => {
   const txn = dgraphClient.newTxn()
   try {
@@ -41,7 +44,7 @@ app.post('/person', (req, res) => {
       .then(topics => req.body.topics.map(topic => {
         const existing = topics.getJson().all.find(t => t.name === topic.name)
         if (existing) {
-          return {uid: existing.uid}
+          return {uid: existing.id}
         } else {
           return Object.assign({shape: 'rect', type: 'topic'}, topic)
         }
@@ -71,11 +74,17 @@ app.post('/person', (req, res) => {
   }
 })
 
-app.get('/', (req, res) => {
+app.get('/data', (req, res) => {
   const query = `{
    all(func: anyofterms(type, "person topic")) {
      id: uid
-     name,
+     type
+     shape
+     name
+     image
+     url
+     twitter
+     details
      topic {
        id: uid
        name
@@ -90,6 +99,8 @@ app.get('/', (req, res) => {
       if (topic) {
         topic.forEach(link => links.push({source: node.id, target: link.id}))
       }
+      result.visible = result.type === 'person'
+      result.open = result.name === 'XCamp'
       return result
     })
     res.json({nodes, links})

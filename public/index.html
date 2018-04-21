@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>XCamp Network</title>
+    <link rel="stylesheet" type="text/css" href="netvis.css" />
+    <!-- only for example reasons -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+</head>
+<body>
+<svg id="root">
+    <rect class="commands commandOverlay" x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.2)"></rect>
+    <g class="commands commandContainer">
+        <foreignObject>
+            <button id="openNode" class="command" data-click="openNode" data-visible="!node.open"
+                    title="Verbindungen einblenden">&#xe096;</button>
+            <button id="closeNode" class="command" data-click="closeNode" data-visible="node.open"
+                    title="Verbindungen ausblenden">&#xe097;</button>
+            <button id="newConnection" class="command" data-click="newConnection" data-visible="node.connectable"
+                    title="Neue Verbindung anlegen">+</button>
+            <button id="showDetails" class="command" data-click="showDetails" data-visible="node.details"
+                    title="Details anzeigen">i</button>
+        </foreignObject>
+    </g>
+</svg>
+
+<div class="zoom">
+    <div>
+        <div id="zoomOut" onclick="network.scale(0.66)">&#xe016</div>
+        <div id="zoomIn" onclick="network.scale(1.5)">&#xe015</div>
+    </div>
+</div>
+
+<script id="detailForm" type="text/x-handlebars-template">
+    <h2>
+        <button class="close">×</button>
+        {{name}}
+    </h2>
+
+    <img src="{{image}}" class="profile-picture">
+
+    <p>{{description}}</p>
+
+    <a href="{{url}}" target="_blank">{{url}}</a>
+
+    <p class="tag-view">
+        <span class="tag">Lean Startup</span>
+        <span class="tag">Agile Development</span>
+        <span class="tag">XP-net</span>
+        <span class="tag">Scrum</span>
+        <span class="tag">Product Management</span>
+        <span class="tag">Kanban</span>
+    </p>
+</script>
+
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script src="/js-netvis/dist/Network.js"></script>
+<script src="/js-netvis/dist/ForceDiagram.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+
+<script>
+  const source = document.getElementById('detailForm').innerHTML
+  const detailFormTemplate = Handlebars.compile(source)
+  const network = new Network('/data', '#root', {
+    nameRequired: function() {
+      return Promise.resolve(window.prompt('Name'))
+    },
+    newNode: function(name) {
+      console.log('New node', name)
+      return {name, shape: 'circle'}
+    },
+    newLink: function(link) {
+      console.log('New link', link)
+    },
+    showDetails: function(data) {
+      return new Promise(resolve => {
+        const form = document.createElement('div')
+        form.setAttribute('class', 'detailForm')
+        form.innerHTML = detailFormTemplate(data)
+        form.getElementsByClassName('close')[0].addEventListener('click', event => {
+          event.preventDefault()
+          form.parentNode.removeChild(form)
+          resolve()
+        })
+        document.body.appendChild(form)
+      })
+    }
+  })
+</script>
+
+</body>
+</html>
