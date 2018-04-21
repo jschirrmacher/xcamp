@@ -57,7 +57,9 @@ app.post('/person', (req, res) => {
           lastName: req.body.lastName,
           name: req.body.firstName + ' ' + req.body.lastName,
           image: req.body.image,
-          details: req.body.details,
+          description: req.body.description,
+          url: req.body.url,
+          twitterName: req.body.twitterName,
           topic: topics,
           shape: 'circle'
         })
@@ -65,13 +67,30 @@ app.post('/person', (req, res) => {
       })
       .then(assigned => res.json(assigned.getUidsMap()))
       .then(() => txn.commit())
-      .catch(error => {
-        throw error
-      })
+      .catch(error => res.json({error}))
   } catch (error) {
     txn.discard()
     res.json({error})
   }
+})
+
+app.get('/person/:id', (req, res) => {
+  const query = `{
+   person(func: uid(${req.params.id})) {
+     id: uid
+     name
+     image
+     description
+     url
+     twitterName
+     topics: topic {
+       name
+     }
+   }
+  }`
+  dgraphClient.newTxn().query(query)
+    .then(data => res.json(data.getJson().person[0]))
+    .catch(error => res.json({error}))
 })
 
 app.get('/data', (req, res) => {
@@ -82,29 +101,27 @@ app.get('/data', (req, res) => {
      shape
      name
      image
-     url
-     twitter
-     details
      topic {
-       id: uid
-       name
+       uid
      }
    }
   }`
-  dgraphClient.newTxn().query(query).then(data => {
-    const all = data.getJson().all
-    const links = []
-    const nodes = all.map(node => {
-      const {topic, ...result} = node
-      if (topic) {
-        topic.forEach(link => links.push({source: node.id, target: link.id}))
-      }
-      result.visible = result.type === 'person'
-      result.open = result.name === 'XCamp'
-      return result
+  dgraphClient.newTxn().query(query)
+    .then(data => {
+      const all = data.getJson().all
+      const links = []
+      const nodes = all.map(node => {
+        const {topic, ...result} = node
+        if (topic) {
+          topic.forEach(link => links.push({source: node.id, target: link.uid}))
+        }
+        result.details = '/person/' + result.id
+        result.visible = result.type === 'person'
+        result.open = result.name === 'XCamp'
+        return result
+      })
+      res.json({nodes, links})
     })
-    res.json({nodes, links})
-  })
     .catch(error => res.json({error}))
 })
 
