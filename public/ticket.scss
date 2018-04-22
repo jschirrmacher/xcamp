@@ -1,0 +1,84 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font: 15px Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.info {
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 1em 0;
+  font-size: 13px;
+
+  &:before {
+    content: 'i';
+    background: dodgerblue;
+    color: white;
+    font: bold 20px "Times New Roman", serif;
+    line-height: 1.4em;
+    text-align: center;
+    display: inline-block;
+    float: left;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+.form-group {
+  margin-bottom: 5px;
+}
+
+.radio {
+  margin-bottom: 10px;
+}
+
+input, select {
+  font-size: 18px;
+  padding: 5px;
+  width: 100%;
+  max-width: 400px;
+
+  &[type=radio], &[type=checkbox] {
+    width: auto;
+  }
+}
+
+.checkbox label {
+  display: block;
+  padding-left: 30px;
+
+  input[type=checkbox] {
+    margin-left: -22px;
+  }
+}
+
+button {
+  padding: 10px;
+  margin-bottom: 1em;
+}
+
+.participant .delete {
+  font-size: 12px;
+  margin-left: 3em;
+}
+
+#invoice-details {
+  margin: 1em 0;
+  border: 1px solid #ccc;
+  padding: 15px;
+}

@@ -12,6 +12,8 @@ app.set('json spaces', 2)
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+const person = require('./person')(dgraphClient)
+
 app.use((req, res, next) => {
   console.log(req.method, req.path)
   next()
@@ -29,68 +31,23 @@ async function setSchema(dgraphClient) {
   await dgraphClient.alter(op)
 }
 
+async function exec(func, res) {
+  return func
+    .catch(error => {
+      res.status(error.status || 500)
+      return ({error: error.message || '' + error})
+    })
+    .then(res.json)
+}
+
 app.use('/', express.static(__dirname + '/public'))
 app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis'))
 
-app.post('/person', (req, res) => {
-  const txn = dgraphClient.newTxn()
-  try {
-    dgraphClient.newTxn().query(`{
-       all(func: eq(type, "topic")) {
-         id: uid
-         name
-       }
-      }`)
-      .then(topics => req.body.topics.map(topic => {
-        const existing = topics.getJson().all.find(t => t.name === topic.name)
-        if (existing) {
-          return {uid: existing.id}
-        } else {
-          return Object.assign({shape: 'rect', type: 'topic'}, topic)
-        }
-      }))
-      .then(topics => {
-        const mu = new dgraph.Mutation()
-        mu.setSetJson({
-          type: 'person',
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          name: req.body.firstName + ' ' + req.body.lastName,
-          image: req.body.image,
-          description: req.body.description,
-          url: req.body.url,
-          twitterName: req.body.twitterName,
-          topic: topics,
-          shape: 'circle'
-        })
-        return txn.mutate(mu)
-      })
-      .then(assigned => res.json(assigned.getUidsMap()))
-      .then(() => txn.commit())
-      .catch(error => res.json({error}))
-  } catch (error) {
-    txn.discard()
-    res.json({error})
-  }
-})
+app.post('/person', (req, res) => exec(person.create(req.body), res))
+app.get('/person/:id', (req, res) => exec(person.get(req.params.id), res))
 
-app.get('/person/:id', (req, res) => {
-  const query = `{
-   person(func: uid(${req.params.id})) {
-     id: uid
-     name
-     image
-     description
-     url
-     twitterName
-     topics: topic {
-       name
-     }
-   }
-  }`
-  dgraphClient.newTxn().query(query)
-    .then(data => res.json(data.getJson().person[0]))
-    .catch(error => res.json({error}))
+app.post('/tickets', (req, res) => {
+  res.json(req.body)
 })
 
 app.get('/data', (req, res) => {

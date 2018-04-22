@@ -121,4 +121,14 @@ svg .node {
 .dialogOpen .zoom {
   display: none; }
 
+.buyButtons {
+  position: fixed;
+  bottom: 15px;
+  left: 5px; }
+  .buyButtons a {
+    background: #f9d400;
+    color: black;
+    padding: 10px;
+    border-radius: 4px; }
+
 /*# sourceMappingURL=netvis.css.map */

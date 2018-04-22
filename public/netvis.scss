@@ -169,3 +169,16 @@ svg {
 .dialogOpen .zoom {
   display: none;
 }
+
+.buyButtons {
+  position: fixed;
+  bottom: 15px;
+  left: 5px;
+
+  a {
+    background: #f9d400;
+    color: black;
+    padding: 10px;
+    border-radius: 4px;
+  }
+}
