@@ -1,14 +1,14 @@
 module.exports = dgraphClient => ({
   create: data => {
     let result
+    const txn = dgraphClient.newTxn()
     try {
-      return dgraphClient.newTxn()
-        .query(`{
-           all(func: eq(type, "topic")) {
-             id: uid
-             name
-           }
-          }`)
+      return txn.query(`{
+         all(func: eq(type, "topic")) {
+           id: uid
+           name
+         }
+        }`)
         .then(topics => data.topics.map(topic => {
           const existing = topics.getJson().all.find(t => t.name === topic.name)
           if (existing) {
@@ -35,7 +35,7 @@ module.exports = dgraphClient => ({
         })
         .then(assigned => result = assigned.getUidsMap())
         .then(() => txn.commit())
-        .then(result)
+        .then(() => result)
     } catch (error) {
       txn.discard()
       return Promise.reject(error)
@@ -45,7 +45,7 @@ module.exports = dgraphClient => ({
   get: id => {
     let result
     const query = `{
-       person(func: uid(${rid})) {
+       person(func: uid(${id})) {
          id: uid
          name
          image
@@ -57,13 +57,15 @@ module.exports = dgraphClient => ({
          }
        }
       }`
-    return dgraphClient
-      .newTxn()
-      .query(query)
+    const txn = dgraphClient.newTxn()
+    return txn.query(query)
       .then(data => data.getJson().person)
       .then(persons => persons.length ? persons[0] : Promise.reject('Person not found'))
-      .then(person => result = person)
+      .then(person => {
+        person.topics = person.topics.map(topic => topic.name)
+        result = person
+      })
       .then(() => txn.discard())
-      .then(result)
+      .then(() => result)
   }
 })

@@ -37,7 +37,7 @@ async function exec(func, res) {
       res.status(error.status || 500)
       return ({error: error.message || '' + error})
     })
-    .then(res.json)
+    .then(result => res.json(result))
 }
 
 app.use('/', express.static(__dirname + '/public'))
