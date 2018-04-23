@@ -9,17 +9,19 @@
   var submitButton = document.getElementById('submit-button')
   var mail2info = document.getElementsByClassName('mail2info')
   var invoiceDetails = document.getElementById('invoice-details')
+  var payPalPayment = document.getElementById('payment-paypal')
+  var invoicePayment = document.getElementById('payment-invoice')
 
   function assertTOSAccepted() {
     return tosAccepted.checked
   }
 
+  function toggleDisabled(el, state) {
+    return state ? el.removeAttribute('disabled') : el.setAttribute('disabled', true)
+  }
+
   function setSubmitButtonState() {
-    if (assertTOSAccepted()) {
-      submitButton.removeAttribute('disabled')
-    } else {
-      submitButton.setAttribute('disabled', true)
-    }
+    toggleDisabled(submitButton, assertTOSAccepted())
   }
 
   function handleBuyForOthers() {
@@ -35,20 +37,30 @@
     Array.prototype.forEach.call(newElems.getElementsByClassName('delete'), function (delLink) {
       delLink.addEventListener('click', function () {
         newElems.remove()
-        updateInvoiceDetails()
+        adaptDependendFields()
         return false
       })
     })
     addTicket.parentNode.insertBefore(newElems, addTicket)
-    updateInvoiceDetails()
+    adaptDependendFields()
     return false
   }
 
-  function updateInvoiceDetails() {
+  function adaptDependendFields() {
     var numTickets = document.getElementsByClassName('participant').length + (buyForOthers.checked ? 0 : 1)
-    var ticketPrice = form.elements.type.value === 'corporate' ? 238 : 119
+    var isCorporate = form.elements.type.value === 'corporate'
+    var ticketPrice = isCorporate ? 238 : 119
     var totals = numTickets * ticketPrice
-    invoiceDetails.innerText = numTickets + ' Tickets à ' + ticketPrice + '€ = ' + totals + '€'
+    var ticket = numTickets === 1 ? 'Ticket' : 'Tickets'
+    invoiceDetails.innerText = numTickets + ' ' + ticket + ' à ' + ticketPrice + '€ = ' + totals + '€ inkl. 19% MWSt.'
+
+    invoicePayment.parentNode.classList.toggle('disabled', !isCorporate)
+    if (isCorporate) {
+      invoicePayment.removeAttribute('disabled')
+    } else {
+      invoicePayment.setAttribute('disabled', true)
+      payPalPayment.checked = true
+    }
   }
 
   form.addEventListener('submit', assertTOSAccepted)
@@ -56,9 +68,9 @@
   buyForOthers.addEventListener('click', handleBuyForOthers)
   tosAccepted.addEventListener('change', setSubmitButtonState)
   Array.prototype.forEach.call(form.elements.type, function (el) {
-    el.addEventListener('change', updateInvoiceDetails)
+    el.addEventListener('change', adaptDependendFields)
   })
-  updateInvoiceDetails()
+  adaptDependendFields()
   setSubmitButtonState()
 
   var info = 'info@justso.de'

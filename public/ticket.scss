@@ -60,11 +60,15 @@ input, select {
 
 .checkbox label {
   display: block;
-  padding-left: 30px;
+  padding-left: 27px;
 
   input[type=checkbox] {
     margin-left: -22px;
   }
+}
+
+label.disabled {
+  color: #aaaaaa;
 }
 
 button {

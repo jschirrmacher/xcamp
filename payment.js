@@ -9,7 +9,7 @@ module.exports = baseUrl => ({
     const params = {
       cmd: '_s-xclick',
       hosted_button_id,
-      amount,
+      amount: amount * 1.19,
       notify_url: baseUrl + '/payment-result',
       no_shipping: 0,
       address1: buyer.address,
@@ -19,11 +19,12 @@ module.exports = baseUrl => ({
       first_name: buyer.firstName,
       last_name: buyer.lastName,
       lc: 'de',
-      zip: buyer.zip,
+      zip: buyer.postcode,
       custom: buyer.id
     }
 
     const prefix = useSandbox ? '' : 'sandbox.'
-    return {url: 'https://www.' + prefix + 'paypal.com/cgi-bin/webscr?' + params.join('&')}
+    const paramString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
+    return 'https://www.' + prefix + 'paypal.com/cgi-bin/webscr/payment?' + paramString
   }
 })

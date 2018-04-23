@@ -4,6 +4,8 @@ const grpc = require('grpc')
 const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
 
+const payment = require('./payment')
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
@@ -40,17 +42,43 @@ async function exec(func, res) {
     .then(result => res.json(result))
 }
 
+function buyTicket(data) {
+  function createBuyer(data) {
+    return person.create(data)
+  }
+
+  function getNetTotals(data) {
+    const ticketPrice = data.type === 'corporate' ? 200 : 100
+    const numTickets = (!data.buy_for_other ? 0 : 1) + (data.participant_email && data.participant_email.length || 1)
+    return numTickets * ticketPrice
+  }
+
+  if (!req.body.tos_accepted) {
+    return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
+  } else {
+    return createBuyer(data)
+      .then(buyer => {
+        let origin = req.headers.origin
+        if (data.payment === 'invoice' && !data.reduced) {
+          res.redirect(origin + '/invoice-info.html')
+        } else {
+          const url = payment(origin).exec(buyer, data.reduced, getNetTotals(data), true)
+          res.redirect(url)
+        }
+        return {ok: true}
+      })
+  }
+}
+
 app.use('/', express.static(__dirname + '/public'))
 app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis'))
 
-app.post('/person', (req, res) => exec(person.create(req.body), res))
-app.get('/person/:id', (req, res) => exec(person.get(req.params.id), res))
+app.post('/persons', (req, res) => exec(person.create(req.body), res))
+app.get('/persons/:id', (req, res) => exec(person.get(req.params.id), res))
 
-app.post('/tickets', (req, res) => {
-  res.json(req.body)
-})
+app.post('/tickets', (req, res) => exec(buyTicket(req.body), res))
 
-app.get('/data', (req, res) => {
+app.get('/network', (req, res) => {
   const query = `{
    all(func: anyofterms(type, "person topic")) {
      id: uid
@@ -82,7 +110,7 @@ app.get('/data', (req, res) => {
     .catch(error => res.json({error}))
 })
 
-app.delete('/', (req, res) => {
+app.delete('/network', (req, res) => {
   dropAll(dgraphClient)
     .then(() => setSchema(dgraphClient))
     .then(() => res.json({}))

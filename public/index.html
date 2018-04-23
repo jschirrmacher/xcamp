@@ -61,7 +61,7 @@
 <script>
   const source = document.getElementById('detailForm').innerHTML
   const detailFormTemplate = Handlebars.compile(source)
-  const network = new Network('/data', '#root', {
+  const network = new Network('/network', '#root', {
     nameRequired: function() {
       return Promise.resolve(window.prompt('Name'))
     },
