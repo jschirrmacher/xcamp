@@ -46,13 +46,12 @@ function buyTicket(data) {
   } else {
     return createBuyer(data)
       .then(buyer => {
-        let origin = req.headers.origin
-        if (data.payment === 'invoice' && !data.reduced) {
-          res.redirect(origin + '/invoice-info.html')
-        } else {
-          const url = payment(origin).exec(buyer, data.reduced, getNetTotals(data), true)
-          res.redirect(url)
-        }
+        const origin = req.headers.origin
+        const payPerInvoice = data.payment === 'invoice' && !data.reduced
+        const totals = getNetTotals(data)
+        const invoiceInfoUrl = origin + '/invoice-info.html'
+        const url = payPerInvoice ? invoiceInfoUrl : payment(origin).exec(buyer, data.reduced, totals, true)
+        res.redirect(url)
         return {ok: true}
       })
   }
