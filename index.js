@@ -64,6 +64,12 @@ app.post('/persons', (req, res) => exec(person.create(req.body), res))
 app.get('/persons/:id', (req, res) => exec(person.get(req.params.id), res))
 
 app.post('/tickets', (req, res) => exec(buyTicket(req.body), res))
+
+app.post('/session', (req, res) => res.json({status: 'not yet implemented'}))
+app.delete('/session', (req, res) => res.json({status: 'not yet implemented'}))
+
+app.post('/account', (req, res) => res.json({status: 'not yet implemented'}))   // register as community user without ticket
+app.put('/account/password', (req, res) => res.json({status: 'not yet implemented'}))
 app.get('/account/invoices/current', (req, res) => res.json({status: 'not yet implemented'}))
 
 app.get('/network', (req, res) => exec(network.getGraph(), res))
