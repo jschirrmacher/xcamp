@@ -14,7 +14,7 @@ app.use(bodyParser.json())
 
 const person = require('./person')(dgraphClient)
 const network = require('./network')(dgraphClient)
-const payment = require('./payment')
+const ticket = require('./ticket')(dgraphClient, person, require('./payment'))
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -25,36 +25,14 @@ async function exec(func, res) {
   return func
     .catch(error => {
       res.status(error.status || 500)
-      return ({error: error.message || '' + error})
+      if (error.status === 302) {
+        res.redirect(error.url)
+        return {redirectTo: error.url}
+      } else {
+        return {error: error.message || '' + error}
+      }
     })
     .then(result => res.json(result))
-}
-
-function buyTicket(data) {
-  function createBuyer(data) {
-    return person.create(data)
-  }
-
-  function getNetTotals(data) {
-    const ticketPrice = data.type === 'corporate' ? 200 : 100
-    const numTickets = (!data.buy_for_other ? 0 : 1) + (data.participant_email && data.participant_email.length || 1)
-    return numTickets * ticketPrice
-  }
-
-  if (!req.body.tos_accepted) {
-    return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
-  } else {
-    return createBuyer(data)
-      .then(buyer => {
-        const origin = req.headers.origin
-        const payPerInvoice = data.payment === 'invoice' && !data.reduced
-        const totals = getNetTotals(data)
-        const invoiceInfoUrl = origin + '/invoice-info.html'
-        const url = payPerInvoice ? invoiceInfoUrl : payment(origin).exec(buyer, data.reduced, totals, true)
-        res.redirect(url)
-        return {ok: true}
-      })
-  }
 }
 
 app.use('/', express.static(__dirname + '/public'))
@@ -63,7 +41,7 @@ app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis'))
 app.post('/persons', (req, res) => exec(person.create(req.body), res))
 app.get('/persons/:id', (req, res) => exec(person.get(req.params.id), res))
 
-app.post('/tickets', (req, res) => exec(buyTicket(req.body), res))
+app.post('/tickets', (req, res) => exec(ticket.buy(req.body), res))
 
 app.post('/session', (req, res) => res.json({status: 'not yet implemented'}))
 app.delete('/session', (req, res) => res.json({status: 'not yet implemented'}))
