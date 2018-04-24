@@ -18,60 +18,71 @@
             wieder löschen.
         </div>
 
-        <div class="radio">
-            <label>
-                <input type="radio" name="type" class="form-control" value="corporate" checked/>Unternehmen
-            </label>
-        </div>
-        <div class="radio">
-            <label>
-                <input type="radio" name="type" class="form-control" value="student"/>Privatperson / Einzelunternehmer
-            </label>
+        <div class="row">
+            <div class="form-group radio col-6">
+                <label>
+                    <input type="radio" name="type" class="form-control" value="corporate" checked/>Unternehmen
+                </label>
+            </div>
+            <div class="form-group radio col-6">
+                <label>
+                    <input type="radio" name="type" class="form-control" value="student"/>Privatperson /
+                    Einzelunternehmer
+                </label>
+            </div>
+
+            <div class="form-group col-12">
+                <label for="payment-firm"></label>
+                <input type="text" id="payment-firm" name="firm" class="form-control" placeholder="Name der Firma"
+                       autocomplete='organization' required/>
+            </div>
+            <div class="form-group col-6">
+                <label for="payment-first-name"></label>
+                <input type="text" id="payment-first-name" name="firstName" class="form-control mandatory"
+                       placeholder="Vorname" autocomplete='given-name'
+                       required/>
+            </div>
+            <div class="form-group col-6">
+                <label for="payment-name"></label>
+                <input type="text" id="payment-name" name="lastName" class="form-control mandatory"
+                       placeholder="Ihr Name"
+                       autocomplete='family-name' required/>
+            </div>
+            <div class="form-group col-12">
+                <label for="payment-email"></label>
+                <input type="email" id="payment-email" name="email" class="form-control mandatory"
+                       autocomplete='email' placeholder="Ihre E-Mail-Adresse" required/>
+            </div>
+            <div class="form-group col-12">
+                <label for="payment-address"></label>
+                <input type="text" id="payment-address" name="address" class="form-control mandatory"
+                       autocomplete='address-line1' placeholder="Straße, Hausnummer" required/>
+            </div>
+            <div class="form-group col-4">
+                <label for="payment-post-code"></label>
+                <input type="text" id="payment-post-code" name="postcode" class="form-control mandatory"
+                       autocomplete='postal-code' placeholder="Postleitzahl" required/>
+            </div>
+            <div class="form-group col-8">
+                <label for="payment-city"></label>
+                <input type="text" id="payment-city" name="city" class="form-control mandatory" placeholder="Stadt"
+                       autocomplete='address-level2' required/>
+            </div>
+            <div class="form-group col-12">
+                <label for="payment-country"></label>
+                <select id="payment-country" name="country" class="form-control mandatory" autocomplete='country-name'>
+                    <option value="de" selected>Deutschland</option>
+                    <option value="ch">Schweiz</option>
+                    <option value="at">Österreich</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="payment-firm"></label>
-            <input type="text" id="payment-firm" name="firm" class="form-control" placeholder="Name der Firma"
-                   autocomplete='organization' required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-first-name"></label>
-            <input type="text" id="payment-first-name" name="firstName" class="form-control mandatory"
-                   placeholder="Vorname" autocomplete='given-name'
-                   required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-name"></label>
-            <input type="text" id="payment-name" name="lastName" class="form-control mandatory" placeholder="Ihr Name"
-                   autocomplete='family-name' required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-email"></label>
-            <input type="email" id="payment-email" name="email" class="form-control mandatory"
-                   autocomplete='email' placeholder="Ihre E-Mail-Adresse" required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-address"></label>
-            <input type="text" id="payment-address" name="address" class="form-control mandatory"
-                   autocomplete='address-line1' placeholder="Straße, Hausnummer" required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-post-code"></label>
-            <input type="text" id="payment-post-code" name="postcode" class="form-control mandatory"
-                   autocomplete='postal-code' placeholder="Postleitzahl" required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-city"></label>
-            <input type="text" id="payment-city" name="city" class="form-control mandatory" placeholder="Stadt"
-                   autocomplete='address-level2' required/>
-        </div>
-        <div class="form-group">
-            <label for="payment-country"></label>
-            <select id="payment-country" name="country" class="form-control mandatory" autocomplete='country-name'>
-                <option value="de" selected>Deutschland</option>
-                <option value="ch">Schweiz</option>
-                <option value="at">Österreich</option>
-            </select>
+        <div class="info">
+            Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte
+            Event sowie für die Aufnahme in unsere elektronische Teilnehmer-Liste.
+            Auf Anforderung werden wir Sie gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
+            E-Mail an <a class="mail2info"></a>.
         </div>
 
         <div class="checkbox">
@@ -79,13 +90,6 @@
                 <input type="checkbox" name="buy_for_other" class="form-control" id="buy-for-other"/>
                 Ich nehme selbst nicht teil, sondern buche für Andere.
             </label>
-        </div>
-
-        <div class="info">
-            Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte
-            Event sowie für die Aufnahme in unsere elektronische Teilnehmer-Liste.<br/>
-            Auf Anforderung werden wir Sie gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
-            E-Mail an <a class="mail2info"></a>.
         </div>
 
         <button id="additional-ticket">Ich buche für eine weitere Person</button>

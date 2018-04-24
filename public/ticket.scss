@@ -10,9 +10,35 @@ html, body {
 
 .container {
   position: relative;
-  max-width: 960px;
+  max-width: 768px;
   margin: 0 auto;
   padding: 0 15px;
+}
+
+.col-4, .col-6, .col-8 {
+  display: inline-block;
+}
+
+.col-12 {
+  width: 100%;
+}
+
+.col-8 {
+  width: 66.667%;
+}
+
+.col-6 {
+  width: 50%;
+}
+
+.col-4 {
+  width: 33.333%;
+}
+
+.row:before, .row:after {
+  content: ' ';
+  display: table;
+  clear: both;
 }
 
 .info {
@@ -26,8 +52,8 @@ html, body {
     content: 'i';
     background: dodgerblue;
     color: white;
-    font: bold 20px "Times New Roman", serif;
-    line-height: 1.4em;
+    font: bold 28px "Times New Roman", serif;
+    line-height: 1.1em;
     text-align: center;
     display: inline-block;
     float: left;
@@ -41,9 +67,10 @@ html, body {
 
 .form-group {
   margin-bottom: 5px;
+  float: left;
 }
 
-.radio {
+.checkbox, .radio {
   margin-bottom: 10px;
 }
 
@@ -51,7 +78,6 @@ input, select {
   font-size: 18px;
   padding: 5px;
   width: 100%;
-  max-width: 400px;
 
   &[type=radio], &[type=checkbox] {
     width: auto;
