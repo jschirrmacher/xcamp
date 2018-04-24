@@ -1109,9 +1109,9 @@ isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
 
-js-netvis@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/js-netvis/-/js-netvis-2.1.1.tgz#9e77a96da5440b2a785c861630d5d2d881e9c1b0"
+js-netvis@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/js-netvis/-/js-netvis-2.2.1.tgz#90d43517c7dcf21351f335485e7f3158144248b4"
   dependencies:
     babel-core "^6.26.0"
     babel-preset-env "^1.6.1"
@@ -1175,8 +1175,8 @@ lcid@^1.0.0:
     invert-kv "^1.0.0"
 
 lodash@^4.15.0, lodash@^4.17.4:
-  version "4.17.5"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
+  version "4.17.10"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
 long@~3:
   version "3.2.0"

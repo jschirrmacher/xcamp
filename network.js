@@ -28,7 +28,7 @@ module.exports = dgraphClient => ({
         }
       }
     }`
-    dgraphClient.newTxn().query(query)
+    return dgraphClient.newTxn().query(query)
       .then(data => {
         const all = data.getJson().all
         const links = []
@@ -37,7 +37,9 @@ module.exports = dgraphClient => ({
           if (topic) {
             topic.forEach(link => links.push({source: node.id, target: link.uid}))
           }
-          result.details = '/person/' + result.id
+          if (result.type === 'person') {
+            result.details = '/persons/' + result.id
+          }
           result.visible = result.type === 'person'
           result.open = result.name === 'XCamp'
           return result
