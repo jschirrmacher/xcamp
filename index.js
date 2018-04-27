@@ -89,6 +89,6 @@ function getLastInvoice(accessCode) {
       invoice.address = invoice.customer.addresses[0]
       invoice.address.country = countries[invoice.address.country]
 
-      return Mustache.render('' + fs.readFileSync(__dirname + '/templates/invoice-template.html'), invoice)
+      return Mustache.render('' + fs.readFileSync(__dirname + '/templates/invoice.html'), invoice)
     })
 }
