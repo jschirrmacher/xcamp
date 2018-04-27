@@ -8,7 +8,10 @@ module.exports = dgraphClient => ({
 
     async function setSchema(dgraphClient) {
       const op = new dgraph.Operation()
-      op.setSchema(`type: string @index(term) .`)
+      op.setSchema(`
+        type: string @index(term) .
+        access_code: string @index(exact) .
+      `)
       await dgraphClient.alter(op)
     }
 
