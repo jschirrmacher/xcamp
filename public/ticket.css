@@ -27,6 +27,9 @@ html, body {
 .col-4 {
   width: 33.333%; }
 
+.col-2 {
+  width: 16.667%; }
+
 .row:before, .row:after {
   content: ' ';
   display: table;
@@ -56,6 +59,11 @@ html, body {
 .form-group {
   margin-bottom: 5px;
   float: left; }
+
+.static {
+  float: left;
+  font-size: 18px;
+  padding: 8px; }
 
 .checkbox, .radio {
   margin-bottom: 10px; }
@@ -88,5 +96,15 @@ button {
   margin: 1em 0;
   border: 1px solid #ccc;
   padding: 15px; }
+
+.ticket {
+  margin: 1em 0;
+  border: 1px solid #ccc;
+  padding: 15px;
+  background: #f9d400; }
+  .ticket:after {
+    content: ' ';
+    display: table;
+    clear: both; }
 
 /*# sourceMappingURL=ticket.css.map */

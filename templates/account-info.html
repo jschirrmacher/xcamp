@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>XCamp 2018 Tickets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/ticket.css">
+</head>
+<body>
+<div class="container">
+    <h1>Ticket-Informationen</h1>
+
+    <p>Wir freuen uns, dass Sie am diesjährigen XCamp teilnehmen werden!</p>
+
+    <p>
+        <a href="/accounts/{{accessCode}}/invoices/current" target="_blank">
+            Hier ist Ihre Rechnung
+        </a>
+    </p>
+
+    <p>
+        Bitte überweisen Sie den Betrag innerhalb von 10 Tagen auf das Konto Nr. DE68 501 900 00 6100 700 610
+        der Justso GmbH, Frankfurt.
+    </p>
+
+    <p>
+        Und hier sind die gebuchten Tickets. Personalisieren Sie bitte die Tickets vor dem Event und bringen Sie die
+        Tickets für den Einlass auf Ihrem Smartphone oder ausgedruckt mit.
+    </p>
+
+    {{#tickets}}
+
+    <div class="ticket">
+        <div class="row">
+            <div class="form-group">
+                <label>
+                    <input type="text" name="participant_firstName" class="form-control" autocomplete="off"
+                           placeholder="Vorname" value="{{{firstName}}}" required/>
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="text" name="participant_lastName" class="form-control" autocomplete="off"
+                           placeholder="Name" value="{{{lastName}}}" required/>
+                </label>
+
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="email" name="participant_email" class="form-control" autocomplete="off"
+                           placeholder="E-Mail-Adresse" value="{{{email}}}" required/>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button class="send-ticket">Per E-Mail versenden</button>
+            <button class="print-ticket">Ausdrucken</button>
+
+            {{#isFirst}}<button class="useCustomer">Meine Daten verwenden</button>{{/isFirst}}
+        </div>
+    </div>
+
+    {{/tickets}}
+
+    <div class="info">
+        Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte Event sowie für
+        die Aufnahme in unsere elektronische Teilnehmer-Liste.
+        Auf Anforderung werden wir die Daten gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
+        E-Mail an <a class="mail2info"></a>.
+    </div>
+
+</div>
+</body>
+</html>

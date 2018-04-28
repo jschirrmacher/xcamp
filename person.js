@@ -1,6 +1,5 @@
 module.exports = (dgraphClient, dgraph) => {
-  function get(id) {
-    let result
+  async function get(txn, id) {
     const query = `{
        person(func: uid(${id})) {
          id: uid
@@ -14,16 +13,13 @@ module.exports = (dgraphClient, dgraph) => {
          }
        }
       }`
-    const txn = dgraphClient.newTxn()
-    return txn.query(query)
-      .then(data => data.getJson().person)
-      .then(persons => persons.length ? persons[0] : Promise.reject('Person not found'))
-      .then(person => {
-        person.topics = person.topics ? person.topics.map(topic => topic.name) : []
-        result = person
-      })
-      .then(() => txn.discard())
-      .then(() => result)
+    const data = await txn.query(query)
+    const persons = data.getJson().person
+    if (!persons.length) {
+      return Promise.reject('Person not found')
+    }
+    persons[0].topics = persons[0].topics.map(topic => topic.name)
+    return persons[0]
   }
 
   function create(data) {
@@ -62,7 +58,7 @@ module.exports = (dgraphClient, dgraph) => {
           return txn.mutate(mu)
         })
         .then(assigned => result = assigned.getUidsMap().get('blank-0'))
-        .then(uid => txn.commit())
+        .then(() => txn.commit())
         .then(() => get(result))
     } catch (error) {
       txn.discard()

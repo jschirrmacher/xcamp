@@ -1,7 +1,7 @@
 module.exports = baseUrl => ({
-  exec: (buyer, reduced, amount, useSandbox) => {
+  exec: (customer, invoice, useSandbox) => {
     let hosted_button_id
-    if (reduced) {
+    if (invoice.reduced) {
       hosted_button_id = useSandbox ? '2A7U58XVNP73G' : '2A7U58XVNP73G'
     } else {
       hosted_button_id = useSandbox ? 'YU36H9CWXCPAA' : 'YU36H9CWXCPAA'
@@ -9,18 +9,18 @@ module.exports = baseUrl => ({
     const params = {
       cmd: '_s-xclick',
       hosted_button_id,
-      amount: amount * 1.19,
+      amount: (invoice.ticketCount * invoice.ticketPrice) * 1.19,
       notify_url: baseUrl + '/payment-result',
       no_shipping: 0,
-      address1: buyer.address,
-      city: buyer.city,
-      country: buyer.country,
-      email: buyer.email,
-      first_name: buyer.firstName,
-      last_name: buyer.lastName,
+      first_name: customer.firstName,
+      last_name: customer.lastName,
+      address1: customer.address,
+      zip: customer.postcode,
+      city: customer.city,
+      country: customer.country,
+      email: customer.email,
       lc: 'de',
-      zip: buyer.postcode,
-      custom: buyer.id
+      custom: customer.id
     }
 
     const prefix = useSandbox ? '' : 'sandbox.'

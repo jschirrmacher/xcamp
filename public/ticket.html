@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -76,23 +75,19 @@
                     <option value="at">Österreich</option>
                 </select>
             </div>
-        </div>
 
-        <div class="info">
-            Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte
-            Event sowie für die Aufnahme in unsere elektronische Teilnehmer-Liste.
-            Auf Anforderung werden wir Sie gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
-            E-Mail an <a class="mail2info"></a>.
+            <div class="static">
+                Ich möchte
+            </div>
+            <div class="form-group col-2">
+                <label for="ticketCount"></label>
+                <input type="number" id="ticketCount" name="ticketCount" class="form-control mandatory"
+                       autocomplete="off" placeholder="Anzahl" value="1" required/>
+            </div>
+            <div class="static">
+                Tickets
+            </div>
         </div>
-
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="buy_for_other" class="form-control" id="buy-for-other"/>
-                Ich nehme selbst nicht teil, sondern buche für Andere.
-            </label>
-        </div>
-
-        <button id="additional-ticket">Ich buche für eine weitere Person</button>
 
         <div id="invoice-details"></div>
 
@@ -130,29 +125,6 @@
     </form>
 
 </div>
-
-<script id="participantData" type="text/template">
-    <h3>Teilnehmer <a href="#" class="delete">entfernen</a></h3>
-    <div class="form-group">
-        <label>
-            <input type="text" name="participant_firstName" class="form-control" autocomplete="off"
-                   placeholder="Vorname" required/>
-        </label>
-    </div>
-    <div class="form-group">
-        <label>
-            <input type="text" name="participant_lastName" class="form-control" autocomplete="off"
-                   placeholder="Name" required/>
-        </label>
-
-    </div>
-    <div class="form-group">
-        <label>
-            <input type="email" name="participant_email" class="form-control" autocomplete="off"
-                   placeholder="E-Mail-Adresse" required/>
-        </label>
-    </div>
-</script>
 
 <script src="ticket.js"></script>
 </body>

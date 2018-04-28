@@ -1,4 +1,4 @@
-module.exports = dgraphClient => ({
+module.exports = (dgraphClient, dgraph) => ({
   rebuild: () => {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()

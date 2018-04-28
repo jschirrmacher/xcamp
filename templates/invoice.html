@@ -82,6 +82,10 @@
             margin: 2em;
         }
 
+        #print {
+            display: none;
+        }
+
         @media screen {
             body {
                 padding: 20px;
@@ -129,7 +133,7 @@
         </div>
 
         <div class="invoice-info">
-            <div class="invoice-id">Rechnungs-Nr. {{id}}</div>
+            <div class="invoice-id">Rechnungs-Nr. {{invoiceNo}}</div>
             <div class="date">Re. Datum {{created}}</div>
         </div>
 
@@ -151,7 +155,7 @@
         </div>
 
         <div class="product">
-            {{numTickets}} {{ticketString}} für {{ticketType}}
+            {{ticketCount}} {{ticketString}} für {{ticketType}}
             <div class="amount">{{netAmount}}</div>
         </div>
         <div class="vat">

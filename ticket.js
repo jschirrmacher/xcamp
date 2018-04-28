@@ -1,44 +1,89 @@
-module.exports = (dgraphClient, fs, customer, person, payment, invoicesFilesBase) => {
-  const metaFile = invoicesFilesBase + 'meta.json'
+const rack = require('hat').rack(128, 36)
 
-  function getNextId() {
-    const meta = fs.existsSync(metaFile) ? JSON.parse(fs.readFileSync(metaFile).toString()) : {invoiceId: 0}
-    meta.invoiceId++
-    fs.writeFileSync(metaFile, JSON.stringify(meta))
-    return meta.invoiceId
+module.exports = (dgraphClient, dgraph, Customer, Person, payment) => {
+  async function getInvoice(txn, uid) {
+    const query = `{ invoice(func: uid(${uid})) {
+      id: uid
+      invoiceNo
+      created
+      ticketType
+      ticketPrice
+      payment
+      reduced
+      customer {
+        firm
+        name
+        email
+        addresses {
+          address
+          postcode
+          city
+          country
+        }
+      }
+      tickets {
+        access_code
+      }
+    }}`
+    const result = await txn.query(query)
+    const invoice = result.getJson().invoice
+    return invoice.length ? invoice[0] : Promise.reject('Invoice not found')
   }
 
-  function buy(data, origin) {
+  async function getLastInvoice(txn, customerId) {
+    const result = await txn.query(`{customer(func: uid("${customerId}")){uid invoices {uid}}}`)
+    const customer = result.getJson().customer[0]
+    const invoice = customer.invoices
+    return invoice.length ? getInvoice(txn, invoice[0].uid) : Promise.reject('Invoice not found')
+  }
+
+  async function createInvoice(txn, data, customer) {
+    const result = await txn.query(`{ var(func: eq(type, "invoice")) { d as invoiceNo } me() {max(val(d))}}`)
+    const invoiceNo = result.getJson().me[0]['max(val(d))'] + 1
+    const invoice = {
+      type: 'invoice',
+      invoiceNo,
+      created: '' + new Date(),
+      customer,
+      ticketType: data.type,
+      ticketPrice: data.reduced ? 100 : 200,
+      payment: data.payment,
+      reduced: data.reduced
+    }
+    invoice.tickets = Array.from({length: data.ticketCount}, () => ({
+      type: 'ticket',
+      access_code: rack()
+    }))
+
+    const mu = new dgraph.Mutation()
+    mu.setSetJson(invoice)
+    const assigned = await txn.mutate(mu)
+    const uid = assigned.getUidsMap().get('blank-0')
+
+    const muCustomer = new dgraph.Mutation()
+    await muCustomer.setSetNquads(`<${customer.id}> <invoices> <${uid}> .`)
+    const res = await txn.mutate(muCustomer)
+
+    return getInvoice(txn, uid)
+  }
+
+  async function buy(data, origin) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
-    } else {
-      return customer.create(data)
-        .then(customer => {
-          const ticketType = data.type === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer'
-          const ticketPrice = data.type === 'corporate' ? 200 : 100
-          const payByInvoice = data.payment === 'invoice' && !data.reduced
-          const numTickets = (!data.buy_for_other ? 0 : 1) + (data.participant_email && data.participant_email.length || 1)
-          const totals = numTickets * ticketPrice
-          const id = getNextId()
-          const created = '' + new Date()
-          const invoice = {
-            id,
-            created,
-            customer,
-            numTickets,
-            ticketType,
-            ticketPrice,
-            payment: data.payment,
-            reduced: data.reduced
-          }
-          const invoiceFile = invoicesFilesBase + 'XCamp-' + customer.id + '-' + invoice.id + '.json'
-          fs.writeFileSync(invoiceFile, JSON.stringify(invoice))
-          const invoiceInfoUrl = origin + '/accaunts/' + customer.access_code
-          const url = payByInvoice ? invoiceInfoUrl : payment(origin).exec(customer, data.reduced, totals, true)
-          return {isRedirection: true, url}
-        })
+    } else if (data.reduced && data.payment === 'invoice') {
+      return Promise.reject({status: 403, message: 'Reduced tickets are available only when paying immediately'})
+    }
+
+    const txn = dgraphClient.newTxn()
+    const customer = await Customer.create(txn, data)
+    const invoice = await createInvoice(txn, data, customer)
+    txn.commit()
+    const accountUrl = origin + '/accounts/' + customer.access_code
+    return {
+      isRedirection: true,
+      url: invoice.payment ? accountUrl : payment(origin).exec(customer, invoice, true)
     }
   }
 
-  return {buy}
+  return {buy, getLastInvoice}
 }

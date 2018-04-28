@@ -2,9 +2,7 @@
   'use strict'
 
   var form = document.getElementById('ticket-form')
-  var addTicket = document.getElementById('additional-ticket')
-  var buyForOthers = document.getElementById('buy-for-other')
-  var participantData = document.getElementById('participantData').innerHTML
+  var ticketCount = document.getElementById('ticketCount')
   var tosAccepted = document.getElementById('tos-accepted')
   var submitButton = document.getElementById('submit-button')
   var mail2info = document.getElementsByClassName('mail2info')
@@ -24,35 +22,19 @@
     toggleDisabled(submitButton, assertTOSAccepted())
   }
 
-  function handleBuyForOthers() {
-    if (!document.getElementsByClassName('participant').length) {
-      handleAddTicket()
-    }
-  }
-
-  function handleAddTicket() {
-    var newElems = document.createElement('div')
-    newElems.className = 'participant'
-    newElems.innerHTML = participantData
-    Array.prototype.forEach.call(newElems.getElementsByClassName('delete'), function (delLink) {
-      delLink.addEventListener('click', function () {
-        newElems.remove()
-        adaptDependendFields()
-        return false
-      })
-    })
-    addTicket.parentNode.insertBefore(newElems, addTicket)
-    adaptDependendFields()
-    return false
-  }
-
   function adaptDependendFields() {
-    var numTickets = document.getElementsByClassName('participant').length + (buyForOthers.checked ? 0 : 1)
-    var isCorporate = form.elements.type.value === 'corporate'
-    var ticketPrice = isCorporate ? 238 : 119
-    var totals = numTickets * ticketPrice
-    var ticket = numTickets === 1 ? 'Ticket' : 'Tickets'
-    invoiceDetails.innerText = numTickets + ' ' + ticket + ' à ' + ticketPrice + '€ = ' + totals + '€ inkl. 19% MWSt.'
+    if (ticketCount.value !== '') {
+      if (ticketCount.value < 1) {
+        ticketCount.value = 1
+      }
+      var isCorporate = form.elements.type.value === 'corporate'
+      var ticketPrice = isCorporate ? 238 : 119
+      var totals = ticketCount.value * ticketPrice
+      var ticket = ticketCount.value === 1 ? 'Ticket' : 'Tickets'
+      invoiceDetails.innerText = ticketCount.value + ' ' + ticket + ' à ' + ticketPrice + '€ = ' + totals + '€ inkl. 19% MWSt.'
+    } else {
+      invoiceDetails.innerText = 'Geben Sie bitte eine Ticketanzahl ein!'
+    }
 
     invoicePayment.parentNode.classList.toggle('disabled', !isCorporate)
     if (isCorporate) {
@@ -64,9 +46,8 @@
   }
 
   form.addEventListener('submit', assertTOSAccepted)
-  addTicket.addEventListener('click', handleAddTicket)
-  buyForOthers.addEventListener('click', handleBuyForOthers)
   tosAccepted.addEventListener('change', setSubmitButtonState)
+  ticketCount.addEventListener('change', adaptDependendFields)
   Array.prototype.forEach.call(form.elements.type, function (el) {
     el.addEventListener('change', adaptDependendFields)
   })
