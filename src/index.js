@@ -1,5 +1,6 @@
 const fs = require('fs')
-const Mustache = require('Mustache')
+const path = require('path')
+const Mustache = require('mustache')
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
 
@@ -38,9 +39,9 @@ async function exec(func, res, type = 'json') {
     })
 }
 
-app.use('/', express.static(__dirname + '/public'))
-app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis/dist'))
-app.use('/qrcode', express.static(__dirname + '/node_modules/qrcode/build'))
+app.use('/', express.static(path.join(__dirname, '/../public')))
+app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis/dist')))
+app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
 app.post('/persons', (req, res) => exec(Person.create(req.body), res))
 app.get('/persons/:id', (req, res) => exec(Person.get(req.params.id), res))
@@ -63,7 +64,7 @@ async function getAccountInfo(accessCode) {
   const customerId = await Customer.findIdByAccessCode(txn, accessCode)
   const invoice = await Ticket.getLastInvoice(txn, customerId)
   const tickets = invoice.tickets
-  return Mustache.render('' + fs.readFileSync(__dirname + '/templates/account-info.html'), {accessCode, tickets})
+  return Mustache.render('' + fs.readFileSync(__dirname + '/../templates/account-info.mustache'), {accessCode, tickets})
 }
 
 async function getLastInvoice(accessCode) {
@@ -95,6 +96,6 @@ async function getLastInvoice(accessCode) {
       invoice.address = invoice.customer.addresses[0]
       invoice.address.country = countries[invoice.address.country]
 
-      return Mustache.render('' + fs.readFileSync(__dirname + '/templates/invoice.html'), invoice)
+      return Mustache.render('' + fs.readFileSync(__dirname + '/../templates/invoice.mustache'), invoice)
     })
 }

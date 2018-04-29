@@ -6,6 +6,9 @@ html, body {
 * {
   box-sizing: border-box; }
 
+h2 {
+  height: 38px; }
+
 .container {
   position: relative;
   max-width: 768px;

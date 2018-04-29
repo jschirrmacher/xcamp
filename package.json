@@ -14,5 +14,8 @@
     "js-netvis": "^2.2.1",
     "mustache": "^2.3.0",
     "qrcode": "^1.2.0"
+  },
+  "scripts": {
+    "start": "node src/index.js"
   }
 }

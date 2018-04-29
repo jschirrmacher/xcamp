@@ -26,8 +26,10 @@ module.exports = (dgraphClient, dgraph, Customer, Person, payment) => {
       }
     }}`
     const result = await txn.query(query)
-    const invoice = result.getJson().invoice
-    return invoice.length ? invoice[0] : Promise.reject('Invoice not found')
+    const invoices = result.getJson().invoice
+    const invoice = invoices.length ? invoices[0] : Promise.reject('Invoice not found')
+    invoice.tickets.forEach(ticket => ticket.isPersonalized = ticket.lastName)
+    return invoice
   }
 
   async function getLastInvoice(txn, customerId) {
@@ -62,7 +64,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, payment) => {
 
     const muCustomer = new dgraph.Mutation()
     await muCustomer.setSetNquads(`<${customer.id}> <invoices> <${uid}> .`)
-    const res = await txn.mutate(muCustomer)
+    await txn.mutate(muCustomer)
 
     return getInvoice(txn, uid)
   }

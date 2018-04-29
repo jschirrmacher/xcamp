@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -28,47 +27,60 @@
         Tickets für den Einlass auf Ihrem Smartphone oder ausgedruckt mit.
     </p>
 
+    <p>
+        Personalisierte Tickets können vor dem Event jederzeit durch den Teilnehmer übertragen werden, indem dieser den
+        neuen Teilnehmer einträgt.
+    </p>
+
     {{#tickets}}
 
-    <div class="ticket">
+    <div class="ticket" id="{{access_code}}">
         <canvas class="ticketNo" id="{{access_code}}"></canvas>
-
         <img class="logo"
              src="http://xcamp.autentity.net/wp-content/uploads/sites/18/2017/07/Xcamp_Logo_110px_124_px_yellow.png">
-        <h2>XCamp<br>Ticket</h2>
+        <h2>XCamp Ticket</h2>
         <p class="location">25.08.2018 9:00 im Skydeck der DB Systel, Jürgen-Ponto-Platz 1, Frankfurt</p>
-        <div class="row">
-            <div class="form-group col-4">
-                <label>
-                    <input type="text" name="participant_firstName" class="form-control" autocomplete="off"
-                           placeholder="Vorname" value="{{{firstName}}}" required/>
-                </label>
-            </div>
-            <div class="form-group col-4">
-                <label>
-                    <input type="text" name="participant_lastName" class="form-control" autocomplete="off"
-                           placeholder="Name" value="{{{lastName}}}" required/>
-                </label>
 
-            </div>
-        </div>
+        {{#isPersonalized}}
+        <p>{{firstName}} {{lastName}} {{email}}</p>
+        {{/isPersonalized}}
+        {{^isPersonalized}}
+            <div class="row">
+                <div class="form-group col-4">
+                    <label>
+                        <input type="text" name="participant_firstName" class="form-control" autocomplete="off"
+                               placeholder="Vorname" value="{{{firstName}}}" required/>
+                    </label>
+                </div>
+                <div class="form-group col-4">
+                    <label>
+                        <input type="text" name="participant_lastName" class="form-control" autocomplete="off"
+                               placeholder="Name" value="{{{lastName}}}" required/>
+                    </label>
 
-        <div class="row">
-            <div class="form-group col-8">
-                <label>
-                    <input type="email" name="participant_email" class="form-control" autocomplete="off"
-                           placeholder="E-Mail-Adresse" value="{{{email}}}" required/>
-                </label>
+                </div>
             </div>
-        </div>
+
+            <div class="row">
+                <div class="form-group col-8">
+                    <label>
+                        <input type="email" name="participant_email" class="form-control" autocomplete="off"
+                               placeholder="E-Mail-Adresse" value="{{{email}}}" required/>
+                    </label>
+                </div>
+            </div>
+        {{/isPersonalized}}
 
         <div class="form-group">
+            {{#isPersonalized}}
             <button class="send-ticket">Per E-Mail versenden</button>
             <button class="print-ticket">Ausdrucken</button>
+            {{/isPersonalized}}
 
-            {{#isFirst}}
+            {{^isPersonalized}}
             <button class="useCustomer">Meine Daten verwenden</button>
-            {{/isFirst}}
+            <button class="save-ticket">Daten speichern</button>
+            {{/isPersonalized}}
         </div>
     </div>
 
