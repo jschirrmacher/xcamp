@@ -59,12 +59,21 @@ app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 const port = 8001
 app.listen(port, () => console.log('Running on port ' + port))
 
+function getTemplate(name) {
+  return '' + fs.readFileSync(path.join(__dirname, '/../templates/' + name + '.mustache'))
+}
+
+const subTemplates = {
+  ticketHeader: getTemplate('ticket-header'),
+  ticketData: getTemplate('ticket-data'),
+}
+
 async function getAccountInfo(accessCode) {
   const txn = dgraphClient.newTxn()
   const customerId = await Customer.findIdByAccessCode(txn, accessCode)
   const invoice = await Ticket.getLastInvoice(txn, customerId)
   const tickets = invoice.tickets
-  return Mustache.render('' + fs.readFileSync(__dirname + '/../templates/account-info.mustache'), {accessCode, tickets})
+  return Mustache.render(getTemplate('account-info'), {accessCode, tickets}, subTemplates)
 }
 
 async function getLastInvoice(accessCode) {
@@ -96,6 +105,6 @@ async function getLastInvoice(accessCode) {
       invoice.address = invoice.customer.addresses[0]
       invoice.address.country = countries[invoice.address.country]
 
-      return Mustache.render('' + fs.readFileSync(__dirname + '/../templates/invoice.mustache'), invoice)
+      return Mustache.render(getTemplate('invoice'), invoice, subTemplates)
     })
 }
