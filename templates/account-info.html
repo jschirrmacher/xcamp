@@ -31,21 +31,30 @@
     {{#tickets}}
 
     <div class="ticket">
+        <canvas class="ticketNo" id="{{access_code}}"></canvas>
+
+        <img class="logo"
+             src="http://xcamp.autentity.net/wp-content/uploads/sites/18/2017/07/Xcamp_Logo_110px_124_px_yellow.png">
+        <h2>XCamp<br>Ticket</h2>
+        <p class="location">25.08.2018 9:00 im Skydeck der DB Systel, Jürgen-Ponto-Platz 1, Frankfurt</p>
         <div class="row">
-            <div class="form-group">
+            <div class="form-group col-4">
                 <label>
                     <input type="text" name="participant_firstName" class="form-control" autocomplete="off"
                            placeholder="Vorname" value="{{{firstName}}}" required/>
                 </label>
             </div>
-            <div class="form-group">
+            <div class="form-group col-4">
                 <label>
                     <input type="text" name="participant_lastName" class="form-control" autocomplete="off"
                            placeholder="Name" value="{{{lastName}}}" required/>
                 </label>
 
             </div>
-            <div class="form-group">
+        </div>
+
+        <div class="row">
+            <div class="form-group col-8">
                 <label>
                     <input type="email" name="participant_email" class="form-control" autocomplete="off"
                            placeholder="E-Mail-Adresse" value="{{{email}}}" required/>
@@ -57,7 +66,9 @@
             <button class="send-ticket">Per E-Mail versenden</button>
             <button class="print-ticket">Ausdrucken</button>
 
-            {{#isFirst}}<button class="useCustomer">Meine Daten verwenden</button>{{/isFirst}}
+            {{#isFirst}}
+            <button class="useCustomer">Meine Daten verwenden</button>
+            {{/isFirst}}
         </div>
     </div>
 
@@ -70,6 +81,12 @@
         E-Mail an <a class="mail2info"></a>.
     </div>
 
+    <script src="/qrcode/qrcode.min.js"></script>
+    <script>
+      [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
+        QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
+      })
+    </script>
 </div>
 </body>
 </html>

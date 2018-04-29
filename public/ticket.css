@@ -100,11 +100,31 @@ button {
 .ticket {
   margin: 1em 0;
   border: 1px solid #ccc;
-  padding: 15px;
-  background: #f9d400; }
+  padding: 15px; }
   .ticket:after {
     content: ' ';
     display: table;
     clear: both; }
+  .ticket .logo {
+    width: 70px;
+    float: left;
+    padding-right: 10px; }
+  .ticket .ticketNo {
+    float: right; }
+  .ticket .location {
+    font-size: 90%; }
+  @media (min-width: 600px) {
+    .ticket .row:before, .ticket .row:after {
+      clear: left; } }
+  @media (max-width: 599px) {
+    .ticket .col-4 {
+      width: 50%; }
+    .ticket .col-8 {
+      width: 100%; } }
+  @media (max-width: 480px) {
+    .ticket .location {
+      font-size: 12px; }
+    .ticket input {
+      font-size: 14px; } }
 
 /*# sourceMappingURL=ticket.css.map */

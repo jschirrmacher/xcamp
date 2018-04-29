@@ -127,11 +127,50 @@ button {
   margin: 1em 0;
   border: 1px solid #ccc;
   padding: 15px;
-  background: #f9d400;
 
   &:after {
     content: ' ';
     display: table;
     clear: both;
+  }
+
+  .logo {
+    width: 70px;
+    float: left;
+    padding-right: 10px;
+  }
+
+  .ticketNo {
+    float: right;
+  }
+
+  .location {
+    font-size: 90%;
+  }
+
+  @media (min-width: 600px) {
+    .row:before, .row:after {
+      clear: left;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .col-4 {
+      width: 50%;
+    }
+
+    .col-8 {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .location {
+      font-size: 12px;
+    }
+
+    input {
+      font-size: 14px;
+    }
   }
 }

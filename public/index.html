@@ -55,39 +55,38 @@
 </script>
 
 <script src="//d3js.org/d3.v4.min.js"></script>
-<script src="/js-netvis/dist/Network.js"></script>
-<script src="/js-netvis/dist/ForceDiagram.js"></script>
+<script src="/js-netvis/Network.js"></script>
+<script src="/js-netvis/ForceDiagram.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
 
 <script>
   const source = document.getElementById('detailForm').innerHTML
   const detailFormTemplate = Handlebars.compile(source)
-  const network = new Network('/network', '#root', {
-    nameRequired: function() {
-      return Promise.resolve(window.prompt('Name'))
-    },
-    newNode: function(name) {
-      console.log('New node', name)
-      return {name, shape: 'circle'}
-    },
-    newLink: function(link) {
-      console.log('New link', link)
-    },
-    showDetails: function(data) {
-      return new Promise(resolve => {
-        const form = document.createElement('div')
-        form.setAttribute('class', 'detailForm')
-        form.innerHTML = detailFormTemplate(data)
-        form.getElementsByClassName('close')[0].addEventListener('click', event => {
-          event.preventDefault()
-          form.parentNode.removeChild(form)
-          resolve()
-        })
-        document.body.appendChild(form)
+  function nameRequired() {
+    return Promise.resolve(window.prompt('Name'))
+  }
+  function newNode(name) {
+    console.log('New node', name)
+    return {name, shape: 'circle'}
+  }
+  function newLink(link) {
+    console.log('New link', link)
+  }
+  function showDetails(data) {
+    return new Promise(resolve => {
+      const form = document.createElement('div')
+      form.setAttribute('class', 'detailForm')
+      form.innerHTML = detailFormTemplate(data)
+      form.getElementsByClassName('close')[0].addEventListener('click', event => {
+        event.preventDefault()
+        form.parentNode.removeChild(form)
+        resolve()
       })
-    }
-  })
+      document.body.appendChild(form)
+    })
+  }
+  const network = new Network('/network', '#root', {nameRequired, newNode, newLink, showDetails})
 </script>
 
 </body>

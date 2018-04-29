@@ -14,10 +14,10 @@ app.set('json spaces', 2)
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-const person = require('./person')(dgraphClient, dgraph)
-const customer = require('./customer')(dgraphClient, dgraph)
-const network = require('./network')(dgraphClient, dgraph)
-const ticket = require('./ticket')(dgraphClient, dgraph, customer, person, require('./payment'))
+const Person = require('./person')(dgraphClient, dgraph)
+const Customer = require('./customer')(dgraphClient, dgraph)
+const Network = require('./network')(dgraphClient, dgraph)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, require('./payment'))
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -39,36 +39,37 @@ async function exec(func, res, type = 'json') {
 }
 
 app.use('/', express.static(__dirname + '/public'))
-app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis'))
+app.use('/js-netvis', express.static(__dirname + '/node_modules/js-netvis/dist'))
+app.use('/qrcode', express.static(__dirname + '/node_modules/qrcode/build'))
 
-app.post('/persons', (req, res) => exec(person.create(req.body), res))
-app.get('/persons/:id', (req, res) => exec(person.get(req.params.id), res))
+app.post('/persons', (req, res) => exec(Person.create(req.body), res))
+app.get('/persons/:id', (req, res) => exec(Person.get(req.params.id), res))
 
-app.post('/tickets', (req, res) => exec(ticket.buy(req.body, req.headers.origin), res))
+app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin), res))
 
 app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
 app.put('/accounts/:accessCode', (req, res) => res.status(500).json({error: 'not yet implemented'}))
 app.get('/accounts/:accessCode', (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', (req, res) => exec(getLastInvoice(req.params.accessCode), res, 'send'))
 
-app.get('/network', (req, res) => exec(network.getGraph(), res))
-app.delete('/network', (req, res) => exec(network.rebuild(), res))
+app.get('/network', (req, res) => exec(Network.getGraph(), res))
+app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
 const port = 8001
 app.listen(port, () => console.log('Running on port ' + port))
 
 async function getAccountInfo(accessCode) {
   const txn = dgraphClient.newTxn()
-  const customerId = await customer.findIdByAccessCode(txn, accessCode)
-  const invoice = await ticket.getLastInvoice(txn, customerId)
-  const tickets = new Array(invoice.tickets.length).fill({firstName: '', lastName: '', email: ''})
+  const customerId = await Customer.findIdByAccessCode(txn, accessCode)
+  const invoice = await Ticket.getLastInvoice(txn, customerId)
+  const tickets = invoice.tickets
   return Mustache.render('' + fs.readFileSync(__dirname + '/templates/account-info.html'), {accessCode, tickets})
 }
 
 async function getLastInvoice(accessCode) {
   const txn = dgraphClient.newTxn()
-  return customer.findIdByAccessCode(txn, accessCode)
-    .then(customerId => ticket.getLastInvoice(txn, customerId))
+  return Customer.findIdByAccessCode(txn, accessCode)
+    .then(customerId => Ticket.getLastInvoice(txn, customerId))
     .then(invoice => {
       const netAmount = invoice.tickets.length * invoice.ticketPrice
       const vat = 0.19 * netAmount
