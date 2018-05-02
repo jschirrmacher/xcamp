@@ -15,10 +15,12 @@ app.set('json spaces', 2)
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+const rack = require('hat').rack(128, 36)
 const Person = require('./person')(dgraphClient, dgraph)
 const Customer = require('./customer')(dgraphClient, dgraph)
 const Network = require('./network')(dgraphClient, dgraph)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, require('./payment'))
+const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, require('./payment'), rack)
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -63,48 +65,22 @@ function getTemplate(name) {
   return '' + fs.readFileSync(path.join(__dirname, '/../templates/' + name + '.mustache'))
 }
 
-const subTemplates = {
-  ticketHeader: getTemplate('ticket-header'),
-  ticketData: getTemplate('ticket-data'),
-}
-
 async function getAccountInfo(accessCode) {
   const txn = dgraphClient.newTxn()
   const customerId = await Customer.findIdByAccessCode(txn, accessCode)
-  const invoice = await Ticket.getLastInvoice(txn, customerId)
-  const tickets = invoice.tickets
-  return Mustache.render(getTemplate('account-info'), {accessCode, tickets}, subTemplates)
+  const invoice = await Invoice.getNewest(txn, customerId)
+  txn.discard()
+  const subTemplates = {
+    ticketHeader: getTemplate('ticket-header'),
+    ticketData: getTemplate('ticket-data'),
+  }
+  return Mustache.render(getTemplate('account-info'), {accessCode, tickets: invoice.tickets}, subTemplates)
 }
 
 async function getLastInvoice(accessCode) {
   const txn = dgraphClient.newTxn()
   return Customer.findIdByAccessCode(txn, accessCode)
-    .then(customerId => Ticket.getLastInvoice(txn, customerId))
-    .then(invoice => {
-      const netAmount = invoice.tickets.length * invoice.ticketPrice
-      const vat = 0.19 * netAmount
-
-      const countries = {
-        de: 'Deutschland',
-        ch: 'Schweiz',
-        at: 'Österreich'
-      }
-      const currencyFormatter = new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'})
-      invoice.created = (new Date(invoice.created)).toLocaleDateString('de-DE', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })
-      invoice.ticketType = invoice.ticketType === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer'
-      invoice.ticketString = 'Ticket' + (invoice.ticketCount === 1 ? '' : 's')
-      invoice.bookedString = invoice.ticketCount === 1 ? 'das gebuchte' : 'die gebuchten'
-      invoice.netAmount = currencyFormatter.format(netAmount)
-      invoice.vat = currencyFormatter.format(vat)
-      invoice.totalAmount = currencyFormatter.format(vat + netAmount)
-      invoice.customer = invoice.customer[0]
-      invoice.address = invoice.customer.addresses[0]
-      invoice.address.country = countries[invoice.address.country]
-
-      return Mustache.render(getTemplate('invoice'), invoice, subTemplates)
-    })
+    .then(customerId => Invoice.getNewest(txn, customerId))
+    .then(invoice => Invoice.getInvoiceAsHTML(invoice, getTemplate('invoice')))
+    .finally(() => txn.discard())
 }
