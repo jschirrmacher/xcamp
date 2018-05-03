@@ -34,7 +34,7 @@
 
     {{#tickets}}
 
-    <div class="ticket" id="{{access_code}}">
+    <form class="ticket" id="{{access_code}}">
         {{> ticketHeader}}
 
         {{#isPersonalized}}
@@ -58,7 +58,7 @@
             <button class="save-ticket">Daten speichern</button>
             {{/isPersonalized}}
         </div>
-    </div>
+    </form>
 
     {{/tickets}}
 
@@ -70,11 +70,7 @@
     </div>
 
     <script src="/qrcode/qrcode.min.js"></script>
-    <script>
-      [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
-        QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
-      })
-    </script>
+    <script src="/account.js"></script>
 </div>
 </body>
 </html>

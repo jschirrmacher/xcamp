@@ -1,37 +1,40 @@
-const rack = require('hat').rack(128, 36)
-
-module.exports = (dgraphClient, dgraph) => {
-  async function get(txn, id) {
-    const query = `{ customer(func: uid(${id})) {
+module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
+  const query = QueryFunction('Customer', `
+    id: uid
+    firm
+    access_code
+    person {
       id: uid
-      firm
-      name
+      firstName
+      lastName
       email
-      access_code
-      addresses {
-        address
-        postcode
-        city
-        country
-      }
-    }}`
-    const data = await txn.query(query)
-    const customer = data.getJson().customer
-    return customer.length ? customer[0] : Promise.reject('Customer not found')
+    }
+    addresses {
+      address
+      postcode
+      city
+      country
+    }`
+  )
+
+  async function get(txn, id) {
+    return query(txn, `func: uid(${id})`)
   }
 
-  async function findIdByAccessCode(txn, accessCode) {
-    const data = await txn.query(`{customer(func: eq(access_code, "${accessCode}")) {uid}}`)
-    const customer = data.getJson().customer
-    return customer.length ? customer[0].uid : Promise.reject('Customer not found')
+  async function findByAccessCode(txn, accessCode) {
+    return query(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
   async function create(txn, customerData) {
     const data = {
       type: 'customer',
       firm: customerData.firm,
-      name: customerData.firstName + ' ' + customerData.lastName,
-      email: customerData.email,
+      person: {
+        type: 'person',
+        firstName: customerData.firstName,
+        lastName: customerData.lastName,
+        email: customerData.email,
+      },
       access_code: rack(),
       addresses: {
         type: 'address',
@@ -48,5 +51,5 @@ module.exports = (dgraphClient, dgraph) => {
     return get(txn, assigned.getUidsMap().get('blank-0'))
   }
 
-  return {create, get, findIdByAccessCode}
+  return {create, get, findByAccessCode}
 }

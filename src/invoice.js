@@ -27,9 +27,11 @@ module.exports = (dgraphClient, dgraph, rack) => {
       vat: currencyFormatter.format(vat),
       totalAmount: currencyFormatter.format(vat + netAmount),
       customer: invoice.customer[0],
-      address: invoice.customer.addresses[0],
+      address: invoice.customer[0].addresses[0],
     })
-    data.address.country = countries[address.country]
+    data.customer.firstName = data.customer.person[0].firstName
+    data.customer.lastName = data.customer.person[0].lastName
+    data.address.country = countries[data.address.country]
 
     return Mustache.render(template, data)
   }
@@ -45,8 +47,11 @@ module.exports = (dgraphClient, dgraph, rack) => {
       reduced
       customer {
         firm
-        name
-        email
+        person {
+          firstName
+          lastName
+          email
+        }
         addresses {
           address
           postcode

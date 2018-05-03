@@ -5,7 +5,6 @@
   var ticketCount = document.getElementById('ticketCount')
   var tosAccepted = document.getElementById('tos-accepted')
   var submitButton = document.getElementById('submit-button')
-  var mail2info = document.getElementsByClassName('mail2info')
   var invoiceDetails = document.getElementById('invoice-details')
   var payPalPayment = document.getElementById('payment-paypal')
   var invoicePayment = document.getElementById('payment-invoice')
@@ -53,10 +52,4 @@
   })
   adaptDependendFields()
   setSubmitButtonState()
-
-  var info = 'info@justso.de'
-  Array.prototype.forEach.call(mail2info, function (link) {
-    link.setAttribute('href', 'mailto:' + info)
-    link.innerText = info
-  })
 })()
