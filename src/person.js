@@ -1,7 +1,8 @@
 module.exports = (dgraphClient, dgraph, QueryFunction) => {
   const query = QueryFunction('Person', `
-    id: uid
+    uid
     name
+    email
     image
     description
     url
@@ -13,8 +14,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   const topicQuery = QueryFunction('Topic', 'uid name')
 
-  async function get(txn, id) {
-    return await query.one(txn, `func: uid(${id})`)
+  async function get(txn, uid) {
+    return await query.one(txn, `func: uid(${uid})`)
   }
 
   async function getByEMail(txn, email) {
@@ -52,10 +53,10 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     const json = await mapPersonData(txn, person, data)
     mu.setSetJson(json)
     const assigned = await txn.mutate(mu)
-    if (!person.id) {
-      person.id = assigned.getUidsMap().get('blank-0')
+    if (!person.uid) {
+      person.uid = assigned.getUidsMap().get('blank-0')
     }
-    return await get(txn, person.id)
+    return await get(txn, person.uid)
   }
 
   return {get, getByEMail, upsert, getOrCreate}

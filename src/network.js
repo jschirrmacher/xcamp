@@ -11,6 +11,7 @@ module.exports = (dgraphClient, dgraph) => ({
       op.setSchema(`
         type: string @index(term) .
         access_code: string @index(exact) .
+        email: string @index(exact) .
       `)
       await dgraphClient.alter(op)
     }
@@ -21,7 +22,7 @@ module.exports = (dgraphClient, dgraph) => ({
   getGraph: async () => {
     const query = `{
       all(func: anyofterms(type, "person topic customer ticket invoice")) {
-        id: uid
+        uid
         type
         shape
         name
@@ -44,13 +45,13 @@ module.exports = (dgraphClient, dgraph) => ({
       const nodes = all.map(node => {
         const {topics, participant, ...result} = node
         if (topics) {
-          topics.forEach(link => links.push({source: node.id, target: link.uid}))
+          topics.forEach(link => links.push({source: node.uid, target: link.uid}))
         }
         if (participant) {
-          participant.forEach(link => links.push({source: node.id, target: link.uid}))
+          participant.forEach(link => links.push({source: node.uid, target: link.uid}))
         }
         if (result.type === 'person') {
-          result.details = '/persons/' + result.id
+          result.details = '/persons/' + result.uid
           result.shape = 'circle'
         } else {
           result.shape = 'rect'

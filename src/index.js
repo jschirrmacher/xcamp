@@ -49,7 +49,7 @@ async function exec(func, res, type = 'json') {
 
 async function doInTransaction(action, params, commit = false) {
   const txn = dgraphClient.newTxn()
-  params = params.isArray ? params : [params]
+  params = Array.isArray(params) ? params : [params]
   try {
     const result = await action.apply(global, [txn, ...params])
     if (commit) {
@@ -66,7 +66,7 @@ app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-n
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
 app.post('/persons', (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body], true), res))
-app.get('/persons/:id', (req, res) => exec(doInTransaction(Person.get, req.params.id), res))
+app.get('/persons/:uid', (req, res) => exec(doInTransaction(Person.get, req.params.uid), res))
 
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin), res))
 app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {
@@ -92,7 +92,7 @@ function getTemplate(name) {
 
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
-  const invoice = await Invoice.getNewest(txn, customer.id)
+  const invoice = await Invoice.getNewest(txn, customer.uid)
   const subTemplates = {
     ticketHeader: getTemplate('ticket-header'),
     ticketData: getTemplate('ticket-data'),
@@ -102,6 +102,6 @@ async function getAccountInfoPage(txn, accessCode) {
 
 async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
-  const invoice = await Invoice.getNewest(txn, customer.id)
+  const invoice = await Invoice.getNewest(txn, customer.uid)
   return Invoice.getInvoiceAsHTML(invoice, getTemplate('invoice'))
 }

@@ -20,7 +20,7 @@ module.exports = baseUrl => ({
       country: customer.country,
       email: customer.email,
       lc: 'de',
-      custom: customer.id
+      custom: customer.uid
     }
 
     const prefix = useSandbox ? '' : 'sandbox.'

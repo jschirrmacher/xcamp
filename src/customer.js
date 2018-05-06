@@ -1,10 +1,10 @@
 module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
   const query = QueryFunction('Customer', `
-    id: uid
+    uid
     firm
     access_code
     person {
-      id: uid
+      uid
       firstName
       lastName
       email
@@ -17,8 +17,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
     }`
   )
 
-  async function get(txn, id) {
-    return query.one(txn, `func: uid(${id})`)
+  async function get(txn, uid) {
+    return query.one(txn, `func: uid(${uid})`)
   }
 
   async function findByAccessCode(txn, accessCode) {

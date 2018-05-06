@@ -1,9 +1,10 @@
 
 module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction) => {
   const query = QueryFunction('Ticket', `
-    id: uid
+    uid
     access_code
     participant {
+      uid
       firstName
       lastName
       email
@@ -33,8 +34,8 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  async function get(txn, id) {
-    return query.one(txn, `func: uid(${id}`)
+  async function get(txn, uid) {
+    return query.one(txn, `func: uid(${uid}`)
   }
 
   async function findByAccessCode(txn, accessCode) {
@@ -49,7 +50,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const person = customer.person[0]
 
       const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${ticket.id}> <participant> <${person.id}> .`)
+      await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
       await txn.mutate(mu)
 
       txn.commit()
@@ -62,18 +63,19 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const txn = dgraphClient.newTxn()
     try {
       const ticket = await findByAccessCode(txn, ticketCode)
-      const currentPerson = ticket.participant[0]
       const person = await Person.getOrCreate(txn, data)
 
-      if (currentPerson.id !== person.id) {
+      if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
+        if (ticket.participant) {
+          const uid = ticket.participant[0].uid
+          const mu = new dgraph.Mutation()
+          await mu.setSetNquads(`<${ticket.uid}> <participant> <${uid}> .`)
+          await txn.mutate(mu)
+        }
         const mu = new dgraph.Mutation()
-        await mu.setSetNquads(`
-          <${ticket.id}> <participant> * .
-          <${ticket.id}> <participant> <${person.id}> .
-        `)
+        await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
         await txn.mutate(mu)
       }
-
       txn.commit()
     } finally {
       txn.discard()

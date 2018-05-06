@@ -38,7 +38,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
 
   async function get(txn, uid) {
     const query = `{ invoice(func: uid(${uid})) {
-      id: uid
+      uid
       invoiceNo
       created
       ticketType
@@ -109,7 +109,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
     const uid = assigned.getUidsMap().get('blank-0')
 
     const muCustomer = new dgraph.Mutation()
-    await muCustomer.setSetNquads(`<${customer.id}> <invoices> <${uid}> .`)
+    await muCustomer.setSetNquads(`<${customer.uid}> <invoices> <${uid}> .`)
     await txn.mutate(muCustomer)
 
     return get(txn, uid)
