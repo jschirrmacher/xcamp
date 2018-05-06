@@ -37,26 +37,18 @@
     <form class="ticket" id="{{access_code}}">
         {{> ticketHeader}}
 
-        {{#isPersonalized}}
-        <div class="personalized data">
-            {{firstName}} {{lastName}}<br>
-            {{email}}
-        </div>
-        {{/isPersonalized}}
-        {{^isPersonalized}}
-            {{> ticketData}}
-        {{/isPersonalized}}
+        {{> ticketData}}
 
         <div class="form-group">
             {{#isPersonalized}}
-            <button class="send-ticket">Per E-Mail versenden</button>
             <button class="print-ticket">Ausdrucken</button>
             {{/isPersonalized}}
 
             {{^isPersonalized}}
             <button class="useCustomer">Meine Daten verwenden</button>
-            <button class="save-ticket">Daten speichern</button>
             {{/isPersonalized}}
+
+            <button class="saveTicket">Daten speichern</button>
         </div>
     </form>
 

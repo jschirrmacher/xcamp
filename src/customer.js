@@ -18,11 +18,11 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
   )
 
   async function get(txn, id) {
-    return query(txn, `func: uid(${id})`)
+    return query.one(txn, `func: uid(${id})`)
   }
 
   async function findByAccessCode(txn, accessCode) {
-    return query(txn, `func: eq(access_code, "${accessCode}")`)
+    return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
   async function create(txn, customerData) {

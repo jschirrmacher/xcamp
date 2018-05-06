@@ -61,12 +61,20 @@ module.exports = (dgraphClient, dgraph, rack) => {
       }
       tickets {
         access_code
+        participant {
+          firstName
+          lastName
+          email
+        }
       }
     }}`
     const result = await txn.query(query)
     const invoices = result.getJson().invoice
     const invoice = invoices.length ? invoices[0] : Promise.reject('Invoice not found')
-    invoice.tickets.forEach(ticket => ticket.isPersonalized = !!ticket.lastName)
+    invoice.tickets.forEach(ticket => {
+      ticket.participant = ticket.participant && ticket.participant.length && ticket.participant[0]
+      ticket.isPersonalized = !!ticket.participant
+    })
     return invoice
   }
 

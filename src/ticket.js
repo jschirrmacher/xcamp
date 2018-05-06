@@ -34,11 +34,11 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   }
 
   async function get(txn, id) {
-    return query(txn, `func: uid(${id}`)
+    return query.one(txn, `func: uid(${id}`)
   }
 
   async function findByAccessCode(txn, accessCode) {
-    return query(txn, `func: eq(access_code, "${accessCode}")`)
+    return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
   async function setCustomerAsParticipant(ticketCode, accountCode) {
@@ -59,7 +59,25 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   }
 
   async function setParticipant(ticketCode, data) {
-    throw {status: 500, message: 'not yet implemented'}
+    const txn = dgraphClient.newTxn()
+    try {
+      const ticket = await findByAccessCode(txn, ticketCode)
+      const currentPerson = ticket.participant[0]
+      const person = await Person.getOrCreate(txn, data)
+
+      if (currentPerson.id !== person.id) {
+        const mu = new dgraph.Mutation()
+        await mu.setSetNquads(`
+          <${ticket.id}> <participant> * .
+          <${ticket.id}> <participant> <${person.id}> .
+        `)
+        await txn.mutate(mu)
+      }
+
+      txn.commit()
+    } finally {
+      txn.discard()
+    }
   }
 
   return {buy, setParticipant, setCustomerAsParticipant}

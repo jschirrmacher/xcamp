@@ -1,5 +1,24 @@
-module.exports = (name, fields) => async function (txn, where) {
-  const data = await txn.query(`{data(${where}) {${fields}}}`)
-  const result = data.getJson().data
-  return result.length ? result[0] : Promise.reject(`${name} not found`)
+module.exports = (name, fields) => {
+  async function exec(txn, where) {
+    const data = await txn.query(`{data(${where}) {${fields}}}`)
+    return data.getJson().data
+  }
+
+  return {
+    all: async (txn, where, rejectIfNotFound = true) => {
+      const data = await exec(txn, where)
+      if (!data.length) {
+        return rejectIfNotFound ? Promise.reject(`${name} not found`) : []
+      }
+      return data
+    },
+
+    one: async (txn, where, rejectIfNotFound = true) => {
+      const data = await exec(txn, where)
+      if (!data.length) {
+        return rejectIfNotFound ? Promise.reject(`${name} not found`) : {}
+      }
+      return data[0]
+    }
+  }
 }

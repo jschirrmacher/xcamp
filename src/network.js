@@ -18,7 +18,7 @@ module.exports = (dgraphClient, dgraph) => ({
     return dropAll(dgraphClient).then(() => setSchema(dgraphClient))
   },
 
-  getGraph: () => {
+  getGraph: async () => {
     const query = `{
       all(func: anyofterms(type, "person topic customer ticket invoice")) {
         id: uid
@@ -28,32 +28,40 @@ module.exports = (dgraphClient, dgraph) => ({
         image
         topics {
           uid
+          name
         }
-        participants {
+        participant {
           uid
+          name
         }
       }
     }`
-    return dgraphClient.newTxn().query(query)
-      .then(data => {
-        const all = data.getJson().all
-        const links = []
-        const nodes = all.map(node => {
-          const {topics, participants, ...result} = node
-          if (topics) {
-            topics.forEach(link => links.push({source: node.id, target: link.uid}))
-          }
-          if (participants) {
-            participants.forEach(link => links.push({source: node.id, target: link.uid}))
-          }
-          if (result.type === 'person') {
-            result.details = '/persons/' + result.id
-          }
-          result.visible = result.type === 'person'
-          result.open = result.name === 'XCamp'
-          return result
-        })
-        return {nodes, links}
+    const txn = dgraphClient.newTxn()
+    try {
+      const data = await txn.query(query)
+      const all = data.getJson().all
+      const links = []
+      const nodes = all.map(node => {
+        const {topics, participant, ...result} = node
+        if (topics) {
+          topics.forEach(link => links.push({source: node.id, target: link.uid}))
+        }
+        if (participant) {
+          participant.forEach(link => links.push({source: node.id, target: link.uid}))
+        }
+        if (result.type === 'person') {
+          result.details = '/persons/' + result.id
+          result.shape = 'circle'
+        } else {
+          result.shape = 'rect'
+        }
+        result.visible = result.type === 'person'
+        result.open = result.name === 'XCamp'
+        return result
       })
+      return {nodes, links}
+    } finally {
+      txn.discard()
+    }
   }
 })
