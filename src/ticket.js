@@ -69,7 +69,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         if (ticket.participant) {
           const uid = ticket.participant[0].uid
           const mu = new dgraph.Mutation()
-          await mu.setSetNquads(`<${ticket.uid}> <participant> <${uid}> .`)
+          await mu.setDelNquads(`<${ticket.uid}> <participant> <${uid}> .`)
           await txn.mutate(mu)
         }
         const mu = new dgraph.Mutation()
