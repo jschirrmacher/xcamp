@@ -10,11 +10,6 @@
     <div class="ticket">
         {{> ticketHeader}}
         {{> ticketData}}
-
-        <div class="form-group">
-            <button class="send-ticket">Änderungen speichern</button>
-            <button class="print-ticket">Ausdrucken</button>
-        </div>
     </div>
 </div>
 
@@ -24,6 +19,10 @@
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
         QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
     })
+    window.print()
+    window.onafterprint = function () {
+      window.close()
+    }
 </script>
 </body>
 </html>

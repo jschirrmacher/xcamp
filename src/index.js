@@ -73,6 +73,7 @@ app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {
   exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
 })
 app.put('/tickets/:ticketCode', (req, res) => exec(Ticket.setParticipant(req.params.ticketCode, req.body), res))
+app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, req.params.ticketCode), res, 'send'))
 
 app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
 app.put('/accounts/:accessCode', (req, res) => res.status(500).json({error: 'not yet implemented'}))
@@ -90,13 +91,14 @@ function getTemplate(name) {
   return '' + fs.readFileSync(path.join(__dirname, '/../templates/' + name + '.mustache'))
 }
 
+const subTemplates = {
+  ticketHeader: getTemplate('ticket-header'),
+  ticketData: getTemplate('ticket-data'),
+}
+
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  const subTemplates = {
-    ticketHeader: getTemplate('ticket-header'),
-    ticketData: getTemplate('ticket-data'),
-  }
   return Mustache.render(getTemplate('account-info'), {accessCode, tickets: invoice.tickets}, subTemplates)
 }
 
@@ -104,4 +106,9 @@ async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
   return Invoice.getInvoiceAsHTML(invoice, getTemplate('invoice'))
+}
+
+async function getTicket(txn, accessCode) {
+  const ticket = await Ticket.findByAccessCode(txn, accessCode)
+  return Mustache.render(getTemplate('ticket'), {disabled: 'disabled', participant: ticket.participant[0]}, subTemplates)
 }

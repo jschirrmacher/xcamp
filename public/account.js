@@ -29,6 +29,13 @@
     })
   })
 
+  forEachElementOfClass('print-ticket', function (button) {
+    button.addEventListener('click', function (event) {
+      event.preventDefault()
+      window.open('/tickets/' + button.form.id + '/print')
+    })
+  })
+
   function forEachElementOfClass(className, callback) {
     Array.prototype.forEach.call(document.getElementsByClassName(className), callback)
   }

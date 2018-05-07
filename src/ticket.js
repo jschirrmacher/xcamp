@@ -82,5 +82,5 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  return {buy, setParticipant, setCustomerAsParticipant}
+  return {buy, setParticipant, setCustomerAsParticipant, findByAccessCode}
 }
