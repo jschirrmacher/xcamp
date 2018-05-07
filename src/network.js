@@ -22,17 +22,17 @@ module.exports = (dgraphClient, dgraph) => ({
   getGraph: async () => {
     const query = `{
       all(func: anyofterms(type, "person topic customer ticket invoice")) {
-        uid
+        id: uid
         type
         shape
         name
         image
         topics {
-          uid
+          id: uid
           name
         }
         participant {
-          uid
+          id: uid
           name
         }
       }
@@ -45,13 +45,13 @@ module.exports = (dgraphClient, dgraph) => ({
       const nodes = all.map(node => {
         const {topics, participant, ...result} = node
         if (topics) {
-          topics.forEach(link => links.push({source: node.uid, target: link.uid}))
+          topics.forEach(link => links.push({source: node.id, target: link.id}))
         }
         if (participant) {
-          participant.forEach(link => links.push({source: node.uid, target: link.uid}))
+          participant.forEach(link => links.push({source: node.id, target: link.id}))
         }
         if (result.type === 'person') {
-          result.details = '/persons/' + result.uid
+          result.details = '/persons/' + result.id
           result.shape = 'circle'
         } else {
           result.shape = 'rect'
