@@ -127,6 +127,12 @@ button {
   padding: 15px;
 }
 
+#print {
+  @media print {
+    display: none;
+  }
+}
+
 .ticket {
   margin: 1em 0;
   border: 1px solid #ccc;

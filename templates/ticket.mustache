@@ -1,7 +1,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>XCamp 2018 Tickets</title>
+    <title>XCamp 2018 Ticket</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="/ticket.css">
 </head>
@@ -11,18 +11,20 @@
         {{> ticketHeader}}
         {{> ticketData}}
     </div>
+    <button id="print" onclick="window.print()">Drucken</button>
 </div>
-
 
 <script src="/qrcode/qrcode.min.js"></script>
 <script>
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
         QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
     })
+    {{#print}}
     window.print()
     window.onafterprint = function () {
       window.close()
     }
+    {{/print}}
 </script>
 </body>
 </html>

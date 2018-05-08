@@ -100,6 +100,10 @@ button {
   border: 1px solid #ccc;
   padding: 15px; }
 
+@media print {
+  #print {
+    display: none; } }
+
 .ticket {
   margin: 1em 0;
   border: 1px solid #ccc;

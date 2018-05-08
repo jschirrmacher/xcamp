@@ -3,6 +3,26 @@ const path = require('path')
 const Mustache = require('mustache')
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
+const nodemailer = require('nodemailer')
+const url = require('url')
+
+let transporter
+if (process.env.NODE_ENV !== 'production') {
+  transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: 'mhkbznbggjrcoqr5@ethereal.email',
+      pass: 'bwvnMfNUu7Zj9auBGe'
+    }
+  })
+} else {
+  transporter = nodemailer.createTransport({
+    sendmail: true,
+    newline: 'unix',
+    path: '/usr/sbin/sendmail'
+  })
+}
 
 const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
@@ -73,7 +93,9 @@ app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {
   exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
 })
 app.put('/tickets/:ticketCode', (req, res) => exec(Ticket.setParticipant(req.params.ticketCode, req.body), res))
-app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, req.params.ticketCode), res, 'send'))
+app.get('/tickets/:ticketCode/show', (req, res) => exec(doInTransaction(getTicket, req.params.ticketCode, 'show'), res, 'send'))
+app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, req.params.ticketCode, 'print'), res, 'send'))
+app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode, req.headers.referer]), res))
 
 app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
 app.put('/accounts/:accessCode', (req, res) => res.status(500).json({error: 'not yet implemented'}))
@@ -108,7 +130,27 @@ async function getLastInvoice(txn, accessCode) {
   return Invoice.getInvoiceAsHTML(invoice, getTemplate('invoice'))
 }
 
-async function getTicket(txn, accessCode) {
+async function getTicket(txn, accessCode, mode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  return Mustache.render(getTemplate('ticket'), {disabled: 'disabled', participant: ticket.participant[0]}, subTemplates)
+  return Mustache.render(getTemplate('ticket'), {mode, disabled: 'disabled', participant: ticket.participant[0]}, subTemplates)
+}
+
+async function sendTicket(txn, accessCode, origin) {
+  const ticket = await Ticket.findByAccessCode(txn, accessCode)
+  return new Promise(function (resolve, reject) {
+    const base= url.parse(origin)
+    const baseUrl = base.protocol + '//' + base.host
+    transporter.sendMail({
+      from: 'XCamp Tickets <tickets@justso.de>',
+      to: ticket.participant[0].email,
+      subject: 'XCamp Ticket',
+      html: Mustache.render(getTemplate('ticket-mail'), {url: baseUrl + '/tickets/' + accessCode + '/show'})
+    }, (err, info) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(info)
+      }
+    })
+  })
 }
