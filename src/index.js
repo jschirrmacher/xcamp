@@ -22,7 +22,8 @@ const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, require('./payment'), QueryFunction)
+const Payment = require('./payment')
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction)
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -83,6 +84,9 @@ app.put('/accounts/:accessCode', (req, res) => res.status(500).json({error: 'not
 app.get('/accounts/:accessCode', (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/info', (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
+
+app.get('/paypal/ipn', (req, res) => res.redirect())
+app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduction)))
 
 app.get('/network', (req, res) => exec(Network.getGraph(), res))
 app.delete('/network', (req, res) => exec(Network.rebuild(), res))

@@ -1,3 +1,15 @@
+'use strict'
+
+const mailSender = require('./mailSender')
+
+function paypalUrl(useSandbox) {
+  return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
+}
+
+function encodeParams(params) {
+  return Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
+}
+
 module.exports = baseUrl => ({
   exec: (customer, invoice, useSandbox) => {
     let hosted_button_id
@@ -10,7 +22,7 @@ module.exports = baseUrl => ({
       cmd: '_s-xclick',
       hosted_button_id,
       amount: (invoice.ticketCount * invoice.ticketPrice) * 1.19,
-      notify_url: baseUrl + '/payment-result',
+      notify_url: baseUrl + '/paypal/ipn',
       no_shipping: 0,
       first_name: customer.firstName,
       last_name: customer.lastName,
@@ -20,11 +32,28 @@ module.exports = baseUrl => ({
       country: customer.country,
       email: customer.email,
       lc: 'de',
-      custom: customer.uid
+      custom: invoice.uid
     }
 
-    const prefix = useSandbox ? 'sandbox.' : ''
-    const paramString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
-    return 'https://www.' + prefix + 'paypal.com/cgi-bin/webscr/payment?' + paramString
+    return paypalUrl(useSandbox) + '/payment?' + encodeParams(params)
+  },
+
+  paypalIpn: (req, useSandbox) => {
+    console.log(req.body)
+    req.body.cmd = '_notify-validate'
+    const options = {
+      method: 'POST',
+      headers: {'content-type': req.headers.get('content-type')},
+      body: encodeParams(req.body)
+    }
+    fetch(paypalUrl(useSandbox), options)
+      .then(data => ({data, content: data.headers.get('content-type').match(/json/) ? data.json() : data.text()}))
+      .then(res => res.ok ? content : Promise.reject({message: 'Invalid IPN received from PayPal', details: data.content}))
+      .then(content => content === 'VERIFIED' || Promise.reject({message: 'IPN not verified', detail: content}))
+      .then(data => {
+        console.log(data) // TODO set state of invoice to 'paid'
+      })
+      .catch(error => mailSender.send('tech@justso.de', error.message, '<pre>' + error.details + '</pre>'))
+    return ''
   }
 })
