@@ -1,3 +1,5 @@
+const templateGenerator = require('./TemplateGenerator')
+const mailSender = require('./mailSender')
 
 module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction) => {
   const query = QueryFunction('Ticket', `
@@ -25,6 +27,14 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       txn.commit()
 
       const accountUrl = origin + '/accounts/' + customer.access_code + '/info'
+
+      const person = customer.person[0]
+      const html = templateGenerator.generate('invoice-mail', {customer, person, url: accountUrl})
+      const subject = 'XCamp Ticketbuchung'
+      mailSender.send(person.email, subject, html)
+      const ticketCount = invoice.tickets.length
+      mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', {customer, person, ticketCount}))
+
       return {
         isRedirection: true,
         url: invoice.payment ? accountUrl : Payment(origin).exec(customer, invoice, true)
@@ -77,6 +87,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         await txn.mutate(mu)
       }
       txn.commit()
+      return {}
     } finally {
       txn.discard()
     }

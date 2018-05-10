@@ -126,8 +126,8 @@
     </style>
 </head>
 <body>
-<div class="sheet">
-    <div class="printable">
+<paid class="sheet">
+    <due class="printable">
         <div id="logo">
             <img src="http://xcamp.autentity.net/wp-content/uploads/sites/18/2017/07/Xcamp_Logo_110px_124_px_yellow.png"/>
         </div>
@@ -149,7 +149,7 @@
         <h2>Rechnung</h2>
 
         <div class="invoice-text">
-            <p>Lieber XCamp Teilnehmer,</p>
+            <p>Liebe(r) XCamp Teilnehmer(in),</p>
             <p>wir freuen uns über Deine Teilnahme am diesjährigen XCamp!</p>
             <p>Hier ist die Rechnung für {{bookedString}} {{ticketString}}.</p>
         </div>
@@ -167,10 +167,16 @@
             <div class="amount">{{totalAmount}}</div>
         </div>
 
-        <p>Der Betrag ist sofort fällig. Bitte überweise ihn ohne Abzug auf unser Konto:</p>
-        <p class="account-rel">Justso GmbH<br/>
-            Frankfurter Volksbank<br/>
-            IBAN DE68 501 900 00 6100 700 610</p>
+        <#due>
+            <p>Der Betrag ist sofort fällig. Bitte überweise ihn ohne Abzug auf unser Konto:</p>
+            <p class="account-rel">Justso GmbH<br/>
+                Frankfurter Volksbank<br/>
+                IBAN DE68 501 900 00 6100 700 610
+            </p>
+        </due>
+        <#paid>
+            <p>Diese Rechnung ist bereits bezahlt, vielen Dank! Bitte nichts mehr überweisen.</p>
+        </paid>
 
         <p>Mit freundlichen Grüßen</p>
         <p>Ihr XCamp Team</p>

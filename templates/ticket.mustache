@@ -7,24 +7,47 @@
 </head>
 <body>
 <div class="container">
-    <div class="ticket">
+    <form class="ticket" id="{{access_code}}">
         {{> ticketHeader}}
         {{> ticketData}}
-    </div>
-    <button id="print" onclick="window.print()">Drucken</button>
+
+        <button class="printTicket noprint" onclick="window.print()">Drucken</button>
+        <button class="saveTicket noprint" onclick="">Änderungen speichern</button>
+    </form>
+
+    <p class="noprint">
+        Sie können vor dem Event jederzeit Ihr Ticket übertragen, indem Sie den Namen und die E-Mail-Adresse des
+        neuen Teilnehmers eintragen und auf "Änderungen speichern" klicken. Der Teilnehmer / die Teilnehmerin erhält
+        dann das Ticket an seine / ihre E-Mail-Adresse.
+    </p>
+    <p class="noprint">
+        Der ursprüngliche Käufer des Tickets hat über den Link, der ihm / ihr nach dem Kauf zugesendet wurde,
+        auch weiterhin Zugriff auf das Ticket. Das ist notwendig, um ggf. eine falsch eingebene E-Mail-Adresse bei der
+        Übertragung des Tickets auf eine andere Person korrigieren zu können.
+    </p>
 </div>
 
 <script src="/qrcode/qrcode.min.js"></script>
+<script src="/common.js"></script>
 <script>
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
         QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
     })
-    {{#print}}
-    window.print()
-    window.onafterprint = function () {
-      window.close()
-    }
-    {{/print}}
+        {{#print}}
+        window.print()
+        window.onafterprint = function () {
+            window.close()
+        }
+        {{/print}}
+
+    bindHandler('saveTicket', 'click', function (button) {
+        const options = encodeParams({
+            firstName: button.form.elements['participant_firstName'].value,
+            lastName: button.form.elements['participant_lastName'].value,
+            email: button.form.elements['participant_email'].value,
+        }, {method: 'PUT'})
+        fetchReload('/tickets/' + button.form.id, options)
+    })
 </script>
 </body>
 </html>

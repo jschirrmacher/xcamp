@@ -101,7 +101,7 @@ button {
   padding: 15px; }
 
 @media print {
-  #print {
+  .noprint {
     display: none; } }
 
 .ticket {
