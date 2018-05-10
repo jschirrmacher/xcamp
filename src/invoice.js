@@ -16,13 +16,14 @@ const currencyFormatter = new Intl.NumberFormat('de-DE', {style: 'currency', cur
 
 module.exports = (dgraphClient, dgraph, rack) => {
   function getPrintableInvoiceData(invoice) {
-    const netAmount = invoice.tickets.length * invoice.ticketPrice
+    const ticketCount = invoice.tickets.length
+    const netAmount = ticketCount * invoice.ticketPrice
     const vat = 0.19 * netAmount
     const data = Object.assign({}, invoice, {
       created: (new Date(invoice.created)).toLocaleDateString('de-DE', dateFormat),
       ticketType: invoice.ticketType === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer',
-      ticketString: invoice.tickets.length + ' Ticket' + (invoice.tickets.length === 1 ? '' : 's'),
-      bookedString: invoice.tickets.length === 1 ? 'das gebuchte' : 'die gebuchten',
+      ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
+      bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
       netAmount: currencyFormatter.format(netAmount),
       vat: currencyFormatter.format(vat),
       totalAmount: currencyFormatter.format(vat + netAmount),
