@@ -37,7 +37,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
       return {
         isRedirection: true,
-        url: invoice.payment ? accountUrl : Payment(origin).exec(customer, invoice, true)
+        url: invoice.payment === 'invoice' ? accountUrl : Payment(origin).exec(customer, invoice, true)
       }
     } finally {
       txn.discard()

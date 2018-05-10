@@ -2,9 +2,9 @@ module.exports = baseUrl => ({
   exec: (customer, invoice, useSandbox) => {
     let hosted_button_id
     if (invoice.reduced) {
-      hosted_button_id = useSandbox ? '2A7U58XVNP73G' : '2A7U58XVNP73G'
+      hosted_button_id = useSandbox ? 'XD3TZQ8PTDQVJ' : '2A7U58XVNP73G'
     } else {
-      hosted_button_id = useSandbox ? 'YU36H9CWXCPAA' : 'YU36H9CWXCPAA'
+      hosted_button_id = useSandbox ? '8LPMUVP9T6GKJ' : 'YU36H9CWXCPAA'
     }
     const params = {
       cmd: '_s-xclick',
@@ -23,7 +23,7 @@ module.exports = baseUrl => ({
       custom: customer.uid
     }
 
-    const prefix = useSandbox ? '' : 'sandbox.'
+    const prefix = useSandbox ? 'sandbox.' : ''
     const paramString = Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
     return 'https://www.' + prefix + 'paypal.com/cgi-bin/webscr/payment?' + paramString
   }
