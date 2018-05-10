@@ -105,7 +105,7 @@ async function getAccountInfoPage(txn, accessCode) {
 async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return Invoice.getInvoiceAsHTML(invoice, templateGenerator.generate('invoice'))
+  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice))
 }
 
 async function getTicket(txn, accessCode, mode) {

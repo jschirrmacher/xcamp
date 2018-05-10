@@ -1,4 +1,4 @@
-const Mustache = require('mustache')
+'use strict'
 
 const countries = {
   de: 'Deutschland',
@@ -15,25 +15,26 @@ const dateFormat = {
 const currencyFormatter = new Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'})
 
 module.exports = (dgraphClient, dgraph, rack) => {
-  function getInvoiceAsHTML(invoice, template) {
+  function getPrintableInvoiceData(invoice) {
     const netAmount = invoice.tickets.length * invoice.ticketPrice
     const vat = 0.19 * netAmount
     const data = Object.assign({}, invoice, {
       created: (new Date(invoice.created)).toLocaleDateString('de-DE', dateFormat),
       ticketType: invoice.ticketType === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer',
-      ticketString: 'Ticket' + (invoice.ticketCount === 1 ? '' : 's'),
-      bookedString: invoice.ticketCount === 1 ? 'das gebuchte' : 'die gebuchten',
+      ticketString: invoice.tickets.length + ' Ticket' + (invoice.tickets.length === 1 ? '' : 's'),
+      bookedString: invoice.tickets.length === 1 ? 'das gebuchte' : 'die gebuchten',
       netAmount: currencyFormatter.format(netAmount),
       vat: currencyFormatter.format(vat),
       totalAmount: currencyFormatter.format(vat + netAmount),
       customer: invoice.customer[0],
       address: invoice.customer[0].addresses[0],
+      paid: invoice.paid
     })
     data.customer.firstName = data.customer.person[0].firstName
     data.customer.lastName = data.customer.person[0].lastName
     data.address.country = countries[data.address.country]
 
-    return Mustache.render(template, data)
+    return data
   }
 
   async function get(txn, uid) {
@@ -45,6 +46,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
       ticketPrice
       payment
       reduced
+      paid
       customer {
         firm
         person {
@@ -116,6 +118,6 @@ module.exports = (dgraphClient, dgraph, rack) => {
   }
 
   return {
-    getInvoiceAsHTML, getNewest, create
+    getPrintableInvoiceData, getNewest, create
   }
 }
