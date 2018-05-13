@@ -2,7 +2,7 @@ html, body, #root {
   margin: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(#ffffff, #eeffff);
+  background: radial-gradient(#ffffff, #f7f7f7);
   font: 1rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   color: #222222; }
 
@@ -39,9 +39,9 @@ svg .node {
       text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
   svg .node.withBg > text {
     transform: translate(0, 20px); }
-    svg .node.withBg > text tspan {
-      fill: #fff;
-      text-shadow: 0 0 5px #000, 0 0 5px #000; }
+  svg .node.withBg.dark > text tspan {
+    fill: #fff;
+    text-shadow: 0 0 5px #000, 0 0 5px #000; }
   svg .node:hover .title, svg .node.menuActive .title {
     transition: 0.5s;
     transform: translateY(5em) scale(1.5); }

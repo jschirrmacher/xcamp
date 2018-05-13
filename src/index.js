@@ -20,7 +20,7 @@ const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
 const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
-const Network = require('./network')(dgraphClient, dgraph)
+const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
 const Payment = require('./payment')
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction)
@@ -79,13 +79,14 @@ app.get('/tickets/:ticketCode/show', (req, res) => exec(doInTransaction(getTicke
 app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'print']), res, 'send'))
 app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode, req.headers.referer]), res))
 
+app.post('/accounts/my', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // show my account page
 app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
 app.put('/accounts/:accessCode', (req, res) => res.status(500).json({error: 'not yet implemented'}))
 app.get('/accounts/:accessCode', (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/info', (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
 
-app.get('/paypal/ipn', (req, res) => res.redirect())
+app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduction)))
 
 app.get('/network', (req, res) => exec(Network.getGraph(), res))
@@ -120,7 +121,7 @@ async function sendTicket(txn, accessCode, origin) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const base= url.parse(origin)
   const baseUrl = base.protocol + '//' + base.host
-  const html =templateGenerator.generate('ticket-mail', {url: baseUrl + '/tickets/' + accessCode + '/show'})
+  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + '/tickets/' + accessCode + '/show'})
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email
   return mailSender.send(to, subject, html)

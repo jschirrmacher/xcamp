@@ -64,6 +64,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       await txn.mutate(mu)
 
       txn.commit()
+      return {}
     } finally {
       txn.discard()
     }

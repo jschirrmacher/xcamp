@@ -1,13 +1,16 @@
 module.exports = (dgraphClient, dgraph, QueryFunction) => {
   const query = QueryFunction('Person', `
     uid
-    name
+    firstName
+    lastName
     email
     image
+    isDark
     description
     url
     twitterName
-    topics: topic {
+    topic {
+      uid
       name
     }
   `)
