@@ -71,7 +71,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
         nodes.push({
           id: person.uid,
           name: person.firstName + ' ' + person.lastName,
-          details: '/persons/' + person.id,
+          details: '/persons/' + person.uid,
           image: person.image,
           shape,
           visible
