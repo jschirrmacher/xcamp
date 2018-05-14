@@ -21,6 +21,12 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return await query.one(txn, `func: uid(${uid})`)
   }
 
+  async function getPublicDetails(txn, uid) {
+    const person = await get(txn, uid)
+    delete person.email
+    return person
+  }
+
   async function getByEMail(txn, email) {
     return await query.one(txn, `func: eq(email, "${email}")`)
   }
@@ -62,5 +68,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return await get(txn, person.uid)
   }
 
-  return {get, getByEMail, upsert, getOrCreate}
+  return {get, getPublicDetails, getByEMail, upsert, getOrCreate}
 }
