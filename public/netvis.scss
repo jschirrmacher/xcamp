@@ -120,7 +120,8 @@ svg {
 
   img.profile-picture {
     float: left;
-    margin-right: 1em;
+    margin: 1em 1em 1em 0;
+    width: 120px
   }
 
   h2 button.close {
@@ -137,6 +138,26 @@ svg {
     background: deepskyblue;
     font-size: 0.9rem;
     white-space: nowrap;
+  }
+
+  &:not(.own) label,
+  &.own span {
+    display: none;
+  }
+}
+
+
+:not(h2) > label {
+  display: block;
+  margin-bottom: 0.5em;
+
+  input, textarea {
+    width: 100%;
+    max-width: 100%;
+    font-size: 110%;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
   }
 }
 
@@ -182,3 +203,5 @@ svg {
     border-radius: 4px;
   }
 }
+
+@import "info";

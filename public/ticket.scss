@@ -49,30 +49,6 @@ h2 {
   clear: both;
 }
 
-.info {
-  background: #f7f7f7;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 1em 0;
-  font-size: 13px;
-
-  &:before {
-    content: 'i';
-    background: dodgerblue;
-    color: white;
-    font: bold 28px "Times New Roman", serif;
-    line-height: 1.1em;
-    text-align: center;
-    display: inline-block;
-    float: left;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-  }
-}
-
 .form-group {
   margin-bottom: 5px;
   float: left;
@@ -185,3 +161,5 @@ button {
     }
   }
 }
+
+@import "info";

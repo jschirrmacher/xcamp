@@ -38,56 +38,57 @@
 </div>
 
 <script id="detailForm" type="text/x-handlebars-template">
+    <img src="{{{image}}}" class="profile-picture">
+
     <h2>
         <button class="close">×</button>
-        {{firstName}} {{lastName}}
+        <span>{{firstName}} {{lastName}}</span>
+        <label><input type="text" name="firstName" value="{{{firstName}}}"></label>
+        <label><input type="text" name="lastName" value="{{{lastName}}}"></label>
     </h2>
 
-    <img src="{{image}}" class="profile-picture">
+    <div>
+        <span>{{email}}</span>
+        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse"></label>
+    </div>
 
-    <p>{{description}}</p>
+    <span>{{description}}</span>
+    <label>Kurzbeschreibung
+        <textarea name="description">{{description}}</textarea>
+    </label>
 
-    <a href="{{url}}" target="_blank">{{url}}</a>
+    <span><a href="{{{url}}}" target="_blank">{{url}}</a></span>
+    <label>
+        Homepage
+        <input type="url" name="url" value="{{{url}}}">
+    </label>
 
-    <p class="tag-view">
+    <span class="tag-view">
         {{#each topics}}<span class="tag">{{this}}</span>{{/each}}
-    </p>
+    </span>
+    <label>
+        Meine Tags
+        <p class="tag-view">
+            {{#each topics}}<span class="tag">{{this}}</span>{{/each}}
+        </p>
+    </label>
+
+    <label>
+        <button id="saveProfile">Speichern</button>
+
+        <div class="info">
+            Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
+            XCamp Teilnehmer untereinander. Durch einfache E-Mail an <a class="mail2info"></a> kannst du uns jederzeit
+            sagen, dass wir deine Daten löschen sollen.
+        </div>
+    </label>
 </script>
 
 <script src="//d3js.org/d3.v4.min.js"></script>
 <script src="/js-netvis/Network.js"></script>
 <script src="/js-netvis/ForceDiagram.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
-
-<script>
-  const source = document.getElementById('detailForm').innerHTML
-  const detailFormTemplate = Handlebars.compile(source)
-  function nameRequired() {
-    return Promise.resolve(window.prompt('Name'))
-  }
-  function newNode(name) {
-    console.log('New node', name)
-    return {name, shape: 'circle'}
-  }
-  function newLink(link) {
-    console.log('New link', link)
-  }
-  function showDetails(data) {
-    return new Promise(resolve => {
-      const form = document.createElement('div')
-      form.setAttribute('class', 'detailForm')
-      form.innerHTML = detailFormTemplate(data)
-      form.getElementsByClassName('close')[0].addEventListener('click', event => {
-        event.preventDefault()
-        form.parentNode.removeChild(form)
-        resolve()
-      })
-      document.body.appendChild(form)
-    })
-  }
-  const network = new Network('/network', '#root', {nameRequired, newNode, newLink, showDetails})
-</script>
+<script src="netvis-frontend.js"></script>
 
 </body>
 </html>

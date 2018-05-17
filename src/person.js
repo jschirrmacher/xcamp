@@ -9,6 +9,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     description
     url
     twitterName
+    me
     topic {
       uid
       name
@@ -23,7 +24,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function getPublicDetails(txn, uid) {
     const person = await get(txn, uid)
-    delete person.email
+    if (!person.me) {
+      delete person.email
+    }
     return person
   }
 
@@ -68,5 +71,10 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return await get(txn, person.uid)
   }
 
-  return {get, getPublicDetails, getByEMail, upsert, getOrCreate}
+  async function updateById(txn, id, data) {
+    const person = await get(txn, id)
+    await upsert(txn, person, data)
+  }
+
+  return {get, getPublicDetails, getByEMail, upsert, updateById, getOrCreate}
 }
