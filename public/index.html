@@ -43,13 +43,13 @@
     <h2>
         <button class="close">×</button>
         <span>{{firstName}} {{lastName}}</span>
-        <label><input type="text" name="firstName" value="{{{firstName}}}"></label>
-        <label><input type="text" name="lastName" value="{{{lastName}}}"></label>
+        <label><input type="text" name="firstName" value="{{{firstName}}}" autocomplete='given-name'></label>
+        <label><input type="text" name="lastName" value="{{{lastName}}}" autocomplete='family-name'></label>
     </h2>
 
     <div>
         <span>{{email}}</span>
-        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse"></label>
+        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse" autocomplete='email'></label>
     </div>
 
     <span>{{description}}</span>
