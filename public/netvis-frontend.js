@@ -37,20 +37,24 @@
   function showDetails(data) {
     const id = data.uid
     return new Promise(resolve => {
+      function close() {
+        form.parentNode.removeChild(form)
+        resolve()
+      }
       const form = document.createElement('form')
       form.setAttribute('class', 'detailForm' + (data.me ? ' own' : ''))
       data.image = data.image || '/user.png'
       form.innerHTML = detailFormTemplate(data)
       form.getElementsByClassName('close')[0].addEventListener('click', event => {
         event.preventDefault()
-        form.parentNode.removeChild(form)
-        resolve()
+        close()
       })
       form.addEventListener('submit', event => {
         event.preventDefault()
-        const data = getFormDataAsObject(form)
-        fetch('/persons/' + id, {method: 'PUT', body: JSON.stringify(data), headers: {'content-type': 'application/json'}})
-        resolve()
+        const headers = {'content-type': 'application/json'}
+        const body = JSON.stringify(getFormDataAsObject(form))
+        fetch('/persons/' + id, {method: 'PUT', headers, body})
+          .then(() => close())
       })
       document.body.appendChild(form)
     })
