@@ -40,6 +40,11 @@
 <script id="detailForm" type="text/x-handlebars-template">
     <img src="{{{image}}}" class="profile-picture">
 
+    <div>
+        <label for="image-upload"><i class="glyphicon glyphicon-upload"></i></label>
+        <input type="file" class="upload" id="image-upload" name="profilePicture" />
+    </div>
+
     <h2>
         <button class="close">×</button>
         <span>{{firstName}} {{lastName}}</span>

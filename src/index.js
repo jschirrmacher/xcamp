@@ -10,6 +10,8 @@ const dgraphClient = new dgraph.DgraphClient(clientStub)
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
 const app = express()
 app.set('json spaces', 2)
 
@@ -70,6 +72,8 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 app.post('/persons', (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body], true), res))
 app.get('/persons/:uid', (req, res) => exec(doInTransaction(Person.getPublicDetails, req.params.uid), res))
 app.put('/persons/:uid', (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body], true), res))
+app.put('/persons/:uid/picture', upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
+app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin), res))
 app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {

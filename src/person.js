@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+
 module.exports = (dgraphClient, dgraph, QueryFunction) => {
   const query = QueryFunction('Person', `
     uid
@@ -19,7 +22,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
   const topicQuery = QueryFunction('Topic', 'uid name')
 
   async function get(txn, uid) {
-    return await query.one(txn, `func: uid(${uid})`)
+    const person = await query.one(txn, `func: uid(${uid})`)
+    person.image = person.image ? '/persons/' + uid + '/picture' : null
+    return person
   }
 
   async function getPublicDetails(txn, uid) {
@@ -76,5 +81,30 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     await upsert(txn, person, data)
   }
 
-  return {get, getPublicDetails, getByEMail, upsert, updateById, getOrCreate}
+  function getPicturePath(id) {
+    const folder = path.join(__dirname, '../profile-pictures/')
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder)
+    }
+    return path.join(folder, id)
+  }
+
+  async function uploadProfilePicture(txn, id, file) {
+    const person = await get(txn, id)
+    const fileName = getPicturePath(id)
+    if (fs.existsSync(fileName)) {
+      fs.unlinkSync(fileName)
+    }
+    fs.renameSync(file.path, fileName)
+    return await upsert(txn, person, {image: file.mimetype + ':' + file.originalname})
+  }
+
+  async function getProfilePicture(txn, id) {
+    const fileName = getPicturePath(id)
+    if (fs.existsSync(fileName)) {
+      return fs.readFileSync(fileName)
+    }
+  }
+
+  return {get, getPublicDetails, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate}
 }

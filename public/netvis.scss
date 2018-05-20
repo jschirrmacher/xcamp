@@ -205,3 +205,18 @@ svg {
 }
 
 @import "info";
+
+label[for="image-upload"] {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 24px;
+  color: white;
+  text-shadow: #333 0 0 3px;
+  cursor: pointer;
+}
+
+#image-upload {
+  display: none;
+}
+

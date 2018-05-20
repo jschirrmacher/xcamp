@@ -36,7 +36,7 @@
 
   function showDetails(data) {
     const id = data.uid
-    return new Promise(resolve => {
+    return new Promise(function(resolve) {
       function close() {
         form.parentNode.removeChild(form)
         resolve()
@@ -45,18 +45,31 @@
       form.setAttribute('class', 'detailForm' + (data.me ? ' own' : ''))
       data.image = data.image || '/user.png'
       form.innerHTML = detailFormTemplate(data)
-      form.getElementsByClassName('close')[0].addEventListener('click', event => {
+      document.body.appendChild(form)
+      const profilePic = form.getElementsByClassName('profile-picture')[0]
+      form.getElementsByClassName('close')[0].addEventListener('click', function (event) {
         event.preventDefault()
         close()
       })
-      form.addEventListener('submit', event => {
+      form.addEventListener('submit', function (event) {
         event.preventDefault()
         const headers = {'content-type': 'application/json'}
         const body = JSON.stringify(getFormDataAsObject(form))
         fetch('/persons/' + id, {method: 'PUT', headers, body})
-          .then(() => close())
+          .then(close)
       })
-      document.body.appendChild(form)
+      form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
+        const body = new FormData()
+        body.append('picture', event.target.files[0])
+        fetch('/persons/' + id + '/picture', {method: 'PUT', body})
+          .then(function (result) {
+            return result.json()
+          })
+          .then(function (person) {
+            profilePic.src = person.image
+            // @todo update force diagram node content
+          })
+      })
     })
   }
 
