@@ -1,3 +1,4 @@
+@charset "UTF-8";
 html, body, #root {
   margin: 0;
   width: 100%;
@@ -90,16 +91,29 @@ svg .node {
     float: right;
     border: none;
     background: transparent; }
-  .detailForm .tag {
-    border: 1px solid #222222;
-    padding: 3px;
-    line-height: 2em;
-    border-radius: 4px;
-    background: deepskyblue;
-    font-size: 0.9rem;
-    white-space: nowrap; }
-  .detailForm:not(.own) label, .detailForm.own span {
+  .detailForm:not(.own) label, .detailForm.own > span:not(.tag-view) {
     display: none; }
+  .detailForm .tag-view {
+    display: block; }
+    .detailForm .tag-view .tag {
+      position: relative;
+      display: inline-block;
+      border: 1px solid #222222;
+      padding: 2px 15px 2px 10px;
+      margin-right: 5px;
+      line-height: 2em;
+      border-radius: 4px;
+      background: #f9d400;
+      white-space: nowrap; }
+      .detailForm .tag-view .tag.new-tag {
+        font-size: 100%;
+        width: 80px; }
+      .detailForm .tag-view .tag .delete:after {
+        content: "×";
+        position: absolute;
+        top: -8px;
+        right: 2px;
+        cursor: pointer; }
 
 :not(h2) > label {
   display: block;

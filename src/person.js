@@ -13,7 +13,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     url
     twitterName
     me
-    topic {
+    topics {
       uid
       name
     }
@@ -23,7 +23,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function get(txn, uid) {
     const person = await query.one(txn, `func: uid(${uid})`)
-    person.image = person.image ? '/persons/' + uid + '/picture' : null
+    person.image = person.image ? '/persons/' + uid + '/picture' : '/user.png'
     return person
   }
 
@@ -47,28 +47,26 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return upsert(txn, person, data)
   }
 
-  async function mapPersonData(txn, currentData, newData) {
+  async function upsert(txn, person, newData) {
+    const mu = new dgraph.Mutation()
     if (newData.topics) {
       const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', false)
       newData.topics = newData.topics.map(topic => {
+        person.topics = person.topics.filter(existing => topic.name !== existing.name)
         return allTopics.find(t => t.name === topic.name) || Object.assign(topic, {type: 'topic'})
       })
     }
+    person.topics.forEach(topic => mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`))
     const newValues = [{type: 'person'}]
     Object.keys(newData).forEach(key => {
       const obj = {}
       obj[key] = newData[key]
       newValues.push(obj)
     })
-    const newObject = Object.assign(currentData, ...newValues)
+    const newObject = Object.assign(person, ...newValues)
     newObject.name = newObject.firstName + ' ' + newObject.lastName
-    return newObject
-  }
+    mu.setSetJson(newObject)
 
-  async function upsert(txn, person, data) {
-    const mu = new dgraph.Mutation()
-    const json = await mapPersonData(txn, person, data)
-    mu.setSetJson(json)
     const assigned = await txn.mutate(mu)
     if (!person.uid) {
       person.uid = assigned.getUidsMap().get('blank-0')

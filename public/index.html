@@ -68,14 +68,15 @@
         <input type="url" name="url" value="{{{url}}}">
     </label>
 
-    <span class="tag-view">
-        {{#each topics}}<span class="tag">{{this}}</span>{{/each}}
-    </span>
-    <label>
+     <label>
         Meine Tags
-        <p class="tag-view">
-            {{#each topics}}<span class="tag">{{this}}</span>{{/each}}
-        </p>
+        <span class="tag-view">
+            {{#each topics}}
+                <span class="tag">{{this.name}}<span class="delete"></span></span>
+            {{/each}}
+            <input type="text" class="new-tag tag" placeholder="My Topic">
+            <input type="hidden" name="topics" class="tag-store" value="{{{topicsValue}}}">
+        </span>
     </label>
 
     <label>

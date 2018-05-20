@@ -130,19 +130,38 @@ svg {
     background: transparent;
   }
 
-  .tag {
-    border: 1px solid #222222;
-    padding: 3px;
-    line-height: 2em;
-    border-radius: 4px;
-    background: deepskyblue;
-    font-size: 0.9rem;
-    white-space: nowrap;
+  &:not(.own) label,
+  &.own > span:not(.tag-view) {
+    display: none;
   }
 
-  &:not(.own) label,
-  &.own span {
-    display: none;
+  .tag-view {
+    display: block;
+
+    .tag {
+      position: relative;
+      display: inline-block;
+      border: 1px solid #222222;
+      padding: 2px 15px 2px 10px;
+      margin-right: 5px;
+      line-height: 2em;
+      border-radius: 4px;
+      background: #f9d400;
+      white-space: nowrap;
+
+      &.new-tag {
+        font-size: 100%;
+        width: 80px;
+      }
+
+      .delete:after {
+        content: "×";
+        position: absolute;
+        top: -8px;
+        right: 2px;
+        cursor: pointer;
+      }
+    }
   }
 }
 

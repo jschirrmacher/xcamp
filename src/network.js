@@ -45,10 +45,10 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
   function handleSubNodes(data, type, shape, nodes, links) {
     if (data[type + 's']) {
       data[type + 's'].forEach(sub => {
-        if (!nodes.some(node => node.id === sub.id)) {
-          nodes.push({id: sub.id, name: sub.name, type, shape})
+        if (!nodes.some(node => node.id === sub.uid)) {
+          nodes.push({id: sub.uid, name: sub.name, type, shape})
         }
-        links.push({source: data.id, target: sub.id})
+        links.push({source: data.uid, target: sub.uid})
       })
     }
   }
@@ -59,15 +59,17 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
       const visible = true, open = true, shape = 'circle'
       const links = []
 
-      const base = await txn.query('{ all(func: eq(type, "root")) {id:uid name image topics {id:uid name}}}')
+      const base = await txn.query('{ all(func: eq(type, "root")) {uid name image topics {uid name}}}')
       const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape, open, visible})
+      xcamp.id = xcamp.uid
       const nodes = [xcamp]
       handleSubNodes(xcamp, 'topic', 'rect', nodes, links)
+      delete xcamp.uid
 
-      const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { id:uid }}}`)
+      const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { uid }}}`)
       const all = data.getJson().all
       await Promise.all(all.map(async ticket => {
-        const person = await Person.get(txn, ticket.participant[0].id)
+        const person = await Person.get(txn, ticket.participant[0].uid)
         nodes.push({
           id: person.uid,
           name: person.firstName + ' ' + person.lastName,
