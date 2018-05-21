@@ -93,9 +93,9 @@ module.exports = (dgraphClient, dgraph, rack) => {
       created: '' + new Date(),
       customer,
       ticketType: data.type,
-      ticketPrice: data.reduced ? 100 : 200,
+      ticketPrice: data.type === 'corporate' ? 200 : 100,
       payment: data.payment,
-      reduced: data.reduced
+      reduced: data.type !== 'corporate'
     }
     invoice.tickets = Array.from({length: data.ticketCount}, () => ({
       type: 'ticket',
