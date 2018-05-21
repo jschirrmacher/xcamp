@@ -11,7 +11,7 @@
   })
 
   bindHandler('useCustomer', 'click', function (button) {
-    fetchReload('/tickets/' + button.form.id + '/accounts/' + location.pathname.split('/')[2], {method: 'PUT'})
+    fetchReload('/netvis/tickets/' + button.form.id + '/accounts/' + location.pathname.split('/')[2], {method: 'PUT'})
   })
 
   bindHandler('saveTicket', 'click', function (button) {
@@ -20,14 +20,14 @@
       lastName: button.form.elements['participant_lastName'].value,
       email: button.form.elements['participant_email'].value,
     }, {method: 'PUT'})
-    fetchReload('/tickets/' + button.form.id, options)
+    fetchReload('/netvis/tickets/' + button.form.id, options)
   })
 
   bindHandler('printTicket', 'click', function (button) {
-    window.open('/tickets/' + button.form.id + '/print')
+    window.open('/netvis/tickets/' + button.form.id + '/print')
   })
 
   bindHandler('sendTicket', 'click', function (button) {
-    myFetch('/tickets/' + button.form.id + '/send')
+    myFetch('/netvis/tickets/' + button.form.id + '/send')
   })
 })()
