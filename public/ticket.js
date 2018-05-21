@@ -52,4 +52,8 @@
   })
   adaptDependendFields()
   setSubmitButtonState()
+
+  if (location.search.match(/type=private/)) {
+    document.getElementById('type-private').checked = true
+  }
 })()
