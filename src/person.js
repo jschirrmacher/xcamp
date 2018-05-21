@@ -49,6 +49,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function upsert(txn, person, newData) {
     const mu = new dgraph.Mutation()
+    if (!person.topics) {
+      person.topics = []
+    }
     if (newData.topics) {
       const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', false)
       newData.topics = newData.topics.map(topic => {
