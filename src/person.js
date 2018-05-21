@@ -23,7 +23,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function get(txn, uid) {
     const person = await query.one(txn, `func: uid(${uid})`)
-    person.image = person.image ? '/persons/' + uid + '/picture' : '/user.png'
+    person.image = person.image ? '/netvis/persons/' + uid + '/picture' : '/user.png'
     return person
   }
 
