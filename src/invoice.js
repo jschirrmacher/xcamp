@@ -7,7 +7,7 @@ const countries = {
 }
 
 const leadingZero = num => ('0' + num).substr(-2)
-const currency = n => n.toFixed(0).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2))
+const currency = n => n.toFixed(0).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
 module.exports = (dgraphClient, dgraph, rack) => {
   function getPrintableInvoiceData(invoice) {
