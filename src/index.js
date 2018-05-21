@@ -98,7 +98,7 @@ app.get('/network', (req, res) => exec(Network.getGraph(), res))
 app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
 const port = process.env.PORT || 8001
-app.listen(port, () => console.log('Running on port ' + port))
+app.listen(port, () => console.log('Running on port ' + port + ' in ' + process.env.NODE_ENV + ' mode'))
 
 const subTemplates = ['ticketHeader', 'ticketData']
 
