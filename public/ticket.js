@@ -56,4 +56,16 @@
   if (location.search.match(/type=private/)) {
     document.getElementById('type-private').checked = true
   }
+
+  if (location.search.match(/dev=true/)) {
+    localStorage.setItem('isDev', true)
+  }
+  if (location.search.match(/dev=false/)) {
+    localStorage.clear('isDev')
+  }
+
+  if (localStorage.getItem('isDev')) {
+    document.getElementById('ticket-presale').style.display = 'none'
+    document.getElementById('ticket-form').style.display = 'block'
+  }
 })()

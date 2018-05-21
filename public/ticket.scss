@@ -162,4 +162,25 @@ button {
   }
 }
 
+.button {
+  background: #ff696c;
+  width: 150px;
+  display: block;
+  margin: 50px auto;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  border: 2px solid #343434;
+  text-decoration: none;
+}
+
+#ticket-presale {
+  background: #f9d400;
+  padding: 28px;
+}
+
+#ticket-form {
+  display: none;
+}
+
 @import "info";
