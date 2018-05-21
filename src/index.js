@@ -97,7 +97,7 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduct
 app.get('/network', (req, res) => exec(Network.getGraph(), res))
 app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
-const port = 8001
+const port = process.env.PORT || 8001
 app.listen(port, () => console.log('Running on port ' + port))
 
 const subTemplates = ['ticketHeader', 'ticketData']
