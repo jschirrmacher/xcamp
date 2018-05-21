@@ -11,7 +11,7 @@
   })
 
   bindHandler('useCustomer', 'click', function (button) {
-    fetchReload('/netvis/tickets/' + button.form.id + '/accounts/' + location.pathname.split('/')[2], {method: 'PUT'})
+    fetchReload('/netvis/tickets/' + button.form.id + '/accounts/' + location.pathname.split('/')[3], {method: 'PUT'})
   })
 
   bindHandler('saveTicket', 'click', function (button) {
