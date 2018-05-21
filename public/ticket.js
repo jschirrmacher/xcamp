@@ -2,6 +2,9 @@
   'use strict'
 
   var form = document.getElementById('ticket-form')
+  var privateTicket = document.getElementById('type-private')
+  var corporateTicket = document.getElementById('type-corporate')
+  var firmField = document.getElementById('payment-firm')
   var ticketCount = document.getElementById('ticketCount')
   var tosAccepted = document.getElementById('tos-accepted')
   var submitButton = document.getElementById('submit-button')
@@ -44,9 +47,19 @@
     }
   }
 
+  function isPrivate() {
+    firmField.style.display = 'none'
+  }
+
+  function isCorporate() {
+    firmField.style.display = 'initial'
+  }
+
   form.addEventListener('submit', assertTOSAccepted)
   tosAccepted.addEventListener('change', setSubmitButtonState)
   ticketCount.addEventListener('change', adaptDependendFields)
+  privateTicket.addEventListener('change', isPrivate)
+  corporateTicket.addEventListener('change', isCorporate)
   Array.prototype.forEach.call(form.elements.type, function (el) {
     el.addEventListener('change', adaptDependendFields)
   })
@@ -54,7 +67,8 @@
   setSubmitButtonState()
 
   if (location.search.match(/type=private/)) {
-    document.getElementById('type-private').checked = true
+    privateTicket.checked = true
+    isPrivate()
   }
 
   if (location.search.match(/dev=true/)) {
