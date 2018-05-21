@@ -75,7 +75,7 @@ app.put('/persons/:uid', (req, res) => exec(doInTransaction(Person.updateById, [
 app.put('/persons/:uid/picture', upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
 app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
-app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin), res))
+app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin + '/netvis'), res))
 app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {
   exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
 })
@@ -125,7 +125,7 @@ async function getTicket(txn, accessCode, mode) {
 async function sendTicket(txn, accessCode, origin) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const base= url.parse(origin)
-  const baseUrl = base.protocol + '//' + base.host
+  const baseUrl = base.protocol + '//' + base.host + '/netvis'
   const html = templateGenerator.generate('ticket-mail', {url: baseUrl + '/tickets/' + accessCode + '/show'})
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email
