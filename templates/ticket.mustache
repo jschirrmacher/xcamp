@@ -27,8 +27,8 @@
     </p>
 </div>
 
-<script src="qrcode/qrcode.min.js"></script>
-<script src="common.js"></script>
+<script src="/netvis/qrcode/qrcode.min.js"></script>
+<script src="/netvis/common.js"></script>
 <script>
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
         QRCode.toCanvas(el, location.origin + '/netvis/ticket/' + el.id)
@@ -46,7 +46,7 @@
             lastName: button.form.elements['participant_lastName'].value,
             email: button.form.elements['participant_email'].value,
         }, {method: 'PUT'})
-        fetchReload('tickets/' + button.form.id, options)
+        fetchReload('/netvis/tickets/' + button.form.id, options)
     })
 </script>
 </body>
