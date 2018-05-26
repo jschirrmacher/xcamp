@@ -1,3 +1,4 @@
-.idea
-node_modules/
-profile-pictures/
+/.idea
+/node_modules/
+/profile-pictures/
+/data/
