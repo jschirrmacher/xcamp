@@ -10,12 +10,12 @@ const leadingZero = num => ('0' + num).substr(-2)
 const currency = n => n.toFixed(0).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
 module.exports = (dgraphClient, dgraph, rack) => {
-  function getPrintableInvoiceData(invoice) {
+  function getPrintableInvoiceData(invoice, baseUrl) {
     const ticketCount = invoice.tickets.length
     const netAmount = ticketCount * invoice.ticketPrice
     const vat = 0.19 * netAmount
     const created = new Date(invoice.created)
-    const data = Object.assign({}, invoice, {
+    const data = Object.assign({baseUrl}, invoice, {
       created: leadingZero(created.getDate()) + '.' + leadingZero(created.getMonth()+1) + '.' + created.getFullYear(),
       ticketType: invoice.ticketType === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer',
       ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),

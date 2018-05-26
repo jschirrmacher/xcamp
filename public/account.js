@@ -2,7 +2,7 @@
   'use strict'
 
   forEachElementOfClass('ticketNo', function (el) {
-    QRCode.toCanvas(el, location.origin + '/ticket/' + el.id)
+    QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
   })
 
   forEachElementOfClass('mail2info', function (link) {
@@ -11,7 +11,7 @@
   })
 
   bindHandler('useCustomer', 'click', function (button) {
-    fetchReload('/netvis/tickets/' + button.form.id + '/accounts/' + location.pathname.split('/')[3], {method: 'PUT'})
+    fetchReload('tickets/' + button.form.id + '/accounts/' + document.body.dataset.code, {method: 'PUT'})
   })
 
   bindHandler('saveTicket', 'click', function (button) {
@@ -20,14 +20,14 @@
       lastName: button.form.elements['participant_lastName'].value,
       email: button.form.elements['participant_email'].value,
     }, {method: 'PUT'})
-    fetchReload('/netvis/tickets/' + button.form.id, options)
+    fetchReload('tickets/' + button.form.id, options)
   })
 
   bindHandler('printTicket', 'click', function (button) {
-    window.open('/netvis/tickets/' + button.form.id + '/print')
+    window.open('tickets/' + button.form.id + '/print')
   })
 
   bindHandler('sendTicket', 'click', function (button) {
-    myFetch('/netvis/tickets/' + button.form.id + '/send')
+    myFetch('tickets/' + button.form.id + '/send')
   })
 })()

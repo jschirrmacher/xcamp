@@ -3,7 +3,8 @@
     <meta charset="UTF-8">
     <title>XCamp 2018 Ticket</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="/netvis/ticket.css">
+    <base href="{{baseUrl}}">
+    <link rel="stylesheet" href="ticket.css">
 </head>
 <body>
 <div class="container">
@@ -27,11 +28,11 @@
     </p>
 </div>
 
-<script src="/netvis/qrcode/qrcode.min.js"></script>
-<script src="/netvis/common.js"></script>
+<script src="qrcode/qrcode.min.js"></script>
+<script src="common.js"></script>
 <script>
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
-        QRCode.toCanvas(el, location.origin + '/netvis/ticket/' + el.id)
+        QRCode.toCanvas(el, '{{baseUrl}}ticket/' + el.id)
     })
         {{#print}}
         window.print()
@@ -46,7 +47,7 @@
             lastName: button.form.elements['participant_lastName'].value,
             email: button.form.elements['participant_email'].value,
         }, {method: 'PUT'})
-        fetchReload('/netvis/tickets/' + button.form.id, options)
+        fetchReload('tickets/' + button.form.id, options)
     })
 </script>
 </body>

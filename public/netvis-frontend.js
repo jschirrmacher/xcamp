@@ -106,7 +106,7 @@
       form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
         const body = new FormData()
         body.append('picture', event.target.files[0])
-        fetch('/netvis/persons/' + id + '/picture', {method: 'PUT', body})
+        fetch('persons/' + id + '/picture', {method: 'PUT', body})
           .then(function (result) {
             return result.json()
           })

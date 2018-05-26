@@ -76,7 +76,7 @@ app.put('/persons/:uid', (req, res) => exec(doInTransaction(Person.updateById, [
 app.put('/persons/:uid/picture', upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
 app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
-app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, req.headers.origin + '/netvis'), res))
+app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
 app.put('/tickets/:ticketCode/accounts/:customerCode', (req, res) => {
   exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
 })
@@ -113,22 +113,21 @@ async function getAccountInfoPage(txn, accessCode) {
 async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice))
+  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice, baseUrl))
 }
 
 async function getTicket(txn, accessCode, mode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const disabled = mode === 'print' ? 'disabled' : ''
   const print = mode === 'print'
-  const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0]}
+  const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0], baseUrl}
   return templateGenerator.generate('ticket', params, subTemplates)
 }
 
 async function sendTicket(txn, accessCode, origin) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const base= url.parse(origin)
-  const baseUrl = base.protocol + '//' + base.host + '/netvis'
-  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + '/tickets/' + accessCode + '/show'})
+  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'tickets/' + accessCode + '/show', baseUrl})
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email
   return mailSender.send(to, subject, html)

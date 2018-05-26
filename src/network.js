@@ -24,7 +24,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
         const txn = dgraphClient.newTxn()
         try {
           const mu = new dgraph.Mutation()
-          const image = '/netvis/xcamp.png'
+          const image = 'xcamp.png'
           mu.setSetJson({
             name: 'XCamp 2018', type: 'root', image, topics: [
               {type: 'topic', name: 'Design Thinking'},
@@ -73,7 +73,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
         nodes.push({
           id: person.uid,
           name: person.firstName + ' ' + person.lastName,
-          details: '/netvis/persons/' + person.uid,
+          details: 'persons/' + person.uid,
           image: person.image,
           shape,
           visible
