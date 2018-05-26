@@ -13,7 +13,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   `)
 
-  async function buy(data, origin) {
+  async function buy(data, baeUrl) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
     } else if (data.type !== 'corporate' && data.payment === 'invoice') {
@@ -26,7 +26,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const invoice = await Invoice.create(txn, data, customer)
       txn.commit()
 
-      const accountUrl = origin + '/accounts/' + customer.access_code + '/info'
+      const accountUrl = baeUrl + 'accounts/' + customer.access_code + '/info'
 
       const person = customer.person[0]
       const html = templateGenerator.generate('invoice-mail', {customer, person, url: accountUrl})
@@ -37,7 +37,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
       return {
         isRedirection: true,
-        url: invoice.payment === 'invoice' ? accountUrl : Payment(origin).exec(customer, invoice, process.env.NODE_ENV !== 'production')
+        url: invoice.payment === 'invoice' ? accountUrl : Payment(baeUrl).exec(customer, invoice, process.env.NODE_ENV !== 'production')
       }
     } finally {
       txn.discard()
@@ -94,5 +94,18 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  return {buy, setParticipant, setCustomerAsParticipant, findByAccessCode}
+  async function checkin(ticketCode, baseUrl) {
+    const txn = dgraphClient.newTxn()
+    try {
+      const ticket = await findByAccessCode(txn, ticketCode)
+      return {
+        isRedirection: true,
+        url: baseUrl + 'tickets/' + ticketCode + '/show'
+      }
+    } finally {
+      txn.discard()
+    }
+  }
+
+  return {buy, setParticipant, setCustomerAsParticipant, findByAccessCode, checkin}
 }
