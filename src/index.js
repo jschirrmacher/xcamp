@@ -27,7 +27,8 @@ const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
 const Payment = require('./payment')
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction)
 
-const isProduction = process.env.NODE_ENV === 'production'
+const nodeenv = process.env.NODE_ENV || 'develop'
+const isProduction = nodeenv === 'production'
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -98,14 +99,15 @@ app.get('/network', (req, res) => exec(Network.getGraph(), res))
 app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
 const port = process.env.PORT || 8001
-app.listen(port, () => console.log('Running on port ' + port + ' in ' + process.env.NODE_ENV + ' mode'))
+const baseUrl = process.env.BASEURL
+app.listen(port, () => console.log('Running on port ' + port + ' in ' + nodeenv + ' mode with baseURL=' + baseUrl))
 
 const subTemplates = ['ticketHeader', 'ticketData']
 
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('account-info', {accessCode, tickets: invoice.tickets}, subTemplates)
+  return templateGenerator.generate('account-info', {accessCode, tickets: invoice.tickets, baseUrl}, subTemplates)
 }
 
 async function getLastInvoice(txn, accessCode) {

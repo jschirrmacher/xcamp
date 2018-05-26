@@ -126,6 +126,9 @@ button {
   text-decoration: none;
   font-size: 18px;
   cursor: pointer; }
+  .button[disabled] {
+    opacity: 0.3;
+    cursor: auto; }
 
 #ticket-presale {
   background: #f9d400;
