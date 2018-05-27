@@ -115,6 +115,6 @@ module.exports = (dgraphClient, dgraph, rack) => {
   }
 
   return {
-    getPrintableInvoiceData, getNewest, create
+    get, getPrintableInvoiceData, getNewest, create
   }
 }

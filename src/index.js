@@ -4,10 +4,12 @@ const port = process.env.PORT || 8001
 const baseUrl = process.env.BASEURL
 
 const path = require('path')
+global.fetch = require('node-fetch')
+const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
 const templateGenerator = require('./TemplateGenerator')
-const mailSender = require('./mailSender')(isProduction)
+const mailSender = require('./mailSender')(baseUrl, isProduction)
 
 const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
@@ -28,7 +30,7 @@ const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
-const Payment = require('./payment')(baseUrl, true) // @todo set useSandbox parameter to !isProduction
+const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, true) // @todo set useSandbox parameter to !isProduction
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender)
 
 app.use((req, res, next) => {

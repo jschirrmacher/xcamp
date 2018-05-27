@@ -12,15 +12,6 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   `)
 
-  function sendNotifications(customer, invoice, url) {
-    const person = customer.person[0]
-    const ticketCount = invoice.tickets.length
-    const subject = 'XCamp Ticketbuchung'
-    const params = {customer, person, baseUrl, url, ticketCount}
-    mailSender.send(person.email, subject, templateGenerator.generate('invoice-mail', params))
-    mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
-  }
-
   function redirectTo(url) {
     return {isRedirection: true, url}
   }
@@ -40,8 +31,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
       let url
       if (invoice.payment === 'invoice') {
-        url = baseUrl + 'accounts/' + customer.access_code + '/info'
-        sendNotifications(customer, invoice, url)
+        url = mailSender.sendTicketNotifications(customer, invoice)
       } else {
         url = Payment.exec(customer, invoice)
       }

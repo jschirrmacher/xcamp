@@ -2,7 +2,7 @@
 
 const mailSender = require('./mailSender')
 
-module.exports = (baseUrl, useSandbox) => {
+module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, useSandbox) => {
   function paypalUrl() {
     return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
   }
@@ -38,22 +38,43 @@ module.exports = (baseUrl, useSandbox) => {
     return paypalUrl() + '/payment?' + encodeParams(params)
   }
 
-  function paypalIpn(req) {
-    console.log(req.body)
+  async function paymentReceived(invoiceId) {
+    const txn = dgraphClient.newTxn()
+    try {
+      const invoice = await Invoice.get(txn, invoiceId)
+      const customer = invoice.customer[0]
+
+      const mu = new dgraph.Mutation()
+      await mu.setSetNquads(`<${invoiceId}> <paid> 1 .`)
+      await txn.mutate(mu)
+
+      txn.commit()
+      mailSender.sendTicketNotifications(customer, invoice)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      txn.discard()
+    }
+  }
+
+  async function paypalIpn(req) {
     req.body.cmd = '_notify-validate'
     const options = {
       method: 'POST',
-      headers: {'content-type': req.headers.get('content-type')},
+      headers: {'content-type': req.get('content-type')},
       body: encodeParams(req.body)
     }
-    fetch(paypalUrl(), options)
-      .then(data => ({data, content: data.headers.get('content-type').match(/json/) ? data.json() : data.text()}))
-      .then(res => res.ok ? content : Promise.reject({message: 'Invalid IPN received from PayPal', details: data.content}))
-      .then(content => content === 'VERIFIED' || Promise.reject({message: 'IPN not verified', detail: content}))
-      .then(data => {
-        console.log(data) // TODO set state of invoice to 'paid'
-      })
-      .catch(error => mailSender.send('tech@justso.de', error.message, '<pre>' + error.details + '</pre>'))
+    try {
+      const content = await fetch(paypalUrl(), options)
+      if (content !== 'VERIFIED') {
+        mailSender.send('tech@justso.de', 'IPN not verified', JSON.stringify(req.body))
+      } else {
+        paymentReceived(req.body.custom)
+      }
+    } catch (error) {
+      mailSender.send('tech@justso.de', 'Invalid IPN received from PayPal', JSON.stringify(error))
+    }
+
     return ''
   }
 
