@@ -15,14 +15,10 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   function sendNotifications(customer, invoice, url) {
     const person = customer.person[0]
     const ticketCount = invoice.tickets.length
-    const html = templateGenerator.generate('invoice-mail', {customer, person, url})
     const subject = 'XCamp Ticketbuchung'
-    mailSender.send(person.email, subject, html)
-    mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', {
-      customer,
-      person,
-      ticketCount
-    }))
+    const params = {customer, person, baseUrl, url, ticketCount}
+    mailSender.send(person.email, subject, templateGenerator.generate('invoice-mail', params))
+    mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
   }
 
   function redirectTo(url) {
