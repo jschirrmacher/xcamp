@@ -2,16 +2,16 @@
 
 const mailSender = require('./mailSender')
 
-function paypalUrl(useSandbox) {
-  return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
-}
+module.exports = (baseUrl, useSandbox) => {
+  function paypalUrl() {
+    return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
+  }
 
-function encodeParams(params) {
-  return Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
-}
+  function encodeParams(params) {
+    return Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')
+  }
 
-module.exports = baseUrl => ({
-  exec: (customer, invoice, useSandbox) => {
+  function exec(customer, invoice) {
     let hosted_button_id
     if (invoice.reduced) {
       hosted_button_id = useSandbox ? 'XD3TZQ8PTDQVJ' : '2A7U58XVNP73G'
@@ -35,10 +35,10 @@ module.exports = baseUrl => ({
       custom: invoice.uid
     }
 
-    return paypalUrl(useSandbox) + '/payment?' + encodeParams(params)
-  },
+    return paypalUrl() + '/payment?' + encodeParams(params)
+  }
 
-  paypalIpn: (req, useSandbox) => {
+  function paypalIpn(req) {
     console.log(req.body)
     req.body.cmd = '_notify-validate'
     const options = {
@@ -46,7 +46,7 @@ module.exports = baseUrl => ({
       headers: {'content-type': req.headers.get('content-type')},
       body: encodeParams(req.body)
     }
-    fetch(paypalUrl(useSandbox), options)
+    fetch(paypalUrl(), options)
       .then(data => ({data, content: data.headers.get('content-type').match(/json/) ? data.json() : data.text()}))
       .then(res => res.ok ? content : Promise.reject({message: 'Invalid IPN received from PayPal', details: data.content}))
       .then(content => content === 'VERIFIED' || Promise.reject({message: 'IPN not verified', detail: content}))
@@ -56,4 +56,6 @@ module.exports = baseUrl => ({
       .catch(error => mailSender.send('tech@justso.de', error.message, '<pre>' + error.details + '</pre>'))
     return ''
   }
-})
+
+  return {exec, paypalIpn, useSandbox}
+}

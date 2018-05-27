@@ -1,9 +1,13 @@
+const nodeenv = process.env.NODE_ENV || 'develop'
+const isProduction = nodeenv === 'production'
+const port = process.env.PORT || 8001
+const baseUrl = process.env.BASEURL
+
 const path = require('path')
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
 const templateGenerator = require('./TemplateGenerator')
-const mailSender = require('./mailSender')
-const url = require('url')
+const mailSender = require('./mailSender')(isProduction)
 
 const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
@@ -24,11 +28,8 @@ const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
-const Payment = require('./payment')
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction)
-
-const nodeenv = process.env.NODE_ENV || 'develop'
-const isProduction = nodeenv === 'production'
+const Payment = require('./payment')(baseUrl, true) // @todo set useSandbox parameter to !isProduction
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender)
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -84,7 +85,7 @@ app.get('/tickets/:ticketCode', (req, res) => exec(Ticket.checkin(req.params.tic
 app.put('/tickets/:ticketCode', (req, res) => exec(Ticket.setParticipant(req.params.ticketCode, req.body), res))
 app.get('/tickets/:ticketCode/show', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'show']), res, 'send'))
 app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'print']), res, 'send'))
-app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode, req.headers.referer]), res))
+app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode]), res))
 
 app.post('/accounts/my', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // show my account page
 app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
@@ -99,9 +100,11 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduct
 app.get('/network', (req, res) => exec(Network.getGraph(), res))
 app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
-const port = process.env.PORT || 8001
-const baseUrl = process.env.BASEURL
-app.listen(port, () => console.log('Running on port ' + port + ' in ' + nodeenv + ' mode with baseURL=' + baseUrl))
+app.listen(port, () => console.log('Running on port ' + port +
+  ' in ' + nodeenv + ' mode' +
+  ' with baseURL=' + baseUrl +
+  (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
+))
 
 const subTemplates = ['ticketHeader', 'ticketData']
 
@@ -125,9 +128,8 @@ async function getTicket(txn, accessCode, mode) {
   return templateGenerator.generate('ticket', params, subTemplates)
 }
 
-async function sendTicket(txn, accessCode, origin) {
+async function sendTicket(txn, accessCode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  const base= url.parse(origin)
   const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'tickets/' + accessCode + '/show', baseUrl})
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email

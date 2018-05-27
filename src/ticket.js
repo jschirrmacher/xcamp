@@ -1,7 +1,6 @@
 const templateGenerator = require('./TemplateGenerator')
-const mailSender = require('./mailSender')
 
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender) => {
   const query = QueryFunction('Ticket', `
     uid
     access_code
@@ -13,7 +12,24 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   `)
 
-  async function buy(data, baeUrl) {
+  function sendNotifications(customer, invoice, url) {
+    const person = customer.person[0]
+    const ticketCount = invoice.tickets.length
+    const html = templateGenerator.generate('invoice-mail', {customer, person, url})
+    const subject = 'XCamp Ticketbuchung'
+    mailSender.send(person.email, subject, html)
+    mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', {
+      customer,
+      person,
+      ticketCount
+    }))
+  }
+
+  function redirectTo(url) {
+    return {isRedirection: true, url}
+  }
+
+  async function buy(data, baseUrl) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
     } else if (data.type !== 'corporate' && data.payment === 'invoice') {
@@ -26,19 +42,14 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const invoice = await Invoice.create(txn, data, customer)
       txn.commit()
 
-      const accountUrl = baeUrl + 'accounts/' + customer.access_code + '/info'
-
-      const person = customer.person[0]
-      const html = templateGenerator.generate('invoice-mail', {customer, person, url: accountUrl})
-      const subject = 'XCamp Ticketbuchung'
-      mailSender.send(person.email, subject, html)
-      const ticketCount = invoice.tickets.length
-      mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', {customer, person, ticketCount}))
-
-      return {
-        isRedirection: true,
-        url: invoice.payment === 'invoice' ? accountUrl : Payment(baeUrl).exec(customer, invoice, process.env.NODE_ENV !== 'production')
+      let url
+      if (invoice.payment === 'invoice') {
+        url = baseUrl + 'accounts/' + customer.access_code + '/info'
+        sendNotifications(customer, invoice, url)
+      } else {
+        url = Payment.exec(customer, invoice)
       }
+      return redirectTo(url)
     } finally {
       txn.discard()
     }
