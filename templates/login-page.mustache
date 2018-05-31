@@ -1,0 +1,28 @@
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>XCamp 2018 Zugang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="{{baseUrl}}">
+</head>
+<body>
+<div class="container">
+    <h1>Passwort erforderlich</h1>
+
+    <p>Diese Seite ist mit einem Passwort geschützt.</p>
+
+    <form id="login-form" action="login" method="post">
+        <label>Passwort
+            <input type="password" name="password">
+        </label>
+        <input type="hidden" name="username" value="{{accessCode}}">
+        <input type="hidden" name="url" value="{{url}}">
+        <button type="submit">Login</button>
+    </form>
+
+    <p class="info">Wenn Sie ihr Passwort vergessen haben, können Sie <a
+            href="setPassword/{{accessCode}}">hier ein neues Passwort setzen</a>.</p>
+</div>
+<script src="login.js"></script>
+</body>
+</html>

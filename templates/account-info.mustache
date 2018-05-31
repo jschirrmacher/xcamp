@@ -35,24 +35,24 @@
 
     {{#tickets}}
 
-    <form class="ticket" id="{{access_code}}">
-        {{> ticketHeader}}
+        <form class="ticket" id="{{access_code}}">
+            {{> ticketHeader}}
 
-        {{> ticketData}}
+            {{> ticketData}}
 
-        <div class="form-group">
-            {{#isPersonalized}}
-            <button class="printTicket">Ausdrucken</button>
-            {{/isPersonalized}}
+            <div class="form-group">
+                {{#isPersonalized}}
+                    <button class="printTicket">Ausdrucken</button>
+                {{/isPersonalized}}
 
-            {{^isPersonalized}}
-            <button class="useCustomer">Meine Daten verwenden</button>
-            {{/isPersonalized}}
+                {{^isPersonalized}}
+                    <button class="useCustomer">Meine Daten verwenden</button>
+                {{/isPersonalized}}
 
-            <button class="saveTicket">Daten speichern</button>
-            <button class="sendTicket">Versenden</button>
-        </div>
-    </form>
+                <button class="saveTicket">Daten speichern</button>
+                <button class="sendTicket">Versenden</button>
+            </div>
+        </form>
 
     {{/tickets}}
 
@@ -61,6 +61,21 @@
         die Aufnahme in unsere elektronische Teilnehmer-Liste.
         Auf Anforderung werden wir die Daten gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
         E-Mail an <a class="mail2info"></a>.
+    </div>
+
+    <div>
+        <p>
+            Wenn du möchtest, kannst du ein neues Passwort für die Seite setzen, damit nur du diese Daten sehen und
+            bearbeiten kannst. Gib' hier das neue Passwort ein:
+        </p>
+
+        <form action="setPassword/{{accessCode}}" method="post">
+            <label>
+                Neues Passwort:
+                <input type="password" name="password">
+            </label>
+            <button type="submit">Ändern</button>
+        </form>
     </div>
 
     <script src="qrcode/qrcode.min.js"></script>

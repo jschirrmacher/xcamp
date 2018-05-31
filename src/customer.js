@@ -3,6 +3,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
     uid
     firm
     access_code
+    password
+    hash
     person {
       uid
       firstName
