@@ -29,6 +29,13 @@
 
   bindHandler('sendTicket', 'click', function (button) {
     myFetch('tickets/' + button.form.id + '/send')
+      .then(function (result) {
+        if (result.rejected.length) {
+          showMessage('Das Ticket konnte nicht versendet werden!\n\nBitte prüfe die Adresse und probiere es dann noch einmal.')
+        } else {
+          showMessage('Ticket wurde versendet')
+        }
+      })
   })
 
   function showMessage(msg) {
