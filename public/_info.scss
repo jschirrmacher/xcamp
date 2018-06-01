@@ -21,3 +21,31 @@
     margin-bottom: 10px;
   }
 }
+
+.alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.3);
+
+  div {
+    position: relative;
+    margin: 40% auto;
+    background: yellow;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-width: 480px;
+    padding: 20px;
+
+    &:after {
+      content: 'x';
+      color: #333333;
+      position: absolute;
+      right: 5px;
+      top: 0;
+      cursor: pointer;
+    }
+  }
+}

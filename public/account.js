@@ -30,4 +30,30 @@
   bindHandler('sendTicket', 'click', function (button) {
     myFetch('tickets/' + button.form.id + '/send')
   })
+
+  function showMessage(msg) {
+    var div = document.createElement('div')
+    var span = document.createElement('div')
+    span.innerText = msg
+    div.className = 'alert'
+    div.addEventListener('click', function () {
+      div.remove()
+    })
+    div.appendChild(span)
+    document.body.appendChild(div)
+  }
+
+  if (location.search.match(/message=([^&]*)/)) {
+    showMessage(decodeURIComponent(RegExp.$1))
+  }
+
+  var pwd = document.getElementById('password')
+  var pwd2 = document.getElementById('password-repeat')
+  document.getElementById('chg-pwd-form').addEventListener('submit', function (event) {
+    if (pwd.value !== pwd2.value) {
+      event.preventDefault()
+      showMessage('Passwörter stimmen nicht überein.')
+      return false;
+    }
+  })
 })()

@@ -190,4 +190,29 @@ button {
   display: none;
 }
 
+.chg-pwd {
+  max-width: 600px;
+  margin: 0 auto 2em;
+  background: #f7f7f7;
+  border: 1px solid #aaa;
+  padding: 20px;
+
+  label {
+    line-height: 2.4em;
+
+    &:after {
+      content: ' ';
+      display: table;
+      clear: both;
+    }
+  }
+
+  input {
+    @media (min-width: 480px) {
+      width: 60%;
+    }
+    float: right;
+  }
+}
+
 @import "info";
