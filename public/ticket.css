@@ -1,19 +1,30 @@
 html, body {
   margin: 0;
   padding: 0;
-  font: 15px Arial, sans-serif; }
+  font: 15px Arial, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: Martel, Arial, Helvetica, sans-serif; }
 
 * {
   box-sizing: border-box; }
 
-h2 {
-  height: 38px; }
+a {
+  text-decoration: none;
+  color: #343434;
+  transition: color .2s linear; }
+  a:hover {
+    color: #4ED9D5; }
 
 .container {
   position: relative;
   max-width: 768px;
   margin: 0 auto;
   padding: 0 15px; }
+  .container:after {
+    content: ' ';
+    display: table;
+    clear: both; }
 
 .col-4, .col-6, .col-8 {
   display: inline-block; }
@@ -74,6 +85,9 @@ button {
   font-size: 12px;
   margin-left: 3em; }
 
+.saveTicket, .sendTicket {
+  display: none; }
+
 #invoice-details {
   margin: 1em 0;
   border: 1px solid #ccc;
@@ -86,7 +100,8 @@ button {
 .ticket {
   margin: 1em 0;
   border: 1px solid #ccc;
-  padding: 15px; }
+  padding: 15px;
+  background: white; }
   .ticket:after {
     content: ' ';
     display: table;
@@ -140,8 +155,8 @@ button {
 .chg-pwd {
   max-width: 600px;
   margin: 0 auto 2em;
-  background: #f7f7f7;
-  border: 1px solid #aaa;
+  background: white;
+  border: 1px solid #ccc;
   padding: 20px; }
   .chg-pwd label {
     line-height: 2.4em; }
@@ -154,6 +169,21 @@ button {
     @media (min-width: 480px) {
       .chg-pwd input {
         width: 60%; } }
+
+#logo {
+  position: absolute;
+  left: 8px; }
+
+#main {
+  background-color: #f5f5f5;
+  background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
+  background-repeat: no-repeat;
+  padding: 30px; }
+  #main .container {
+    max-width: 1100px;
+    background-color: #f5f5f5;
+    margin-top: 140px;
+    padding: 1em 15%; }
 
 .info {
   background: #f7f7f7;
@@ -198,5 +228,83 @@ button {
       right: 5px;
       top: 0;
       cursor: pointer; }
+
+@font-face {
+  font-family: "icomoon";
+  src: url("icomoon.eot");
+  src: url("icomoon.eot?#iefix") format("embedded-opentype"), url("icomoon.woff") format("woff"), url("icomoon.ttf") format("truetype"), url("icomoon.svg#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+.main-menu {
+  background-color: whitesmoke;
+  font-size: 14px;
+  color: #343434; }
+  @media only screen and (max-width: 1099px) {
+    .main-menu .alignright, .main-menu .alignleft {
+      text-align: center; } }
+  @media only screen and (min-width: 1100px) {
+    .main-menu .alignright {
+      float: right; }
+    .main-menu .alignleft {
+      float: left; } }
+  .main-menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none; }
+    .main-menu ul li {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle; }
+      .main-menu ul li a {
+        display: flex;
+        align-items: center;
+        padding: 0 13px; }
+  .main-menu .menu > li > a {
+    height: 44px; }
+  .main-menu .sub-menu {
+    position: absolute;
+    left: -20px;
+    background-color: #f5f5f5;
+    border: 1px solid #343434;
+    width: 180px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .2s ease-in; }
+    .main-menu .sub-menu li {
+      display: block; }
+      .main-menu .sub-menu li a {
+        display: block;
+        padding: 7px 10px;
+        text-align: left; }
+        .main-menu .sub-menu li a:hover {
+          background-color: #d8d8d8; }
+  .main-menu .menu li:hover .sub-menu {
+    visibility: visible;
+    opacity: 1; }
+
+.social-networks-wrapper {
+  color: #545455;
+  padding-left: 10px; }
+  .social-networks-wrapper .social-network-icon {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #545455;
+    font-family: icomoon !important; }
+  .social-networks-wrapper .icon-twitter:before {
+    content: "\e605"; }
+  .social-networks-wrapper .icon-facebook:before {
+    content: "\e604"; }
+
+footer {
+  background-color: #f5f5f5;
+  color: #343434;
+  border-top: 1px solid #4b4c4d;
+  padding: 35px;
+  text-align: center;
+  line-height: 1.5em; }
 
 /*# sourceMappingURL=ticket.css.map */

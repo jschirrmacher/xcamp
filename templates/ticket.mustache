@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="ticket.css">
 </head>
 <body>
+{{> menu}}
+{{> logo}}
+<div id="main">
 <div class="container">
     <form class="ticket" id="{{access_code}}">
         {{> ticketHeader}}
@@ -27,6 +30,8 @@
         Übertragung des Tickets auf eine andere Person korrigieren zu können.
     </p>
 </div>
+</div>
+{{> footer}}
 
 <script src="qrcode/qrcode.min.js"></script>
 <script src="common.js"></script>

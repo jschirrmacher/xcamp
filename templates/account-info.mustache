@@ -1,92 +1,97 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>XCamp 2018 Tickets</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>XCamp 2018 Tickets</title>
     <base href="{{baseUrl}}">
     <link rel="stylesheet" href="ticket.css">
 </head>
 <body data-code="{{accessCode}}">
-<div class="container">
-    <h1>Ticket-Informationen</h1>
+{{> menu}}
+{{> logo}}
+<div id="main">
+    <div class="container">
+        <h1>Ticket-Informationen</h1>
 
-    <p>Wir freuen uns über deine Teilnahme am diesjährigen XCamp!</p>
+        <p>Wir freuen uns über deine Teilnahme am diesjährigen XCamp!</p>
 
-    <p>
-        <a href="accounts/{{accessCode}}/invoices/current" target="_blank">
-            Hier ist deine Rechnung
-        </a>
-    </p>
-
-    <p>
-        Bitte überweise den Betrag innerhalb von 10 Tagen auf das Konto Nr. DE68 501 900 00 6100 700 610
-        der Justso GmbH, Frankfurt.
-    </p>
-
-    <p>
-        Und hier sind die gebuchten Tickets. Personalisiere bitte die Tickets vor dem Event und bring' dein
-        Ticket für den Einlass auf Deinem Smartphone oder ausgedruckt mit.
-    </p>
-
-    <p>
-        Personalisierte Tickets können vor dem Event jederzeit durch den Teilnehmer übertragen werden, indem dieser den
-        neuen Teilnehmer einträgt.
-    </p>
-
-    {{#tickets}}
-
-        <form class="ticket" id="{{access_code}}">
-            {{> ticketHeader}}
-
-            {{> ticketData}}
-
-            <div class="form-group">
-                {{#isPersonalized}}
-                    <button class="printTicket">Ausdrucken</button>
-                {{/isPersonalized}}
-
-                {{^isPersonalized}}
-                    <button class="useCustomer">Meine Daten verwenden</button>
-                {{/isPersonalized}}
-
-                <button class="saveTicket">Daten speichern</button>
-                <button class="sendTicket">Versenden</button>
-            </div>
-        </form>
-
-    {{/tickets}}
-
-    <div class="info">
-        Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte Event sowie für
-        die Aufnahme in unsere elektronische Teilnehmer-Liste.
-        Auf Anforderung werden wir die Daten gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine einfache
-        E-Mail an <a class="mail2info"></a>.
-    </div>
-
-    <div class="chg-pwd">
-        <h2>Schütze diesen Zugang</h2>
         <p>
-            Wenn du möchtest, kannst du ein {{#password}}neues {{/password}}
-            Passwort für die Seite setzen, damit nur du diese Daten sehen und
-            bearbeiten kannst. Gib' hier das neue Passwort ein:
+            <a href="accounts/{{accessCode}}/invoices/current" target="_blank">
+                Hier ist deine Rechnung
+            </a>
         </p>
 
-        <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
-            <label>
-                Neues Passwort:
-                <input type="password" name="password" id="password">
-            </label>
-            <label>
-                Passwort wiederholen:
-                <input type="password" id="password-repeat">
-            </label>
-            <button type="submit">Ändern</button>
-        </form>
-    </div>
+        <p>
+            Bitte überweise den Betrag innerhalb von 10 Tagen auf das Konto Nr. DE68 501 900 00 6100 700 610
+            der Justso GmbH, Frankfurt.
+        </p>
 
-    <script src="qrcode/qrcode.min.js"></script>
-    <script src="common.js"></script>
-    <script src="account.js"></script>
+        <p>
+            Und hier sind die gebuchten Tickets. Personalisiere bitte die Tickets vor dem Event und bring' dein
+            Ticket für den Einlass auf Deinem Smartphone oder ausgedruckt mit.
+        </p>
+
+        <p>
+            Personalisierte Tickets können vor dem Event jederzeit durch den Teilnehmer übertragen werden, indem dieser
+            den neuen Teilnehmer einträgt.
+        </p>
+
+        {{#tickets}}
+
+            <form class="ticket" id="{{access_code}}">
+                {{> ticketHeader}}
+
+                {{> ticketData}}
+
+                <div class="form-group">
+                    {{#isPersonalized}}
+                        <button class="printTicket">Ausdrucken</button>
+                    {{/isPersonalized}}
+
+                    {{^isPersonalized}}
+                        <button class="useCustomer">Meine Daten verwenden</button>
+                    {{/isPersonalized}}
+
+                    <button class="saveTicket">Daten speichern</button>
+                    <button class="sendTicket">Versenden</button>
+                </div>
+            </form>
+
+        {{/tickets}}
+
+        <div class="info">
+            Wir verwenden die Namen und E-Mail-Adressen der Teilnehmer für Informationen über das gebuchte Event sowie
+            für die Aufnahme in unsere elektronische Teilnehmer-Liste.
+            Auf Anforderung werden wir die Daten gern jederzeit wieder aus dieser Liste entfernen. Dazu genügt eine
+            einfache E-Mail an <a class="mail2info"></a>.
+        </div>
+
+        <div class="chg-pwd">
+            <h2>Schütze diesen Zugang</h2>
+            <p>
+                Wenn du möchtest, kannst du ein {{#password}}neues {{/password}}
+                Passwort für die Seite setzen, damit nur du diese Daten sehen und
+                bearbeiten kannst. Gib' hier das neue Passwort ein:
+            </p>
+
+            <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
+                <label>
+                    Neues Passwort:
+                    <input type="password" name="password" id="password">
+                </label>
+                <label>
+                    Passwort wiederholen:
+                    <input type="password" id="password-repeat">
+                </label>
+                <button type="submit">Ändern</button>
+            </form>
+        </div>
+    </div>
 </div>
+{{> footer}}
+
+<script src="qrcode/qrcode.min.js"></script>
+<script src="common.js"></script>
+<script src="account.js"></script>
 </body>
 </html>

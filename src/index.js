@@ -10,7 +10,8 @@ const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
 const templateGenerator = require('./TemplateGenerator')
-const mailSender = require('./mailSender')(baseUrl, isProduction)
+const nodemailer = require('nodemailer')
+const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
 
 const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
@@ -119,6 +120,7 @@ app.put('/persons/:uid', requireAuth, (req, res) => exec(doInTransaction(Person.
 app.put('/persons/:uid/picture', requireAuth, upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
 app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
+app.get('/tickets', (req, res) => exec(getTicketPage(), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
 app.put('/tickets/:ticketCode/accounts/:customerCode', requireAuth, (req, res) => {
   exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
@@ -152,12 +154,15 @@ app.listen(port, () => console.log('Running on port ' + port +
   (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
 ))
 
-const subTemplates = ['ticketHeader', 'ticketData']
+const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
 
 async function loginPage(accessCode, url) {
   return templateGenerator.generate('login-page', {url, baseUrl, accessCode})
 }
 
+async function getTicketPage() {
+  return templateGenerator.generate('buy-ticket', {baseUrl}, subTemplates)
+}
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)

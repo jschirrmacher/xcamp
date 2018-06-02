@@ -1,10 +1,8 @@
 'use strict'
 
-const nodemailer = require('nodemailer')
-
 const from = 'XCamp Tickets <tickets@justso.de>'
 
-module.exports = (baseUrl, isProduction) => {
+module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
       transporter.sendMail({from, to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
@@ -17,8 +15,8 @@ module.exports = (baseUrl, isProduction) => {
     const ticketCount = invoice.tickets.length
     const subject = 'XCamp Ticketbuchung'
     const params = {customer, person, baseUrl, url, ticketCount}
-    mailSender.send(person.email, subject, templateGenerator.generate('invoice-mail', params))
-    mailSender.send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
+    send(person.email, subject, templateGenerator.generate('invoice-mail', params))
+    send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
     return url
   }
 

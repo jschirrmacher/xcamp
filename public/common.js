@@ -21,8 +21,10 @@ function encodeParams(params, otherOptions) {
 function myFetch(url, options) {
   return fetch(url, options)
     .then(function (response) {
-      const content = response.headers.get('content-type').match(/json/) ? response.json() : response.text()
-      return response.ok ? content : Promise.reject(response.status + ' ' + response.statusText + '\n' + content)
+      return response.headers.get('content-type').match(/json/) ? response.json() : response.text()
+        .then(function (content) {
+          return response.ok ? content : Promise.reject(response.status + ' ' + response.statusText + '\n' + content)
+        })
     })
     .catch(function (error) {
       console.error(error)
