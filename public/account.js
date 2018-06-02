@@ -75,6 +75,7 @@
 
   if (location.search.match(/message=([^&]*)/)) {
     showMessage(decodeURIComponent(RegExp.$1))
+    window.history.replaceState(null, null, location.pathname)
   }
 
   var pwd = document.getElementById('password')

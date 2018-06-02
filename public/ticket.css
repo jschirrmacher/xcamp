@@ -144,6 +144,8 @@ button {
   .button[disabled] {
     opacity: 0.3;
     cursor: auto; }
+  .button.wide {
+    width: 250px; }
 
 #ticket-presale {
   background: #f9d400;
