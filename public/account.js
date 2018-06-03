@@ -64,18 +64,6 @@
     }
   })
 
-  function showMessage(msg) {
-    var div = document.createElement('div')
-    var span = document.createElement('div')
-    span.innerText = msg
-    div.className = 'alert'
-    div.addEventListener('click', function () {
-      div.remove()
-    })
-    div.appendChild(span)
-    document.body.appendChild(div)
-  }
-
   if (location.search.match(/message=([^&]*)/)) {
     showMessage(decodeURIComponent(RegExp.$1))
     window.history.replaceState(null, null, location.pathname)

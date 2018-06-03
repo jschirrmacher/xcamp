@@ -38,3 +38,16 @@ function fetchReload(url, options) {
       location.reload()
     })
 }
+
+
+function showMessage(msg) {
+  var div = document.createElement('div')
+  var span = document.createElement('div')
+  span.innerText = msg
+  div.className = 'alert'
+  div.addEventListener('click', function () {
+    div.remove()
+  })
+  div.appendChild(span)
+  document.body.appendChild(div)
+}
