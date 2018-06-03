@@ -8,6 +8,7 @@
   var ticketCount = document.getElementById('ticketCount')
   var tosAccepted = document.getElementById('tos-accepted')
   var submitButton = document.getElementById('submit-button')
+  var singlePrice = document.getElementById('single-price')
   var invoiceDetails = document.getElementById('invoice-details')
   var payPalPayment = document.getElementById('payment-paypal')
   var invoicePayment = document.getElementById('payment-invoice')
@@ -33,7 +34,8 @@
       var ticketPrice = isCorporate ? 238 : 119
       var totals = ticketCount.value * ticketPrice
       var ticket = ticketCount.value === 1 ? 'Ticket' : 'Tickets'
-      invoiceDetails.innerText = ticketCount.value + ' ' + ticket + ' à ' + ticketPrice + '€ = ' + totals + '€ inkl. 19% MWSt.'
+      singlePrice.innerText = ticketPrice
+      invoiceDetails.innerText = 'Summe: ' + totals + '€ inkl. 19% MWSt.'
     } else {
       invoiceDetails.innerText = 'Geben Sie bitte eine Ticketanzahl ein!'
     }
