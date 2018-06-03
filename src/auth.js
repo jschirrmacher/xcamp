@@ -99,7 +99,7 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
             reject(error)
           } else {
             await setPasswordHash(customer, passwordHash, txn)
-            fulfil('password is set')
+            fulfil('Passwort ist geändert')
           }
         } catch (error) {
           reject(error)

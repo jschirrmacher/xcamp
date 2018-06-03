@@ -9,8 +9,8 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       firstName
       lastName
       email
-    }
-  `)
+    }`
+  )
 
   function redirectTo(url, user) {
     return {isRedirection: true, url, user}
@@ -42,7 +42,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   }
 
   async function get(txn, uid) {
-    return query.one(txn, `func: uid(${uid}`)
+    return query.one(txn, `func: uid(${uid})`)
   }
 
   async function findByAccessCode(txn, accessCode) {
@@ -104,5 +104,5 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  return {buy, setParticipant, setCustomerAsParticipant, findByAccessCode, checkin}
+  return {get, buy, setParticipant, setCustomerAsParticipant, findByAccessCode, checkin}
 }

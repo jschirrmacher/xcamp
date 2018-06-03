@@ -30,6 +30,7 @@ app.use(bodyParser.json())
 
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
+const User = require('./user')(dgraphClient, QueryFunction)
 const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
@@ -150,11 +151,21 @@ function getAccountInfoURL(user) {
 }
 
 async function getAccountInfoPage(txn, accessCode) {
-  const customer = await Customer.findByAccessCode(txn, accessCode)
-  const invoice = await Invoice.getNewest(txn, customer.uid)
-  const password = !!customer.password
-  const paid = invoice.paid
-  return templateGenerator.generate('account-info', {accessCode, password, paid, tickets: invoice.tickets, baseUrl}, subTemplates)
+  const user = await User.findByAccessCode(txn, accessCode)
+  const customer = user.type === 'customer' ? await Customer.get(txn, user.uid) : null
+  const invoice = customer ? await Invoice.getNewest(txn, customer.uid) : null
+  let tickets
+  if (user.type === 'ticket') {
+    const ticket = await Ticket.get(txn, user.uid)
+    ticket.participant = ticket.participant[0]
+    ticket.isPersonalized = true
+    tickets = [ticket]
+  } else {
+    tickets = invoice.tickets
+  }
+  const paid = invoice && invoice.paid
+  const password = !!user.password
+  return templateGenerator.generate('account-info', {accessCode, password, paid, tickets, baseUrl}, subTemplates)
 }
 
 async function getLastInvoice(txn, accessCode) {
@@ -173,7 +184,7 @@ async function getTicket(txn, accessCode, mode) {
 
 async function sendTicket(txn, accessCode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'tickets/' + accessCode + '/show', baseUrl}, subTemplates)
+  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'accounts/' + accessCode + '/info', baseUrl}, subTemplates)
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email
   return mailSender.send(to, subject, html)
