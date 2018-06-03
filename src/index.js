@@ -24,6 +24,11 @@ const upload = multer({dest: 'uploads/'})
 const app = express()
 app.set('json spaces', 2)
 
+app.use((req, res, next) => {
+  next()
+  console.log(req.method, req.path, '->', res.statusCode)
+})
+
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
@@ -48,11 +53,6 @@ const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_co
 const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', options)
 const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
-
-app.use((req, res, next) => {
-  console.log(req.method, req.path)
-  next()
-})
 
 async function exec(func, res, type = 'json') {
   return func
@@ -95,11 +95,6 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login/:accessCode/:url', (req, res) => exec(loginPage(req.params.accessCode, req.params.url), res, 'send'))
 
-app.get('/setpassword/:accessCode', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
-app.post('/setpassword/:accessCode', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
-app.get('/setpassword/:accessCode/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.get('/setpassword/:accessCode/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-
 app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body], true), res))
 app.get('/persons/:uid', requireJWT({allowAnonymous}), (req, res) => exec(doInTransaction(Person.getPublicDetails, [req.params.uid, req.user]), res))
 app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body], true), res))
@@ -116,8 +111,11 @@ app.get('/tickets/:accessCode/send', (req, res) => exec(doInTransaction(sendTick
 app.put('/tickets/:accessCode/accounts/:customerCode', requireJWT(), (req, res) => exec(Ticket.setCustomerAsParticipant(req.params.accessCode, req.params.customerCode), res))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
-app.get('/accounts/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
+app.get('/accounts/:accessCode/password', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
+app.post('/accounts/:accessCode/password', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
+app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
+app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
@@ -197,7 +195,7 @@ async function sendPassword(txn, accessCode) {
   await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
   await txn.mutate(mu)
 
-  const link = baseUrl + 'setpassword/' + accessCode + '/reset/' + hash
+  const link = baseUrl + 'accounts/' + accessCode + '/password/reset/' + hash
   const html = templateGenerator.generate('sendPassword-mail', {baseUrl, link})
   const subject = 'XCamp Passwort Reset'
   const to = customer.person[0].email

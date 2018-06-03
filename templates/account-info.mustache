@@ -27,7 +27,7 @@
                     bearbeiten kannst. Gib' hier das Passwort ein:
                 </p>
 
-                <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
+                <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
                     <label>
                         Passwort:
                         <input type="password" name="password" id="password">
@@ -101,7 +101,7 @@
                     Wenn du möchtest, kannst du hier dein Passwort ändern:
                 </p>
 
-                <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
+                <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
                     <label>
                         Neues Passwort:
                         <input type="password" name="password" id="password">
