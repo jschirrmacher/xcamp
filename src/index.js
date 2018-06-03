@@ -58,7 +58,7 @@ async function exec(func, res, type = 'json') {
   return func
     .catch(error => {
       res.status(error.status || 500)
-      console.error(new Date(), error.stack)
+      console.error(new Date(), error.stack || error)
       error = isProduction ? error.toString() : error.stack
       return type === 'json' ? {error} : error
     })
