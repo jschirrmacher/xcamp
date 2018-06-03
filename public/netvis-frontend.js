@@ -130,5 +130,5 @@
     })
   }
 
-  const network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
+  global.network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
 })(Handlebars)
