@@ -28,9 +28,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
   }
 
   async function getPublicDetails(txn, uid, user) {
+    const currentUserId = user && ((user.person && user.person[0] && user.person[0].uid) || user.uid)
     const person = await get(txn, uid)
-    console.log('user', user)
-    if (user && user.person && user.person[0] && person.uid === user.person[0].uid) {
+    if (currentUserId === person.uid) {
       person.me = true
     } else {
       delete person.email
