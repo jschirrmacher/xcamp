@@ -21,7 +21,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     const params = {
       cmd: '_s-xclick',
       hosted_button_id,
-      amount: (invoice.ticketCount * invoice.ticketPrice) * 1.19,
+      quantity: invoice.tickets.length,
       notify_url: baseUrl + '/paypal/ipn',
       no_shipping: 0,
       first_name: customer.firstName,
