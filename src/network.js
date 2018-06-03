@@ -30,8 +30,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
               {type: 'topic', name: 'Design Thinking'},
               {type: 'topic', name: 'Lean Startup'},
               {type: 'topic', name: 'User Experience'},
-              {type: 'topic', name: 'Agile Development'},
-              {type: 'topic', name: 'DevOps'}
+              {type: 'topic', name: 'Agile'}
             ]
           })
           await txn.mutate(mu)

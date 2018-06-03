@@ -1,4 +1,9 @@
 var loginForm = document.getElementById('login-form')
+var emailField = document.getElementById('email')
+
+if (loginForm.elements.username.value !== 'undefined') {
+  emailField.style.display = 'none'
+}
 
 loginForm.addEventListener('submit', function (event) {
   event.preventDefault()
@@ -15,7 +20,7 @@ loginForm.addEventListener('submit', function (event) {
 
   fetch(loginForm.getAttribute('action'), {credentials: 'same-origin', method, headers, body})
     .then(function (result) {
-      return result.ok ? result.json() : Promise.reject(result.status + ' ' + result.statusText)
+      return result.ok ? result.text() : Promise.reject(result.status + ' ' + result.statusText)
     })
     .then(function (data) {
       window.location.href = loginForm.elements.url.value

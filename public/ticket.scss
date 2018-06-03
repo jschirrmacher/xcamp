@@ -11,6 +11,10 @@ html, body {
   box-sizing: border-box;
 }
 
+h2 {
+  line-height: 2;
+}
+
 a {
   text-decoration: none;
   color: #343434;
@@ -155,13 +159,13 @@ button {
     font-size: 90%;
   }
 
-  @media (min-width: 600px) {
+  @media (min-width: 740px) {
     .row:before, .row:after {
       clear: left;
     }
   }
 
-  @media (max-width: 599px) {
+  @media (max-width: 739px) {
     .col-4 {
       width: 50%;
     }

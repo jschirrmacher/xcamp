@@ -1,6 +1,9 @@
 (function () {
   'use strict'
 
+  const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+  const authorization = token ? token[2] : null
+
   forEachElementOfClass('ticketNo', function (el) {
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
   })
@@ -11,7 +14,7 @@
   })
 
   bindHandler('useCustomer', 'click', function (button) {
-    fetchReload('tickets/' + button.form.id + '/accounts/' + document.body.dataset.code, {method: 'PUT'})
+    fetchReload('tickets/' + button.form.id + '/accounts/' + document.body.dataset.code, {method: 'PUT', headers: {authorization}})
   })
 
   bindHandler('saveTicket', 'click', function (button) {
@@ -19,7 +22,7 @@
       firstName: button.form.elements['participant_firstName'].value,
       lastName: button.form.elements['participant_lastName'].value,
       email: button.form.elements['participant_email'].value,
-    }, {method: 'PUT'})
+    }, {method: 'PUT', headers: {authorization}})
     fetchReload('tickets/' + button.form.id, options)
   })
 
@@ -28,7 +31,7 @@
   })
 
   bindHandler('sendTicket', 'click', function (button) {
-    myFetch('tickets/' + button.form.id + '/send')
+    myFetch('tickets/' + button.form.id + '/send', {headers: {authorization}})
       .then(function (result) {
         if (result.error || result.rejected.length) {
           showMessage('Das Ticket konnte nicht versendet werden!\n\nBitte prüfe die Adresse und probiere es dann noch einmal.')

@@ -36,7 +36,9 @@
 
   function showDetails(data) {
     const id = data.uid
-    return new Promise(function(resolve) {
+    const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+    const authorization = token ? token[2] : null
+    return new Promise(function (resolve) {
       const form = document.createElement('form')
       form.setAttribute('class', 'detailForm' + (data.me ? ' own' : ''))
       data.topicsValue = data.topics ? data.topics.map(function (topic) {
@@ -57,7 +59,7 @@
 
       function deleteTag(event) {
         const value = event.target.parentNode.innerText
-        tagStore.value = (tagStore.value ? tagStore.value.split(',') : []).filter(function(topic) {
+        tagStore.value = (tagStore.value ? tagStore.value.split(',') : []).filter(function (topic) {
           return topic !== value
         }).join(',')
         tagView.childNodes.forEach(function (topic) {
@@ -89,11 +91,11 @@
         if (newTag.value) {
           updateTopicsField(newTag.value)
         }
-        const headers = {'content-type': 'application/json'}
+        const headers = {'content-type': 'application/json', authorization}
         const data = getFormDataAsObject(form)
-        data.topics = data.topics.split(',').map(function (topic) {
+        data.topics = (data.topics && data.topics.split(',').filter(String).map(function (topic) {
           return {name: topic}
-        })
+        })) || []
         const body = JSON.stringify(data)
         fetch('/persons/' + id, {method: 'PUT', headers, body})
           .then(close)
@@ -104,9 +106,10 @@
       })
 
       form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
+        const headers = {authorization}
         const body = new FormData()
         body.append('picture', event.target.files[0])
-        fetch('persons/' + id + '/picture', {method: 'PUT', body})
+        fetch('persons/' + id + '/picture', {method: 'PUT', body, headers})
           .then(function (result) {
             return result.json()
           })

@@ -9,6 +9,9 @@ html, body {
 * {
   box-sizing: border-box; }
 
+h2 {
+  line-height: 2; }
+
 a {
   text-decoration: none;
   color: #343434;
@@ -115,10 +118,10 @@ button {
     float: right; }
   .ticket .location {
     font-size: 90%; }
-  @media (min-width: 600px) {
+  @media (min-width: 740px) {
     .ticket .row:before, .ticket .row:after {
       clear: left; } }
-  @media (max-width: 599px) {
+  @media (max-width: 739px) {
     .ticket .col-4 {
       width: 50%; }
     .ticket .col-8 {

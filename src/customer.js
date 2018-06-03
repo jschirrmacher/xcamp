@@ -27,6 +27,12 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
+  async function findByEMail(txn, email) {
+    const emailQuery = QueryFunction('Customer', `uid password person { email } @filter(eq(email, "${email}"))`)
+    const customer = await emailQuery.one(txn, `func: eq(type, "customer")`)
+    return get(txn, customer.uid)
+  }
+
   async function create(txn, customerData) {
     const data = {
       type: 'customer',
@@ -53,5 +59,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
     return get(txn, assigned.getUidsMap().get('blank-0'))
   }
 
-  return {create, get, findByAccessCode}
+  return {create, get, findByAccessCode, findByEMail}
 }

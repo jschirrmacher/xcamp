@@ -37,35 +37,16 @@ const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, true) // @todo set useSandbox parameter to !isProduction
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender)
 
-const auth = require('./auth')(app, Person, Customer, Ticket, dgraphClient, dgraph, AUTH_SECRET)
-const passport = require('passport')
-const requireCodeOrAuth = (req, res, next) => {
-  passport.authenticate(['jwt', 'access_code'], (err, user) => {
-    if (err) {
-      return next(err)
-    } else if (!user) {
-      res.redirect('/login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(req.originalUrl))
-    } else {
-      req.user = user
-      next()
-    }
-  })(req, res, next)
+function getLoginUrl(req) {
+  return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(req.originalUrl)
 }
-const requireCodeAndHash = (req, res, next) => {
-  passport.authenticate('codeNHash', (err, user) => {
-    if (err) {
-      next(err)
-    } else if (!user) {
-      res.redirect('/login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(req.originalUrl))
-    } else {
-      req.user = user
-      auth.signIn(req, res)
-      next()
-    }
-  })(req, res, next)
-}
-const requireAuth = passport.authenticate('jwt', {session: false, failureRedirect: '/login'})
-const requireCredentials = passport.authenticate('local', {session: false})
+const auth = require('./auth')(app, Person, Customer, Ticket, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
+const redirect = true
+const allowAnonymous = true
+const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_code'], options)
+const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', options)
+const requireJWT = (options = {}) => auth.authenticate('jwt', options)
+const requireLogin = (options = {}) => auth.authenticate('login', options)
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -107,42 +88,39 @@ app.use('/', express.static(path.join(__dirname, '/../public')))
 app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis/dist')))
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
+app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login/:accessCode/:url', (req, res) => exec(loginPage(req.params.accessCode, req.params.url), res, 'send'))
-app.post('/login', requireCredentials, (req, res) => res.json({token: auth.signIn(req, res)}))
-app.get('/setpassword/:accessCode', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
-app.get('/setpassword/:accessCode/reset', requireAuth, (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.get('/setpassword/:accessCode/reset/:hash', requireCodeAndHash, (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.post('/setpassword/:accessCode', requireAuth, (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
 
-app.post('/persons', requireAuth, (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body], true), res))
-app.get('/persons/:uid', (req, res) => exec(doInTransaction(Person.getPublicDetails, req.params.uid), res))
-app.put('/persons/:uid', requireAuth, (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body], true), res))
-app.put('/persons/:uid/picture', requireAuth, upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
+app.get('/setpassword/:accessCode', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
+app.post('/setpassword/:accessCode', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
+app.get('/setpassword/:accessCode/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
+app.get('/setpassword/:accessCode/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
+
+app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body], true), res))
+app.get('/persons/:uid', requireJWT({allowAnonymous}), (req, res) => exec(doInTransaction(Person.getPublicDetails, [req.params.uid, req.user]), res))
+app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body], true), res))
+app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file], true), res))
 app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
 app.get('/tickets', (req, res) => exec(getTicketPage(), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
-app.put('/tickets/:ticketCode/accounts/:customerCode', requireAuth, (req, res) => {
-  exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res)
-})
 app.get('/tickets/:ticketCode', (req, res) => exec(Ticket.checkin(req.params.ticketCode, baseUrl), res))
 app.put('/tickets/:ticketCode', (req, res) => exec(Ticket.setParticipant(req.params.ticketCode, req.body), res))
 app.get('/tickets/:ticketCode/show', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'show']), res, 'send'))
 app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'print']), res, 'send'))
 app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode]), res))
+app.put('/tickets/:ticketCode/accounts/:customerCode', requireJWT(), (req, res) => exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res))
 
-app.get('/accounts/my', requireAuth, (req, res) => res.status(500).json({error: 'not yet implemented'}))   // show my account page
-app.post('/accounts', (req, res) => res.status(500).json({error: 'not yet implemented'}))   // register as community user without ticket
-app.put('/accounts/:accessCode', requireAuth, (req, res) => res.status(500).json({error: 'not yet implemented'}))
-app.get('/accounts/:accessCode', requireAuth, (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/info', requireCodeOrAuth, (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth, (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
+app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
+app.get('/accounts/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))
+app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
+app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduction)))
 
-app.get('/network', (req, res) => exec(Network.getGraph(), res))
-app.delete('/network', (req, res) => exec(Network.rebuild(), res))
+app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(), res))
+app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.use((err, req, res, next) => {
   console.error(err)
@@ -157,12 +135,17 @@ app.listen(port, () => console.log('Running on port ' + port +
 const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
 
 async function loginPage(accessCode, url) {
-  return templateGenerator.generate('login-page', {url, baseUrl, accessCode})
+  return templateGenerator.generate('login-page', {url, baseUrl, accessCode}, subTemplates)
 }
 
 async function getTicketPage() {
   return templateGenerator.generate('buy-ticket', {baseUrl}, subTemplates)
 }
+
+function getAccountInfoURL(user) {
+  return baseUrl + 'accounts/' + user.access_code + '/info'
+}
+
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
@@ -172,7 +155,7 @@ async function getAccountInfoPage(txn, accessCode) {
 async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice, baseUrl))
+  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice, baseUrl), subTemplates)
 }
 
 async function getTicket(txn, accessCode, mode) {
@@ -185,7 +168,7 @@ async function getTicket(txn, accessCode, mode) {
 
 async function sendTicket(txn, accessCode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'tickets/' + accessCode + '/show', baseUrl})
+  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'tickets/' + accessCode + '/show', baseUrl}, subTemplates)
   const subject = 'XCamp Ticket'
   const to = ticket.participant[0].email
   return mailSender.send(to, subject, html)
@@ -204,11 +187,11 @@ async function sendPassword(txn, accessCode) {
   const to = customer.person[0].email
   mailSender.send(to, subject, html)
 
-  return templateGenerator.generate('password-sent', {baseUrl})
+  return templateGenerator.generate('password-sent', {baseUrl}, subTemplates)
 }
 
 async function resetPassword(accessCode) {
-  return templateGenerator.generate('password-reset-form', {accessCode, baseUrl})
+  return templateGenerator.generate('password-reset-form', {accessCode, baseUrl}, subTemplates)
 }
 
 async function setPassword(txn, accessCode, password) {
