@@ -46,6 +46,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
       paid
       customer {
         firm
+        access_code
         person {
           firstName
           lastName
