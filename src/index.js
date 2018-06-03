@@ -107,12 +107,12 @@ app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getPr
 
 app.get('/tickets', (req, res) => exec(getTicketPage(), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
-app.get('/tickets/:ticketCode', (req, res) => exec(Ticket.checkin(req.params.ticketCode, baseUrl), res))
-app.put('/tickets/:ticketCode', (req, res) => exec(Ticket.setParticipant(req.params.ticketCode, req.body), res))
-app.get('/tickets/:ticketCode/show', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'show']), res, 'send'))
-app.get('/tickets/:ticketCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.ticketCode, 'print']), res, 'send'))
-app.get('/tickets/:ticketCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.ticketCode]), res))
-app.put('/tickets/:ticketCode/accounts/:customerCode', requireJWT(), (req, res) => exec(Ticket.setCustomerAsParticipant(req.params.ticketCode, req.params.customerCode), res))
+app.get('/tickets/:accessCode', (req, res) => exec(Ticket.checkin(req.params.accessCode, baseUrl), res))
+app.put('/tickets/:accessCode', (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body), res))
+app.get('/tickets/:accessCode/show', (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
+app.get('/tickets/:accessCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'print']), res, 'send'))
+app.get('/tickets/:accessCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.accessCode]), res))
+app.put('/tickets/:accessCode/accounts/:customerCode', requireJWT(), (req, res) => exec(Ticket.setCustomerAsParticipant(req.params.accessCode, req.params.customerCode), res))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
 app.get('/accounts/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(getAccountInfo(req.params.accessCode), res, 'send'))

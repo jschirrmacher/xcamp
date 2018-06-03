@@ -49,11 +49,11 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
-  async function setCustomerAsParticipant(ticketCode, accountCode) {
+  async function setCustomerAsParticipant(accessCode, accountCode) {
     const txn = dgraphClient.newTxn()
     try {
       const customer = await Customer.findByAccessCode(txn, accountCode)
-      const ticket = await findByAccessCode(txn, ticketCode)
+      const ticket = await findByAccessCode(txn, accessCode)
       const person = customer.person[0]
 
       const mu = new dgraph.Mutation()
@@ -67,10 +67,10 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  async function setParticipant(ticketCode, data) {
+  async function setParticipant(accessCode, data) {
     const txn = dgraphClient.newTxn()
     try {
-      const ticket = await findByAccessCode(txn, ticketCode)
+      const ticket = await findByAccessCode(txn, accessCode)
       const person = await Person.getOrCreate(txn, data)
 
       if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
@@ -91,13 +91,13 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  async function checkin(ticketCode, baseUrl) {
+  async function checkin(accessCode, baseUrl) {
     const txn = dgraphClient.newTxn()
     try {
-      const ticket = await findByAccessCode(txn, ticketCode)
+      const ticket = await findByAccessCode(txn, accessCode)
       return {
         isRedirection: true,
-        url: baseUrl + 'tickets/' + ticketCode + '/show'
+        url: baseUrl + 'tickets/' + accessCode + '/show'
       }
     } finally {
       txn.discard()
