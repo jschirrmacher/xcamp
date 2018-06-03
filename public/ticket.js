@@ -65,8 +65,6 @@
   Array.prototype.forEach.call(form.elements.type, function (el) {
     el.addEventListener('change', adaptDependendFields)
   })
-  adaptDependendFields()
-  setSubmitButtonState()
 
   if (location.search.match(/type=private/)) {
     privateTicket.checked = true
@@ -84,4 +82,6 @@
     document.getElementById('ticket-presale').style.display = 'none'
     document.getElementById('ticket-form').style.display = 'block'
   }
+  adaptDependendFields()
+  setSubmitButtonState()
 })()
