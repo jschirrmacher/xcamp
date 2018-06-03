@@ -130,5 +130,5 @@
     })
   }
 
-  global.network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
+  window.network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
 })(Handlebars)
