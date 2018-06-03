@@ -26,7 +26,7 @@ app.set('json spaces', 2)
 
 app.use((req, res, next) => {
   next()
-  console.log(req.method, req.path, '->', res.statusCode)
+  console.log(new Date(), req.method, req.path, '->', res.statusCode)
 })
 
 app.use(cookieParser())
@@ -58,7 +58,7 @@ async function exec(func, res, type = 'json') {
   return func
     .catch(error => {
       res.status(error.status || 500)
-      console.error(error.stack)
+      console.error(new Date(), error.stack)
       error = isProduction ? error.toString() : error.stack
       return type === 'json' ? {error} : error
     })
@@ -125,7 +125,7 @@ app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.get
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.use((err, req, res, next) => {
-  console.error(err)
+  console.error(new Date(), err)
 })
 
 app.listen(port, () => console.log('Running on port ' + port +
