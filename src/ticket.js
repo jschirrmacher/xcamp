@@ -35,7 +35,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       } else {
         url = Payment.exec(customer, invoice)
       }
-      return redirectTo(url)
+      return redirectTo(url, customer)
     } finally {
       txn.discard()
     }

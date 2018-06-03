@@ -64,8 +64,7 @@ async function exec(func, res, type = 'json') {
     .then(result => {
       if (result && result.isRedirection) {
         if (result.user) {
-          req.user = result.user
-          auth.signIn(req, res)
+          auth.signIn({user: result.user}, res)
         }
         res.redirect(result.url)
       } else {
