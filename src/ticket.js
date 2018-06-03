@@ -12,8 +12,8 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   `)
 
-  function redirectTo(url) {
-    return {isRedirection: true, url}
+  function redirectTo(url, user) {
+    return {isRedirection: true, url, user}
   }
 
   async function buy(data, baseUrl) {
