@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>XCamp 2018 Tickets</title>
+    <title>XCamp 2018 Mein Account</title>
     <base href="{{baseUrl}}">
     <link rel="stylesheet" href="ticket.css">
 </head>
@@ -11,9 +11,33 @@
 {{> logo}}
 <div id="main">
     <div class="container">
-        <h1>Ticket-Informationen</h1>
+        <h1>Mein XCamp Account</h1>
 
         <p>Wir freuen uns über deine Teilnahme am diesjährigen XCamp!</p>
+
+        <p>Auf dieser Seite findest du die Rechnung und kannst die gekauften Tickets verwalten.</p>
+
+        {{^password}}
+        <div class="chg-pwd">
+            <h2>Schütze diesen Zugang</h2>
+            <p>
+                Setze ein Passwort für die Seite, damit nur du diese Daten sehen und
+                bearbeiten kannst. Gib' hier das Passwort ein:
+            </p>
+
+            <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
+                <label>
+                    Passwort:
+                    <input type="password" name="password" id="password">
+                </label>
+                <label>
+                    Passwort wiederholen:
+                    <input type="password" id="password-repeat">
+                </label>
+                <button type="submit">Passwort setzen</button>
+            </form>
+        </div>
+        {{/password}}
 
         <p>
             <a href="accounts/{{accessCode}}/invoices/current" target="_blank" class="button wide">
@@ -21,13 +45,15 @@
             </a>
         </p>
 
+        {{^paid}}
         <p>
             Bitte überweise den Betrag innerhalb von 10 Tagen auf das Konto Nr. DE68 501 900 00 6100 700 610
             der Justso GmbH, Frankfurt.
         </p>
+        {{/paid}}
 
         <p>
-            Und hier sind die gebuchten Tickets. Personalisiere bitte die Tickets vor dem Event und bring' dein
+            Und hier sind die gebuchten Tickets. Bitte personalisiere die Tickets vor dem Event und bring' dein
             Ticket für den Einlass auf Deinem Smartphone oder ausgedruckt mit.
         </p>
 
@@ -45,15 +71,15 @@
 
                 <div class="form-group">
                     {{#isPersonalized}}
-                        <button class="printTicket">Ausdrucken</button>
+                        <button class="button small printTicket">Ausdrucken</button>
                     {{/isPersonalized}}
 
                     {{^isPersonalized}}
-                        <button class="useCustomer">Meine Daten verwenden</button>
+                        <button class="button small useCustomer">Meine Daten verwenden</button>
                     {{/isPersonalized}}
 
-                    <button class="saveTicket">Daten speichern</button>
-                    <button class="sendTicket">Versenden</button>
+                    <button class="button small saveTicket">Daten speichern</button>
+                    <button class="button small sendTicket">Versenden</button>
                 </div>
             </form>
 
@@ -66,12 +92,11 @@
             einfache E-Mail an <a class="mail2info"></a>.
         </div>
 
+        {{#password}}
         <div class="chg-pwd">
-            <h2>Schütze diesen Zugang</h2>
+            <h2>Passwort ändern</h2>
             <p>
-                Wenn du möchtest, kannst du ein {{#password}}neues {{/password}}
-                Passwort für die Seite setzen, damit nur du diese Daten sehen und
-                bearbeiten kannst. Gib' hier das neue Passwort ein:
+                Wenn du möchtest, kannst du hier dein Passwort ändern:
             </p>
 
             <form action="setPassword/{{accessCode}}" method="post" id="chg-pwd-form">
@@ -86,6 +111,7 @@
                 <button type="submit">Ändern</button>
             </form>
         </div>
+        {{/password}}
     </div>
 </div>
 {{> footer}}

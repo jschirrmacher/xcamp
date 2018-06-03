@@ -116,10 +116,6 @@ button {
   margin-left: 3em;
 }
 
-.saveTicket, .sendTicket {
-  display: none;
-}
-
 #invoice-details {
   margin: 1em 0;
   border: 1px solid #ccc;
@@ -202,6 +198,17 @@ button {
   &[disabled] {
     opacity: 0.3;
     cursor: auto;
+  }
+
+  &.small {
+    display: inline-block;
+    font-size: 14px;
+    width: auto;
+    margin-bottom: 0;
+
+    .saveTicket, .sendTicket {
+      display: none;
+    }
   }
 
   &.wide {

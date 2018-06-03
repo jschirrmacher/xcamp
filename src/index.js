@@ -152,7 +152,9 @@ function getAccountInfoURL(user) {
 async function getAccountInfoPage(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('account-info', {accessCode, tickets: invoice.tickets, baseUrl}, subTemplates)
+  const password = !!customer.password
+  const paid = invoice.paid
+  return templateGenerator.generate('account-info', {accessCode, password, paid, tickets: invoice.tickets, baseUrl}, subTemplates)
 }
 
 async function getLastInvoice(txn, accessCode) {

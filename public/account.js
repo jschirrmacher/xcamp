@@ -22,7 +22,7 @@
       firstName: button.form.elements['participant_firstName'].value,
       lastName: button.form.elements['participant_lastName'].value,
       email: button.form.elements['participant_email'].value,
-    }, {method: 'PUT', headers: {authorization}})
+    }, {method: 'PUT', headers: {authorization, 'content-type': 'application/x-www-form-urlencoded'}})
     fetchReload('tickets/' + button.form.id, options)
   })
 
