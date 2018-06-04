@@ -4,25 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp Network</title>
-    <link rel="stylesheet" type="text/css" href="netvis.css" />
+    <link rel="stylesheet" type="text/css" href="netvis.css"/>
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 </head>
 <body>
 <svg id="root">
     <rect class="commands commandOverlay" x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.2)"></rect>
     <g class="commands commandContainer">
-        <foreignObject>
-            <button id="openNode" class="command" data-click="openNode" data-visible="!node.open"
-                    title="Verbindungen einblenden">&#xe096;</button>
-            <button id="closeNode" class="command" data-click="closeNode" data-visible="node.open"
-                    title="Verbindungen ausblenden">&#xe097;</button>
-            <button id="newConnection" class="command" data-click="newConnection" data-visible="node.connectable"
-                    title="Neue Verbindung anlegen">+</button>
-            <button id="removeNode" class="command" data-click="removeNode" data-visible="node.deletable"
-                    title="Knoten löschen">&#xe01</button>
-            <button id="showDetails" class="command" data-click="showDetails" data-visible="node.details"
-                    title="Details anzeigen">i</button>
-        </foreignObject>
+        <g>
+            <g id="openNode" class="command" data-click="openNode" data-visible="!node.open"
+               title="Verbindungen einblenden">
+                <circle r="10"></circle>
+                <text x="-5px" y="5px">&#xe096;</text>
+            </g>
+            <g id="closeNode" class="command" data-click="closeNode" data-visible="node.open"
+               title="Verbindungen ausblenden">
+                <circle r="10"></circle>
+                <text x="-5px" y="5px">&#xe097;</text>
+            </g>
+            <g id="newConnection" class="command" data-click="newConnection" data-visible="node.connectable"
+               title="Neue Verbindung anlegen">
+                <circle r="10"></circle>
+                <text x="-5px" y="5px">+</text>
+            </g>
+            <g id="removeNode" class="command" data-click="removeNode" data-visible="node.deletable"
+               title="Knoten löschen">
+                <circle r="10"></circle>
+                <text x="-3px" y="3px">X</text>
+            </g>
+            <g id="showDetails" class="command" data-click="showDetails" data-visible="node.details"
+               title="Details anzeigen">
+                <circle r="10"></circle>
+                <text x="-2.5px" y="6px">i</text>
+            </g>
+        </g>
     </g>
 </svg>
 
@@ -38,7 +53,7 @@
 
     <div>
         <label for="image-upload"><i class="glyphicon glyphicon-upload"></i></label>
-        <input type="file" class="upload" id="image-upload" name="profilePicture" />
+        <input type="file" class="upload" id="image-upload" name="profilePicture"/>
     </div>
 
     <h2>
@@ -50,7 +65,8 @@
 
     <div>
         <span>{{email}}</span>
-        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse" autocomplete='email'></label>
+        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse"
+                      autocomplete='email'></label>
     </div>
 
     <span>{{description}}</span>
@@ -64,7 +80,7 @@
         <input type="url" name="url" value="{{{url}}}">
     </label>
 
-     <label>
+    <label>
         Meine Tags
         <span class="tag-view">
             {{#each topics}}
