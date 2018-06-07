@@ -1,5 +1,7 @@
 /*global Handlebars*/
 
+var network
+
 (function (Handlebars) {
   'use strict'
 
@@ -130,5 +132,5 @@
     })
   }
 
-  window.network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
+  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
 })(Handlebars)
