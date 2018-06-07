@@ -52,7 +52,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
     }
   }
 
-  async function getGraph() {
+  async function getGraph(user = null) {
     const txn = dgraphClient.newTxn()
     try {
       const visible = true, open = true, shape = 'circle'
@@ -67,18 +67,24 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
 
       const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { uid }}}`)
       const all = data.getJson().all
+      const uids = []
+      user = user.person && user.person[0] || user
       await Promise.all(all.map(async ticket => {
-        const person = await Person.get(txn, ticket.participant[0].uid)
-        nodes.push({
-          id: person.uid,
-          name: person.firstName + ' ' + person.lastName,
-          details: 'persons/' + person.uid,
-          image: person.image,
-          shape,
-          visible
-        })
-        handleSubNodes(person, 'topic', 'rect', nodes, links)
-        return person
+        const uid = ticket.participant[0].uid
+        if (uids.indexOf(uid) < 0) {
+          uids.push(uid)
+          const person = await Person.get(txn, uid)
+          nodes.push({
+            id: person.uid,
+            name: person.firstName + ' ' + person.lastName,
+            details: 'persons/' + person.uid,
+            image: person.image,
+            shape,
+            visible
+          })
+          handleSubNodes(person, 'topic', 'rect', nodes, links)
+          return person
+        }
       }))
       return {nodes, links}
     } finally {
