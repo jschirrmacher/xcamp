@@ -163,7 +163,7 @@ async function getAccountInfoPage(txn, accessCode) {
   }
   const paid = invoice && invoice.paid
   const password = !!user.password
-  return templateGenerator.generate('account-info', {accessCode, password, paid, tickets, baseUrl}, subTemplates)
+  return templateGenerator.generate('account-info', {invoice, accessCode, password, paid, tickets, baseUrl}, subTemplates)
 }
 
 async function getLastInvoice(txn, accessCode) {
