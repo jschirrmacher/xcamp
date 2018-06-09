@@ -68,7 +68,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
       const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { uid }}}`)
       const all = data.getJson().all
       const uids = []
-      user = user.person && user.person[0] || user
+      user = user && user.person && user.person[0] || user
       await Promise.all(all.map(async ticket => {
         const uid = ticket.participant[0].uid
         if (uids.indexOf(uid) < 0) {
