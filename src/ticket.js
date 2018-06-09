@@ -1,6 +1,4 @@
-const templateGenerator = require('./TemplateGenerator')
-
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator) => {
   const query = QueryFunction('Ticket', `
     uid
     access_code
@@ -49,25 +47,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
-  async function setCustomerAsParticipant(accessCode, accountCode) {
-    const txn = dgraphClient.newTxn()
-    try {
-      const customer = await Customer.findByAccessCode(txn, accountCode)
-      const ticket = await findByAccessCode(txn, accessCode)
-      const person = customer.person[0]
-
-      const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
-      await txn.mutate(mu)
-
-      txn.commit()
-      return {}
-    } finally {
-      txn.discard()
-    }
-  }
-
-  async function setParticipant(accessCode, data) {
+  async function setParticipant(accessCode, data, baseUrl, subTemplates) {
     const txn = dgraphClient.newTxn()
     try {
       const ticket = await findByAccessCode(txn, accessCode)
@@ -83,9 +63,15 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         const mu = new dgraph.Mutation()
         await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
         await txn.mutate(mu)
+        txn.commit()
+
+        const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
+        const html = templateGenerator.generate('ticket-mail', {url, baseUrl}, subTemplates)
+        return mailSender.send(person.email, 'XCamp Ticket', html)
       }
-      txn.commit()
       return {}
+    } catch (error) {
+      throw error
     } finally {
       txn.discard()
     }
@@ -104,5 +90,5 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  return {get, buy, setParticipant, setCustomerAsParticipant, findByAccessCode, checkin}
+  return {get, buy, setParticipant, findByAccessCode, checkin}
 }

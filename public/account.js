@@ -13,10 +13,6 @@
     link.innerText = 'info@justso.de'
   })
 
-  bindHandler('useCustomer', 'click', function (button) {
-    fetchReload('tickets/' + button.form.id + '/accounts/' + document.body.dataset.code, {method: 'PUT', headers: {authorization}})
-  })
-
   bindHandler('saveTicket', 'click', function (button) {
     const options = encodeParams({
       firstName: button.form.elements['participant_firstName'].value,
@@ -30,17 +26,6 @@
     window.open('tickets/' + button.form.id + '/print')
   })
 
-  bindHandler('sendTicket', 'click', function (button) {
-    myFetch('tickets/' + button.form.id + '/send', {headers: {authorization}})
-      .then(function (result) {
-        if (result.error || result.rejected.length) {
-          showMessage('Das Ticket konnte nicht versendet werden!\n\nBitte prüfe die Adresse und probiere es dann noch einmal.')
-        } else {
-          showMessage('Ticket wurde versendet')
-        }
-      })
-  })
-
   Array.from(document.getElementsByTagName('input')).forEach(function (field) {
     field.addEventListener('keyup', function () {
       field.form.modified = false
@@ -49,19 +34,10 @@
           field.form.modified = true
         }
       })
-      Array.from(field.form.getElementsByClassName('saveTicket')).forEach(function (button) {
+      forEachElementOfClass('saveTicket', function (button) {
         button.style.display = field.form.modified ? 'inline' : 'none'
       })
-      Array.from(field.form.getElementsByClassName('sendTicket')).forEach(function (button) {
-        button.style.display = !field.form.modified && field.form.elements['participant_email'].getAttribute('value') ? 'inline' : 'none'
-      })
     })
-  })
-
-  Array.from(document.getElementsByClassName('sendTicket')).forEach(function (button) {
-    if (button.form.elements['participant_email'].getAttribute('value')) {
-      button.style.display = 'inline'
-    }
   })
 
   if (location.search.match(/message=([^&]*)/)) {

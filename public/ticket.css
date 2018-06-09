@@ -117,7 +117,7 @@ button {
     font-size: 90%; }
   @media (min-width: 740px) {
     .ticket .row:before, .ticket .row:after {
-      clear: left; } }
+      clear: both; } }
   @media (max-width: 739px) {
     .ticket .col-4 {
       width: 50%; }
@@ -149,7 +149,7 @@ button {
     font-size: 14px;
     width: auto;
     margin-bottom: 0; }
-    .button.small .saveTicket, .button.small .sendTicket {
+    .button.small.saveTicket {
       display: none; }
   .button.wide {
     width: 250px; }

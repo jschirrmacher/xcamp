@@ -100,7 +100,8 @@ module.exports = (dgraphClient, dgraph, rack) => {
     }
     invoice.tickets = Array.from({length: data.ticketCount}, () => ({
       type: 'ticket',
-      access_code: rack()
+      access_code: rack(),
+      participant: customer.person
     }))
 
     const mu = new dgraph.Mutation()

@@ -41,7 +41,7 @@ const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack
 const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, true) // @todo set useSandbox parameter to !isProduction
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator)
 
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(req.originalUrl)
@@ -104,11 +104,9 @@ app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getPr
 app.get('/tickets', (req, res) => exec(getTicketPage(), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
 app.get('/tickets/:accessCode', (req, res) => exec(Ticket.checkin(req.params.accessCode, baseUrl), res))
-app.put('/tickets/:accessCode', (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body), res))
+app.put('/tickets/:accessCode', (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates), res))
 app.get('/tickets/:accessCode/show', (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
 app.get('/tickets/:accessCode/print', (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'print']), res, 'send'))
-app.get('/tickets/:accessCode/send', (req, res) => exec(doInTransaction(sendTicket, [req.params.accessCode]), res))
-app.put('/tickets/:accessCode/accounts/:customerCode', requireJWT(), (req, res) => exec(Ticket.setCustomerAsParticipant(req.params.accessCode, req.params.customerCode), res))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
 app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
@@ -178,14 +176,6 @@ async function getTicket(txn, accessCode, mode) {
   const print = mode === 'print'
   const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0], baseUrl}
   return templateGenerator.generate('ticket', params, subTemplates)
-}
-
-async function sendTicket(txn, accessCode) {
-  const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  const html = templateGenerator.generate('ticket-mail', {url: baseUrl + 'accounts/' + accessCode + '/info', baseUrl}, subTemplates)
-  const subject = 'XCamp Ticket'
-  const to = ticket.participant[0].email
-  return mailSender.send(to, subject, html)
 }
 
 async function sendPassword(txn, accessCode) {
