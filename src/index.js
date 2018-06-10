@@ -200,5 +200,5 @@ async function resetPassword(accessCode) {
 
 async function setPassword(txn, accessCode, password) {
   const message = await auth.setPassword(txn, accessCode, password)
-  return {isRedirection: true, url: '/accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
+  return {isRedirection: true, url: baseUrl + '/accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
 }
