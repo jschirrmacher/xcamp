@@ -38,6 +38,7 @@ var network
 
   function showDetails(data) {
     const id = data.uid
+    window.history.pushState(null, data.firstName + ' ' + data.lastName, '#' + id)
     const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
     const authorization = token ? token[2] : null
     return new Promise(function (resolve) {
@@ -56,6 +57,7 @@ var network
 
       function close() {
         form.parentNode.removeChild(form)
+        window.history.pushState(null, null, location.pathname)
         resolve()
       }
 
@@ -132,5 +134,12 @@ var network
     })
   }
 
-  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails})
+  function initialized() {
+    if (location.hash) {
+      var id = location.hash.replace('#', '')
+      network.showDetails({id, details: 'persons/' + id})
+    }
+  }
+
+  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized})
 })(Handlebars)
