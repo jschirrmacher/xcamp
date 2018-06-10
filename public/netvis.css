@@ -109,7 +109,7 @@ svg .node {
       white-space: nowrap; }
       .detailForm .tag-view .tag.new-tag {
         font-size: 100%;
-        width: 80px; }
+        width: 85px; }
       .detailForm .tag-view .tag .delete:after {
         content: "×";
         position: absolute;
