@@ -44,7 +44,7 @@ const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseU
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator)
 
 function getLoginUrl(req) {
-  return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(req.originalUrl)
+  return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 const auth = require('./auth')(app, Person, Customer, Ticket, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
 const redirect = true
