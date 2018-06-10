@@ -26,7 +26,7 @@ loginForm.addEventListener('submit', function (event) {
       window.location.href = loginForm.elements.url.value
     })
     .catch(function (error) {
-      console.error(error)
+      showMessage('Login nicht erfolgreich - bitte E-Mail und Passwort überprüfen!')
     })
   return false
 })
