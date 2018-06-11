@@ -38,12 +38,12 @@ var network
 
   function showDetails(data) {
     const id = data.uid
-    window.history.pushState(null, data.firstName + ' ' + data.lastName, '#' + id)
+    window.history.pushState(null, null, '#' + id)
     const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
     const authorization = token ? token[2] : null
     return new Promise(function (resolve) {
       const form = document.createElement('form')
-      form.setAttribute('class', 'detailForm' + (data.me ? ' own' : ''))
+      form.setAttribute('class', 'detailForm' + (data.editable ? ' own' : ''))
       data.topicsValue = data.topics ? data.topics.map(function (topic) {
         return topic.name
       }).join(',') : ''
@@ -134,12 +134,14 @@ var network
     })
   }
 
-  function initialized() {
+  function handleHash() {
     if (location.hash) {
       var id = location.hash.replace('#', '')
       network.showDetails({id, details: 'persons/' + id})
     }
   }
 
-  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized})
+  window.onpopstate = handleHash
+
+  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized: handleHash})
 })(Handlebars)

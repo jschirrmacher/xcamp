@@ -62,6 +62,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
       tickets {
         access_code
         participant {
+          uid
           firstName
           lastName
           email

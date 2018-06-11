@@ -27,11 +27,18 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return person
   }
 
+  function canAdmin(user, canAdmin, uid) {
+    if (user.type === 'customer') {
+      return user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
+    } else {
+      return uid === user.uid
+    }
+  }
+
   async function getPublicDetails(txn, uid, user) {
-    const currentUserId = user && ((user.person && user.person[0] && user.person[0].uid) || user.uid)
     const person = await get(txn, uid)
-    if (currentUserId === person.uid) {
-      person.me = true
+    if (canAdmin(user, uid)) {
+      person.editable = true
     } else {
       delete person.email
     }
@@ -50,7 +57,10 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return upsert(txn, person, data)
   }
 
-  async function upsert(txn, person, newData) {
+  async function upsert(txn, person, newData, user) {
+    if (!canAdmin(user, person.uid)) {
+      throw 'Changing this node is not allowed!'
+    }
     const mu = new dgraph.Mutation()
     if (!person.topics) {
       person.topics = []
@@ -80,9 +90,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return await get(txn, person.uid)
   }
 
-  async function updateById(txn, id, data) {
+  async function updateById(txn, id, data, user) {
     const person = await get(txn, id)
-    await upsert(txn, person, data)
+    await upsert(txn, person, data, user)
   }
 
   function getPicturePath(id) {
@@ -93,14 +103,14 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return path.join(folder, id)
   }
 
-  async function uploadProfilePicture(txn, id, file) {
+  async function uploadProfilePicture(txn, id, file, user) {
     const person = await get(txn, id)
     const fileName = getPicturePath(id)
     if (fs.existsSync(fileName)) {
       fs.unlinkSync(fileName)
     }
     fs.renameSync(file.path, fileName)
-    return await upsert(txn, person, {image: file.mimetype + ':' + file.originalname})
+    return await upsert(txn, person, {image: file.mimetype + ':' + file.originalname}, user)
   }
 
   async function getProfilePicture(txn, id) {

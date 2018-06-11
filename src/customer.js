@@ -1,22 +1,14 @@
 module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
   const query = QueryFunction('Customer', `
     uid
+    type
     firm
     access_code
     password
     hash
-    person {
-      uid
-      firstName
-      lastName
-      email
-    }
-    addresses {
-      address
-      postcode
-      city
-      country
-    }`
+    person { uid firstName lastName email }
+    addresses { address postcode city country }
+    invoices { uid tickets { uid participant { uid } } }`
   )
 
   async function get(txn, uid) {
