@@ -9,7 +9,7 @@ document.getElementById('lost-pwd').addEventListener('click', function (event) {
   event.preventDefault()
   var email = loginForm.elements.email.value
   var accessCode = loginForm.elements.username.value === 'undefined' ? null : loginForm.elements.username.value
-  if (email) {
+  if (email || accessCode) {
     window.location.href ='accounts/' + (accessCode || encodeURIComponent(email)) + '/password'
   } else {
     showMessage('Bitte das E-Mail Feld füllen, wir senden dann einen Zugangslink')
