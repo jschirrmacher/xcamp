@@ -24,11 +24,11 @@
             </label>
             <input type="hidden" name="username" value="{{accessCode}}">
             <input type="hidden" name="url" value="{{url}}">
-            <button type="submit">Login</button>
-        </form>
+            <button class="button" type="submit">Login</button>
 
-        <h2>Passwort vergessen?</h2>
-        <a class="button wide" href="accounts/{{accessCode}}/password">Neues Passwort setzen</a>
+            <h2>Passwort vergessen?</h2>
+            <button class="button wide" id="lost-pwd">Neues Passwort setzen</button>
+        </form>
     </div>
 </div>
 {{> footer}}

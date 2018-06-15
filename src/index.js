@@ -179,7 +179,9 @@ async function getTicket(txn, accessCode, mode) {
 }
 
 async function sendPassword(txn, accessCode) {
-  const customer = await Customer.findByAccessCode(txn, accessCode)
+  const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
+  const customer = await Customer[method](txn, accessCode)
+  accessCode = customer.access_code
   const mu = new dgraph.Mutation()
   const hash = rack()
   await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
@@ -200,5 +202,5 @@ async function resetPassword(accessCode) {
 
 async function setPassword(txn, accessCode, password) {
   const message = await auth.setPassword(txn, accessCode, password)
-  return {isRedirection: true, url: baseUrl + '/accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
+  return {isRedirection: true, url: baseUrl + 'accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
 }

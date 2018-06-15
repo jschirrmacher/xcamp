@@ -5,6 +5,17 @@ if (loginForm.elements.username.value !== 'undefined') {
   emailField.style.display = 'none'
 }
 
+document.getElementById('lost-pwd').addEventListener('click', function (event) {
+  event.preventDefault()
+  var email = loginForm.elements.email.value
+  var accessCode = loginForm.elements.username.value === 'undefined' ? null : loginForm.elements.username.value
+  if (email) {
+    window.location.href ='accounts/' + (accessCode || encodeURIComponent(email)) + '/password'
+  } else {
+    showMessage('Bitte das E-Mail Feld füllen, wir senden dann einen Zugangslink')
+  }
+})
+
 loginForm.addEventListener('submit', function (event) {
   event.preventDefault()
   var headers = {'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'}
@@ -26,6 +37,7 @@ loginForm.addEventListener('submit', function (event) {
       window.location.href = loginForm.elements.url.value
     })
     .catch(function (error) {
+      console.error(error)
       showMessage('Login nicht erfolgreich - bitte E-Mail und Passwort überprüfen!')
     })
   return false
