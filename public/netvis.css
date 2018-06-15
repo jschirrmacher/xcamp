@@ -43,9 +43,16 @@ svg .node {
   svg .node.withBg.dark > text tspan {
     fill: #fff;
     text-shadow: 0 0 5px #000, 0 0 5px #000; }
-  svg .node:hover .title, svg .node.menuActive .title {
+  svg .node:hover circle + .title, svg .node.menuActive circle + .title {
     transition: 0.5s;
     transform: translateY(5em) scale(1.5); }
+  svg .node rect {
+    fill: #fcfcfc;
+    stroke: none; }
+  svg .node rect + text tspan {
+    font-size: 20px;
+    font-weight: bold;
+    fill: #555; }
 
 .commands {
   opacity: 0;

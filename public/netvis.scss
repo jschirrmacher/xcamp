@@ -62,10 +62,21 @@ svg {
     }
 
     &:hover, &.menuActive {
-      .title {
+      circle + .title {
         transition: 0.5s;
         transform: translateY(5em) scale(1.5);
       }
+    }
+
+    rect {
+      fill: #fcfcfc;
+      stroke: none;
+    }
+
+    rect + text tspan {
+      font-size: 20px;
+      font-weight: bold;
+      fill: #555;
     }
   }
 }
