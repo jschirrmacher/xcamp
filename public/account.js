@@ -34,9 +34,7 @@
           field.form.modified = true
         }
       })
-      forEachElementOfClass('saveTicket', function (button) {
-        button.style.display = field.form.modified ? 'inline' : 'none'
-      })
+      field.form.getElementsByClassName('saveTicket')[0].style.display = field.form.modified ? 'inline' : 'none'
     })
   })
 

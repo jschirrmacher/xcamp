@@ -49,12 +49,16 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return await query.one(txn, `func: eq(email, "${email}")`)
   }
 
-  async function getOrCreate(txn, data) {
+  async function getOrCreate(txn, data, user) {
     let person = {}
     try {
       person = await getByEMail(txn, data.email)
     } catch(e) {}
-    return upsert(txn, person, data)
+    try {
+      return upsert(txn, person, data, user)
+    } catch (e) {
+      return person   // person exists but user don't have write access, so just return the person
+    }
   }
 
   async function upsert(txn, person, newData, user) {

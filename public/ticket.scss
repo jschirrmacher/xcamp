@@ -204,7 +204,7 @@ button {
     display: inline-block;
     font-size: 14px;
     width: auto;
-    margin-bottom: 0;
+    margin-bottom: 20px;
 
     &.saveTicket {
       display: none;
@@ -213,6 +213,27 @@ button {
 
   &.wide {
     width: 250px;
+  }
+}
+
+dl {
+  margin: 0;
+
+  dt {
+    font-size: 1.3em;
+    line-height: 2em;
+  }
+
+  dd {
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.5s;
+  }
+
+  &:hover dd {
+    height: auto;
+    opacity: 1;
   }
 }
 
