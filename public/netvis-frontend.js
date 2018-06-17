@@ -8,6 +8,9 @@ var network
   const source = document.getElementById('detailForm').innerHTML
   const detailFormTemplate = Handlebars.compile(source)
 
+  const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+  const authorization = token ? token[2] : null
+
   function nameRequired() {
     return Promise.resolve(window.prompt('Name'))
   }
@@ -39,8 +42,6 @@ var network
   function showDetails(data) {
     const id = data.uid
     window.history.pushState(null, null, '#' + id)
-    const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
-    const authorization = token ? token[2] : null
     return new Promise(function (resolve) {
       const form = document.createElement('form')
       form.setAttribute('class', 'detailForm' + (data.editable ? ' own' : ''))
@@ -144,4 +145,11 @@ var network
   window.onpopstate = handleHash
 
   network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized: handleHash})
+  fetch('login', {headers: {authorization}})
+    .then(function (response) {
+      return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
+    })
+    .then(function (data) {
+      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'initial'
+    })
 })(Handlebars)

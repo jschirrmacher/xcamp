@@ -93,6 +93,7 @@ app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-n
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
+app.get('/login', requireJWT({allowAnonymous}), (req, res) => res.json({loggedIn: !!req.user}))
 app.get('/login/:accessCode/:url', (req, res) => exec(loginPage(req.params.accessCode, req.params.url), res, 'send'))
 
 app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body, req.user], true), res))
