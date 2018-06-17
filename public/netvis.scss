@@ -148,7 +148,7 @@ svg {
   }
 
   &:not(.own) label,
-  &.own span:not(.tag-view) {
+  &.own .foreign {
     display: none;
   }
 

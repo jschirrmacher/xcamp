@@ -100,7 +100,7 @@ svg .node {
     float: right;
     border: none;
     background: transparent; }
-  .detailForm:not(.own) label, .detailForm.own span:not(.tag-view) {
+  .detailForm:not(.own) label, .detailForm.own .foreign {
     display: none; }
   .detailForm .tag-view {
     display: block; }
