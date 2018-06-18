@@ -182,7 +182,6 @@ svg {
   }
 }
 
-
 :not(h2) > label {
   display: block;
   margin-bottom: 0.5em;
@@ -207,19 +206,16 @@ svg {
   position: absolute;
   right: 5px;
   top: 50%;
+  transform: translateY(-50%);
   font: 20px 'Glyphicons Halflings';
 
-  > div {
-    margin-top: -100%;
-
-    > * {
-      cursor: pointer;
-      background: white;
-      padding: 5px 6.5px;
-      border-radius: 50%;
-      border: 1px solid #ccc;
-      margin: 10px 0;
-    }
+  > div > * {
+    cursor: pointer;
+    background: white;
+    padding: 5px 6.5px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    margin: 10px 0;
   }
 }
 
