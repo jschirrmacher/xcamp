@@ -40,7 +40,7 @@ const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
-const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, true) // @todo set useSandbox parameter to !isProduction
+const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction)
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator)
 
 function getLoginUrl(req) {
