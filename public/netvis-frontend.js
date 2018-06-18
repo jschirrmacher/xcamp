@@ -150,6 +150,6 @@ var network
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
     })
     .then(function (data) {
-      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'initial'
+      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'block'
     })
 })(Handlebars)
