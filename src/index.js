@@ -121,7 +121,7 @@ app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduction)))
 
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
-app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
+app.delete('/network', (req, res) => exec(Network.rebuild(), res))
 
 app.use((err, req, res, next) => {
   console.error(new Date(), err)
