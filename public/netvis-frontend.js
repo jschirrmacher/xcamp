@@ -102,7 +102,7 @@ var network
           return {name: topic}
         })) || []
         const body = JSON.stringify(data)
-        fetch('/persons/' + id, {method: 'PUT', headers, body})
+        fetch('persons/' + id, {method: 'PUT', headers, body})
           .then(close)
       })
 
