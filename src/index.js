@@ -123,6 +123,8 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduct
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
+app.post('/orga', (req, res) => exec(doInTransaction(createOrgaMember, req.body, true), res))
+
 app.use((err, req, res, next) => {
   console.error(new Date(), err)
 })
@@ -204,4 +206,12 @@ async function resetPassword(accessCode) {
 async function setPassword(txn, accessCode, password) {
   const message = await auth.setPassword(txn, accessCode, password)
   return {isRedirection: true, url: baseUrl + 'accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
+}
+
+async function createOrgaMember(txn, data) {
+  data.ticketCount = 1
+  data.type = 'orga'
+  data.payment = 'none'
+  const customer = await Customer.create(txn, data)
+  return Invoice.create(txn, data, customer)
 }

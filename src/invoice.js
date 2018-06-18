@@ -86,16 +86,28 @@ module.exports = (dgraphClient, dgraph, rack) => {
     return invoice.length ? get(txn, invoice[0].uid) : Promise.reject('Invoice not found')
   }
 
-  async function create(txn, data, customer) {
+  const ticketPrice = {
+    orga: 0,
+    corporate: 200,
+    student: 100
+  }
+
+  async function getNextInvoiceNo() {
     const result = await txn.query(`{ var(func: eq(type, "invoice")) { d as invoiceNo } me() {max(val(d))}}`)
-    const invoiceNo = result.getJson().me[0]['max(val(d))'] + 1
+    return result.getJson().me[0]['max(val(d))'] + 1
+  }
+
+  async function create(txn, data, customer) {
+    if (typeof ticketPrice[data.type] === 'undefined') {
+      throw 'Unknown ticket type'
+    }
     const invoice = {
       type: 'invoice',
-      invoiceNo,
+      invoiceNo: data.type === 'orga' ? 0 : getNextInvoiceNo(),
       created: '' + new Date(),
       customer,
       ticketType: data.type,
-      ticketPrice: data.type === 'corporate' ? 200 : 100,
+      ticketPrice: ticketPrice[data.type],
       payment: data.payment,
       reduced: data.type !== 'corporate'
     }
