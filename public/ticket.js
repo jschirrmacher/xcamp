@@ -78,7 +78,7 @@
     localStorage.clear('isDev')
   }
 
-  if (localStorage.getItem('isDev')) {
+  if (true || localStorage.getItem('isDev')) {
     document.getElementById('ticket-presale').style.display = 'none'
     document.getElementById('ticket-form').style.display = 'block'
   }
