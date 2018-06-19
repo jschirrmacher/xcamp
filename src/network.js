@@ -52,6 +52,15 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
     }
   }
 
+  function getTickets(user) {
+    if (user && user.type === 'ticket') {
+      return user.uid
+    } else if (user && user.type === 'customer') {
+      returnuser.invoices["0"].tickets.map(ticket => ticket.uid)
+    }
+    return []
+  }
+
   async function getGraph(user = null) {
     const txn = dgraphClient.newTxn()
     try {
@@ -68,7 +77,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
       const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { uid }}}`)
       const all = data.getJson().all
       const uids = []
-      const myTickets = user ? user.invoices["0"].tickets.map(ticket => ticket.uid) : []
+      const myTickets = getTickets(user)
       await Promise.all(all.map(async ticket => {
         const uid = ticket.participant[0].uid
         if (uids.indexOf(uid) < 0) {
