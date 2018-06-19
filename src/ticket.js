@@ -1,6 +1,7 @@
 module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator) => {
   const query = QueryFunction('Ticket', `
     uid
+    type
     access_code
     participant {
       uid
