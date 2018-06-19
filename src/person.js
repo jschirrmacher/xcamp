@@ -32,6 +32,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
       return false
     } else if (user.type === 'customer') {
       return user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
+    } else if (user.type === 'ticket') {
+      return uid === user.participant[0].uid
     } else {
       return uid === user.uid
     }
