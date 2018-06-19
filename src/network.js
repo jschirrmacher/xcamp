@@ -56,7 +56,7 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
     if (user && user.type === 'ticket') {
       return user.uid
     } else if (user && user.type === 'customer') {
-      returnuser.invoices["0"].tickets.map(ticket => ticket.uid)
+      return user.invoices["0"].tickets.map(ticket => ticket.uid)
     }
     return []
   }

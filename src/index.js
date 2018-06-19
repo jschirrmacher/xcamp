@@ -46,7 +46,7 @@ const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoi
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
-const auth = require('./auth')(app, Person, Customer, Ticket, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
+const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
 const redirect = true
 const allowAnonymous = true
 const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_code'], options)
@@ -83,6 +83,8 @@ async function doInTransaction(action, params, commit = false) {
       txn.commit()
     }
     return result
+  } catch (error) {
+    throw error
   } finally {
     txn.discard()
   }
@@ -123,7 +125,8 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduct
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
-app.post('/orga', (req, res) => exec(doInTransaction(createOrgaMember, req.body, true), res))
+app.post('/orga', requireJWT(), (req, res) => exec(doInTransaction(createOrgaMember, [req.body, req.user], true), res))
+app.get('/orga/fixes/orga-as-admin', requireJWT(), (req, res) => exec(doInTransaction(fixOrgaAsAdmin, req.user, true), res))
 
 app.use((err, req, res, next) => {
   console.error(new Date(), err)
@@ -208,10 +211,22 @@ async function setPassword(txn, accessCode, password) {
   return {isRedirection: true, url: baseUrl + 'accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
 }
 
-async function createOrgaMember(txn, data) {
+async function createOrgaMember(txn, data, user) {
+  if (!user.isAdmin) {
+    throw {status: 403, message: 'Not allowed'}
+  }
   data.ticketCount = 1
   data.type = 'orga'
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
   return Invoice.create(txn, data, customer)
+}
+
+async function fixOrgaAsAdmin(txn, user) {
+  const result = await txn.query(`{ invoice(func: eq(type, "invoice")) { ticketType tickets {uid} }}`)
+  const invoices = result.getJson().invoice.filter(invoice => invoice.ticketType === 'orga')
+  const persons = invoices.map(invoice => invoice.tickets[0].uid)
+  const mu = new dgraph.Mutation()
+  persons.forEach(uid => mu.setSetNquads(`<${uid}> <isAdmin> "1" .`))
+  await txn.mutate(mu)
 }

@@ -1,7 +1,7 @@
 const passport = require('passport')
 const util = require('util')
 
-module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, getLoginURL) => {
+module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL) => {
   require('express-session')
   const bcrypt = require('bcrypt')
   const LocalStrategy = require('passport-local').Strategy
@@ -91,14 +91,14 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
   }
 
   async function setPassword(txn, accessCode, password) {
-    const customer = await Customer.findByAccessCode(txn, accessCode)
+    const user = await User.findByAccessCode(txn, accessCode)
     return new Promise((fulfil, reject) => {
       bcrypt.hash(password, 10, async (error, passwordHash) => {
         try {
           if (error) {
             reject(error)
           } else {
-            await setPasswordHash(customer, passwordHash, txn)
+            await setPasswordHash(user, passwordHash, txn)
             fulfil('Passwort ist geändert')
           }
         } catch (error) {
@@ -108,13 +108,22 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
     })
   }
 
+  async function getActualUserObject(txn, user) {
+    if (user.type === 'customer') {
+      return Customer.get(txn, user.uid)
+    } else if (user.type === 'ticket') {
+      return Ticket.get(txn, user.uid)
+    }
+    return user
+  }
+
   passport.use(new LocalStrategy(
     async (username, password, done) => {
       const txn = dgraphClient.newTxn()
       try {
-        const customer = await Customer.findByAccessCode(txn, username)
-        bcrypt.compare(password, customer.password, (err, isValid) => {
-          done(err, isValid ? {uid: customer.uid} : false)
+        const user = await User.findByAccessCode(txn, username)
+        bcrypt.compare(password, user.password, async (err, isValid) => {
+          done(err, isValid ? await getActualUserObject(txn, user) : false)
         })
       } finally {
         txn.discard()
@@ -125,14 +134,14 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
   passport.use(new LoginStrategy(async (email, username, password, done) => {
     const txn = dgraphClient.newTxn()
     try {
-      let customer
+      let user
       if (email) {
-        customer = await Customer.findByEMail(txn, email)
+        user = await Customer.findByEMail(txn, email)
       } else {
-        customer = await Customer.findByAccessCode(txn, username)
+        user = await User.findByAccessCode(txn, username)
       }
-      bcrypt.compare(password, customer.password, (err, isValid) => {
-        done(err, isValid ? {uid: customer.uid} : false)
+      bcrypt.compare(password, user.password, async (err, isValid) => {
+        done(err, isValid ? await getActualUserObject(txn, user) : false)
       })
     } catch (error) {
       done(error, false)
@@ -147,8 +156,8 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
     }, async (payload, done) => {
       const txn = dgraphClient.newTxn()
       try {
-        const customer = await Customer.get(txn, payload.sub)
-        done(null, customer || false)
+        const user = await User.get(txn, payload.sub)
+        done(null, user ? await getActualUserObject(txn, user) : false)
       } catch (error) {
         done(error, false)
       } finally {
@@ -160,12 +169,12 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
   passport.use(new AccessCodeStrategy(async (accessCode, done) => {
     const txn = dgraphClient.newTxn()
     try {
-      const customer = await Customer.findByAccessCode(txn, accessCode)
-      if (!customer.password) {
-        done(null, customer)
+      const user = await User.findByAccessCode(txn, accessCode)
+      if (!user.password) {
+        done(null, user)
       } else {
-        bcrypt.compare(password, customer.password, (err, isValid) => {
-          done(err, isValid ? customer : false)
+        bcrypt.compare(password, user.password, async (err, isValid) => {
+          done(err, isValid ? await getActualUserObject(txn, user) : false)
         })
       }
     } catch (error) {
@@ -178,9 +187,9 @@ module.exports = (app, Person, Customer, Ticket, dgraphClient, dgraph, secret, g
   passport.use(new CodeAndHashStrategy(async (accessCode, hash, done) => {
     const txn = dgraphClient.newTxn()
     try {
-      const customer = await Customer.findByAccessCode(txn, accessCode)
-      if (customer.hash && customer.hash === hash) {
-        done(null, customer)
+      const user = await User.findByAccessCode(txn, accessCode)
+      if (user && user.hash && user.hash === hash) {
+        done(null, await getActualUserObject(txn, user))
       } else {
         done('invalid credentials', false)
       }
