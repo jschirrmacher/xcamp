@@ -1,5 +1,7 @@
 'use strict'
 
+const ticketTypes = require('./ticketTypes')
+
 const from = 'XCamp Tickets <tickets@justso.de>'
 
 module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
@@ -14,7 +16,7 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
     const person = customer.person[0]
     const ticketCount = invoice.tickets.length
     const subject = 'XCamp Ticketbuchung'
-    const params = {customer, person, baseUrl, url, ticketCount}
+    const params = {customer, person, baseUrl, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}
     send(person.email, subject, templateGenerator.generate('invoice-mail', params))
     send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
     return url

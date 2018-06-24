@@ -39,9 +39,9 @@ const User = require('./user')(dgraphClient, QueryFunction)
 const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
-const Invoice = require('./invoice')(dgraphClient, dgraph, rack)
+const Invoice = require('./invoice')(dgraphClient, dgraph)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack)
 
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
@@ -104,7 +104,7 @@ app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person
 app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true), res))
 app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
-app.get('/tickets', (req, res) => exec(getTicketPage(), res, 'send'))
+app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
 app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.checkin(req.params.accessCode, baseUrl), res))
 app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
@@ -126,6 +126,7 @@ app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.get
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.post('/orga', requireJWT(), (req, res) => exec(doInTransaction(createOrgaMember, [req.body, req.user], true), res))
+app.post('/orga/coupon', requireJWT(), (req, res) => exec(doInTransaction(createCoupon, [req.user], true), res))
 app.get('/orga/fixes/orga-as-admin', requireJWT(), (req, res) => exec(doInTransaction(fixOrgaAsAdmin, req.user, true), res))
 
 app.use((err, req, res, next) => {
@@ -144,8 +145,8 @@ async function loginPage(accessCode, url) {
   return templateGenerator.generate('login-page', {url, baseUrl, accessCode}, subTemplates)
 }
 
-async function getTicketPage() {
-  return templateGenerator.generate('buy-ticket', {baseUrl}, subTemplates)
+async function getTicketPage(code) {
+  return templateGenerator.generate('buy-ticket', {baseUrl, code}, subTemplates)
 }
 
 function getAccountInfoURL(user) {
@@ -219,7 +220,19 @@ async function createOrgaMember(txn, data, user) {
   data.type = 'orga'
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
-  return Invoice.create(txn, data, customer)
+  const tickets = await Ticket.create(txn, customer.person, 1)
+  return Invoice.create(txn, data, customer, tickets)
+}
+
+async function createCoupon(txn, user) {
+  if (!user.isAdmin) {
+    throw {status: 403, message: 'Not allowed'}
+  }
+  const mu = new dgraph.Mutation()
+  const code = rack()
+  mu.setSetJson({type: 'coupon', code})
+  const assigned = await txn.mutate(mu)
+  return {type: 'coupon', code, uid: assigned.getUidsMap().get('blank-0')}
 }
 
 async function fixOrgaAsAdmin(txn, user) {

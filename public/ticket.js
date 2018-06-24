@@ -26,15 +26,14 @@
   }
 
   function adaptDependendFields() {
+    var isCorporate = form.elements.type.value === 'corporate'
     if (ticketCount.value !== '') {
       if (ticketCount.value < 1) {
         ticketCount.value = 1
       }
-      var isCorporate = form.elements.type.value === 'corporate'
-      var ticketPrice = isCorporate ? 238 : 119
-      var totals = ticketCount.value * ticketPrice
-      var ticket = ticketCount.value === 1 ? 'Ticket' : 'Tickets'
-      singlePrice.innerText = ticketPrice
+      var ticketPrice = isCorporate ? 238 : form.elements.type.value === 'private' ? 119 : 59.50
+      var totals = (ticketCount.value * ticketPrice).toFixed(2)
+      singlePrice.innerText = ticketPrice.toFixed(2)
       invoiceDetails.innerText = 'Summe: ' + totals + '€ inkl. 19% MWSt.'
     } else {
       invoiceDetails.innerText = 'Geben Sie bitte eine Ticketanzahl ein!'
@@ -60,14 +59,14 @@
   form.addEventListener('submit', assertTOSAccepted)
   tosAccepted.addEventListener('change', setSubmitButtonState)
   ticketCount.addEventListener('change', adaptDependendFields)
-  privateTicket.addEventListener('change', isPrivate)
-  corporateTicket.addEventListener('change', isCorporate)
+  privateTicket && privateTicket.addEventListener('change', isPrivate)
+  corporateTicket && corporateTicket.addEventListener('change', isCorporate)
   Array.prototype.forEach.call(form.elements.type, function (el) {
     el.addEventListener('change', adaptDependendFields)
   })
 
-  if (location.search.match(/type=private/)) {
-    privateTicket.checked = true
+  if (location.search.match(/type=private/) || location.search.match(/code=/)) {
+    privateTicket && (privateTicket.checked = true)
     isPrivate()
   }
 

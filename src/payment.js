@@ -1,6 +1,10 @@
 'use strict'
 
-const mailSender = require('./mailSender')
+const buttonCodes = {
+  corporate: {live: 'YU36H9CWXCPAA', sandbox: '8LPMUVP9T6GKJ'},
+  private: {live: '2A7U58XVNP73G', sandbox: 'XD3TZQ8PTDQVJ'},
+  reduced: {live: 'XEJF3HM3C7CNW', sandbox: 'ANBYFPEREZ6AE'}
+}
 
 module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, useSandbox) => {
   function paypalUrl() {
@@ -12,15 +16,9 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
   }
 
   function exec(customer, invoice) {
-    let hosted_button_id
-    if (invoice.reduced) {
-      hosted_button_id = useSandbox ? 'XD3TZQ8PTDQVJ' : '2A7U58XVNP73G'
-    } else {
-      hosted_button_id = useSandbox ? '8LPMUVP9T6GKJ' : 'YU36H9CWXCPAA'
-    }
-    const params = {
+    return paypalUrl() + '/payment?' + encodeParams({
       cmd: '_s-xclick',
-      hosted_button_id,
+      hosted_button_id: buttonCodes[invoice.ticketType][useSandbox ? 'sandbox' : 'live'],
       quantity: invoice.tickets.length,
       notify_url: baseUrl + '/paypal/ipn',
       no_shipping: 0,
@@ -33,9 +31,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
       email: customer.email,
       lc: 'de',
       custom: invoice.uid
-    }
-
-    return paypalUrl() + '/payment?' + encodeParams(params)
+    })
   }
 
   async function paymentReceived(invoiceId) {

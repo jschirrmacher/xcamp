@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -15,7 +15,15 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return {isRedirection: true, url, user}
   }
 
-  async function buy(data, baseUrl) {
+  async function create(txn, person, count) {
+    return Array.from({length: count}, () => ({
+      type: 'ticket',
+      access_code: rack(),
+      participant: person
+    }))
+  }
+
+  async function buy(data) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
     } else if (data.type !== 'corporate' && data.payment === 'invoice') {
@@ -25,7 +33,8 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const txn = dgraphClient.newTxn()
     try {
       const customer = await Customer.create(txn, data)
-      const invoice = await Invoice.create(txn, data, customer)
+      const tickets = await create(txn, customer.person, +data.ticketCount)
+      const invoice = await Invoice.create(txn, data, customer, tickets)
       txn.commit()
 
       let url
@@ -92,5 +101,5 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  return {get, buy, setParticipant, findByAccessCode, checkin}
+  return {get, create, buy, setParticipant, findByAccessCode, checkin}
 }

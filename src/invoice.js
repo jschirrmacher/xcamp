@@ -1,5 +1,7 @@
 'use strict'
 
+const ticketTypes = require('./ticketTypes')
+
 const countries = {
   de: 'Deutschland',
   ch: 'Schweiz',
@@ -9,7 +11,7 @@ const countries = {
 const leadingZero = num => ('0' + num).substr(-2)
 const currency = n => n.toFixed(0).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
-module.exports = (dgraphClient, dgraph, rack) => {
+module.exports = (dgraphClient, dgraph) => {
   function getPrintableInvoiceData(invoice, baseUrl) {
     const ticketCount = invoice.tickets.length
     const netAmount = ticketCount * invoice.ticketPrice
@@ -17,7 +19,7 @@ module.exports = (dgraphClient, dgraph, rack) => {
     const created = new Date(invoice.created)
     const data = Object.assign({baseUrl}, invoice, {
       created: leadingZero(created.getDate()) + '.' + leadingZero(created.getMonth()+1) + '.' + created.getFullYear(),
-      ticketType: invoice.ticketType === 'corporate' ? 'Unternehmen' : 'Privatperson / Einzelunternehmer',
+      ticketType: ticketTypes[invoice.ticketType].name,
       ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
       bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
       netAmount: currency(netAmount),
@@ -42,7 +44,6 @@ module.exports = (dgraphClient, dgraph, rack) => {
       ticketType
       ticketPrice
       payment
-      reduced
       paid
       customer {
         firm
@@ -86,36 +87,25 @@ module.exports = (dgraphClient, dgraph, rack) => {
     return invoice.length ? get(txn, invoice[0].uid) : Promise.reject('Invoice not found')
   }
 
-  const ticketPrice = {
-    orga: 0,
-    corporate: 200,
-    student: 100
-  }
-
-  async function getNextInvoiceNo() {
+  async function getNextInvoiceNo(txn) {
     const result = await txn.query(`{ var(func: eq(type, "invoice")) { d as invoiceNo } me() {max(val(d))}}`)
     return result.getJson().me[0]['max(val(d))'] + 1
   }
 
-  async function create(txn, data, customer) {
-    if (typeof ticketPrice[data.type] === 'undefined') {
+  async function create(txn, data, customer, tickets) {
+    if (typeof ticketTypes[data.type] === 'undefined') {
       throw 'Unknown ticket type'
     }
     const invoice = {
       type: 'invoice',
-      invoiceNo: data.type === 'orga' ? 0 : getNextInvoiceNo(),
+      invoiceNo: data.type === 'orga' ? 0 : getNextInvoiceNo(txn),
       created: '' + new Date(),
       customer,
+      tickets,
       ticketType: data.type,
-      ticketPrice: ticketPrice[data.type],
-      payment: data.payment,
-      reduced: data.type !== 'corporate'
+      ticketPrice: ticketTypes[data.type].price,
+      payment: data.payment
     }
-    invoice.tickets = Array.from({length: data.ticketCount}, () => ({
-      type: 'ticket',
-      access_code: rack(),
-      participant: customer.person
-    }))
 
     const mu = new dgraph.Mutation()
     mu.setSetJson(invoice)
