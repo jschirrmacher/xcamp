@@ -239,10 +239,11 @@ async function createCoupon(txn, user) {
 async function fixOrgaAsAdmin(txn) {
   const result = await txn.query(`{ invoice(func: eq(type, "invoice")) { ticketType customer {uid} }}`)
   const invoices = result.getJson().invoice.filter(invoice => invoice.ticketType === 'orga')
-  const persons = invoices.map(invoice => invoice.customer[0].uid)
+  const customer = invoices.map(invoice => invoice.customer[0].uid)
   const mu = new dgraph.Mutation()
-  persons.forEach(uid => mu.setSetNquads(`<${uid}> <isAdmin> "1" .`))
+  customer.forEach(uid => mu.setSetNquads(`<${uid}> <isAdmin> "1" .`))
   await txn.mutate(mu)
+  return customer
 }
 
 async function listInvoices(txn, user) {
