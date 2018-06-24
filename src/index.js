@@ -247,6 +247,11 @@ async function fixOrgaAsAdmin(txn) {
 }
 
 async function listInvoices(txn, user) {
+  const paymentType = {
+    paypal: 'PayPal',
+    invoice: 'Rechnung',
+    none: 'N/A'
+  }
   if (!user.isAdmin) {
     throw {status: 403, message: 'Not allowed'}
   }
@@ -255,7 +260,8 @@ async function listInvoices(txn, user) {
     invoice.customer = invoice.customer[0]
     invoice.customer.person = invoice.customer.person[0]
     invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
-    invoice.paid = invoice.paid ? 'ja' : 'nein'
+    invoice.paid = invoice.paid ? 'paid' : 'open'
+    invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
   })
-  return templateGenerator.generate('invoices-list', {invoices, baseUrl}, subTemplates)
+  return templateGenerator.generate('invoices-list', {invoices, baseUrl, participantCount: invoices.length}, subTemplates)
 }

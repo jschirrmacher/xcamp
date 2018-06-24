@@ -7,37 +7,33 @@
     <link rel="stylesheet" href="ticket.css">
 </head>
 <body>
-<table>
+<table id="invoices-list">
     <tr>
-        <th>ReNr.</th>
-        <th>Datum</th>
-        <th>Anz.</th>
-        <th>Typ</th>
+        <th>ReNr / Datum</th>
+        <th>Tickets</th>
         <th>Betrag</th>
-        <th>Zahlart</th>
         <th>Bezahlt</th>
-        <th>Firma</th>
-        <th>Vorname</th>
-        <th>Nachname</th>
-        <th>E-Mail</th>
-        <th>Rechnung</th>
+        <th>Name</th>
     </tr>
     {{#invoices}}
-    <tr>
-        <td class="numeric">{{invoiceNo}}</td>
-        <td>{{created}}</td>
-        <td class="numeric">{{tickets.length}}</td>
-        <td>{{ticketType}}</td>
+    <tr class="{{paid}}">
+        <td>
+            <a href="accounts/{{customer.access_code}}/invoices/current" target="_blank">{{invoiceNo}} - {{created}}</a>
+        </td>
+        <td>{{tickets.length}} {{ticketType}}</td>
         <td class="numeric">{{ticketPrice}} €</td>
         <td>{{payment}}</td>
-        <td>{{paid}}</td>
-        <td>{{customer.firm}}</td>
-        <td>{{customer.person.firstName}}</td>
-        <td>{{customer.person.lastName}}</td>
-        <td>{{customer.person.email}}</td>
-        <td><a href="accounts/{{customer.access_code}}/invoices/current" target="_blank">Rechnung</a></td>
+        <td>{{#customer.firm}}{{customer.firm}}<br>{{/customer.firm}}
+            <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
+        </td>
     </tr>
 {{/invoices}}
 </table>
+
+<p>
+    Insgesamt
+    {{participantCount}}
+    Teilnehmer
+</p>
 </body>
 </html>

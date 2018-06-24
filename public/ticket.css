@@ -210,13 +210,26 @@ dl {
 
 table {
   border-collapse: separate;
-  border-spacing: 0; }
+  border-spacing: 0;
+  width: 100%;
+  border-left: 0.5px solid #555;
+  border-top: 0.5px solid #555; }
   table th, table td {
+    vertical-align: top;
     font-size: 14px;
-    border: 0.5px solid #ddd;
-    padding: 4px; }
+    padding: 5px;
+    border: 0.5px solid #555555;
+    border-top: none;
+    border-left: none; }
   table td.numeric {
     text-align: right; }
+
+#invoices-list tr.open {
+  background: #ff8888; }
+  #invoices-list tr.open a {
+    color: white; }
+#invoices-list tr.paid {
+  background: #88ff88; }
 
 .info {
   background: #f7f7f7;

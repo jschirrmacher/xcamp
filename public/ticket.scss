@@ -293,15 +293,35 @@ dl {
 table {
   border-collapse: separate;
   border-spacing: 0;
+  width: 100%;
+  border-left: 0.5px solid #555;
+  border-top: 0.5px solid #555;
 
   th, td {
+    vertical-align: top;
     font-size: 14px;
-    border: 0.5px solid #ddd;
-    padding: 3px;
+    padding: 5px;
+    border: 0.5px solid #555555;
+    border-top: none;
+    border-left: none;
   }
 
   td.numeric {
     text-align: right;
+  }
+}
+
+#invoices-list {
+  tr.open {
+    background: #ff8888;
+
+    a {
+      color: white;
+    }
+  }
+
+  tr.paid {
+    background: #88ff88;
   }
 }
 
