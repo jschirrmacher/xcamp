@@ -140,8 +140,10 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
       } else {
         user = await User.findByAccessCode(txn, username)
       }
-      bcrypt.compare(password, user.password, async (err, isValid) => {
-        done(err, isValid ? await getActualUserObject(txn, user) : false)
+      const hash = user.password
+      user = await getActualUserObject(txn, user)
+      bcrypt.compare(password, hash, async (err, isValid) => {
+        done(err, isValid ? user : false)
       })
     } catch (error) {
       done(error, false)
