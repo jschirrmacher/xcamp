@@ -23,6 +23,21 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }))
   }
 
+  async function assertCoupon(txn, code) {
+    if (!code) {
+      throw 'Reduced tickets require a coupon code'
+    }
+    const result = await txn.query(`{ coupons(func: eq(type, "coupon")) @filter(eq(access_code, "${code}")) { uid }}`)
+    const coupons = result.getJson().coupons
+    if (!coupons.length) {
+      throw 'Reduced tickets are available only with a valid coupon code'
+    }
+
+    const mu = new dgraph.Mutation()
+    mu.setDelNquads(`<${coupons[0].uid}> * * .`)
+    await txn.mutate(mu)
+  }
+
   async function buy(data) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
@@ -32,6 +47,9 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
     const txn = dgraphClient.newTxn()
     try {
+      if (data.type === 'reduced') {
+        await assertCoupon(txn, data.code)
+      }
       const customer = await Customer.create(txn, data)
       const tickets = await create(txn, customer.person, +data.ticketCount)
       const invoice = await Invoice.create(txn, data, customer, tickets)

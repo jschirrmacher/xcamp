@@ -230,10 +230,10 @@ async function createCoupon(txn, user) {
     throw {status: 403, message: 'Not allowed'}
   }
   const mu = new dgraph.Mutation()
-  const code = rack()
-  mu.setSetJson({type: 'coupon', code})
+  const access_code = rack()
+  mu.setSetJson({type: 'coupon', access_code})
   const assigned = await txn.mutate(mu)
-  return {type: 'coupon', code, uid: assigned.getUidsMap().get('blank-0')}
+  return {type: 'coupon', access_code, uid: assigned.getUidsMap().get('blank-0')}
 }
 
 async function fixOrgaAsAdmin(txn) {
