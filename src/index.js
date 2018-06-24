@@ -127,7 +127,8 @@ app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.post('/orga', requireJWT(), (req, res) => exec(doInTransaction(createOrgaMember, [req.body, req.user], true), res))
 app.post('/orga/coupon', requireJWT(), (req, res) => exec(doInTransaction(createCoupon, [req.user], true), res))
-app.get('/orga/fixes/orga-as-admin', requireJWT(), (req, res) => exec(doInTransaction(fixOrgaAsAdmin, req.user, true), res))
+app.get('/orga/fixes/orga-as-admin', (req, res) => exec(doInTransaction(fixOrgaAsAdmin, req.user, true), res))
+app.get('/orga/invoices', requireJWT(), (req, res) => exec(doInTransaction(listInvoices, req.user), res, 'send'))
 
 app.use((err, req, res, next) => {
   console.error(new Date(), err)
@@ -235,11 +236,25 @@ async function createCoupon(txn, user) {
   return {type: 'coupon', code, uid: assigned.getUidsMap().get('blank-0')}
 }
 
-async function fixOrgaAsAdmin(txn, user) {
-  const result = await txn.query(`{ invoice(func: eq(type, "invoice")) { ticketType tickets {uid} }}`)
+async function fixOrgaAsAdmin(txn) {
+  const result = await txn.query(`{ invoice(func: eq(type, "invoice")) { ticketType customer {uid} }}`)
   const invoices = result.getJson().invoice.filter(invoice => invoice.ticketType === 'orga')
-  const persons = invoices.map(invoice => invoice.tickets[0].uid)
+  const persons = invoices.map(invoice => invoice.customer[0].uid)
   const mu = new dgraph.Mutation()
   persons.forEach(uid => mu.setSetNquads(`<${uid}> <isAdmin> "1" .`))
   await txn.mutate(mu)
+}
+
+async function listInvoices(txn, user) {
+  if (!user.isAdmin) {
+    throw {status: 403, message: 'Not allowed'}
+  }
+  const invoices = await Invoice.listAll(txn)
+  invoices.forEach(invoice => {
+    invoice.customer = invoice.customer[0]
+    invoice.customer.person = invoice.customer.person[0]
+    invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
+    invoice.paid = invoice.paid ? 'ja' : 'nein'
+  })
+  return templateGenerator.generate('invoices-list', {invoices, baseUrl}, subTemplates)
 }

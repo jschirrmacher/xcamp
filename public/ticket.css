@@ -208,6 +208,16 @@ dl {
     margin-top: 140px;
     padding: 1em 15%; }
 
+table {
+  border-collapse: separate;
+  border-spacing: 0; }
+  table th, table td {
+    font-size: 14px;
+    border: 0.5px solid #ddd;
+    padding: 4px; }
+  table td.numeric {
+    text-align: right; }
+
 .info {
   background: #f7f7f7;
   border: 1px solid #ccc;

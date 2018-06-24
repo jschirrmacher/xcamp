@@ -9,16 +9,20 @@ const countries = {
 }
 
 const leadingZero = num => ('0' + num).substr(-2)
-const currency = n => n.toFixed(0).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
+const currency = n => (''+Math.floor(n)).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
 module.exports = (dgraphClient, dgraph) => {
+  function getFormattedDate(date) {
+    return date ? leadingZero(date.getDate()) + '.' + leadingZero(date.getMonth()+1) + '.' + date.getFullYear() : ''
+  }
+
   function getPrintableInvoiceData(invoice, baseUrl) {
     const ticketCount = invoice.tickets.length
     const netAmount = ticketCount * invoice.ticketPrice
     const vat = 0.19 * netAmount
     const created = new Date(invoice.created)
     const data = Object.assign({baseUrl}, invoice, {
-      created: leadingZero(created.getDate()) + '.' + leadingZero(created.getMonth()+1) + '.' + created.getFullYear(),
+      created: getFormattedDate(created),
       ticketType: ticketTypes[invoice.ticketType].name,
       ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
       bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
@@ -98,7 +102,7 @@ module.exports = (dgraphClient, dgraph) => {
     }
     const invoice = {
       type: 'invoice',
-      invoiceNo: data.type === 'orga' ? 0 : getNextInvoiceNo(txn),
+      invoiceNo: data.type === 'orga' ? 0 : await getNextInvoiceNo(txn),
       created: '' + new Date(),
       customer,
       tickets,
@@ -119,7 +123,14 @@ module.exports = (dgraphClient, dgraph) => {
     return get(txn, uid)
   }
 
-  return {
-    get, getPrintableInvoiceData, getNewest, create
+  async function listAll(txn) {
+    const result = await txn.query(`{ all(func: eq(type, "invoice")) {
+      uid invoiceNo created ticketType ticketPrice payment paid
+      customer {firm access_code person {firstName lastName email}}
+      tickets {uid}
+    }}`)
+    return result.getJson().all
   }
+
+  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, create, listAll}
 }
