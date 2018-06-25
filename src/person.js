@@ -74,7 +74,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
       person.topics = []
     }
     if (newData.topics) {
-      const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', false)
+      const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
       newData.topics = newData.topics.map(topic => {
         person.topics = person.topics.filter(existing => topic.name !== existing.name)
         return allTopics.find(t => t.name === topic.name) || Object.assign(topic, {type: 'topic'})

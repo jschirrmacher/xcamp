@@ -21,9 +21,10 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
   }
 
   async function findByEMail(txn, email) {
-    const emailQuery = QueryFunction('Customer', `uid password person { email } @filter(eq(email, "${email}"))`)
-    const customer = await emailQuery.one(txn, `func: eq(type, "customer")`)
-    return get(txn, customer.uid)
+    const emailQuery = QueryFunction('Customer', `uid password person @filter(eq(email, "${email}")) { email }`)
+    const customer = await emailQuery.all(txn, `func: eq(type, "customer")`)
+    const result = customer.find(entry => entry.person)
+    return get(txn, result.uid)
   }
 
   async function create(txn, customerData) {
