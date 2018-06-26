@@ -100,7 +100,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function updateById(txn, id, data, user) {
     const person = await get(txn, id)
-    await upsert(txn, person, data, user)
+    return upsert(txn, person, data, user)
   }
 
   function getPicturePath(id) {

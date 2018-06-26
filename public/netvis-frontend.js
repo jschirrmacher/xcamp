@@ -56,10 +56,12 @@ var network
       const newTag = tagView.getElementsByClassName('new-tag')[0]
       const profilePic = form.getElementsByClassName('profile-picture')[0]
 
-      function close() {
-        form.parentNode.removeChild(form)
-        window.history.pushState(null, null, location.pathname)
-        resolve()
+      function close(result) {
+        return result.json().then(function (data) {
+          form.parentNode.removeChild(form)
+          window.history.pushState(null, null, location.pathname)
+          resolve(data)
+        })
       }
 
       function deleteTag(event) {
