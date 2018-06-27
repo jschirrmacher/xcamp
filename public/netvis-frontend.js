@@ -57,12 +57,10 @@ var network
       const profilePic = form.getElementsByClassName('profile-picture')[0]
 
       function close(result) {
+        form.parentNode.removeChild(form)
+        window.history.pushState(null, null, location.pathname)
         if (result) {
-          return result.json().then(function (data) {
-            form.parentNode.removeChild(form)
-            window.history.pushState(null, null, location.pathname)
-            resolve(data)
-          })
+          return result.json().then(resolve)
         } else {
           resolve()
         }
