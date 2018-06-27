@@ -68,6 +68,13 @@ async function exec(func, res, type = 'json') {
           auth.signIn({user: result.user}, res)
         }
         res.redirect(result.url)
+      } else if (result && result.mimeType) {
+        res.contentType(result.mimeType)
+        if (result.disposition) {
+          const name = result.name ? '; filename="' + result.name + '"' : ''
+          res.header('Content-Disposition', result.disposition + name)
+        }
+        res.send(result.content)
       } else {
         res[type](result)
       }
@@ -102,7 +109,7 @@ app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.ups
 app.get('/persons/:uid', requireJWT({allowAnonymous}), (req, res) => exec(doInTransaction(Person.getPublicDetails, [req.params.uid, req.user]), res))
 app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true), res))
 app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true), res))
-app.get('/persons/:uid/picture', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
+app.get('/persons/:uid/picture/:name', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))

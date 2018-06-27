@@ -23,7 +23,13 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
 
   async function get(txn, uid) {
     const person = await query.one(txn, `func: uid(${uid})`)
-    person.image = person.image ? 'persons/' + uid + '/picture' : 'user.png'
+    if (!person.image) {
+      person.image = 'user.png'
+    } else if (person.image.match(/^\w+\/\w+:.*$/)) {
+      person.image = 'persons/' + uid + '/picture/' + person.image.replace(/.*:/, '')
+    } else if (person.image.match(/^persons\/0x\w+\/picture$/)) {
+      person.image += '/picture'
+    }
     return person
   }
 
@@ -122,10 +128,13 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
   }
 
   async function getProfilePicture(txn, id) {
-    const fileName = getPicturePath(id)
-    if (fs.existsSync(fileName)) {
-      return fs.readFileSync(fileName)
+    const person = await get(txn, id)
+    const [mimeType, name] = person.image.split(':', 1)
+    let fileName = getPicturePath(id)
+    if (!fs.existsSync(fileName)) {
+      fileName = path.join(__dirname, '../public/user.png')
     }
+    return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
   return {get, getPublicDetails, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate}
