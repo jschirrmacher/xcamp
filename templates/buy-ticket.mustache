@@ -48,6 +48,11 @@
                 </div>
                 {{/code}}
 
+                {{#code}}
+                    <input type="radio" class="hidden" name="type" value="reduced" checked="checked">
+                    <input type="hidden" name="code" value="{{code}}">
+                {{/code}}
+
                 <div class="form-group col-12">
                     <label for="payment-firm"></label>
                     <input type="text" id="payment-firm" name="firm" class="form-control" placeholder="Name der Firma"
@@ -136,11 +141,6 @@
             </div>
 
             <button type="submit" id="submit-button" class="button">Jetzt kaufen</button>
-
-            {{#code}}
-                <input type="hidden" name="type" class="form-control" value="reduced" id="type-student"/>Reduziert
-                <input type="hidden" name="code" value="{{code}}">
-            {{/code}}
         </form>
     </div>
 </div>

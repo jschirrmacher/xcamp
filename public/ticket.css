@@ -88,6 +88,9 @@ button {
   font-size: 12px;
   margin-left: 3em; }
 
+.hidden {
+  display: none; }
+
 #invoice-details {
   margin: 1em 0;
   border: 1px solid #ccc;

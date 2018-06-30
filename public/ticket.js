@@ -26,12 +26,13 @@
   }
 
   function adaptDependendFields() {
-    var isCorporate = form.elements.type.value === 'corporate'
+    var ticketType = form.querySelector('input[name=type]:checked').value
+    var isCorporate = ticketType === 'corporate'
     if (ticketCount.value !== '') {
       if (ticketCount.value < 1) {
         ticketCount.value = 1
       }
-      var ticketPrice = isCorporate ? 238 : form.elements.type.value === 'private' ? 119 : 59.50
+      var ticketPrice = isCorporate ? 238 : ticketType === 'private' ? 119 : 59.50
       var totals = (ticketCount.value * ticketPrice).toFixed(2)
       singlePrice.innerText = ticketPrice.toFixed(2)
       invoiceDetails.innerText = 'Summe: ' + totals + '€ inkl. 19% MWSt.'
