@@ -114,18 +114,47 @@ var network
         el.addEventListener('click', deleteTag)
       })
 
+      var maxHeight = 150
+      var maxWidth = 120
       form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
-        const headers = {authorization}
-        const body = new FormData()
-        body.append('picture', event.target.files[0])
-        fetch('persons/' + id + '/picture', {method: 'PUT', body, headers})
-          .then(function (result) {
-            return result.json()
-          })
-          .then(function (person) {
-            profilePic.src = person.image
-            // @todo update force diagram node content
-          })
+        var reader = new FileReader()
+        reader.onload = function (e) {
+          var image = new Image()
+          image.onload = function () {
+            if (image.width > image.height) {
+              image.height *= maxHeight / image.width
+              image.width = maxWidth
+            } else {
+              image.width *= maxHeight / image.height
+              image.height = maxHeight
+            }
+
+            var canvas = document.createElement("canvas")
+            canvas.width = image.width
+            canvas.height = image.height
+            canvas.getContext("2d").drawImage(image, 0, 0, image.width, image.height)
+
+            var splitted = canvas.toDataURL().split(',')
+            var mime = splitted[0].replace(/data:(.*);.*/, '$1')
+            var binary = atob(splitted[1])
+            var array = Array(binary.length)
+            for (var i=0; i<binary.length; i++) {
+              array[i] = binary.charCodeAt(i)
+            }
+
+            const body = new FormData()
+            body.append('picture', new Blob([new Uint8Array(array)], {type: mime}), event.target.files[0].name)
+            fetch('persons/' + id + '/picture', {method: 'PUT', body, headers: {authorization}})
+              .then(function (result) {
+                return result.json()
+              })
+              .then(function (person) {
+                profilePic.src = person.image
+              })
+          }
+          image.src = e.target.result
+        }
+        reader.readAsDataURL(event.target.files[0])
       })
 
       newTag.addEventListener('keydown', function (event) {
