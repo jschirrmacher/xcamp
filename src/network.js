@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
+module.exports = (dgraphClient, dgraph, Person) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()
@@ -74,26 +74,30 @@ module.exports = (dgraphClient, dgraph, Person, QueryFunction) => {
       handleSubNodes(xcamp, 'topic', 'rect', nodes, links)
       delete xcamp.uid
 
-      const data = await txn.query(`{ all(func: anyofterms(type, "ticket")) { participant { uid }}}`)
+      const data = await txn.query(`{ all(func: eq(type, "invoice")) { payment paid tickets { participant { uid }}}}`)
       const all = data.getJson().all
       const uids = []
       const myTickets = getTickets(user)
-      await Promise.all(all.map(async ticket => {
-        const uid = ticket.participant[0].uid
-        if (uids.indexOf(uid) < 0) {
-          uids.push(uid)
-          const person = await Person.get(txn, uid)
-          nodes.push({
-            id: person.uid,
-            editable: myTickets.indexOf(ticket.uid) !== false,
-            name: person.firstName + ' ' + person.lastName,
-            details: 'persons/' + person.uid,
-            image: person.image,
-            shape,
-            visible
-          })
-          handleSubNodes(person, 'topic', 'rect', nodes, links)
-          return person
+      await Promise.all(all.map(async invoice => {
+        if (invoice.payment !== 'paypal' || invoice.paid) {
+          await Promise.all(invoice.tickets.map(async ticket => {
+            const uid = ticket.participant[0].uid
+            if (uids.indexOf(uid) < 0) {
+              uids.push(uid)
+              const person = await Person.get(txn, uid)
+              nodes.push({
+                id: person.uid,
+                editable: myTickets.indexOf(ticket.uid) !== false,
+                name: person.firstName + ' ' + person.lastName,
+                details: 'persons/' + person.uid,
+                image: person.image,
+                shape,
+                visible
+              })
+              handleSubNodes(person, 'topic', 'rect', nodes, links)
+              return person
+            }
+          }))
         }
       }))
       return {nodes, links}

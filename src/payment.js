@@ -39,9 +39,13 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     try {
       const invoice = await Invoice.get(txn, invoiceId)
       const customer = invoice.customer[0]
+      const invoiceNo = Invoice.getNextInvoiceNo(txn)
 
       const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
+      await mu.setSetNquads(`
+        <${invoiceId}> <invoiceNo> "${invoiceNo}" .
+        <${invoiceId}> <paid> "1" .
+        `)
       await txn.mutate(mu)
 
       txn.commit()
