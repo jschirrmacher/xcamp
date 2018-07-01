@@ -34,27 +34,18 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     })
   }
 
-  async function paymentReceived(invoiceId) {
-    const txn = dgraphClient.newTxn()
-    try {
-      const invoice = await Invoice.get(txn, invoiceId)
-      const customer = invoice.customer[0]
-      const invoiceNo = await Invoice.getNextInvoiceNo(txn)
+  async function paymentReceived(txn, invoice) {
+    const customer = invoice.customer[0]
+    const invoiceNo = invoice.invoiceNo || await Invoice.getNextInvoiceNo(txn)
 
-      const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`
-        <${invoiceId}> <invoiceNo> "${invoiceNo}" .
-        <${invoiceId}> <paid> "1" .
-        `)
-      await txn.mutate(mu)
+    const mu = new dgraph.Mutation()
+    await mu.setSetNquads(`
+      <${invoice.uid}> <invoiceNo> "${invoiceNo}" .
+      <${invoice.uid}> <paid> "1" .
+      `)
+    await txn.mutate(mu)
 
-      txn.commit()
-      mailSender.sendTicketNotifications(customer, invoice)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      txn.discard()
-    }
+    mailSender.sendTicketNotifications(customer, invoice)
   }
 
   async function paypalIpn(req) {
@@ -70,7 +61,15 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
       if (content !== 'VERIFIED') {
         mailSender.send('tech@justso.de', 'IPN not verified', JSON.stringify(req.body))
       } else {
-        paymentReceived(req.body.custom)
+        const txn = dgraphClient.newTxn()
+        try {
+          paymentReceived(txn, await Invoice.get(txn, req.body.custom))
+          txn.commit()
+        } catch (error) {
+          console.error(error)
+        } finally {
+          txn.discard()
+        }
       }
     } catch (error) {
       mailSender.send('tech@justso.de', 'Invalid IPN received from PayPal', JSON.stringify(error))
@@ -79,5 +78,5 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     return ''
   }
 
-  return {exec, paypalIpn, useSandbox}
+  return {exec, paypalIpn, paymentReceived, useSandbox}
 }

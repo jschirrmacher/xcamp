@@ -46,6 +46,7 @@ const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoi
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
+
 const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
 const redirect = true
 const allowAnonymous = true
@@ -284,11 +285,16 @@ async function listInvoices(txn) {
 }
 
 async function invoicePayment(txn, invoiceId, state) {
-  const mu = new dgraph.Mutation()
-  if (state) {
-    mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
+  const invoice = await Invoice.get(txn, invoiceId)
+  if (state && invoice.payment === 'paypal') {
+    await Payment.paymentReceived(txn, invoice)
   } else {
-    mu.setDelNquads(`<${invoiceId}> <paid> * .`)
+    const mu = new dgraph.Mutation()
+    if (state) {
+      mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
+    } else {
+      mu.setDelNquads(`<${invoiceId}> <paid> * .`)
+    }
+    await txn.mutate(mu)
   }
-  await txn.mutate(mu)
 }
