@@ -58,6 +58,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
   }
 
   async function paypalIpn(req) {
+    console.log('PayPal payment received', req.body)
     req.body.cmd = '_notify-validate'
     const options = {
       method: 'POST',
