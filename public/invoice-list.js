@@ -5,7 +5,7 @@ document.querySelectorAll('.setPayment').forEach(function (el) {
   el.onclick = function (event) {
     var row = el.parentNode.parentNode
     var method = row.className === 'open' ? 'PUT' : 'DELETE'
-    fetch('/orga/invoices/' + row.id + '/paid', {method, headers: {authorization}})
+    fetch('orga/invoices/' + row.id + '/paid', {method, headers: {authorization}})
       .then(function (result) {
         if (result.ok) {
           location.reload()
