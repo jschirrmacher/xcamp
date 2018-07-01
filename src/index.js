@@ -268,10 +268,10 @@ async function listInvoices(txn) {
   }
   const invoices = await Invoice.listAll(txn)
   invoices.forEach(invoice => {
-    if (!invoice.customer.length) {
+    if (!invoice.customer) {
       throw 'No customer defined for invoice ' + invoice.uid
     }
-    if (!invoice.customer[0].person.length) {
+    if (!invoice.customer[0].person) {
       throw 'No person defined for customer ' + invoice.customer[0].uid
     }
     invoice.customer = invoice.customer[0]
