@@ -268,6 +268,12 @@ async function listInvoices(txn) {
   }
   const invoices = await Invoice.listAll(txn)
   invoices.forEach(invoice => {
+    if (!invoice.customer.length) {
+      throw 'No customer defined for invoice ' + invoice.uid
+    }
+    if (!invoice.customer[0].person.length) {
+      throw 'No person defined for customer ' + invoice.customer[0].uid
+    }
     invoice.customer = invoice.customer[0]
     invoice.customer.person = invoice.customer.person[0]
     invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
