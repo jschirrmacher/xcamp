@@ -230,19 +230,18 @@ table {
 
 #invoices-list button.setPayment {
   float: right;
-  padding: 3px;
-  cursor: pointer; }
+  padding: 0;
+  cursor: pointer;
+  width: 14px;
+  height: 17px; }
 #invoices-list tr.open {
   background: #ff8888; }
   #invoices-list tr.open a {
     color: white; }
-  #invoices-list tr.open button.setPayment:before {
-    content: '✔';
-    display: inline; }
 #invoices-list tr.paid {
   background: #88ff88; }
   #invoices-list tr.paid button.setPayment:before {
-    content: '✖';
+    content: '✔';
     display: inline; }
 
 .info {

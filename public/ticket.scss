@@ -318,8 +318,10 @@ table {
 #invoices-list {
   button.setPayment {
     float: right;
-    padding: 3px;
+    padding: 0;
     cursor: pointer;
+    width: 14px;
+    height: 17px;
   }
 
   tr.open {
@@ -328,18 +330,13 @@ table {
     a {
       color: white;
     }
-
-    button.setPayment:before {
-      content: '✔';
-      display: inline;
-    }
   }
 
   tr.paid {
     background: #88ff88;
 
     button.setPayment:before {
-      content: '✖';
+      content: '✔';
       display: inline;
     }
   }
