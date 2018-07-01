@@ -26,7 +26,7 @@ app.set('json spaces', 2)
 
 app.use((req, res, next) => {
   next()
-  console.log(new Date(), req.method, req.path, '->', res.statusCode)
+  console.log(new Date(), req.method, req.path)
 })
 
 app.use(cookieParser())
@@ -53,6 +53,14 @@ const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_co
 const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', options)
 const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
+
+function requireAdmin(req, res, next) {
+  if (!req.user.isAdmin) {
+    throw {status: 403, message: 'Not allowed'}
+  } else {
+    next()
+  }
+}
 
 async function exec(func, res, type = 'json') {
   return func
@@ -81,7 +89,7 @@ async function exec(func, res, type = 'json') {
     })
 }
 
-async function doInTransaction(action, params, commit = false) {
+async function doInTransaction(action, params = [], commit = false) {
   const txn = dgraphClient.newTxn()
   params = Array.isArray(params) ? params : [params]
   try {
@@ -132,13 +140,16 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduct
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
-app.post('/orga', requireJWT(), (req, res) => exec(doInTransaction(createOrgaMember, [req.body, req.user], true), res))
-app.post('/orga/coupon', requireJWT(), (req, res) => exec(doInTransaction(createCoupon, [req.user], true), res))
-app.get('/orga/fixes/orga-as-admin', (req, res) => exec(doInTransaction(fixOrgaAsAdmin, req.user, true), res))
-app.get('/orga/invoices', requireJWT(), (req, res) => exec(doInTransaction(listInvoices, req.user), res, 'send'))
+app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
+app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
+app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransaction(fixOrgaAsAdmin, [], true), res))
+app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 
 app.use((err, req, res, next) => {
-  console.error(new Date(), err)
+  res.status(err.status || 500)
+  console.error(new Date(), err.stack || err)
+  const message = err.message || err.toString()
+  res.send(isProduction ? message : err.stack || message)
 })
 
 app.listen(port, () => console.log('Running on port ' + port +
@@ -220,10 +231,7 @@ async function setPassword(txn, accessCode, password) {
   return {isRedirection: true, url: baseUrl + 'accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
 }
 
-async function createOrgaMember(txn, data, user) {
-  if (!user.isAdmin) {
-    throw {status: 403, message: 'Not allowed'}
-  }
+async function createOrgaMember(txn, data) {
   data.ticketCount = 1
   data.type = 'orga'
   data.payment = 'none'
@@ -232,10 +240,7 @@ async function createOrgaMember(txn, data, user) {
   return Invoice.create(txn, data, customer, tickets)
 }
 
-async function createCoupon(txn, user) {
-  if (!user.isAdmin) {
-    throw {status: 403, message: 'Not allowed'}
-  }
+async function createCoupon(txn) {
   const mu = new dgraph.Mutation()
   const access_code = rack()
   mu.setSetJson({type: 'coupon', access_code})
@@ -258,9 +263,6 @@ async function listInvoices(txn, user) {
     paypal: 'PayPal',
     invoice: 'Rechnung',
     none: 'N/A'
-  }
-  if (!user.isAdmin) {
-    throw {status: 403, message: 'Not allowed'}
   }
   const invoices = await Invoice.listAll(txn)
   invoices.forEach(invoice => {

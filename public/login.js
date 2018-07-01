@@ -34,7 +34,7 @@ loginForm.addEventListener('submit', function (event) {
       return result.ok ? result.text() : Promise.reject(result.status + ' ' + result.statusText)
     })
     .then(function (data) {
-      window.location.href = document.baseURI + decodeURIComponent(loginForm.elements.url.value.replace(/^\//, ''))
+      window.location.href = document.baseURI + decodeURIComponent(loginForm.elements.url.value).replace(/^\//, '')
     })
     .catch(function (error) {
       console.error(error)
