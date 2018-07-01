@@ -44,8 +44,11 @@ module.exports = (dgraphClient, dgraph, Person) => {
   function handleSubNodes(data, type, shape, nodes, links) {
     if (data[type + 's']) {
       data[type + 's'].forEach(sub => {
-        if (!nodes.some(node => node.id === sub.uid)) {
-          nodes.push({id: sub.uid, name: sub.name, type, shape})
+        const found = nodes.find(node => node.id === sub.uid)
+        if (!found) {
+          nodes.push({id: sub.uid, name: sub.name, type, shape, numLinks: 1})
+        } else {
+          found.numLinks++
         }
         links.push({source: data.uid, target: sub.uid})
       })
@@ -71,7 +74,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
       const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape, open, visible})
       xcamp.id = xcamp.uid
       const nodes = [xcamp]
-      handleSubNodes(xcamp, 'topic', 'rect', nodes, links)
+      handleSubNodes(xcamp, 'topic', null, nodes, links)
       delete xcamp.uid
 
       const data = await txn.query(`{ all(func: eq(type, "invoice")) { payment paid tickets { participant { uid }}}}`)
@@ -94,12 +97,17 @@ module.exports = (dgraphClient, dgraph, Person) => {
                 shape,
                 visible
               })
-              handleSubNodes(person, 'topic', 'rect', nodes, links)
+              handleSubNodes(person, 'topic', null, nodes, links)
               return person
             }
           }))
         }
       }))
+      nodes.forEach(node => {
+        if (node.numLinks) {
+          node.fontSize = 1 + Math.min(2, (node.numLinks - 1) / 5)
+        }
+      })
       return {nodes, links}
     } finally {
       txn.discard()

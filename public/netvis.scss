@@ -34,8 +34,8 @@ svg {
     stroke: #000;
     stroke-width: 1px;
 
-    &.open > circle,
-    &.open > rect {
+    &.open > circle:first-child,
+    &.open > rect:first-child {
       stroke: #f00;
       stroke-width: 2px;
     }
@@ -44,7 +44,6 @@ svg {
       transition: 0.5s 0.5s;
 
       tspan {
-        font-size: 14px;
         fill: #000;
         stroke-width: 0;
         text-anchor: middle;
@@ -52,8 +51,8 @@ svg {
       }
     }
 
-    &.withBg > text {
-      transform: translate(0, 20px);
+    &.withBg > text, &.withBg > .text-bg {
+      transform: translate(0, 40px);
     }
 
     &.withBg.dark > text tspan {
@@ -69,14 +68,22 @@ svg {
     }
 
     rect {
-      fill: #fcfcfc;
       stroke: none;
     }
 
     rect + text tspan {
-      font-size: 20px;
       font-weight: bold;
       fill: #555;
+    }
+
+    circle + rect + text tspan {
+      font-weight: normal;
+    }
+
+    .text-bg {
+      fill: #fcffff;
+      rx: 5px;
+      ry: 5px;
     }
   }
 }
