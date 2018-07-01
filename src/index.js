@@ -26,7 +26,7 @@ app.set('json spaces', 2)
 
 app.use((req, res, next) => {
   next()
-  console.log(new Date(), req.method, req.path)
+  console.log(new Date(), req.method + ' ' + req.path, req.headers['user-agent'])
 })
 
 app.use(cookieParser())
