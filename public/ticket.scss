@@ -316,16 +316,32 @@ table {
 }
 
 #invoices-list {
+  button.setPayment {
+    float: right;
+    padding: 3px;
+    cursor: pointer;
+  }
+
   tr.open {
     background: #ff8888;
 
     a {
       color: white;
     }
+
+    button.setPayment:before {
+      content: '✔';
+      display: inline;
+    }
   }
 
   tr.paid {
     background: #88ff88;
+
+    button.setPayment:before {
+      content: '✖';
+      display: inline;
+    }
   }
 }
 

@@ -16,13 +16,13 @@
         <th>Name</th>
     </tr>
     {{#invoices}}
-    <tr class="{{paid}}">
+    <tr class="{{paid}}" id="{{uid}}">
         <td>
             <a href="accounts/{{customer.access_code}}/invoices/current" target="_blank">{{invoiceNo}} - {{created}}</a>
         </td>
         <td>{{tickets.length}} {{ticketType}}</td>
         <td class="numeric">{{ticketPrice}} €</td>
-        <td>{{payment}}</td>
+        <td>{{payment}}<button class="setPayment"><span></span></button></td>
         <td>{{#customer.firm}}{{customer.firm}}<br>{{/customer.firm}}
             <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
         </td>
@@ -35,5 +35,6 @@
     {{participantCount}}
     Teilnehmer
 </p>
+<script src="invoice-list.js"></script>
 </body>
 </html>

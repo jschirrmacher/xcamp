@@ -144,6 +144,8 @@ app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
 app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransaction(fixOrgaAsAdmin, [], true), res))
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
+app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
+app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
@@ -258,7 +260,7 @@ async function fixOrgaAsAdmin(txn) {
   return customer
 }
 
-async function listInvoices(txn, user) {
+async function listInvoices(txn) {
   const paymentType = {
     paypal: 'PayPal',
     invoice: 'Rechnung',
@@ -273,4 +275,14 @@ async function listInvoices(txn, user) {
     invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
   })
   return templateGenerator.generate('invoices-list', {invoices, baseUrl, participantCount: invoices.length}, subTemplates)
+}
+
+async function invoicePayment(txn, invoiceId, state) {
+  const mu = new dgraph.Mutation()
+  if (state) {
+    mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
+  } else {
+    mu.setDelNquads(`<${invoiceId}> <paid> * .`)
+  }
+  await txn.mutate(mu)
 }

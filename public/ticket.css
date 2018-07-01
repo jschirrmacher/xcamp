@@ -1,3 +1,4 @@
+@charset "UTF-8";
 html, body {
   margin: 0;
   padding: 0;
@@ -227,12 +228,22 @@ table {
   table td.numeric {
     text-align: right; }
 
+#invoices-list button.setPayment {
+  float: right;
+  padding: 3px;
+  cursor: pointer; }
 #invoices-list tr.open {
   background: #ff8888; }
   #invoices-list tr.open a {
     color: white; }
+  #invoices-list tr.open button.setPayment:before {
+    content: '✔';
+    display: inline; }
 #invoices-list tr.paid {
   background: #88ff88; }
+  #invoices-list tr.paid button.setPayment:before {
+    content: '✖';
+    display: inline; }
 
 .info {
   background: #f7f7f7;
