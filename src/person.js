@@ -82,8 +82,11 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     if (newData.topics) {
       const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
       newData.topics = newData.topics.map(topic => {
-        person.topics = person.topics.filter(existing => topic.name !== existing.name)
-        return allTopics.find(t => t.name === topic.name) || Object.assign(topic, {type: 'topic'})
+        const index = person.topics.findIndex(t => !t.name.localeCompare(topic.name))
+        if (index >= 0) {
+          person.topics.splice(index, 1)
+        }
+        return allTopics.find(t => !t.name.localeCompare(topic.name)) || Object.assign(topic, {type: 'topic'})
       })
     }
     person.topics.forEach(topic => mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`))
