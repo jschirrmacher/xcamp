@@ -262,6 +262,9 @@ async function fixOrgaAsAdmin(txn) {
 }
 
 async function listInvoices(txn) {
+  let participantCount = 0
+  let paidTickets = 0
+  let totals = 0
   const paymentType = {
     paypal: 'PayPal',
     invoice: 'Rechnung',
@@ -278,10 +281,15 @@ async function listInvoices(txn) {
     invoice.customer = invoice.customer[0]
     invoice.customer.person = invoice.customer.person[0]
     invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
-    invoice.paid = invoice.paid ? 'paid' : 'open'
     invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
+    participantCount += invoice.tickets.length
+    if (invoice.paid) {
+      paidTickets += invoice.tickets.length
+      totals += invoice.tickets.length * invoice.ticketPrice
+    }
+    invoice.paid = invoice.paid ? 'paid' : 'open'
   })
-  return templateGenerator.generate('invoices-list', {invoices, baseUrl, participantCount: invoices.length}, subTemplates)
+  return templateGenerator.generate('invoices-list', {invoices, baseUrl, participantCount, paidTickets, totals}, subTemplates)
 }
 
 async function invoicePayment(txn, invoiceId, state) {
