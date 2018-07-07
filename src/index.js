@@ -136,7 +136,7 @@ app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redire
 app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
-app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req, !isProduction)))
+app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))

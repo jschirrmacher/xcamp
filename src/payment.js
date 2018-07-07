@@ -63,10 +63,10 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
       } else {
         const txn = dgraphClient.newTxn()
         try {
-          paymentReceived(txn, await Invoice.get(txn, req.body.custom))
+          await paymentReceived(txn, await Invoice.get(txn, req.body.custom))
           txn.commit()
         } catch (error) {
-          console.error(error)
+          console.error(new Date(), error)
         } finally {
           txn.discard()
         }
