@@ -175,9 +175,14 @@ var network
     }
   }
 
+  function initialized() {
+    network.scale(10 / network.nodes.length)
+    handleHash()
+  }
+
   window.onpopstate = handleHash
 
-  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized: handleHash})
+  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized})
   fetch('login', {headers: {authorization}})
     .then(function (response) {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')

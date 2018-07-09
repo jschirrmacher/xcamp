@@ -15,7 +15,7 @@ button {
 
 svg {
   opacity: 0.001;
-  transition: opacity 1s 1s; }
+  transition: opacity 1s; }
 
 body.initialized svg {
   opacity: 1; }
@@ -38,7 +38,8 @@ svg .node {
       text-anchor: middle;
       text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
   svg .node.withBg > text, svg .node.withBg > .text-bg {
-    transform: translate(0, 40px); }
+    transform: translate(0, 50px);
+    stroke: darkgrey; }
   svg .node.withBg.dark > text tspan {
     fill: #fff;
     text-shadow: 0 0 5px #000, 0 0 5px #000; }

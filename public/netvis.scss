@@ -16,7 +16,7 @@ button {
 
 svg {
   opacity: 0.001;
-  transition: opacity 1s 1s;
+  transition: opacity 1s;
 }
 
 body.initialized svg {
@@ -52,7 +52,8 @@ svg {
     }
 
     &.withBg > text, &.withBg > .text-bg {
-      transform: translate(0, 40px);
+      transform: translate(0, 50px);
+      stroke: darkgrey;
     }
 
     &.withBg.dark > text tspan {
