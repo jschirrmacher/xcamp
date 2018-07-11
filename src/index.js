@@ -147,6 +147,7 @@ app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransa
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
+app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTile(req.query), res, 'send'))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
@@ -305,4 +306,15 @@ async function invoicePayment(txn, invoiceId, state) {
     }
     await txn.mutate(mu)
   }
+}
+
+async function generateTile(data) {
+  const colorSelect = () => value => {
+    const flags = {};
+    ['yellow', 'turquoise', 'red', 'grey', 'tuatara'].forEach(color => {
+      flags['is_' + color] = color === data[value] ? 'selected' : ''
+    })
+    return templateGenerator.generate('colorOptions', flags)
+  }
+  return templateGenerator.generate('tile-form', {baseUrl, colorSelect, ...data}, subTemplates)
 }

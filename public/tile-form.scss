@@ -1,0 +1,87 @@
+@font-face {
+  font-family: 'Affogato-Bold';
+  src: url('webfont/Affogato-Bold.eot');
+  src: url('webfont/Affogato-Bold.eot?#iefix') format('embedded-opentype'),
+  url('webfont/Affogato-Bold.woff') format('woff'),
+  url('webfont/Affogato-Bold.woff2') format('woff2'),
+  url('webfont/Affogato-Bold.ttf') format('truetype'),
+  url('webfont/Affogato-Bold.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.yellow {color: #F9D400;}
+.turquoise {color: #4ED9D5;}
+.red {color: #FF696C;}
+.smoke {color: #F5F5F5;}
+.tuatara {color: #343434;}
+
+.tile {
+  width: 480px;
+  height: 250px;
+  margin: 2em auto;
+  padding: 2em 1em 1em 12em;
+  box-sizing: border-box;
+
+  &.yellow {background-color: #F9D400;}
+  &.turquoise {background-color: #4ED9D5;}
+  &.red {background-color: #FF696C;}
+  &.smoke {background-color: #F5F5F5;}
+  &.tuatara {background-color: #343434;}
+
+  h1 {
+    font: 28px Affogato-Bold, serif;
+    margin: 1em 0 0;
+  }
+
+  span {
+    font: 20px Affogato-Bold, serif;
+  }
+
+  div {
+    margin-top: 2em;
+  }
+
+  .box {
+    background-color: #4ED9D5;
+    color: #343434;
+    border: 2px solid #343434;
+    padding: 5px;
+    font-size: 16px;
+  }
+}
+
+form {
+  padding: 2em;
+
+  label {
+    display: block;
+    margin-bottom: 0.5em;
+
+    span {
+      display: inline-block;
+      width: 100px;
+    }
+
+    input {
+      width: 320px;
+      font-size: 16px;
+    }
+
+    select {
+      font-size: 16px;
+    }
+  }
+
+  button {
+    font-size: 16px;
+    padding: 5px 20px;
+    cursor: pointer;
+  }
+}
