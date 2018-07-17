@@ -147,6 +147,7 @@ app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransa
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
+app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(deleteInvoice, [req.params.invoiceNo, true], true), res))
 app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTile(req.query), res, 'send'))
 
 app.use((err, req, res, next) => {
@@ -306,6 +307,21 @@ async function invoicePayment(txn, invoiceId, state) {
     }
     await txn.mutate(mu)
   }
+}
+
+async function deleteInvoice(txn, invoiceId) {
+  const unique = (value, index, self) => self.indexOf(value) === index
+  const invoice = await Invoice.get(txn, invoiceId)
+  const customer = invoice.customer[0]
+  const addresses = customer.addresses
+  const person = customer.person[0]
+  const tickets = invoice.tickets
+  const participants = tickets.map(ticket => ticket.participant)
+  const toDelete = [invoice, ...addresses, person, ...tickets, ...participants]
+  const uids = toDelete.map(o => o && o.uid).filter(o => o).filter(unique)
+  const mu = new dgraph.Mutation()
+  mu.setDelNquads(uids.map(uid => '<' + uid + '> * * .').join('\n'))
+  await txn.mutate(mu)
 }
 
 async function generateTile(data) {

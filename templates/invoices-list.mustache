@@ -14,6 +14,7 @@
         <th>Betrag</th>
         <th>Bezahlt</th>
         <th>Name</th>
+        <th></th>
     </tr>
     {{#invoices}}
     <tr class="{{paid}}" id="{{uid}}">
@@ -25,6 +26,9 @@
         <td>{{payment}}<button class="setPayment"></button></td>
         <td>{{#customer.firm}}{{customer.firm}}<br>{{/customer.firm}}
             <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
+        </td>
+        <td>
+            {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}
         </td>
     </tr>
 {{/invoices}}

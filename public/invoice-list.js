@@ -14,7 +14,26 @@ document.querySelectorAll('.setPayment').forEach(function (el) {
         }
       })
       .then(function (result) {
-        alert(result.error)
+        return result && alert(result.error)
+      })
+  }
+})
+
+document.querySelectorAll('.delete').forEach(function (el) {
+  el.onclick = function (event) {
+    fetch('/orga/invoices/' + el.parentNode.parentNode.id, {method: 'DELETE', headers: {authorization}})
+      .then(function (result) {
+        if (result.ok) {
+          location.reload()
+        } else {
+          return result.json()
+        }
+      })
+      .then(function (result) {
+        return result && Promise.reject(result.error)
+      })
+      .catch(function (error) {
+        alert(error)
       })
   }
 })

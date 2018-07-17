@@ -50,14 +50,17 @@ module.exports = (dgraphClient, dgraph) => {
       payment
       paid
       customer {
+        uid
         firm
         access_code
         person {
+          uid
           firstName
           lastName
           email
         }
         addresses {
+          uid
           address
           postcode
           city
@@ -65,6 +68,7 @@ module.exports = (dgraphClient, dgraph) => {
         }
       }
       tickets {
+        uid
         access_code
         participant {
           uid
