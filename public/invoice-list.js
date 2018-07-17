@@ -21,7 +21,7 @@ document.querySelectorAll('.setPayment').forEach(function (el) {
 
 document.querySelectorAll('.delete').forEach(function (el) {
   el.onclick = function (event) {
-    fetch('/orga/invoices/' + el.parentNode.parentNode.id, {method: 'DELETE', headers: {authorization}})
+    fetch('orga/invoices/' + el.parentNode.parentNode.id, {method: 'DELETE', headers: {authorization}})
       .then(function (result) {
         if (result.ok) {
           location.reload()
