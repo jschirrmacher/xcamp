@@ -17,7 +17,7 @@
     "grpc": "^1.13.0",
     "hat": "^0.0.3",
     "js-easy-fetch": "^2.0.1",
-    "js-netvis": "^2.7.1",
+    "js-netvis": "^2.7.2",
     "multer": "^1.3.1",
     "mustache": "^2.3.0",
     "node-fetch": "^2.1.2",
