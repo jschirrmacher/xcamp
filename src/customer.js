@@ -35,6 +35,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
         type: 'person',
         firstName: customerData.firstName,
         lastName: customerData.lastName,
+        name: customerData.firstName + ' ' + customerData.lastName,
         email: customerData.email,
       },
       access_code: rack(),
