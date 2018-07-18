@@ -67,7 +67,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
   async function getAllTickets(txn) {
     const tickets = {}
     const data = await txn.query(`{ all(func: eq(type, "invoice"))
-     { payment paid tickets { participant { uid firstName lastName email image }}}}`)
+     { payment paid tickets { participant { uid firstName lastName email image topics {uid name}}}}}`)
     await Promise.all(data.getJson().all.map(async invoice => {
       if (invoice.payment !== 'paypal' || invoice.paid) {
         await Promise.all(invoice.tickets.map(async ticket => {
@@ -104,6 +104,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
           shape,
           visible
         })
+        handleSubNodes(person, 'topic', null, nodes, links)
       }))
 
       nodes.forEach(node => {
