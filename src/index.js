@@ -144,7 +144,7 @@ app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
 app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransaction(fixOrgaAsAdmin, [], true), res))
-app.get('/orga/participants', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, []), res, 'send'))
+app.get('/orga/participants', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
@@ -193,7 +193,14 @@ async function getAccountInfoPage(txn, accessCode) {
   }
   const paid = invoice && invoice.paid
   const password = !!user.password
-  return templateGenerator.generate('account-info', {invoice, accessCode, password, paid, tickets, baseUrl}, subTemplates)
+  return templateGenerator.generate('account-info', {
+    invoice,
+    accessCode,
+    password,
+    paid,
+    tickets,
+    baseUrl
+  }, subTemplates)
 }
 
 async function getLastInvoice(txn, accessCode) {
@@ -292,7 +299,13 @@ async function listInvoices(txn) {
     }
     invoice.paid = invoice.paid ? 'paid' : 'open'
   })
-  return templateGenerator.generate('invoices-list', {invoices, baseUrl, participantCount, paidTickets, totals}, subTemplates)
+  return templateGenerator.generate('invoices-list', {
+    invoices,
+    baseUrl,
+    participantCount,
+    paidTickets,
+    totals
+  }, subTemplates)
 }
 
 async function invoicePayment(txn, invoiceId, state) {
@@ -336,10 +349,25 @@ async function generateTile(data) {
   return templateGenerator.generate('tile-form', {baseUrl, colorSelect, ...data}, subTemplates)
 }
 
-async function exportParticipants(txn) {
+async function exportParticipants(txn, format) {
   const tickets = await Network.getAllTickets(txn)
-  return tickets.map(ticket => {
+  const content = tickets.map(ticket => {
     const person = ticket.participant[0]
-    return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt;'
-  }).join('<br>\n')
+    if (format === 'csv') {
+      return `"${person.firstName}";"${person.lastName}";"${person.email}"`
+    } else {
+      return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt;'
+    }
+  }).join('\n')
+
+  if (format === 'csv') {
+    return {
+      mimeType: 'application/x-ms-excel',
+      disposition: 'attachment',
+      name: 'participants.csv',
+      content
+    }
+  } else {
+    return content.replace('\n', '<br>\n')
+  }
 }
