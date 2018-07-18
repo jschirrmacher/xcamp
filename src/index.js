@@ -353,8 +353,10 @@ async function exportParticipants(txn, format) {
   const tickets = await Network.getAllTickets(txn)
   const content = tickets.map(ticket => {
     const person = ticket.participant[0]
-    if (format === 'csv') {
+    if (format === 'excel') {
       return `"${person.firstName}";"${person.lastName}";"${person.email}"`
+    } else if (format === 'csv') {
+      return `"${person.firstName}","${person.lastName}","${person.email}"`
     } else {
       return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt;'
     }
