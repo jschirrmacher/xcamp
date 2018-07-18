@@ -144,6 +144,7 @@ app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
 app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransaction(fixOrgaAsAdmin, [], true), res))
+app.get('/orga/participants', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, []), res, 'send'))
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
@@ -333,4 +334,12 @@ async function generateTile(data) {
     return templateGenerator.generate('colorOptions', flags)
   }
   return templateGenerator.generate('tile-form', {baseUrl, colorSelect, ...data}, subTemplates)
+}
+
+async function exportParticipants(txn) {
+  const tickets = await Network.getAllTickets(txn)
+  return tickets.map(ticket => {
+    const person = ticket.participant[0]
+    return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt;'
+  }).join('<br>\n')
 }

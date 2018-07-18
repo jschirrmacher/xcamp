@@ -64,6 +64,20 @@ module.exports = (dgraphClient, dgraph, Person) => {
     return []
   }
 
+  async function getAllTickets(txn) {
+    const tickets = {}
+    const data = await txn.query(`{ all(func: eq(type, "invoice"))
+     { payment paid tickets { participant { uid firstName lastName email image }}}}`)
+    await Promise.all(data.getJson().all.map(async invoice => {
+      if (invoice.payment !== 'paypal' || invoice.paid) {
+        await Promise.all(invoice.tickets.map(async ticket => {
+          tickets[ticket.participant[0].uid] = ticket
+        }))
+      }
+    }))
+    return Object.values(tickets)
+  }
+
   async function getGraph(user = null) {
     const txn = dgraphClient.newTxn()
     try {
@@ -77,32 +91,21 @@ module.exports = (dgraphClient, dgraph, Person) => {
       handleSubNodes(xcamp, 'topic', null, nodes, links)
       delete xcamp.uid
 
-      const data = await txn.query(`{ all(func: eq(type, "invoice")) { payment paid tickets { participant { uid }}}}`)
-      const all = data.getJson().all
-      const uids = []
       const myTickets = getTickets(user)
-      await Promise.all(all.map(async invoice => {
-        if (invoice.payment !== 'paypal' || invoice.paid) {
-          await Promise.all(invoice.tickets.map(async ticket => {
-            const uid = ticket.participant[0].uid
-            if (uids.indexOf(uid) < 0) {
-              uids.push(uid)
-              const person = await Person.get(txn, uid)
-              nodes.push({
-                id: person.uid,
-                editable: myTickets.indexOf(ticket.uid) !== false,
-                name: person.firstName + ' ' + person.lastName,
-                details: 'persons/' + person.uid,
-                image: person.image,
-                shape,
-                visible
-              })
-              handleSubNodes(person, 'topic', null, nodes, links)
-              return person
-            }
-          }))
-        }
+      const tickets = await getAllTickets(txn)
+      await Promise.all(tickets.map(async ticket => {
+        const person = ticket.participant[0]
+        nodes.push({
+          id: person.uid,
+          editable: myTickets.indexOf(ticket.uid) !== false,
+          name: person.firstName + ' ' + person.lastName,
+          details: 'persons/' + person.uid,
+          image: person.image,
+          shape,
+          visible
+        })
       }))
+
       nodes.forEach(node => {
         if (node.numLinks) {
           node.fontSize = 1 + Math.min(2, (node.numLinks - 1) / 5)
@@ -116,6 +119,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
 
   return {
     rebuild,
-    getGraph
+    getGraph,
+    getAllTickets
   }
 }
