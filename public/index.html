@@ -70,17 +70,6 @@
                       autocomplete='email'></label>
     </div>
 
-    <span class="foreign">{{description}}</span>
-    <label>Kurzbeschreibung
-        <textarea name="description">{{description}}</textarea>
-    </label>
-
-    <span class="foreign"><a href="{{{url}}}" target="_blank">{{url}}</a></span>
-    <label>
-        Homepage
-        <input type="url" name="url" value="{{{url}}}">
-    </label>
-
     <label>
         Meine Tags
         <span class="tag-view">
@@ -90,6 +79,17 @@
             <input type="text" class="new-tag tag" placeholder="My Topic">
             <input type="hidden" name="topics" class="tag-store" value="{{{topicsValue}}}">
         </span>
+    </label>
+
+    <span class="foreign">{{description}}</span>
+    <label>Kurzbeschreibung
+        <textarea name="description">{{description}}</textarea>
+    </label>
+
+    <span class="foreign"><a href="{{{url}}}" target="_blank">{{url}}</a></span>
+    <label>
+        Homepage
+        <input type="url" name="url" value="{{{url}}}">
     </label>
 
     <label>
