@@ -176,7 +176,7 @@ var network
   }
 
   function initialized() {
-    network.scale(10 / network.nodes.length)
+    network.scale(2.5 / Math.log(network.nodes.length))
     handleHash()
   }
 
