@@ -181,7 +181,7 @@ function getAccountInfoURL(user) {
 async function getAccountInfoPage(txn, accessCode) {
   const user = await User.findByAccessCode(txn, accessCode)
   const customer = user.type === 'customer' ? await Customer.get(txn, user.uid) : null
-  const invoice = customer ? await Invoice.getNewest(txn, customer.uid) : null
+  let invoice = customer ? await Invoice.getNewest(txn, customer.uid) : null
   let tickets
   if (user.type === 'ticket') {
     const ticket = await Ticket.get(txn, user.uid)
@@ -193,6 +193,7 @@ async function getAccountInfoPage(txn, accessCode) {
   }
   const paid = invoice && invoice.paid
   const password = !!user.password
+  invoice = invoice.invoiceNo ? invoice : null
   return templateGenerator.generate('account-info', {
     invoice,
     accessCode,
@@ -246,10 +247,9 @@ async function setPassword(txn, accessCode, password) {
 
 async function createOrgaMember(txn, data) {
   data.ticketCount = 1
-  data.type = 'orga'
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
-  const tickets = await Ticket.create(txn, customer.person, 1)
+  const tickets = await Ticket.create(txn, customer.person[0], 1)
   return Invoice.create(txn, data, customer, tickets)
 }
 

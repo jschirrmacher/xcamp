@@ -19,7 +19,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return Array.from({length: count}, () => ({
       type: 'ticket',
       access_code: rack(),
-      participant: person
+      participant: {uid: person.uid}
     }))
   }
 

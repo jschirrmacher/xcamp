@@ -104,13 +104,13 @@ module.exports = (dgraphClient, dgraph) => {
     if (typeof ticketTypes[data.type] === 'undefined') {
       throw 'Unknown ticket type'
     }
-    const invoiceNo = data.type === 'orga' || data.payment === 'paypal' ? 0 : await getNextInvoiceNo(txn)
+    const invoiceNo = (!ticketTypes[data.type].price || data.payment === 'paypal') ? 0 : await getNextInvoiceNo(txn)
 
     const invoice = {
       type: 'invoice',
       invoiceNo,
       created: '' + new Date(),
-      customer,
+      customer: {uid: customer.uid},
       tickets,
       ticketType: data.type,
       ticketPrice: ticketTypes[data.type].price,
