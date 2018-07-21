@@ -30,6 +30,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     } else if (person.image.match(/^persons\/0x\w+\/picture$/)) {
       person.image += '/picture'
     }
+    person.id = person.uid
+    person.name = person.firstName + ' ' + person.lastName
     return person
   }
 
