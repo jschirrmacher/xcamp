@@ -36,7 +36,8 @@ app.use(bodyParser.json())
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
 const User = require('./user')(dgraphClient, QueryFunction)
-const Person = require('./person')(dgraphClient, dgraph, QueryFunction)
+const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction)
+const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
 const Network = require('./network')(dgraphClient, dgraph, Person)
 const Invoice = require('./invoice')(dgraphClient, dgraph)
@@ -119,6 +120,8 @@ app.get('/persons/:uid', requireJWT({allowAnonymous}), (req, res) => exec(doInTr
 app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true), res))
 app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true), res))
 app.get('/persons/:uid/picture/:name', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
+
+app.get('/topics',  (req, res) => exec(doInTransaction(Topic.find, [req.query.q]), res))
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))

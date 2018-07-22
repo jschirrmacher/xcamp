@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = (dgraphClient, dgraph, QueryFunction) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
   const query = QueryFunction('Person', `
     uid
     firstName
@@ -78,20 +78,32 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
+    const links2delete = []
+    const links2create = []
+    const newTopics = []
     if (!person.topics) {
       person.topics = []
     }
     if (newData.topics) {
       const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
       newData.topics = newData.topics.map(topic => {
+        const currentTopic = allTopics.find(t => !t.name.localeCompare(topic.name)) || Object.assign(topic, {type: 'topic'})
         const index = person.topics.findIndex(t => !t.name.localeCompare(topic.name))
         if (index >= 0) {
           person.topics.splice(index, 1)
+        } else {
+          links2create.push({source: {id: person.uid}, target: {id: currentTopic.uid, ...currentTopic}})
+          if (!currentTopic.uid) {
+            newTopics.push({index: links2create.length -1, ...currentTopic})
+          }
         }
-        return allTopics.find(t => !t.name.localeCompare(topic.name)) || Object.assign(topic, {type: 'topic'})
+        return currentTopic
       })
     }
-    person.topics.forEach(topic => mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`))
+    person.topics.forEach(topic => {
+      links2delete.push({source: {id: person.uid}, target: {id: topic.uid}})
+      mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`)
+    })
     const newValues = [{type: 'person'}]
     Object.keys(newData).forEach(key => {
       const obj = {}
@@ -106,7 +118,16 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     if (!person.uid) {
       person.uid = assigned.getUidsMap().get('blank-0')
     }
-    return await get(txn, person.uid)
+    person = await get(txn, person.uid)
+    const nodes2create = await Promise.all(newTopics
+      .map(n => {
+        const topic = person.topics.find(t => t.name === n.name)
+        links2create[n.index].target.id = topic.uid
+        return topic
+      })
+      .map(async n => ({id: n.uid, numLinks: 1, ...await Topic.get(txn, n.uid)}))
+    )
+    return {links2create, links2delete, nodes2create, ...person}
   }
 
   async function updateById(txn, id, data, user) {

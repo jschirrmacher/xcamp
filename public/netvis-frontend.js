@@ -76,6 +76,7 @@ var network
             topic.remove()
           }
         })
+        save()
       }
 
       function updateTopicsField(value) {
@@ -90,13 +91,7 @@ var network
         tagView.insertBefore(el, newTag)
       }
 
-      form.getElementsByClassName('close')[0].addEventListener('click', function (event) {
-        event.preventDefault()
-        close()
-      })
-
-      form.addEventListener('submit', function (event) {
-        event.preventDefault()
+      function save() {
         if (newTag.value) {
           updateTopicsField(newTag.value)
         }
@@ -106,8 +101,24 @@ var network
           return {name: topic}
         })) || []
         const body = JSON.stringify(data)
-        fetch('persons/' + id, {method: 'PUT', headers, body})
-          .then(close)
+        return fetch('persons/' + id, {method: 'PUT', headers, body})
+          .then(result => result.json())
+          .then(result => {
+            result.nodes2create.forEach(n => network.addNode(n))
+            network.removeLinks(result.links2delete)
+            network.addLinks(result.links2create)
+            network.update()
+          })
+      }
+
+      form.getElementsByClassName('close')[0].addEventListener('click', function (event) {
+        event.preventDefault()
+        close()
+      })
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+        save().then(close)
       })
 
       Array.from(form.getElementsByClassName('delete')).forEach(function (el) {
@@ -163,6 +174,7 @@ var network
           const value = event.target.value
           event.target.value = ''
           updateTopicsField(value)
+          save()
         }
       })
     })
