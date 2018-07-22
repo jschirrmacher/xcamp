@@ -59,11 +59,7 @@ var network
       function close(result) {
         form.parentNode.removeChild(form)
         window.history.pushState(null, null, location.pathname)
-        if (result) {
-          return result.json().then(resolve)
-        } else {
-          resolve()
-        }
+        return resolve(result)
       }
 
       function deleteTag(event) {
@@ -108,8 +104,13 @@ var network
             network.removeLinks(result.links2delete)
             network.addLinks(result.links2create)
             network.update()
+            return result
           })
       }
+
+      Array.from(form.elements).forEach(function (el) {
+        el.addEventListener('change', save)
+      })
 
       form.getElementsByClassName('close')[0].addEventListener('click', function (event) {
         event.preventDefault()
