@@ -59,7 +59,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     try {
       const content = await fetch(paypalUrl(), options)
       if (content !== 'VERIFIED') {
-        mailSender.send('tech@justso.de', 'IPN not verified', JSON.stringify(req.body))
+        mailSender.send('tech@justso.de', 'IPN not verified', JSON.stringify(req.body) + '\n\n' + content)
       } else {
         const txn = dgraphClient.newTxn()
         try {
