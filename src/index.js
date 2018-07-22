@@ -39,7 +39,7 @@ const User = require('./user')(dgraphClient, QueryFunction)
 const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction)
 const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
-const Network = require('./network')(dgraphClient, dgraph, Person)
+const Network = require('./network')(dgraphClient, dgraph, Person, Topic)
 const Invoice = require('./invoice')(dgraphClient, dgraph)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction)
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack)
@@ -141,7 +141,7 @@ app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}),
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
-app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.user), res))
+app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.query.what, req.user), res))
 app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))

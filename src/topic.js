@@ -10,9 +10,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return topic
   }
 
-  async function find(txn, pattern) {
+  async function find(txn, pattern = '') {
     const topics = await query.all(txn, 'func: eq(type, "topic")', '', false)
-    return topics.filter(t => !t.name.localeCompare(pattern))
+    return topics.filter(t => t.name.match(new RegExp(pattern, 'i')))
   }
 
   async function upsert(txn, topic, newData, user) {

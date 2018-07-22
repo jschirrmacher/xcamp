@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (dgraphClient, dgraph, Person) => {
+module.exports = (dgraphClient, dgraph, Person, Topic) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()
@@ -41,12 +41,12 @@ module.exports = (dgraphClient, dgraph, Person) => {
       })
   }
 
-  function handleSubNodes(data, type, shape, nodes, links) {
+  function handleSubNodes(data, type, shape, nodes, links, visible) {
     if (data[type + 's']) {
       data[type + 's'].forEach(sub => {
         const found = nodes.find(node => node.id === sub.uid)
         if (!found) {
-          nodes.push({id: sub.uid, name: sub.name, type, shape, numLinks: 1})
+          nodes.push({id: sub.uid, name: sub.name, type, shape, numLinks: 1, visible})
         } else {
           found.numLinks++
         }
@@ -78,7 +78,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
     return Object.values(tickets)
   }
 
-  async function getGraph(user = null) {
+  async function getGraph(what = 'participants', user = null) {
     const txn = dgraphClient.newTxn()
     try {
       const visible = true, open = true, shape = 'circle'
@@ -88,7 +88,7 @@ module.exports = (dgraphClient, dgraph, Person) => {
       const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape, open, visible})
       xcamp.id = xcamp.uid
       const nodes = [xcamp]
-      handleSubNodes(xcamp, 'topic', null, nodes, links)
+      handleSubNodes(xcamp, 'topic', null, nodes, links, what === 'topics')
       delete xcamp.uid
 
       const myTickets = getTickets(user)
@@ -102,9 +102,9 @@ module.exports = (dgraphClient, dgraph, Person) => {
           details: 'persons/' + person.uid,
           image: person.image,
           shape,
-          visible
+          visible: what === 'participants'
         })
-        handleSubNodes(person, 'topic', null, nodes, links)
+        handleSubNodes(person, 'topic', null, nodes, links, what === 'topics')
       }))
 
       nodes.forEach(node => {

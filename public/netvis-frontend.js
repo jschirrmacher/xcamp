@@ -195,7 +195,8 @@ var network
 
   window.onpopstate = handleHash
 
-  network = new Network('network', '#root', {nameRequired, newNode, newLink, showDetails, initialized})
+  const what = location.search.match(/(what=\w*)/) ? '?' + RegExp.$1 : ''
+  network = new Network('network' + what, '#root', {nameRequired, newNode, newLink, showDetails, initialized})
   fetch('login', {headers: {authorization}})
     .then(function (response) {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')

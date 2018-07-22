@@ -161,6 +161,23 @@ svg .node {
 .dialogOpen .zoom {
   display: none; }
 
+.menu {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  text-align: center; }
+  .menu div div {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer; }
+    .menu div div:hover {
+      background-color: #eee; }
+    .menu div div:active {
+      background-color: #ddd; }
+
 .buyButtons {
   position: fixed;
   bottom: 15px;
