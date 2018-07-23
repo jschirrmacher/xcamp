@@ -51,7 +51,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         await assertCoupon(txn, data.code)
       }
       const customer = await Customer.create(txn, data)
-      const tickets = await create(txn, customer.person, +data.ticketCount)
+      const tickets = await create(txn, customer.person[0], +data.ticketCount)
       const invoice = await Invoice.create(txn, data, customer, tickets)
       txn.commit()
 
