@@ -38,6 +38,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
   function canAdmin(user, uid) {
     if (!user) {
       return false
+    } else if (user.isAdmin) {
+      return true
     } else if (user.type === 'customer') {
       return user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
     } else if (user.type === 'ticket') {

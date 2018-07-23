@@ -97,7 +97,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
         const person = await Person.get(txn, ticket.participant[0].uid)
         nodes.push({
           id: person.uid,
-          editable: myTickets.indexOf(ticket.uid) !== false,
+          editable: user.isAdmin || myTickets.indexOf(ticket.uid) !== false,
           name: person.firstName + ' ' + person.lastName,
           details: 'persons/' + person.uid,
           image: person.image,
