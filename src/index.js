@@ -121,7 +121,7 @@ app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person
 app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true), res))
 app.get('/persons/:uid/picture/:name', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
-app.get('/topics',  (req, res) => exec(doInTransaction(Topic.find, [req.query.q]), res))
+app.get('/topics', (req, res) => exec(doInTransaction(Topic.find, [req.query.q]), res))
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
@@ -260,7 +260,7 @@ async function createCoupon(txn) {
   const access_code = rack()
   mu.setSetJson({type: 'coupon', access_code})
   const assigned = await txn.mutate(mu)
-  return {type: 'coupon', access_code, uid: assigned.getUidsMap().get('blank-0')}
+  return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
 }
 
 async function fixOrgaAsAdmin(txn) {
