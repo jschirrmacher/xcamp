@@ -249,10 +249,9 @@ async function setPassword(txn, accessCode, password) {
 }
 
 async function createOrgaMember(txn, data) {
-  data.ticketCount = 1
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
-  const tickets = await Ticket.create(txn, customer.person[0], 1)
+  const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
   return Invoice.create(txn, data, customer, tickets)
 }
 
