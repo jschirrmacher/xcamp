@@ -89,8 +89,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
     if (newData.topics) {
       const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
       newData.topics = newData.topics.map(topic => {
-        const currentTopic = allTopics.find(t => !t.name.localeCompare(topic.name.trim())) || Object.assign(topic, {type: 'topic'})
-        const index = person.topics.findIndex(t => !t.name.localeCompare(topic.name.trim()))
+        topic.name = topic.name.trim()
+        const currentTopic = allTopics.find(t => !t.name.localeCompare(topic.name)) || Object.assign(topic, {type: 'topic'})
+        const index = person.topics.findIndex(t => !t.name.localeCompare(topic.name))
         if (index >= 0) {
           person.topics.splice(index, 1)
         } else {
