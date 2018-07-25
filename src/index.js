@@ -196,7 +196,7 @@ async function getAccountInfoPage(txn, accessCode) {
   }
   const paid = invoice && invoice.paid
   const password = !!user.password
-  invoice = invoice.invoiceNo ? invoice : null
+  invoice = invoice && invoice.invoiceNo ? invoice : null
   return templateGenerator.generate('account-info', {
     invoice,
     accessCode,
