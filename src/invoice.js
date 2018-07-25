@@ -138,5 +138,20 @@ module.exports = (dgraphClient, dgraph) => {
     return result.getJson().all
   }
 
-  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll}
+  async function deleteInvoice(txn, invoiceId) {
+    const unique = (value, index, self) => self.indexOf(value) === index
+    const invoice = await Invoice.get(txn, invoiceId)
+    const customer = invoice.customer[0]
+    const addresses = customer.addresses
+    const person = customer.person[0]
+    const tickets = invoice.tickets
+    const participants = tickets.map(ticket => ticket.participant)
+    const toDelete = [invoice, ...addresses, person, ...tickets, ...participants]
+    const uids = toDelete.map(o => o && o.uid).filter(o => o).filter(unique)
+    const mu = new dgraph.Mutation()
+    mu.setDelNquads(uids.map(uid => '<' + uid + '> * * .').join('\n'))
+    await txn.mutate(mu)
+  }
+
+  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice}
 }

@@ -57,7 +57,7 @@ const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
 
 function requireAdmin(req, res, next) {
-  if (!req.user.isAdmin) {
+  if (!req.user || !req.user.isAdmin) {
     throw {status: 403, message: 'Not allowed'}
   } else {
     next()
@@ -146,12 +146,12 @@ app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
-app.get('/orga/fixes/orga-as-admin', requireAdmin, (req, res) => exec(doInTransaction(fixOrgaAsAdmin, [], true), res))
+app.get('/orga/fix', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(fixTopics, [], true), res))
 app.get('/orga/participants', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
 app.get('/orga/invoices', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
-app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(deleteInvoice, [req.params.invoiceNo, true], true), res))
+app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true), res))
 app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTile(req.query), res, 'send'))
 
 app.use((err, req, res, next) => {
@@ -263,14 +263,24 @@ async function createCoupon(txn) {
   return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
 }
 
-async function fixOrgaAsAdmin(txn) {
-  const result = await txn.query(`{ invoice(func: eq(type, "invoice")) { ticketType customer {uid} }}`)
-  const invoices = result.getJson().invoice.filter(invoice => invoice.ticketType === 'orga')
-  const customer = invoices.map(invoice => invoice.customer[0].uid)
-  const mu = new dgraph.Mutation()
-  customer.forEach(uid => mu.setSetNquads(`<${uid}> <isAdmin> "1" .`))
-  await txn.mutate(mu)
-  return customer
+const toObject = (acc, cur) => ({...acc, [cur.uid]: cur})
+
+async function fixTopics(txn) {
+  const result = await txn.query(`{ all(func: anyofterms(type, "person topic")) { uid type name topics {uid name}}}`)
+  const all = result.getJson().all
+  const topics = all.filter(d => d.type === 'topic').reduce(toObject, {})
+  const persons = all.filter(d => d.type === 'person').map(p => {
+    if (p.topics) {
+      p.topics.forEach(t => {
+        topics[t.uid].inUse = true
+      })
+    }
+    return p
+  })
+  return {
+    inUse: Object.values(topics).filter(t => t.inUse).map(t => ({uid: t.uid, name: t.name})),
+    unused: Object.values(topics).filter(t => !t.inUse).map(t => ({uid: t.uid, name: t.name}))
+  }
 }
 
 async function listInvoices(txn) {
@@ -323,21 +333,6 @@ async function invoicePayment(txn, invoiceId, state) {
     }
     await txn.mutate(mu)
   }
-}
-
-async function deleteInvoice(txn, invoiceId) {
-  const unique = (value, index, self) => self.indexOf(value) === index
-  const invoice = await Invoice.get(txn, invoiceId)
-  const customer = invoice.customer[0]
-  const addresses = customer.addresses
-  const person = customer.person[0]
-  const tickets = invoice.tickets
-  const participants = tickets.map(ticket => ticket.participant)
-  const toDelete = [invoice, ...addresses, person, ...tickets, ...participants]
-  const uids = toDelete.map(o => o && o.uid).filter(o => o).filter(unique)
-  const mu = new dgraph.Mutation()
-  mu.setDelNquads(uids.map(uid => '<' + uid + '> * * .').join('\n'))
-  await txn.mutate(mu)
 }
 
 async function generateTile(data) {
