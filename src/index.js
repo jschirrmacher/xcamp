@@ -277,10 +277,13 @@ async function fixTopics(txn) {
     }
     return p
   })
-  return {
-    inUse: Object.values(topics).filter(t => t.inUse).map(t => ({uid: t.uid, name: t.name})),
-    unused: Object.values(topics).filter(t => !t.inUse).map(t => ({uid: t.uid, name: t.name}))
+  const unusedTopics = Object.values(topics).filter(t => !t.inUse).map(t => t.uid)
+  if (unusedTopics.length) {
+    const mu = new dgraph.Mutation()
+    mu.setDelNquads(unusedTopics.map(uid => '<' + uid + '> * * .').join('\n'))
+    await txn.mutate(mu)
   }
+  return Object.values(topics).filter(t => !t.inUse).map(t => t.name)
 }
 
 async function listInvoices(txn) {
