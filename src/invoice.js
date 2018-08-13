@@ -140,7 +140,7 @@ module.exports = (dgraphClient, dgraph) => {
 
   async function deleteInvoice(txn, invoiceId) {
     const unique = (value, index, self) => self.indexOf(value) === index
-    const invoice = await Invoice.get(txn, invoiceId)
+    const invoice = await get(txn, invoiceId)
     const customer = invoice.customer[0]
     const addresses = customer.addresses
     const person = customer.person[0]
