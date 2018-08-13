@@ -13,7 +13,8 @@
         <th>Tickets</th>
         <th>Betrag</th>
         <th>Bezahlt</th>
-        <th>Name</th>
+        <th>Kunde</th>
+        <th>Teilnehmer</th>
         <th></th>
     </tr>
     {{#invoices}}
@@ -28,10 +29,13 @@
             <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
         </td>
         <td>
+            {{#participants}}{{name}}{{/participants}}<br>
+        </td>
+        <td>
             {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}
         </td>
     </tr>
-{{/invoices}}
+    {{/invoices}}
 </table>
 
 <p>

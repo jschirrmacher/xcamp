@@ -307,6 +307,7 @@ async function listInvoices(txn) {
     invoice.customer.person = invoice.customer.person[0]
     invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
     invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
+    invoice.participants = invoice.tickets.map(ticket => ticket.participants[0])
     participantCount += invoice.tickets.length
     if (invoice.paid) {
       paidTickets += invoice.tickets.length

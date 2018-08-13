@@ -133,7 +133,7 @@ module.exports = (dgraphClient, dgraph) => {
     const result = await txn.query(`{ all(func: eq(type, "invoice")) {
       uid invoiceNo created ticketType ticketPrice payment paid
       customer {firm access_code person {firstName lastName email}}
-      tickets {uid}
+      tickets {uid participant {name}}
     }}`)
     return result.getJson().all
   }
