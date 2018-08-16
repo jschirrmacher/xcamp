@@ -119,16 +119,10 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     }
   }
 
-  async function checkin(accessCode) {
+  async function checkin(txn, accessCode) {
     const result = {}
-    const txn = dgraphClient.newTxn()
-    try {
-      const ticket = await findByAccessCode(txn, accessCode)
-      result.ok = !!ticket
-    } finally {
-      txn.discard()
-      result.error = 'Ticket not found!'
-    }
+    const ticket = await findByAccessCode(txn, accessCode)
+    result.ok = !!ticket
     return result
   }
 

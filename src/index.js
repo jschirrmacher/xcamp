@@ -130,7 +130,7 @@ app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exe
 app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
 app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
 app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'print']), res, 'send'))
-app.get('/tickets/:accessCode/checkin', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(Ticket.checkin, [req.params.accessCode]), res))
+app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Ticket.checkin, [req.params.accessCode]), res))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
 app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
