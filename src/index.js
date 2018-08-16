@@ -125,6 +125,7 @@ app.get('/topics', (req, res) => exec(doInTransaction(Topic.find, [req.query.q])
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
+app.get('/ticket/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.checkin(req.params.accessCode, baseUrl), res))
 app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.checkin(req.params.accessCode, baseUrl), res))
 app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
 app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))

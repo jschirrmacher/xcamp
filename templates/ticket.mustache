@@ -37,7 +37,7 @@
 <script src="common.js"></script>
 <script>
     [].forEach.call(document.getElementsByClassName('ticketNo'), function (el) {
-        QRCode.toCanvas(el, '{{baseUrl}}ticket/' + el.id)
+        QRCode.toCanvas(el, '{{baseUrl}}tickets/' + el.id)
     })
         {{#print}}
         window.print()
