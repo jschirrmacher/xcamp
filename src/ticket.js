@@ -122,7 +122,12 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   async function checkin(txn, accessCode) {
     const result = {}
     const ticket = await findByAccessCode(txn, accessCode)
-    result.ok = !!ticket
+    result.ok = true
+    const mu = new dgraph.Mutation()
+    const value = `<${ticket.uid}> <checkedIn> "1" .`
+    console.log(value)
+    await mu.setSetNquads(value)
+    await txn.mutate(mu)
     return result
   }
 
