@@ -54,6 +54,10 @@
         }, {method: 'PUT'})
         fetchReload('tickets/' + button.form.id, options)
     })
+
+    bindHandler('printTicket', 'click', function (button) {
+        window.open('tickets/' + button.form.id + '/print')
+    })
 </script>
 </body>
 </html>
