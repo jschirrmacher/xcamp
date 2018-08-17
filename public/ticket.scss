@@ -25,6 +25,10 @@ a {
   }
 }
 
+video {
+  max-width: 100%;
+}
+
 .container {
   position: relative;
   max-width: 768px;
@@ -359,6 +363,30 @@ table {
       content: '✔';
       display: inline;
     }
+  }
+}
+
+#characteristics {
+  text-align: center;
+  padding: 10px;
+
+  &.ok {
+    background: green;
+  }
+
+  &.error {
+    background: red;
+  }
+
+  img {
+    max-width: 80%;
+    float: none;
+  }
+
+  div {
+    font-size: 20px;
+    padding: 10px;
+    color: white;
   }
 }
 

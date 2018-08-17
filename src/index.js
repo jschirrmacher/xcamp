@@ -130,7 +130,7 @@ app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exe
 app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
 app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
 app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'print']), res, 'send'))
-app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Ticket.checkin, [req.params.accessCode]), res))
+app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Ticket.checkin, [req.params.accessCode], true), res))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
 app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
@@ -138,7 +138,7 @@ app.get('/accounts/:accessCode/password', (req, res) => exec(doInTransaction(sen
 app.post('/accounts/:accessCode/password', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
 app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode, true), res, 'send'))
+app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
@@ -149,11 +149,12 @@ app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
 app.get('/orga/fix', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(fixTopics, [], true), res))
-app.get('/orga/participants', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
+app.get('/orga/participants', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
 app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
 app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
 app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true), res))
+app.get('/orga/checkin', requireJWT({redirect}), requireAdmin, (req, res) => exec(checkinApp(), res, 'send'))
 app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTile(req.query), res, 'send'))
 
 app.use((err, req, res, next) => {
@@ -243,6 +244,10 @@ async function sendPassword(txn, accessCode) {
 
 async function resetPassword(accessCode) {
   return templateGenerator.generate('password-reset-form', {accessCode, baseUrl}, subTemplates)
+}
+
+async function checkinApp() {
+  return templateGenerator.generate('checkinApp', {baseUrl}, subTemplates)
 }
 
 async function setPassword(txn, accessCode, password) {

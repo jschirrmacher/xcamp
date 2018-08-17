@@ -123,6 +123,9 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const result = {}
     const ticket = await findByAccessCode(txn, accessCode)
     result.ok = true
+    const person = await Person.get(txn, ticket.participant[0].uid)
+    result.name = person.name
+    result.image = person.image
     const mu = new dgraph.Mutation()
     const value = `<${ticket.uid}> <checkedIn> "1" .`
     await mu.setSetNquads(value)

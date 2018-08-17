@@ -20,6 +20,9 @@ a {
   a:hover {
     color: #4ED9D5; }
 
+video {
+  max-width: 100%; }
+
 .container {
   position: relative;
   max-width: 768px;
@@ -258,6 +261,21 @@ table {
   #invoices-list tr.paid button.setPayment:before {
     content: '✔';
     display: inline; }
+
+#characteristics {
+  text-align: center;
+  padding: 10px; }
+  #characteristics.ok {
+    background: green; }
+  #characteristics.error {
+    background: red; }
+  #characteristics img {
+    max-width: 80%;
+    float: none; }
+  #characteristics div {
+    font-size: 20px;
+    padding: 10px;
+    color: white; }
 
 .info {
   background: #f7f7f7;
