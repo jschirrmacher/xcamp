@@ -125,7 +125,6 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     result.ok = true
     const mu = new dgraph.Mutation()
     const value = `<${ticket.uid}> <checkedIn> "1" .`
-    console.log(value)
     await mu.setSetNquads(value)
     await txn.mutate(mu)
     return result
