@@ -1,8 +1,8 @@
 (function () {
   'use strict'
 
-  const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
-  const authorization = token ? token[2] : null
+  var token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+  var authorization = token ? token[2] : null
 
   forEachElementOfClass('ticketNo', function (el) {
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
@@ -14,7 +14,7 @@
   })
 
   bindHandler('saveTicket', 'click', function (button) {
-    const options = encodeParams({
+    var options = encodeParams({
       firstName: button.form.elements['participant_firstName'].value,
       lastName: button.form.elements['participant_lastName'].value,
       email: button.form.elements['participant_email'].value,
