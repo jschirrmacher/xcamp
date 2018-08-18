@@ -366,7 +366,7 @@ table {
   padding: 0;
 
   .container {
-    margin: 0;
+    margin: 0 auto;
 
     #logo {
       height: 60px;
@@ -396,6 +396,7 @@ table {
       width: 320px;
       text-align: center;
       padding: 10px;
+      display: none;
 
       &.ok {
         background: green;
@@ -414,6 +415,10 @@ table {
         font-size: 20px;
         padding: 10px;
         color: white;
+      }
+
+      .button.small {
+        margin-right: 0;
       }
     }
   }

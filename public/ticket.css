@@ -262,7 +262,7 @@ table {
 #main.maximize {
   padding: 0; }
   #main.maximize .container {
-    margin: 0; }
+    margin: 0 auto; }
     #main.maximize .container #logo {
       height: 60px;
       left: 35px; }
@@ -281,7 +281,8 @@ table {
       height: 240px;
       width: 320px;
       text-align: center;
-      padding: 10px; }
+      padding: 10px;
+      display: none; }
       #main.maximize .container #characteristics.ok {
         background: green; }
       #main.maximize .container #characteristics.error {
@@ -293,6 +294,8 @@ table {
         font-size: 20px;
         padding: 10px;
         color: white; }
+      #main.maximize .container #characteristics .button.small {
+        margin-right: 0; }
 
 .info {
   background: #f7f7f7;

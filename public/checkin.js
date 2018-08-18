@@ -9,6 +9,7 @@
   var characteristics = document.getElementById('characteristics')
   var charImg = document.getElementById('char-img')
   var charName = document.getElementById('char-name')
+  var profileBtn = document.getElementById('profile-button')
 
   function decodeEntities(str) {
     element.innerHTML = str.toString()
@@ -38,13 +39,20 @@
         charImg.src = result.ok ? result.image : 'unknown.png'
         charName.innerText = result.ok ? result.name : 'Unbekanntes Ticket!'
         characteristics.setAttribute('style', 'display: inline-block')
-        // video.setAttribute('style', 'display: none')
+        characteristics.setAttribute('data-code', result.uid)
       })
+  }
+
+  function openProfile(e) {
+    e.preventDefault()
+    var code = characteristics.getAttribute('data-code')
+    window.open(location.href.replace('/orga/checkin', '#' + code))
   }
 
   var scanner = new Instascan.Scanner({video, backgroundScan: false})
   scanner.addListener('scan', handleScan)
   characteristics.addEventListener('click', resetScanner)
+  profileBtn.addEventListener('click', openProfile)
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
       scanner.start(cameras[0])

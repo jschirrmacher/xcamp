@@ -124,6 +124,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const ticket = await findByAccessCode(txn, accessCode)
     result.ok = true
     const person = await Person.get(txn, ticket.participant[0].uid)
+    result.uid = person.uid
     result.name = person.name
     result.image = person.image
     const mu = new dgraph.Mutation()
