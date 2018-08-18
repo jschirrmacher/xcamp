@@ -19,8 +19,13 @@
     return str
   }
 
-  var scanner = new Instascan.Scanner({video, backgroundScan: false})
-  scanner.addListener('scan', function (content) {
+  function resetScanner() {
+    video.removeAttribute('style')
+    characteristics.setAttribute('style', 'display: none')
+    characteristics.className = ''
+  }
+
+  function handleScan(content) {
     var code = decodeEntities(content).replace(/^.*\/tickets?\/(\w+).*/, '$1')
     var url = location.href.replace('/orga/checkin', '/tickets/' + code + '/checkin')
     fetch(url, {headers: {authorization}})
@@ -32,15 +37,14 @@
         characteristics.className = result.ok ? 'ok' : 'error'
         charImg.src = result.ok ? result.image : 'unknown.png'
         charName.innerText = result.ok ? result.name : 'Unbekanntes Ticket!'
-        characteristics.setAttribute('style', 'display: block')
-        video.setAttribute('style', 'display: none')
-        window.setTimeout(function () {
-          video.removeAttribute('style')
-          characteristics.setAttribute('style', 'display: none')
-          characteristics.className = ''
-        }, 5000)
+        characteristics.setAttribute('style', 'display: inline-block')
+        // video.setAttribute('style', 'display: none')
       })
-  })
+  }
+
+  var scanner = new Instascan.Scanner({video, backgroundScan: false})
+  scanner.addListener('scan', handleScan)
+  characteristics.addEventListener('click', resetScanner)
   Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
       scanner.start(cameras[0])

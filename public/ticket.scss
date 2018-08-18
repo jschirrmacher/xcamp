@@ -25,10 +25,6 @@ a {
   }
 }
 
-video {
-  max-width: 100%;
-}
-
 .container {
   position: relative;
   max-width: 768px;
@@ -366,27 +362,60 @@ table {
   }
 }
 
-#characteristics {
-  text-align: center;
-  padding: 10px;
+#main.maximize {
+  padding: 0;
 
-  &.ok {
-    background: green;
-  }
+  .container {
+    margin: 0;
 
-  &.error {
-    background: red;
-  }
+    #logo {
+      height: 60px;
+      left: 35px;
+    }
 
-  img {
-    max-width: 80%;
-    float: none;
-  }
+    h1 {
+      text-align: center;
+    }
 
-  div {
-    font-size: 20px;
-    padding: 10px;
-    color: white;
+    .row {
+      text-align: center;
+    }
+
+    video {
+      max-width: 100%;
+      width: 320px;
+      height: 240px;
+
+      @media (min-width: 640px) {
+        float: left;
+      }
+    }
+
+    #characteristics {
+      height: 240px;
+      width: 320px;
+      text-align: center;
+      padding: 10px;
+
+      &.ok {
+        background: green;
+      }
+
+      &.error {
+        background: red;
+      }
+
+      img {
+        max-width: 80%;
+        float: none;
+      }
+
+      div {
+        font-size: 20px;
+        padding: 10px;
+        color: white;
+      }
+    }
   }
 }
 

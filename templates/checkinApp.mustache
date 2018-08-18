@@ -7,18 +7,21 @@
     <link rel="stylesheet" href="ticket.css">
 </head>
 <body>
-<div id="main">
+<div id="main" class="maximize">
     <div class="container">
+        {{> logo}}
         <h1>Checkin</h1>
-        <video id="preview"></video>
-        <div id="characteristics">
-            <img id="char-img" />
-            <div id="char-name"></div>
+        <div class="row">
+            <video id="preview"></video>
+            <div id="characteristics">
+                <img id="char-img"/>
+                <div id="char-name"></div>
+            </div>
         </div>
     </div>
 </div>
 <script src="common.js"></script>
-<script src="instascan.js"></script>
+<script src="instascan.min.js"></script>
 <script src="checkin.js"></script>
 </body>
 </html>

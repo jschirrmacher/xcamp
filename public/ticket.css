@@ -20,9 +20,6 @@ a {
   a:hover {
     color: #4ED9D5; }
 
-video {
-  max-width: 100%; }
-
 .container {
   position: relative;
   max-width: 768px;
@@ -262,20 +259,40 @@ table {
     content: '✔';
     display: inline; }
 
-#characteristics {
-  text-align: center;
-  padding: 10px; }
-  #characteristics.ok {
-    background: green; }
-  #characteristics.error {
-    background: red; }
-  #characteristics img {
-    max-width: 80%;
-    float: none; }
-  #characteristics div {
-    font-size: 20px;
-    padding: 10px;
-    color: white; }
+#main.maximize {
+  padding: 0; }
+  #main.maximize .container {
+    margin: 0; }
+    #main.maximize .container #logo {
+      height: 60px;
+      left: 35px; }
+    #main.maximize .container h1 {
+      text-align: center; }
+    #main.maximize .container .row {
+      text-align: center; }
+    #main.maximize .container video {
+      max-width: 100%;
+      width: 320px;
+      height: 240px; }
+      @media (min-width: 640px) {
+        #main.maximize .container video {
+          float: left; } }
+    #main.maximize .container #characteristics {
+      height: 240px;
+      width: 320px;
+      text-align: center;
+      padding: 10px; }
+      #main.maximize .container #characteristics.ok {
+        background: green; }
+      #main.maximize .container #characteristics.error {
+        background: red; }
+      #main.maximize .container #characteristics img {
+        max-width: 80%;
+        float: none; }
+      #main.maximize .container #characteristics div {
+        font-size: 20px;
+        padding: 10px;
+        color: white; }
 
 .info {
   background: #f7f7f7;
