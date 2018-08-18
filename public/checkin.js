@@ -23,7 +23,7 @@
   scanner.addListener('scan', function (content) {
     var code = decodeEntities(content).replace(/^.*\/tickets?\/(\w+).*/, '$1')
     var url = location.href.replace('/orga/checkin', '/tickets/' + code + '/checkin')
-    fetch(url + '/checkin', {headers: {authorization}})
+    fetch(url, {headers: {authorization}})
       .then(function (result) {
         return result.json()
       })
