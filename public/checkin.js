@@ -21,7 +21,9 @@
 
   var scanner = new Instascan.Scanner({video, backgroundScan: false})
   scanner.addListener('scan', function (content) {
-    fetch(decodeEntities(content) + '/checkin', {headers: {authorization}})
+    var code = decodeEntities(content).replace(/^.*\/tickets?\/(\w+).*/, '$1')
+    var url = location.href.replace('/orga/checkin', '/tickets/' + code + '/checkin')
+    fetch(url + '/checkin', {headers: {authorization}})
       .then(function (result) {
         return result.json()
       })
