@@ -30,7 +30,7 @@
       .then(function (result) {
         console.log(result)
         characteristics.className = result.ok ? 'ok' : 'error'
-        charImg.src = result.image
+        charImg.src = result.ok ? result.image : 'unknown.png'
         charName.innerText = result.ok ? result.name : 'Unbekanntes Ticket!'
         characteristics.setAttribute('style', 'display: block')
         video.setAttribute('style', 'display: none')
