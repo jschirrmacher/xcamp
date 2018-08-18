@@ -126,8 +126,8 @@ var network
         el.addEventListener('click', deleteTag)
       })
 
-      var maxHeight = 150
-      var maxWidth = 120
+      var maxHeight = 300
+      var maxWidth = 240
       form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
         var reader = new FileReader()
         reader.onload = function (e) {
