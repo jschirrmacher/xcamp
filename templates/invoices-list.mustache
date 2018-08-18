@@ -20,7 +20,7 @@
     {{#invoices}}
     <tr class="{{paid}}" id="{{uid}}">
         <td>
-            <a href="accounts/{{customer.access_code}}/invoices/current" target="_blank">{{invoiceNo}} - {{created}}</a>
+            <a href="accounts/{{customer.access_code}}/info" target="_blank">{{invoiceNo}} - {{created}}</a>
         </td>
         <td>{{tickets.length}} {{ticketType}}</td>
         <td class="numeric">{{ticketPrice}} €</td>
