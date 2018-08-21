@@ -71,7 +71,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
     await Promise.all(data.getJson().all.map(async invoice => {
       if (invoice.payment !== 'paypal' || invoice.paid) {
         await Promise.all(invoice.tickets.map(async ticket => {
-          ticket.firm = invoice.customer[0].firm || ''
+          ticket.firm = (invoice.customer && invoice.customer[0].firm) || ''
           tickets[ticket.participant[0].uid] = ticket
         }))
       }
