@@ -373,15 +373,15 @@ async function exportParticipants(txn, format) {
   const content = tickets.map(ticket => {
     const person = ticket.participant[0]
     if (format === 'excel') {
-      return `"${person.firstName}";"${person.lastName}";"${person.email}"`
+      return `"${person.firstName}";"${person.lastName}";"${person.email}";"${ticket.firm}"`
     } else if (format === 'csv') {
-      return `"${person.firstName}","${person.lastName}","${person.email}"`
+      return `"${person.firstName}","${person.lastName}","${person.email}","${ticket.firm}"`
     } else {
-      return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt;'
+      return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt; ' + ticket.firm
     }
   }).join('\n')
 
-  if (format === 'csv') {
+  if (format === 'csv' || format === 'excel') {
     return {
       mimeType: 'application/x-ms-excel',
       disposition: 'attachment',
@@ -389,6 +389,6 @@ async function exportParticipants(txn, format) {
       content
     }
   } else {
-    return content.replace('\n', '<br>\n')
+    return content.replace(/\n/g, '<br>\n')
   }
 }
