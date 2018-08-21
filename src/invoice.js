@@ -129,6 +129,17 @@ module.exports = (dgraphClient, dgraph) => {
     return get(txn, uid)
   }
 
+  async function addTicket(txn, invoice, ticket) {
+    const mu = new dgraph.Mutation()
+    await mu.setSetJson(ticket)
+    const assigned = await txn.mutate(mu)
+    const uid = assigned.getUidsMap().get('blank-0')
+
+    const mu2 = new dgraph.Mutation()
+    await mu2.setSetNquads(`<${invoice.uid}> <tickets> <${uid}> .`)
+    await txn.mutate(mu2)
+  }
+
   async function listAll(txn) {
     const result = await txn.query(`{ all(func: eq(type, "invoice")) {
       uid invoiceNo created ticketType ticketPrice payment paid
@@ -153,5 +164,5 @@ module.exports = (dgraphClient, dgraph) => {
     await txn.mutate(mu)
   }
 
-  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice}
+  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice, addTicket}
 }

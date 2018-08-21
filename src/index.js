@@ -139,6 +139,7 @@ app.post('/accounts/:accessCode/password', requireJWT(), (req, res) => exec(doIn
 app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
+app.post('/accounts/:accessCode/tickets', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createAdditionalTicket, [req.params.accessCode], true), res))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
@@ -268,6 +269,12 @@ async function createCoupon(txn) {
   mu.setSetJson({type: 'coupon', access_code})
   const assigned = await txn.mutate(mu)
   return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
+}
+
+async function createAdditionalTicket(txn, accessCode) {
+  const customer = await Customer.findByAccessCode(txn, accessCode)
+  const tickets = await Ticket.create(txn, customer.person[0], 1)
+  return Invoice.addTicket(txn, customer.invoices[0], tickets[0])
 }
 
 const toObject = (acc, cur) => ({...acc, [cur.uid]: cur})
