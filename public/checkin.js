@@ -35,9 +35,10 @@
       })
       .then(function (result) {
         console.log(result)
-        characteristics.className = result.ok ? 'ok' : 'error'
-        charImg.src = result.ok ? result.image : 'unknown.png'
-        charName.innerText = result.ok ? result.name : 'Unbekanntes Ticket!'
+        characteristics.className = result.ok ? 'ok' : result.message ? 'warning' : 'error'
+        charImg.src = result.image || 'unknown.png'
+        const errorMsg = result.name + '<div style="color: red">' + (result.message || 'Unbekanntes Ticket!') + '</div>'
+        charName.innerHTML = result.ok ? result.name : errorMsg
         characteristics.setAttribute('style', 'display: inline-block')
         characteristics.setAttribute('data-code', result.uid)
       })

@@ -360,6 +360,14 @@ table {
       display: inline;
     }
   }
+
+  .participant {
+    line-height: 20px;
+
+    input {
+      float: right;
+    }
+  }
 }
 
 #main.maximize {
@@ -402,12 +410,17 @@ table {
         background: green;
       }
 
+      &.warning {
+        background: #cccc00;
+      }
+
       &.error {
         background: red;
       }
 
       img {
         max-width: 80%;
+        max-height: 80%;
         float: none;
       }
 
@@ -415,6 +428,7 @@ table {
         font-size: 20px;
         padding: 10px;
         color: white;
+        line-height: 0.6;
       }
 
       .button.small {

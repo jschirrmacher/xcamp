@@ -3,6 +3,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     uid
     type
     access_code
+    checkedIn
     participant {
       uid
       firstName
@@ -120,17 +121,17 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
   }
 
   async function checkin(txn, accessCode) {
-    const result = {}
     const ticket = await findByAccessCode(txn, accessCode)
-    result.ok = true
     const person = await Person.get(txn, ticket.participant[0].uid)
-    result.uid = person.uid
-    result.name = person.name
-    result.image = person.image
-    const mu = new dgraph.Mutation()
-    const value = `<${ticket.uid}> <checkedIn> "1" .`
-    await mu.setSetNquads(value)
-    await txn.mutate(mu)
+    const result = {ok: true, uid: person.uid, name: person.name, image: person.image}
+    if (!ticket.checkedIn) {
+      const mu = new dgraph.Mutation()
+      await mu.setSetNquads(`<${ticket.uid}> <checkedIn> "1" .`)
+      await txn.mutate(mu)
+    } else {
+      result.ok = false
+      result.message = 'Already checked in!'
+    }
     return result
   }
 

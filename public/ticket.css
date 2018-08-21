@@ -258,6 +258,10 @@ table {
   #invoices-list tr.paid button.setPayment:before {
     content: '✔';
     display: inline; }
+#invoices-list .participant {
+  line-height: 20px; }
+  #invoices-list .participant input {
+    float: right; }
 
 #main.maximize {
   padding: 0; }
@@ -285,15 +289,19 @@ table {
       display: none; }
       #main.maximize .container #characteristics.ok {
         background: green; }
+      #main.maximize .container #characteristics.warning {
+        background: #cccc00; }
       #main.maximize .container #characteristics.error {
         background: red; }
       #main.maximize .container #characteristics img {
         max-width: 80%;
+        max-height: 80%;
         float: none; }
       #main.maximize .container #characteristics div {
         font-size: 20px;
         padding: 10px;
-        color: white; }
+        color: white;
+        line-height: 0.6; }
       #main.maximize .container #characteristics .button.small {
         margin-right: 0; }
 

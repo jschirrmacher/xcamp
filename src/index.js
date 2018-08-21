@@ -321,7 +321,11 @@ async function listInvoices(txn) {
     invoice.customer.person = invoice.customer.person[0]
     invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
     invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
-    invoice.participants = invoice.tickets.filter(ticket => ticket.participant).map(ticket => ticket.participant[0])
+    invoice.participants = invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
+      const participant = ticket.participant[0]
+      participant.checkedIn = ticket.checkedIn ? 'checked' : ''
+      return participant
+    })
     participantCount += invoice.tickets.length
     if (invoice.paid) {
       paidTickets += invoice.tickets.length

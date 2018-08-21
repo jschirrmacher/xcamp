@@ -29,7 +29,7 @@
             <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
         </td>
         <td>
-            {{#participants}}{{name}}<br>{{/participants}}
+            {{#participants}}<div class="participant">{{name}}<input type="checkbox" {{checkedIn}} readonly disabled onclick="return false"></div>{{/participants}}
         </td>
         <td>
             {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}
