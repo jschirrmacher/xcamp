@@ -3,7 +3,7 @@ const util = require('util')
 
 module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL) => {
   require('express-session')
-  const bcrypt = require('bcrypt')
+  const bcrypt = require('bcryptjs')
   const LocalStrategy = require('passport-local').Strategy
   const jwt = require('jsonwebtoken')
   const JwtStrategy = require('passport-jwt').Strategy

@@ -13,7 +13,7 @@ const templateGenerator = require('./TemplateGenerator')
 const nodemailer = require('nodemailer')
 const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
 
-const clientStub = new dgraph.DgraphClientStub('localhost:9080', grpc.credentials.createInsecure())
+const clientStub = new dgraph.DgraphClientStub('server:9080', grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
 
 const express = require('express')
