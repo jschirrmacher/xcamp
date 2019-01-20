@@ -20,12 +20,6 @@ services:
     restart: always
     command: dgraph server --my=server:7080 --lru_mb=2048 --zero=zero:5080
 
-  ratel:
-    image: dgraph/dgraph:latest
-    ports:
-      - "127.0.0.1:8000:8000"
-    command: dgraph-ratel
-
   xcamp:
     build: .
     ports:
@@ -35,6 +29,6 @@ services:
       - AUTH_SECRET=f1/dds;2fklj§r6,e!4.o8!eio
       - BASEURL=https://xcamp.co/netvis/
       - NODE_ENV=production
+      - DGRAPH_URL=server:9080
     volumes:
       - ./profile-pictures:/app/profile-pictures
-      - ./uploads:/app/uploads

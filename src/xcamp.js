@@ -3,6 +3,7 @@ const isProduction = nodeenv === 'production'
 const port = process.env.PORT || 8001
 const baseUrl = process.env.BASEURL
 const AUTH_SECRET = process.env.AUTH_SECRET
+const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 
 const path = require('path')
 global.fetch = require('node-fetch')
@@ -13,7 +14,7 @@ const templateGenerator = require('./TemplateGenerator')
 const nodemailer = require('nodemailer')
 const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
 
-const clientStub = new dgraph.DgraphClientStub('server:9080', grpc.credentials.createInsecure())
+const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
 
 const express = require('express')
