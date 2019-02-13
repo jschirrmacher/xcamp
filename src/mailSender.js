@@ -36,6 +36,9 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
     transporter = nodemailer.createTransport({
       host: '172.17.0.1',
       port: 25,
+      ignoreTLS: true,
+      secure: false,
+      debug: true,
       newline: 'unix'
     })
   }
