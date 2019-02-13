@@ -34,9 +34,9 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
     })
   } else {
     transporter = nodemailer.createTransport({
-      sendmail: true,
-      newline: 'unix',
-      path: '/usr/sbin/sendmail'
+      host: '172.17.0.1',
+      port: 25,
+      newline: 'unix'
     })
   }
 
