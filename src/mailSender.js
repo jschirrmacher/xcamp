@@ -2,7 +2,7 @@
 
 const ticketTypes = require('./ticketTypes')
 
-const from = 'XCamp Tickets <tickets@justso.de>'
+const from = 'XCamp <mail@xcamp.co>'
 
 module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
   function send(to, subject, html) {
