@@ -109,7 +109,7 @@ async function doInTransaction(action, params = [], commit = false) {
 }
 
 app.use('/', express.static(path.join(__dirname, '/../public')))
-app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis/dist')))
+app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))

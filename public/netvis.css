@@ -5,7 +5,8 @@ html, body, #root {
   height: 100%;
   background: radial-gradient(#ffffff, #f7f7f7);
   font: 1rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: #222222; }
+  color: #222222;
+  overflow: hidden; }
 
 button {
   -webkit-appearance: button;
@@ -15,7 +16,7 @@ button {
 
 svg {
   opacity: 0.001;
-  transition: opacity 1s; }
+  transition: opacity 1s 1s; }
 
 body.initialized svg {
   opacity: 1; }
@@ -25,141 +26,262 @@ svg .links line {
 svg .node {
   pointer-events: all;
   cursor: pointer;
-  stroke: #000;
-  stroke-width: 1px; }
-  svg .node.open > circle:first-child, svg .node.open > rect:first-child {
+  stroke: #666;
+  stroke-width: 0.5px; }
+  svg .node.open > circle, svg .node.open > rect {
     stroke: #f00;
     stroke-width: 2px; }
-  svg .node > text {
-    transition: 0.5s 0.5s; }
-    svg .node > text tspan {
-      fill: #000;
-      stroke-width: 0;
-      text-anchor: middle;
-      text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
-  svg .node.withBg > text, svg .node.withBg > .text-bg {
-    transform: translate(0, 50px);
-    stroke: darkgrey; }
-  svg .node.withBg.dark > text tspan {
-    fill: #fff;
-    text-shadow: 0 0 5px #000, 0 0 5px #000; }
-  svg .node:hover circle + .title, svg .node.menuActive circle + .title {
-    transition: 0.5s;
-    transform: translateY(5em) scale(1.5); }
-  svg .node rect {
-    stroke: none; }
-  svg .node rect + text tspan {
-    font-weight: bold;
-    fill: #555; }
-  svg .node circle + rect + text tspan {
-    font-weight: normal; }
+  svg .node .title {
+    transition: 0.5s; }
+    svg .node .title > text {
+      transition: 0.5s 0.5s; }
+      svg .node .title > text tspan {
+        fill: #000;
+        stroke-width: 0;
+        font-weight: normal;
+        text-anchor: middle;
+        text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
   svg .node .text-bg {
     fill: #fcffff;
     rx: 5px;
     ry: 5px; }
-
-.commands {
-  opacity: 0;
-  transition: opacity 0.5s; }
-  .commands.commandContainer g {
-    width: 100px;
-    height: 50px;
-    x: -50px;
-    y: -10px;
-    text-align: center; }
-    .commands.commandContainer g .command {
-      display: none; }
-      .commands.commandContainer g .command.active {
-        display: inline; }
-      .commands.commandContainer g .command circle {
-        fill: white;
-        stroke: #555555;
-        cursor: pointer; }
-      .commands.commandContainer g .command text {
-        font-family: 'Glyphicons Halflings';
-        cursor: pointer; }
-  .commands.active {
+  svg .node .reflinks {
+    position: absolute;
+    opacity: 0.001;
+    transition: opacity 0.3s; }
+    svg .node .reflinks text {
+      font-size: 32px;
+      stroke: #428bca; }
+    svg .node .reflinks .text-bg {
+      fill: #eeefef;
+      rx: 5px;
+      ry: 5px; }
+    svg .node .reflinks g:hover .text-bg {
+      fill: #cccfcf; }
+  svg .node:hover .reflinks {
     opacity: 1; }
+  svg .node.withBg .title {
+    transform: translate(0, 40px); }
+    svg .node.withBg .title tspan {
+      text-shadow: none; }
+  svg .node.withBg:hover .title {
+    transform: translateY(5em) scale(1.5); }
+  svg .node rect {
+    stroke: none; }
+  svg .node > rect:first-child + text tspan {
+    font-weight: bold;
+    fill: #666; }
 
-.detailForm {
-  position: absolute;
-  right: 0;
-  left: 0;
-  padding: 0 15px 15px;
-  line-height: 1.3em;
-  max-width: 640px;
-  margin: 2em auto 0 auto;
-  border: 1px solid #ccc;
-  background: white;
-  box-shadow: 1px 1px 5px #ddd; }
-  .detailForm:after {
-    content: '';
-    display: table;
-    clear: both; }
-  .detailForm img.profile-picture {
-    float: left;
-    margin: 1em 1em 1em 0;
-    width: 120px; }
-  .detailForm h2 button.close {
-    float: right;
-    border: none;
-    background: transparent; }
-  .detailForm:not(.own) label, .detailForm.own .foreign {
-    display: none; }
-  .detailForm .tag-view {
+.command {
+  display: none; }
+  .command.active {
     display: block; }
-    .detailForm .tag-view .tag {
-      position: relative;
-      display: inline-block;
-      border: 1px solid #222222;
-      padding: 2px 15px 2px 10px;
-      margin-right: 5px;
-      line-height: 2em;
-      border-radius: 4px;
-      background: #f9d400;
-      white-space: nowrap; }
-      .detailForm .tag-view .tag.new-tag {
-        font-size: 100%;
-        width: 85px; }
-      .detailForm .tag-view .tag .delete:after {
-        content: "×";
-        position: absolute;
-        top: -8px;
-        right: 2px;
-        cursor: pointer; }
 
-:not(h2) > label {
-  display: block;
-  margin-bottom: 0.5em; }
-  :not(h2) > label input, :not(h2) > label textarea {
-    width: 100%;
-    max-width: 100%;
-    font-size: 110%;
-    padding: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd; }
-
-#showDetails {
+.details {
+  visibility: hidden;
   font-size: 16px;
-  font-family: Courier, monospace;
-  font-weight: bold; }
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%; }
+  .details > div {
+    display: table-cell; }
+  .details .details {
+    display: table;
+    visibility: visible;
+    background-color: rgba(128, 128, 128, 0.5); }
+  .details .detailForm {
+    opacity: 1;
+    padding: 0 15px 15px;
+    line-height: 1.3em;
+    max-width: 100%;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    background: white;
+    box-shadow: 1px 1px 5px #ddd;
+    transition: opacity 1s; }
+    @media (min-width: 500px) {
+      .details .detailForm {
+        max-width: 640px;
+        width: 500px;
+        margin: 0 auto; } }
+    .details .detailForm:after {
+      content: '';
+      display: table;
+      clear: both; }
+    .details .detailForm .profile-picture {
+      flex: 0 0 120px;
+      width: 120px;
+      height: 120px;
+      margin: 0 10px 10px 0;
+      border-radius: 50%;
+      background-position: center;
+      background-size: cover; }
+    .details .detailForm button.close {
+      float: right;
+      border: none;
+      background: transparent;
+      margin-top: 10px;
+      user-select: none; }
+    .details .detailForm .label {
+      display: none;
+      font-size: 80%;
+      color: #777;
+      margin: -4px 0 1em;
+      border-top: 1px solid #ccc; }
+    .details .detailForm h2 + .label {
+      margin-top: -2.4em; }
+    .details .detailForm .textarea[contenteditable] {
+      border: 1px solid #ccc;
+      width: 100%;
+      padding: 4px; }
+    .details .detailForm .input {
+      line-height: 2em;
+      display: block;
+      outline-offset: -4px;
+      padding: 2px 9px;
+      margin-left: -9px; }
+    .details .detailForm .tag-view:before {
+      content: '';
+      display: table;
+      clear: both; }
+    .details .detailForm .tag {
+      display: inline-block;
+      vertical-align: middle;
+      border: 1px solid #bbbbbb;
+      padding: 5px 15px;
+      height: 20px;
+      border-radius: 4px;
+      background: #ffffaa;
+      font-size: 0.9em;
+      white-space: nowrap; }
+      .details .detailForm .tag .delete {
+        display: none;
+        position: relative; }
+        .details .detailForm .tag .delete:after {
+          content: "×";
+          position: absolute;
+          top: -8px;
+          right: -11px;
+          cursor: pointer; }
+    .details .detailForm .new-tag {
+      display: none; }
+      .details .detailForm .new-tag:empty:before {
+        content: 'Thema';
+        color: #aaaaaa; }
+    .details .detailForm .if-editable {
+      display: none; }
+    .details .detailForm.editable .label {
+      display: block; }
+    .details .detailForm.editable .tag .delete {
+      display: inline; }
+    .details .detailForm.editable .new-tag {
+      display: inline-block; }
+    .details .detailForm.editable .if-readonly {
+      display: none; }
+    .details .detailForm.editable .if-editable {
+      display: initial; }
+
+.dialogOpen .details {
+  display: table;
+  visibility: visible;
+  background-color: rgba(128, 128, 128, 0.5); }
+.dialogOpen .detailForm {
+  opacity: 1; }
 
 .zoom {
   position: absolute;
   right: 5px;
   top: 50%;
-  transform: translateY(-50%);
-  font: 20px 'Glyphicons Halflings'; }
-  .zoom > div > * {
-    cursor: pointer;
-    background: white;
-    padding: 5px 6.5px;
-    border-radius: 50%;
-    border: 1px solid #ccc;
-    margin: 10px 0; }
+  font-size: 20px; }
+  .zoom > div {
+    margin-top: -100%; }
+    .zoom > div > * {
+      cursor: pointer;
+      border-radius: 50%;
+      margin: 10px 0;
+      position: relative;
+      text-align: center;
+      display: block;
+      height: 39px;
+      width: 27px;
+      padding-left: 12px;
+      font: 15px Courier, monospace;
+      line-height: 54px; }
+      .zoom > div > *:hover {
+        background: #cccfcf; }
+    .zoom > div #zoomIn:before, .zoom > div #zoomOut:before {
+      content: '🔎';
+      font-size: 20px;
+      position: absolute;
+      top: -8px;
+      left: 7px; }
+    .zoom > div #login:before {
+      content: ' ';
+      position: absolute;
+      top: 11px;
+      left: 10px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 3px solid #333;
+      border-top: none; }
+    .zoom > div #login:after {
+      content: ' ';
+      position: absolute;
+      top: 8px;
+      height: 11px;
+      left: 18px;
+      border-left: 3px solid #333; }
 
 .dialogOpen .zoom {
   display: none; }
+
+.selection {
+  position: absolute;
+  top: 0;
+  margin: auto;
+  width: 100%;
+  text-align: center;
+  padding-top: 10px; }
+  .selection a {
+    background: #eeefef;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none; }
+    .selection a:hover {
+      background: #cccfcf;
+      text-decoration: none; }
+
+.row {
+  display: flex;
+  position: relative; }
+  .row .max-column {
+    flex-grow: 1; }
+
+.textarea p:first-of-type {
+  margin-top: 0; }
+.textarea p:first-of-type {
+  margin-bottom: 0; }
+
+*[contenteditable="true"]:focus-within.textarea {
+  resize: vertical; }
+*[contenteditable="true"]:focus-within.input {
+  display: block;
+  width: 100%; }
+
+.line.level-1 {
+  stroke-opacity: 0.7; }
+
+.line.level-2 {
+  stroke-opacity: 0.5; }
+
+.line.level-3 {
+  stroke-opacity: 0.3; }
 
 .menu {
   position: absolute;
@@ -245,20 +367,5 @@ label[for="image-upload"] {
 
 #image-upload {
   display: none; }
-
-#openNode {
-  transform: translate(-45px, -20px); }
-
-#closeNode {
-  transform: translate(-27px, -41px); }
-
-#newConnection {
-  transform: translate(0px, -50px); }
-
-#removeNode {
-  transform: translate(27px, -41px); }
-
-#showDetails {
-  transform: translate(45px, -20px); }
 
 /*# sourceMappingURL=netvis.css.map */

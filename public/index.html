@@ -5,101 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp Network</title>
     <link rel="stylesheet" type="text/css" href="netvis.css"/>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 </head>
 <body>
 <svg id="root">
-    <rect class="commands commandOverlay" x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.2)"></rect>
-    <g class="commands commandContainer">
-        <g>
-            <g id="openNode" class="command" data-click="openNode" data-visible="!node.open"
-               title="Verbindungen einblenden">
-                <circle r="10"></circle>
-                <text x="-5px" y="5px">&#xe096;</text>
-            </g>
-            <g id="closeNode" class="command" data-click="closeNode" data-visible="node.open"
-               title="Verbindungen ausblenden">
-                <circle r="10"></circle>
-                <text x="-5px" y="5px">&#xe097;</text>
-            </g>
-            <g id="newConnection" class="command" data-click="newConnection" data-visible="node.connectable"
-               title="Neue Verbindung anlegen">
-                <circle r="10"></circle>
-                <text x="-5px" y="5px">+</text>
-            </g>
-            <g id="removeNode" class="command" data-click="removeNode" data-visible="node.deletable"
-               title="Knoten löschen">
-                <circle r="10"></circle>
-                <text x="-3px" y="3px">X</text>
-            </g>
-            <g id="showDetails" class="command" data-click="showDetails" data-visible="node.details"
-               title="Details anzeigen">
-                <circle r="10"></circle>
-                <text x="-2.5px" y="6px">i</text>
-            </g>
-        </g>
-    </g>
 </svg>
 
 <div class="zoom">
     <div>
-        <div id="login" onclick="location.href='login/undefined/%252f'" title="Login">&#xe017</div>
-        <div id="zoomOut" onclick="network.scale(0.66)" title="Verkleinern">&#xe016</div>
-        <div id="zoomIn" onclick="network.scale(1.5)" title="Vergößern">&#xe015</div>
-    </div>
-</div>
+        <div id="login" onclick="location.href='login/undefined/%252f'" title="Login"></div>
+        <div id="zoomOut" onclick="network.scale(0.66)" title="Zoom out">-</div>
+        <div id="zoomIn" onclick="network.scale(1.5)" title="Zoom in">+</div>
+    </div></div>
 
 <div class="menu">
     <div>
-        <div id="show-topics" onclick="location.href='?what=topics'" title="Themen anzeigen">Themen</div>
-        <div id="show-participants" onclick="location.href='.'" title="Teilnehmer anzeigen">Teilnehmer</div>
+        <div id="show-topics" onclick="location.href='?what=topic'" title="Themen anzeigen">Themen</div>
+        <div id="show-participants" onclick="location.href='?what=person'" title="Teilnehmer anzeigen">Teilnehmer</div>
     </div>
 </div>
 
 <script id="detailForm" type="text/x-handlebars-template">
-    <img src="{{{image}}}" class="profile-picture">
+    <button class="close" title="Schließen">×</button>
 
     <div>
-        <label for="image-upload"><i class="glyphicon glyphicon-upload"></i></label>
-        <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+        <h2 class="input max-column" data-name="name" {{{editable}}}>{{name}}</h2>
+        <span class="label">Vorname Nachname</span>
     </div>
 
-    <h2>
-        <button class="close" title="Schließen">×</button>
-        <span class="foreign">{{firstName}} {{lastName}}</span>
-        <label><input type="text" name="firstName" value="{{{firstName}}}" autocomplete='given-name'></label>
-        <label><input type="text" name="lastName" value="{{{lastName}}}" autocomplete='family-name'></label>
-    </h2>
+    <div class="row">
+        {{#image}}<div style="background-image: url('{{{this}}}')" class="profile-picture"></div>{{/image}}
+        <div class="if-editable">
+            <label for="image-upload">⇪</label>
+            <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+        </div>
+
+        <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
+    </div>
 
     <div>
-        <span class="foreign">{{email}}</span>
-        <label><input type="email" name="email" value="{{{email}}}" placeholder="E-Mail-Adresse"
-                      autocomplete='email'></label>
+        <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
+        <span class="label">E-Mail</span>
+    </div>
+
+    {{#url}}<a href="{{this}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
+    <div class="if-editable">
+        <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
+        <span class="label">Profil-URL</span>
     </div>
 
     <label>
-        Meine Tags
         <span class="tag-view">
-            {{#each topics}}
-                <span class="tag">{{this.name}}<span class="delete"></span></span>
+            {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
             {{/each}}
-            <input type="text" class="new-tag tag" placeholder="My Topic">
-            <input type="hidden" name="topics" class="tag-store" value="{{{topicsValue}}}">
+            <span class="tag new-tag" {{{editable}}}></span>
         </span>
     </label>
 
-    <span class="foreign">{{description}}</span>
-    <label>Kurzbeschreibung
-        <textarea name="description">{{description}}</textarea>
-    </label>
+    <div class="commands">
+        {{#each linkTitles}}
+        <a href="#" class="command" data-cmd="showNodes" data-params="{{this.type}}">{{this.title}}</a>
+        {{/each}}
+    </div>
 
-    <span class="foreign"><a href="{{{url}}}" target="_blank">{{url}}</a></span>
-    <label>
-        Homepage
-        <input type="url" name="url" value="{{{url}}}">
-    </label>
-
-    <label>
+    <label class="if-editable">
         <div class="info">
             Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
             XCamp Teilnehmer untereinander. Durch einfache E-Mail an <a class="mail2info"></a> kannst du uns jederzeit
@@ -108,10 +76,8 @@
     </label>
 </script>
 
-<script src="//d3js.org/d3.v4.min.js"></script>
-<script src="js-netvis/Network.js"></script>
-<script src="js-netvis/ForceDiagram.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"
+        integrity="sha256-qlku5J3WO/ehJpgXYoJWC2px3+bZquKChi4oIWrAKoI=" crossorigin="anonymous"></script>
 <script src="netvis-frontend.js"></script>
 
 </body>

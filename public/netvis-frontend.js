@@ -1,103 +1,109 @@
-/*global Handlebars*/
+/*global Handlebars, Network*/
+'use strict'
 
-var network
+const maxImageHeight = 300
+const maxImageWidth = 240
 
-(function (Handlebars) {
-  'use strict'
+const texts = {
+  topics: 'Themen',
+  roots: 'Events',
+  persons: 'Personen'
+}
 
+let network
+const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : '';
+
+const script = document.createElement('script')
+script.addEventListener('load', function () {
   const source = document.getElementById('detailForm').innerHTML
   const detailFormTemplate = Handlebars.compile(source)
 
   const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
   const authorization = token ? token[2] : null
 
-  function nameRequired() {
-    return Promise.resolve(window.prompt('Name'))
+  // Credit David Walsh (https://davidwalsh.name/javascript-debounce-function)
+  function debounce(func, wait, immediate) {
+    let timeout
+
+    return function executedFunction() {
+      const context = this
+      const args = arguments
+
+      const later = function() {
+        timeout = null
+        if (!immediate) func.apply(context, args)
+      }
+
+      const callNow = immediate && !timeout
+      clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+
+      if (callNow) func.apply(context, args)
+    }
   }
 
-  function newNode(name) {
-    console.log('New node', name)
-    return {name, shape: 'circle'}
-  }
-
-  function newLink(link) {
-    console.log('New link', link)
+  function uniqueArray(arrArg) {
+    return arrArg.filter(function(elem, pos,arr) {
+      return arr.indexOf(elem) === pos
+    })
   }
 
   function getFormDataAsObject(form) {
-    const data = {}
-
-    function hasName(el) {
-      return !!el.name
+    function setData(data, el) {
+      return Object.assign(data, {[el.dataset.name]: el.innerText})
     }
 
-    function setData(el) {
-      data[el.name] = el.value
-    }
-
-    Array.from(form.elements).filter(hasName).forEach(setData)
-    return data
+    return Array.from(form.querySelectorAll('*[data-name]')).reduce(setData, {})
   }
 
-  function showDetails(data) {
-    const id = data.uid
+  function showDetails(data, form, node) {
+    const id = data.id
     window.history.pushState(null, null, '#' + id)
-    return new Promise(function (resolve) {
-      const form = document.createElement('form')
-      form.setAttribute('class', 'detailForm' + (data.editable ? ' own' : ''))
-      data.topicsValue = data.topics ? data.topics.map(function (topic) {
-        return topic.name
-      }).join(',') : ''
-      form.innerHTML = detailFormTemplate(data)
-      document.body.appendChild(form)
+    return new Promise(resolve => {
+      const editable = data.editable && 'contenteditable="true"'
+      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${texts[type]} anzeigen`}))
+      form.innerHTML = detailFormTemplate(Object.assign({}, data, {editable, linkTitles}))
+      form.classList.toggle('editable', !!data.editable)
 
-      const tagView = form.getElementsByClassName('tag-view')[0]
-      const tagStore = tagView.getElementsByClassName('tag-store')[0]
-      const newTag = tagView.getElementsByClassName('new-tag')[0]
-      const profilePic = form.getElementsByClassName('profile-picture')[0]
+      const tagView = form.querySelector('.tag-view')
+      const tagStore = tagView.querySelector('.tag-store')
+      const newTag = tagView.querySelector('.new-tag')
+      const profilePic = form.querySelector('.profile-picture')
 
-      function close(result) {
-        form.parentNode.removeChild(form)
-        window.history.pushState(null, null, location.pathname)
-        return resolve(result)
-      }
+      form.addEventListener('input', debounce(e => !e.target.classList.contains('new-tag') && save(), 1000))
+      newTag.addEventListener('keydown', handleKeydownInNewTag)
+      newTag.addEventListener('blur', handleCreateTagEvent)
+      form.querySelectorAll('.delete').forEach(el => el.addEventListener('click', deleteTag))
+      form.querySelectorAll('.upload').forEach(el => el.addEventListener('change', fileUploadHandler))
 
-      function deleteTag(event) {
-        const value = event.target.parentNode.innerText
-        tagStore.value = (tagStore.value ? tagStore.value.split(',') : []).filter(function (topic) {
-          return topic !== value
-        }).join(',')
-        tagView.childNodes.forEach(function (topic) {
-          if (topic.innerText === value) {
-            topic.remove()
-          }
+      document.querySelectorAll('.command').forEach(el => {
+        el.classList.toggle('active', !el.dataset.visible || !!eval(el.dataset.visible))
+        el.addEventListener('click', event => {
+          network[event.target.dataset.cmd](node, event.target.dataset.params)
+          window.history.pushState(null, null, location.pathname)
+          resolve()
         })
-        save()
-      }
+      })
 
-      function updateTopicsField(value) {
-        tagStore.value = (tagStore.value ? tagStore.value.split(',') : []).concat([value]).join(',')
-        const el = document.createElement('span')
-        el.className = 'tag'
-        el.innerText = value
-        const del = document.createElement('span')
-        del.className = 'delete'
-        del.addEventListener('click', deleteTag)
-        el.append(del)
-        tagView.insertBefore(el, newTag)
-      }
+      form.querySelector('.close').addEventListener('click', event => {
+        event.preventDefault()
+        window.history.pushState(null, null, location.pathname)
+        resolve()
+      })
 
       function save() {
-        if (newTag.value) {
-          updateTopicsField(newTag.value)
+        if (newTag.innerText.trim()) {
+          createTag(newTag.innerText.trim())
+          newTag.innerText = ''
         }
         const headers = {'content-type': 'application/json', authorization}
         const data = getFormDataAsObject(form)
-        data.topics = (data.topics && data.topics.split(',').filter(String).map(function (topic) {
-          return {name: topic}
-        })) || []
+        data.topics = Array.from(document.querySelectorAll('.tag'))
+          .map(e => e.innerText.trim())
+          .filter(String)
+          .map(name => ({name}))
         const body = JSON.stringify(data)
-        return fetch('persons/' + id, {method: 'PUT', headers, body})
+        return fetch(`${node.type}s/${node.id}`, {method: 'PUT', headers, body})
           .then(result => result.json())
           .then(result => {
             result.nodes2create.forEach(n => network.addNode(n))
@@ -108,49 +114,65 @@ var network
           })
       }
 
-      Array.from(form.elements).forEach(function (el) {
-        el.addEventListener('change', save)
-      })
+      function deleteTag(event) {
+        const value = event.target.parentNode.innerText
+        tagView.childNodes.forEach(function (topic) {
+          if (topic.innerText === value) {
+            topic.remove()
+          }
+        })
+        save()
+      }
 
-      form.getElementsByClassName('close')[0].addEventListener('click', function (event) {
+      function createTag(value) {
+        const el = document.createElement('span')
+        el.className = 'tag'
+        el.innerText = value
+        const del = document.createElement('span')
+        del.className = 'delete'
+        el.append(del)
+        tagView.insertBefore(el, newTag)
+      }
+
+      function handleCreateTagEvent(event) {
         event.preventDefault()
-        close()
-      })
+        const value = newTag.innerText.trim()
+        if (value) {
+          newTag.innerText = ''
+          createTag(value)
+          save()
+        }
+      }
 
-      form.addEventListener('submit', function (event) {
-        event.preventDefault()
-        save().then(close)
-      })
+      function handleKeydownInNewTag(event) {
+        if (event.key === ',' || event.key === 'Enter') {
+          handleCreateTagEvent(event)
+        }
+      }
 
-      Array.from(form.getElementsByClassName('delete')).forEach(function (el) {
-        el.addEventListener('click', deleteTag)
-      })
-
-      var maxHeight = 300
-      var maxWidth = 240
-      form.getElementsByClassName('upload')[0].addEventListener('change', function (event) {
-        var reader = new FileReader()
+      function fileUploadHandler(event) {
+        const reader = new FileReader()
         reader.onload = function (e) {
-          var image = new Image()
+          const image = new Image()
           image.onload = function () {
             if (image.width > image.height) {
-              image.height *= maxHeight / image.width
-              image.width = maxWidth
+              image.height *= maxImageHeight / image.width
+              image.width = maxImageWidth
             } else {
-              image.width *= maxHeight / image.height
-              image.height = maxHeight
+              image.width *= maxImageHeight / image.height
+              image.height = maxImageHeight
             }
 
-            var canvas = document.createElement("canvas")
+            const canvas = document.createElement("canvas")
             canvas.width = image.width
             canvas.height = image.height
             canvas.getContext("2d").drawImage(image, 0, 0, image.width, image.height)
 
-            var splitted = canvas.toDataURL().split(',')
-            var mime = splitted[0].replace(/data:(.*);.*/, '$1')
-            var binary = atob(splitted[1])
-            var array = Array(binary.length)
-            for (var i=0; i<binary.length; i++) {
+            const splitted = canvas.toDataURL().split(',')
+            const mime = splitted[0].replace(/data:(.*);.*/, '$1')
+            const binary = atob(splitted[1])
+            const array = Array(binary.length)
+            for (let i = 0; i < binary.length; i++) {
               array[i] = binary.charCodeAt(i)
             }
 
@@ -167,36 +189,39 @@ var network
           image.src = e.target.result
         }
         reader.readAsDataURL(event.target.files[0])
-      })
-
-      newTag.addEventListener('keydown', function (event) {
-        if (event.key === ',' || event.key === 'Enter') {
-          event.preventDefault()
-          const value = event.target.value
-          event.target.value = ''
-          updateTopicsField(value)
-          save()
-        }
-      })
+      }
     })
   }
 
   function handleHash() {
     if (location.hash) {
-      var id = location.hash.replace('#', '')
-      network.showDetails({id, details: 'persons/' + id})
+      const id = location.hash.replace('#', '')
+      network.showDetails(network.nodes.find(n => n.id === id))
     }
   }
 
-  function initialized() {
-    network.scale(2.5 / Math.log(network.nodes.length))
-    handleHash()
+  function prepareNode(node) {
+    return Object.assign({}, node, {
+      visible: node.type === what || node.open,
+      shape: node.shape || (node.type === 'person' ? 'circle' : undefined)
+    })
   }
 
   window.onpopstate = handleHash
 
-  const what = location.search.match(/(what=\w*)/) ? '?' + RegExp.$1 : ''
-  network = new Network('network' + what, '#root', {nameRequired, newNode, newLink, showDetails, initialized})
+  network = new Network({
+    dataUrl: 'network',
+    domSelector: '#root',
+    handlers: {
+      prepare(data) {
+        return Object.assign(data, {nodes: data.nodes.map(prepareNode)})
+      },
+
+      showDetails,
+      initialized: handleHash
+    }
+  })
+
   fetch('login', {headers: {authorization}})
     .then(function (response) {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
@@ -204,4 +229,6 @@ var network
     .then(function (data) {
       document.getElementById('login').style.display = data.loggedIn ? 'none' : 'block'
     })
-})(Handlebars)
+})
+script.src = 'https://jschirrmacher.github.io/netvis/dist/bundle.js'
+document.body.appendChild(script)

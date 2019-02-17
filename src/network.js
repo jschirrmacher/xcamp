@@ -41,20 +41,6 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
       })
   }
 
-  function handleSubNodes(data, type, shape, nodes, links, visible) {
-    if (data[type + 's']) {
-      data[type + 's'].forEach(sub => {
-        const found = nodes.find(node => node.id === sub.uid)
-        if (!found) {
-          nodes.push({id: sub.uid, name: sub.name, type, shape, numLinks: 1, visible})
-        } else {
-          found.numLinks++
-        }
-        links.push({source: data.uid, target: sub.uid})
-      })
-    }
-  }
-
   function getTickets(user) {
     if (user && user.type === 'ticket') {
       return user.uid
@@ -80,17 +66,31 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
   }
 
   async function getGraph(what = 'participants', user = null) {
-    const txn = dgraphClient.newTxn()
-    try {
-      const visible = true, open = true, shape = 'circle'
-      const links = []
+    function handleTopic(topic, backlinkId, backlinkType) {
+      const found = nodes.find(node => node.id === topic.uid)
+      if (!found) {
+        const newNode = {id: topic.uid, name: topic.name, type: 'topic', links: {}}
+        if (backlinkId && backlinkType) {
+          newNode.links[backlinkType] = [backlinkId]
+        }
+        nodes.push(newNode)
+        return topic.uid
+      } else {
+        if (backlinkId && backlinkType) {
+          found.links[backlinkType] = (found.links[backlinkType] || []).concat(backlinkId)
+        }
+        return found.id
+      }
+    }
 
-      const base = await txn.query('{ all(func: eq(type, "root")) {uid name image topics {uid name}}}')
-      const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape, open, visible})
-      xcamp.id = xcamp.uid
-      const nodes = [xcamp]
-      handleSubNodes(xcamp, 'topic', null, nodes, links, what === 'topics')
-      delete xcamp.uid
+    const txn = dgraphClient.newTxn()
+    const nodes = []
+    try {
+      const base = await txn.query('{ all(func: eq(type, "root")) {id: uid name image topics {uid name}}}')
+      const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape: 'circle', open: true})
+      xcamp.links = {topics: xcamp.topics && xcamp.topics.map(topic => handleTopic(topic))}
+      delete xcamp.topics
+      nodes.push(xcamp)
 
       const myTickets = getTickets(user)
       const tickets = await getAllTickets(txn)
@@ -98,22 +98,17 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
         const person = await Person.get(txn, ticket.participant[0].uid)
         nodes.push({
           id: person.uid,
-          editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) !== false,
-          name: person.firstName + ' ' + person.lastName,
+          editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) >= 0,
           details: 'persons/' + person.uid,
+          name: person.firstName + ' ' + person.lastName,
           image: person.image,
-          shape,
-          visible: what === 'participants'
+          type: 'person',
+          links: {
+            topics: person.topics && person.topics.map(topic => handleTopic(topic, person.id, 'persons'))
+          }
         })
-        handleSubNodes(person, 'topic', null, nodes, links, what === 'topics')
       }))
-
-      nodes.forEach(node => {
-        if (node.numLinks) {
-          node.fontSize = 1 + Math.min(2, (node.numLinks - 1) / 5)
-        }
-      })
-      return {nodes, links}
+      return {nodes}
     } finally {
       txn.discard()
     }
