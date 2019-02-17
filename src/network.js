@@ -26,7 +26,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
           const mu = new dgraph.Mutation()
           const image = 'xcamp.png'
           mu.setSetJson({
-            name: 'XCamp 2018', type: 'root', image, topics: [
+            name: 'XCamp 2019', type: 'root', image, topics: [
               {type: 'topic', name: 'Design Thinking'},
               {type: 'topic', name: 'Lean Startup'},
               {type: 'topic', name: 'User Experience'},
