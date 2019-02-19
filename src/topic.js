@@ -1,11 +1,10 @@
-const fs = require('fs')
-const path = require('path')
+const fields = ['name', 'description', 'url']
 
 module.exports = (dgraphClient, dgraph, QueryFunction) => {
-  const query = QueryFunction('Topic', `uid name`)
+  const query = QueryFunction('Topic', 'uid ' + fields.join(' '))
 
-  async function get(txn, uid) {
-    const topic = await query.one(txn, `func: uid(${uid})`)
+  async function get(txn, id) {
+    const topic = await query.one(txn, `func: uid(${id})`)
     topic.id = topic.uid
     return topic
   }
@@ -15,9 +14,32 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     return topics.filter(t => t.name.match(new RegExp(pattern, 'i')))
   }
 
-  async function upsert(txn, topic, newData, user) {
-
+  async function updateById(txn, id, data, user) {
+    const topic = await get(txn, id)
+    return upsert(txn, topic, data, user)
   }
 
-  return {get, find, upsert}
+  async function upsert(txn, topic, newData, user) {
+    if (!user) {
+      throw 'Changing this node is not allowed!'
+    }
+    const mu = new dgraph.Mutation()
+    const newValues = [{type: 'topic'}]
+    Object.keys(fields).forEach(key => {
+      const obj = {}
+      obj[key] = newData[key]
+      newValues.push(obj)
+    })
+    const newObject = Object.assign(topic, ...newValues)
+    mu.setSetJson(newObject)
+
+    const assigned = await txn.mutate(mu)
+    if (!topic.uid) {
+      topic.uid = assigned.getUidsMap().get('blank-0')
+    }
+    topic = await get(txn, topic.uid)
+    return {links2create: [], links2delete: [], nodes2create: [], node: topic}
+  }
+
+  return {get, find, upsert, updateById}
 }

@@ -198,6 +198,7 @@ svg {
       border: 1px solid #ccc;
       width: 100%;
       padding: 4px;
+      min-height: 4em;
     }
 
     .input {
@@ -257,6 +258,10 @@ svg {
     }
 
     &.editable {
+      .if-view {
+        display: none;
+      }
+
       .label {
         display: block;
       }
@@ -274,8 +279,24 @@ svg {
       }
 
       .if-editable {
-        display: initial;
+        display: inherit;
       }
+    }
+
+    .if-person {
+      display: none;
+    }
+
+    &.person .if-person {
+      display: inherit;
+    }
+
+    .if-topic {
+      display: none;
+    }
+
+    &.topic .if-topic {
+      display: inherit;
     }
   }
 }

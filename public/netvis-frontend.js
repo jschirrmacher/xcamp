@@ -6,8 +6,8 @@ const maxImageWidth = 240
 
 const texts = {
   topics: 'Themen',
-  roots: 'Events',
-  persons: 'Personen'
+  events: 'Events',
+  persons: 'Interessierte Personen'
 }
 
 let network
@@ -64,9 +64,9 @@ script.addEventListener('load', function () {
       const linkTitles = Object.keys(node.links).map(type => ({type, title: `${texts[type]} anzeigen`}))
       form.innerHTML = detailFormTemplate(Object.assign({}, data, {editable, linkTitles}))
       form.classList.toggle('editable', !!data.editable)
+      form.classList.add(data.type)
 
       const tagView = form.querySelector('.tag-view')
-      const tagStore = tagView.querySelector('.tag-store')
       const newTag = tagView.querySelector('.new-tag')
       const profilePic = form.querySelector('.profile-picture')
 
@@ -109,8 +109,9 @@ script.addEventListener('load', function () {
             result.nodes2create.forEach(n => network.addNode(n))
             network.removeLinks(result.links2delete)
             network.addLinks(result.links2create)
+            network.nodes.some(n => node.id === n.id && Object.assign(n, result.node))
             network.update()
-            return result
+            return result.node
           })
       }
 
@@ -209,9 +210,19 @@ script.addEventListener('load', function () {
 
   window.onpopstate = handleHash
 
+  const icons = {
+    topics: '💬',
+    interestedParties: '👤'
+  }
+  const nodeRenderer = new NodeRenderer({levelSteps: 0.15, showRefLinks: true})
+  nodeRenderer.renderRefLinksContent = function (enter) {
+    enter.text(d => icons[d.type])
+  }
   network = new Network({
     dataUrl: 'network',
     domSelector: '#root',
+    maxLevel: 3,
+    nodeRenderer,
     handlers: {
       prepare(data) {
         return Object.assign(data, {nodes: data.nodes.map(prepareNode)})

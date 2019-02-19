@@ -17,43 +17,41 @@
         <div id="zoomIn" onclick="network.scale(1.5)" title="Zoom in">+</div>
     </div></div>
 
-<div class="menu">
-    <div>
-        <div id="show-topics" onclick="location.href='?what=topic'" title="Themen anzeigen">Themen</div>
-        <div id="show-participants" onclick="location.href='?what=person'" title="Teilnehmer anzeigen">Teilnehmer</div>
-    </div>
-</div>
-
 <script id="detailForm" type="text/x-handlebars-template">
     <button class="close" title="Schließen">×</button>
 
     <div>
         <h2 class="input max-column" data-name="name" {{{editable}}}>{{name}}</h2>
-        <span class="label">Vorname Nachname</span>
+        <div class="label if-editable">
+            <div class="if-person">Vorname Nachname</div>
+            <div class="if-topic">Name</div>
+        </div>
     </div>
 
     <div class="row">
-        {{#image}}<div style="background-image: url('{{{this}}}')" class="profile-picture"></div>{{/image}}
+        {{#image}}
+        <div style="background-image: url('{{{this}}}')" class="profile-picture"></div>
         <div class="if-editable">
             <label for="image-upload">⇪</label>
             <input type="file" class="upload" id="image-upload" name="profilePicture"/>
         </div>
+        {{/image}}
 
         <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
     </div>
 
-    <div>
+    <div class="if-person">
         <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
         <span class="label">E-Mail</span>
     </div>
 
-    {{#url}}<a href="{{this}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
+    {{#url}}<a href="{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
     <div class="if-editable">
         <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
-        <span class="label">Profil-URL</span>
+        <span class="label">URL</span>
     </div>
 
-    <div class="tag-view">
+    <div class="tag-view if-person">
         {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
         {{/each}}
         <span class="tag new-tag" {{{editable}}}></span>
@@ -65,13 +63,13 @@
         {{/each}}
     </div>
 
-    <label class="if-editable">
-        <div class="info">
+    <div class="if-editable">
+        <div class="info if-person">
             Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
             XCamp Teilnehmer untereinander. Durch einfache E-Mail an <a class="mail2info"></a> kannst du uns jederzeit
             sagen, dass wir deine Daten löschen sollen.
         </div>
-    </label>
+    </div>
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"

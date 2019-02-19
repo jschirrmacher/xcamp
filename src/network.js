@@ -66,10 +66,13 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
   }
 
   async function getGraph(what = 'participants', user = null) {
-    function handleTopic(topic, backlinkId, backlinkType) {
+    async function handleTopic(txn, topic, backlinkId, backlinkType) {
       const found = nodes.find(node => node.id === topic.uid)
       if (!found) {
-        const newNode = {id: topic.uid, name: topic.name, type: 'topic', links: {}}
+        const newNode = await Topic.get(txn, topic.uid)
+        newNode.editable = !!user
+        newNode.type = 'topic'
+        newNode.links = {}
         if (backlinkId && backlinkType) {
           newNode.links[backlinkType] = [backlinkId]
         }
@@ -88,7 +91,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
     try {
       const base = await txn.query('{ all(func: eq(type, "root")) {id: uid name image topics {uid name}}}')
       const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape: 'circle', open: true})
-      xcamp.links = {topics: xcamp.topics && xcamp.topics.map(topic => handleTopic(topic))}
+      xcamp.links = {topics: xcamp.topics && await Promise.all(xcamp.topics.map(topic => handleTopic(txn, topic)))}
       delete xcamp.topics
       nodes.push(xcamp)
 
@@ -104,7 +107,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
           image: person.image,
           type: 'person',
           links: {
-            topics: person.topics && person.topics.map(topic => handleTopic(topic, person.id, 'persons'))
+            topics: person.topics && await Promise.all(person.topics.map(topic => handleTopic(txn, topic, person.id, 'persons')))
           }
         })
       }))

@@ -123,6 +123,7 @@ app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, r
 app.get('/persons/:uid/picture/:name', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
 
 app.get('/topics', (req, res) => exec(doInTransaction(Topic.find, [req.query.q]), res))
+app.put('/topics/:uid', requireJWT(), (req, res) => exec(doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true), res))
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))

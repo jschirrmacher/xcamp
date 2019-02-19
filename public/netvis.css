@@ -137,7 +137,8 @@ svg .node {
     .details .detailForm .textarea[contenteditable] {
       border: 1px solid #ccc;
       width: 100%;
-      padding: 4px; }
+      padding: 4px;
+      min-height: 4em; }
     .details .detailForm .input {
       line-height: 2em;
       display: block;
@@ -176,6 +177,8 @@ svg .node {
         color: #aaaaaa; }
     .details .detailForm .if-editable {
       display: none; }
+    .details .detailForm.editable .if-view {
+      display: none; }
     .details .detailForm.editable .label {
       display: block; }
     .details .detailForm.editable .tag .delete {
@@ -185,7 +188,15 @@ svg .node {
     .details .detailForm.editable .if-readonly {
       display: none; }
     .details .detailForm.editable .if-editable {
-      display: initial; }
+      display: inherit; }
+    .details .detailForm .if-person {
+      display: none; }
+    .details .detailForm.person .if-person {
+      display: inherit; }
+    .details .detailForm .if-topic {
+      display: none; }
+    .details .detailForm.topic .if-topic {
+      display: inherit; }
 
 .dialogOpen .details {
   display: table;

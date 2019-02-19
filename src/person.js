@@ -130,7 +130,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
       })
       .map(async n => ({id: n.uid, numLinks: 1, ...await Topic.get(txn, n.uid)}))
     )
-    return {links2create, links2delete, nodes2create, ...person}
+    return {links2create, links2delete, nodes2create, node: person}
   }
 
   async function updateById(txn, id, data, user) {
