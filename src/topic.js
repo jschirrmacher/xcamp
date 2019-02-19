@@ -25,7 +25,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
     }
     const mu = new dgraph.Mutation()
     const newValues = [{type: 'topic'}]
-    Object.keys(fields).forEach(key => {
+    fields.forEach(key => {
       const obj = {}
       obj[key] = newData[key]
       newValues.push(obj)
