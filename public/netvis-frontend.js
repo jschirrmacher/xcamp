@@ -12,6 +12,7 @@ const texts = {
 
 let network
 const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : '';
+let detailsNode = location.hash && location.hash.replace('#', '')
 
 const script = document.createElement('script')
 script.addEventListener('load', function () {
@@ -40,12 +41,6 @@ script.addEventListener('load', function () {
 
       if (callNow) func.apply(context, args)
     }
-  }
-
-  function uniqueArray(arrArg) {
-    return arrArg.filter(function(elem, pos,arr) {
-      return arr.indexOf(elem) === pos
-    })
   }
 
   function getFormDataAsObject(form) {
@@ -203,7 +198,7 @@ script.addEventListener('load', function () {
 
   function prepareNode(node) {
     return Object.assign({}, node, {
-      visible: node.type === what || node.open,
+      visible: node.type === what || node.open || node.id === detailsNode,
       shape: node.shape || (node.type === 'person' ? 'circle' : undefined)
     })
   }
