@@ -53,13 +53,11 @@
         <span class="label">Profil-URL</span>
     </div>
 
-    <label>
-        <span class="tag-view">
-            {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
-            {{/each}}
-            <span class="tag new-tag" {{{editable}}}></span>
-        </span>
-    </label>
+    <div class="tag-view">
+        {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
+        {{/each}}
+        <span class="tag new-tag" {{{editable}}}></span>
+    </div>
 
     <div class="commands">
         {{#each linkTitles}}

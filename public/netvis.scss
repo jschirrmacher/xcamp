@@ -208,10 +208,14 @@ svg {
       margin-left: -9px;
     }
 
-    .tag-view:before {
-      content: '';
-      display: table;
-      clear: both;
+    .tag-view {
+      margin: 10px 0;
+
+      &:before {
+        content: '';
+        display: table;
+        clear: both;
+      }
     }
 
     .tag {

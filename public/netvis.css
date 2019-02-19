@@ -144,10 +144,12 @@ svg .node {
       outline-offset: -4px;
       padding: 2px 9px;
       margin-left: -9px; }
-    .details .detailForm .tag-view:before {
-      content: '';
-      display: table;
-      clear: both; }
+    .details .detailForm .tag-view {
+      margin: 10px 0; }
+      .details .detailForm .tag-view:before {
+        content: '';
+        display: table;
+        clear: both; }
     .details .detailForm .tag {
       display: inline-block;
       vertical-align: middle;
