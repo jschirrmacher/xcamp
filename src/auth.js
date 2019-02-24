@@ -1,79 +1,14 @@
 const passport = require('passport')
-const util = require('util')
+const LoginStrategy = require('./auth-strategies/LoginStrategy')
+const AccessCodeStrategy = require('./auth-strategies/AccessCodeStrategy')
+const CodeAndHashStrategy = require('./auth-strategies/CodeAndHashStrategy')
+const LocalStrategy = require('passport-local').Strategy
+const JwtStrategy = require('passport-jwt').Strategy
+require('express-session')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL) => {
-  require('express-session')
-  const bcrypt = require('bcryptjs')
-  const LocalStrategy = require('passport-local').Strategy
-  const jwt = require('jsonwebtoken')
-  const JwtStrategy = require('passport-jwt').Strategy
-
-  function LoginStrategy(verify) {
-    passport.Strategy.call(this)
-    this.name = 'login'
-    this.verify = verify
-  }
-
-  util.inherits(LoginStrategy, passport.Strategy)
-
-  LoginStrategy.prototype.authenticate = async function (req) {
-    if (!(req.body.email || req.body.username) && !req.body.password) {
-      this.fail('no credentials provided')
-    } else {
-      this.verify(req.body.email, req.body.username, req.body.password, (err, info) => {
-        if (err) {
-          this.fail(err)
-        } else {
-          this.success(info)
-        }
-      })
-    }
-  }
-
-  function AccessCodeStrategy(verify) {
-    passport.Strategy.call(this)
-    this.name = 'access_code'
-    this.verify = verify
-  }
-
-  util.inherits(AccessCodeStrategy, passport.Strategy)
-
-  AccessCodeStrategy.prototype.authenticate = async function (req) {
-    if (!req.params.accessCode && !req.cookies.accessCode) {
-      this.fail('no access code provided')
-    } else {
-      this.verify(req.params.accessCode || req.cookies.accessCode, (err, info) => {
-        if (err) {
-          this.fail(err)
-        } else {
-          this.success(info)
-        }
-      })
-    }
-  }
-
-  function CodeAndHashStrategy(verify) {
-    passport.Strategy.call(this)
-    this.name = 'codeNHash'
-    this.verify = verify
-  }
-
-  util.inherits(CodeAndHashStrategy, passport.Strategy)
-
-  CodeAndHashStrategy.prototype.authenticate = async function (req) {
-    if (!req.params.accessCode || !req.params.hash) {
-      this.fail('access code or hash not provided')
-    } else {
-      this.verify(req.params.accessCode, req.params.hash, (err, info) => {
-        if (err) {
-          this.fail(err)
-        } else {
-          this.success(info)
-        }
-      })
-    }
-  }
-
   function tokenForUser(user) {
     return jwt.sign({sub: user.uid}, secret, {expiresIn: '24h'})
   }
