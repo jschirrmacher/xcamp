@@ -39,8 +39,6 @@ const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const viewModels = require('./readModels')(store)
 
-logger.debug(viewModels.user.getAll())
-
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
 const User = require('./user')(dgraphClient, QueryFunction, store)
