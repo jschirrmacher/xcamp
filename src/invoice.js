@@ -132,6 +132,7 @@ module.exports = (dgraphClient, dgraph, store) => {
     const invoice = select(invoiceData, ['invoiceNo', 'created', 'ticketType', 'ticketPrice', 'payment'])
     invoice.id = invoiceId
     invoice.customerId = customer.uid
+    invoice.created = new Date(invoice.created).toISOString()
     store.add({type: 'invoice-added', invoice})
 
     tickets.forEach(ticket => {
