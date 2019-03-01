@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack, store) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -37,6 +37,8 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const mu = new dgraph.Mutation()
     mu.setDelNquads(`<${coupons[0].uid}> * * .`)
     await txn.mutate(mu)
+
+    store.add({type: 'coupon-invalidated', code})
   }
 
   async function buy(data) {
@@ -93,6 +95,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
         await txn.mutate(mu)
         txn.commit()
+        store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
         const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
         const html = templateGenerator.generate('ticket-mail', {url, baseUrl}, subTemplates)
@@ -128,6 +131,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const mu = new dgraph.Mutation()
       await mu.setSetNquads(`<${ticket.uid}> <checkedIn> "1" .`)
       await txn.mutate(mu)
+      store.add({type: 'checkin', ticketId: ticket.uid})
     } else {
       result.ok = false
       result.message = 'Already checked in!'

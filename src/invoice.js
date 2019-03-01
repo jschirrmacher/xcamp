@@ -1,6 +1,7 @@
 'use strict'
 
 const ticketTypes = require('./ticketTypes')
+const select = require('./lib/select')
 
 const countries = {
   de: 'Deutschland',
@@ -11,7 +12,7 @@ const countries = {
 const leadingZero = num => ('0' + num).substr(-2)
 const currency = n => (''+Math.floor(n)).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
-module.exports = (dgraphClient, dgraph) => {
+module.exports = (dgraphClient, dgraph, store) => {
   function getFormattedDate(date) {
     return date ? leadingZero(date.getDate()) + '.' + leadingZero(date.getMonth()+1) + '.' + date.getFullYear() : ''
   }
@@ -106,7 +107,7 @@ module.exports = (dgraphClient, dgraph) => {
     }
     const invoiceNo = (!ticketTypes[data.type].price || data.payment === 'paypal') ? 0 : await getNextInvoiceNo(txn)
 
-    const invoice = {
+    const invoiceData = {
       type: 'invoice',
       invoiceNo,
       created: '' + new Date(),
@@ -118,15 +119,26 @@ module.exports = (dgraphClient, dgraph) => {
     }
 
     const mu = new dgraph.Mutation()
-    mu.setSetJson(invoice)
+    mu.setSetJson(invoiceData)
     const assigned = await txn.mutate(mu)
-    const uid = assigned.getUidsMap().get('blank-0')
+    const invoiceId = assigned.getUidsMap().get('blank-0')
 
     const muCustomer = new dgraph.Mutation()
-    await muCustomer.setSetNquads(`<${customer.uid}> <invoices> <${uid}> .`)
+    await muCustomer.setSetNquads(`<${customer.uid}> <invoices> <${invoiceId}> .`)
     await txn.mutate(muCustomer)
 
-    return get(txn, uid)
+    const result = get(txn, invoiceId)
+
+    const invoice = select(invoiceData, ['invoiceNo', 'created', 'ticketType', 'ticketPrice', 'payment'])
+    invoice.id = invoiceId
+    invoice.customerId = customer.uid
+    store.add({type: 'invoice-added', invoice})
+
+    tickets.forEach(ticket => {
+      store.add({type: 'ticket-added', ticket, invoiceId})
+    })
+
+    return result
   }
 
   async function addTicket(txn, invoice, ticket) {
@@ -162,6 +174,8 @@ module.exports = (dgraphClient, dgraph) => {
     const mu = new dgraph.Mutation()
     mu.setDelNquads(uids.map(uid => '<' + uid + '> * * .').join('\n'))
     await txn.mutate(mu)
+
+    store.add({type: 'invoice-deleted', invoiceId})
   }
 
   return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice, addTicket}

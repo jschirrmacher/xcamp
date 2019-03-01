@@ -30,11 +30,11 @@
                 <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
                     <label>
                         Passwort:
-                        <input type="password" name="password" id="password">
+                        <input type="password" name="password" id="password" autocomplete="new-password">
                     </label>
                     <label>
                         Passwort wiederholen:
-                        <input type="password" id="password-repeat">
+                        <input type="password" id="password-repeat" autocomplete="new-password">
                     </label>
                     <button type="submit">Passwort setzen</button>
                 </form>
@@ -83,11 +83,11 @@
                 <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
                     <label>
                         Neues Passwort:
-                        <input type="password" name="password" id="password">
+                        <input type="password" name="password" id="password" autocomplete="new-password">
                     </label>
                     <label>
                         Passwort wiederholen:
-                        <input type="password" id="password-repeat">
+                        <input type="password" id="password-repeat" autocomplete="new-password">
                     </label>
                     <button type="submit">Ändern</button>
                 </form>

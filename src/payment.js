@@ -6,7 +6,7 @@ const buttonCodes = {
   reduced: {live: 'XEJF3HM3C7CNW', sandbox: 'ANBYFPEREZ6AE'}
 }
 
-module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, useSandbox) => {
+module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, useSandbox, store) => {
   function paypalUrl() {
     return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
   }
@@ -44,6 +44,8 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
       <${invoice.uid}> <paid> "1" .
       `)
     await txn.mutate(mu)
+
+    store.add({type: 'payment-received', invoiceNo})
 
     mailSender.sendTicketNotifications(customer, invoice)
   }

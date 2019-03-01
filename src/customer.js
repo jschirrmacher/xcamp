@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
   const query = QueryFunction('Customer', `
     uid
     type
@@ -51,7 +51,27 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack) => {
     const mu = new dgraph.Mutation()
     mu.setSetJson(data)
     const assigned = await txn.mutate(mu)
-    return get(txn, assigned.getUidsMap().get('blank-0'))
+    const result = await get(txn, assigned.getUidsMap().get('blank-0'))
+
+    store.add({
+      type: 'customer-added',
+      customer: {
+        id: result.uid,
+        firm: result.firm,
+        address: data.addresses.address,
+        postcode: data.addresses.postcode,
+        city: data.addresses.city,
+        country: data.addresses.country,
+        access_code: result.access_code,
+        person: {
+          id: result.person[0].uid,
+          firstName: result.person[0].firstName,
+          lastName: result.person[0].lastName,
+          email: result.person[0].email
+        }
+      }
+    })
+    return result
   }
 
   return {create, get, findByAccessCode, findByEMail}

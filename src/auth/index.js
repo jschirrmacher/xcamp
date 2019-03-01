@@ -8,7 +8,7 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL) => {
+module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL, store) => {
   function tokenForUser(user) {
     return jwt.sign({sub: user.uid}, secret, {expiresIn: '24h'})
   }
@@ -23,6 +23,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     const mu = new dgraph.Mutation()
     await mu.setSetNquads(`<${customer.uid}> <password> "${passwordHash}" .`)
     await txn.mutate(mu)
+    store.add({type: 'password-changed', userId: uster.uid, passwordHash})
   }
 
   async function setPassword(txn, accessCode, password) {

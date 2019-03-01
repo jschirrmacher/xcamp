@@ -1,6 +1,6 @@
 const fields = ['name', 'description', 'url']
 
-module.exports = (dgraphClient, dgraph, QueryFunction) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, store) => {
   const query = QueryFunction('Topic', 'uid ' + fields.join(' '))
 
   async function get(txn, id) {
@@ -38,6 +38,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction) => {
       topic.uid = assigned.getUidsMap().get('blank-0')
     }
     topic = await get(txn, topic.uid)
+    store.add({type: 'topic-updated', topic})
     return {links2create: [], links2delete: [], nodes2create: [], node: topic}
   }
 

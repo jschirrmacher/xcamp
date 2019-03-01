@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
   const query = QueryFunction('Person', `
     uid
     firstName
@@ -122,6 +122,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic) => {
       person.uid = assigned.getUidsMap().get('blank-0')
     }
     person = await get(txn, person.uid)
+    store.add({type: 'person-updated', person})
     const nodes2create = await Promise.all(newTopics
       .map(n => {
         const topic = person.topics.find(t => t.name === n.name)

@@ -5,6 +5,7 @@ const baseUrl = process.env.BASEURL
 const AUTH_SECRET = process.env.AUTH_SECRET
 const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 
+const logger = console
 const path = require('path')
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
@@ -27,29 +28,35 @@ app.set('json spaces', 2)
 
 app.use((req, res, next) => {
   next()
-  console.log(new Date(), req.method + ' ' + req.path, req.headers['user-agent'])
+  logger.info(new Date(), req.method + ' ' + req.path, req.headers['user-agent'])
 })
 
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+const EventStore = require('./EventStore')
+const store = new EventStore({basePath: path.resolve('./store'), logger})
+const viewModels = require('./readModels')(store)
+
+logger.debug(viewModels.user.getAll())
+
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
-const User = require('./user')(dgraphClient, QueryFunction)
-const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction)
-const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic)
-const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack)
-const Network = require('./network')(dgraphClient, dgraph, Person, Topic)
-const Invoice = require('./invoice')(dgraphClient, dgraph)
-const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack)
+const User = require('./user')(dgraphClient, QueryFunction, store)
+const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
+const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic, store)
+const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store)
+const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store)
+const Invoice = require('./invoice')(dgraphClient, dgraph, store)
+const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction, store)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack, store)
 
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 
-const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl)
+const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
 const redirect = true
 const allowAnonymous = true
 const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_code'], options)
@@ -69,7 +76,7 @@ async function exec(func, res, type = 'json') {
   return func
     .catch(error => {
       res.status(error.status || 500)
-      console.error(new Date(), error.stack || error)
+      logger.error(new Date(), error.stack || error)
       error = isProduction ? error.toString() : error.stack
       return type === 'json' ? {error} : error
     })
@@ -162,12 +169,12 @@ app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTi
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
-  console.error(new Date(), err.stack || err)
+  logger.error(new Date(), err.stack || err)
   const message = err.message || err.toString()
   res.send(isProduction ? message : err.stack || message)
 })
 
-app.listen(port, () => console.log('Running on port ' + port +
+app.listen(port, () => logger.info('Running on port ' + port +
   ' in ' + nodeenv + ' mode' +
   ' with baseURL=' + baseUrl +
   (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
