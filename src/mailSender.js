@@ -28,14 +28,14 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
-        user: 'mhkbznbggjrcoqr5@ethereal.email',
-        pass: 'bwvnMfNUu7Zj9auBGe'
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PWD
       }
     })
   } else {
     transporter = nodemailer.createTransport({
-      host: '172.17.0.1',
-      port: 25,
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT || 25,
       ignoreTLS: true,
       secure: false,
       debug: true,
