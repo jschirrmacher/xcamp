@@ -1,7 +1,0 @@
-version: "3.2"
-services:
-  ratel:
-    image: dgraph/dgraph:latest
-    ports:
-      - "127.0.0.1:8000:8000"
-    command: dgraph-ratel
