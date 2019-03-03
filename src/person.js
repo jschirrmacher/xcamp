@@ -4,6 +4,7 @@ const path = require('path')
 module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
   const query = QueryFunction('Person', `
     uid
+    type
     firstName
     lastName
     email
