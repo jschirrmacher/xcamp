@@ -37,7 +37,7 @@ app.use(bodyParser.json())
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
-const viewModels = require('./readModels')(store)
+const readModels = require('./readModels')(store)
 
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
@@ -232,21 +232,20 @@ async function getTicket(txn, accessCode, mode) {
   return templateGenerator.generate('ticket', params, subTemplates)
 }
 
+function sendHashMail(templateName, customer) {
+  const hash = rack()
+  const link = baseUrl + 'accounts/' + customer.access_code + '/password/reset/' + hash
+  const html = templateGenerator.generate(templateName, {baseUrl, link})
+  const subject = 'XCamp Passwort'
+  const to = customer.person[0].email
+  mailSender.send(to, subject, html)
+  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
+}
+
 async function sendPassword(txn, accessCode) {
   const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
   const customer = await Customer[method](txn, accessCode)
-  accessCode = customer.access_code
-  const mu = new dgraph.Mutation()
-  const hash = rack()
-  await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
-  await txn.mutate(mu)
-
-  const link = baseUrl + 'accounts/' + accessCode + '/password/reset/' + hash
-  const html = templateGenerator.generate('sendPassword-mail', {baseUrl, link})
-  const subject = 'XCamp Passwort Reset'
-  const to = customer.person[0].email
-  mailSender.send(to, subject, html)
-
+  sendHashMail('sendPassword-mail', customer)
   return templateGenerator.generate('password-sent', {baseUrl}, subTemplates)
 }
 
@@ -267,7 +266,8 @@ async function createOrgaMember(txn, data) {
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
   const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-  return Invoice.create(txn, data, customer, tickets)
+  const invoice = await Invoice.create(txn, data, customer, tickets)
+  sendHashMail('send-free-ticket-mail', customer)
 }
 
 async function createCoupon(txn) {
