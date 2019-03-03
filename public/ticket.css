@@ -225,7 +225,7 @@ dl {
     padding: 1em 10px; }
     @media (min-width: 740px) {
       #main .container {
-        padding: 1em 15%; } }
+        padding: 1em 3em; } }
 
 table {
   border-collapse: separate;
