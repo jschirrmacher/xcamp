@@ -51,6 +51,12 @@
         <span class="label">URL</span>
     </div>
 
+    {{#twitterName}}<a href="https://twitter.com/{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/twitterName}}
+    <div class="if-editable if-person">
+        <span class="input twitterName" data-name="twitterName" {{{editable}}}>{{twitterName}}</span>
+        <span class="label">Twitter name</span>
+    </div>
+
     <div class="tag-view if-person">
         {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
         {{/each}}
