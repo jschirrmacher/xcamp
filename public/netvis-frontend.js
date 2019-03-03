@@ -11,7 +11,8 @@ const texts = {
 }
 
 let network
-const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : '';
+const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
+const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
 
 const script = document.createElement('script')
@@ -214,7 +215,7 @@ script.addEventListener('load', function () {
     enter.text(d => icons[d.type])
   }
   network = new Network({
-    dataUrl: 'network',
+    dataUrl: history + 'network',
     domSelector: '#root',
     maxLevel: 3,
     nodeRenderer,
@@ -228,7 +229,7 @@ script.addEventListener('load', function () {
     }
   })
 
-  fetch('login', {headers: {authorization}})
+  fetch(history + 'login', {headers: {authorization}})
     .then(function (response) {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
     })
