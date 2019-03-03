@@ -37,6 +37,12 @@ class EventStore {
     fs.appendFileSync(this.eventsFileName, YAML.stringify([{ts: new Date(), ...event}]))
     this.listeners.forEach(listener => listener(event))
   }
+
+  deleteAll() {
+    if (fs.existsSync(this.eventsFileName)) {
+      fs.unlinkSync(this.eventsFileName)
+    }
+  }
 }
 
 module.exports = EventStore

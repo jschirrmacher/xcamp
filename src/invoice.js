@@ -135,8 +135,8 @@ module.exports = (dgraphClient, dgraph, store) => {
     invoice.created = new Date(invoice.created).toISOString()
     store.add({type: 'invoice-added', invoice})
 
-    tickets.forEach(ticket => {
-      store.add({type: 'ticket-added', ticket, invoiceId})
+    tickets.forEach(t => {
+      store.add({type: 'ticket-added', ticket: {access_code: t.access_code, personId: t.participant.uid, invoiceId}})
     })
 
     return result

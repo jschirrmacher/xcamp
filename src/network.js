@@ -1,11 +1,12 @@
 'use strict'
 
-module.exports = (dgraphClient, dgraph, Person, Topic) => {
+module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()
       op.setDropAll(true)
       await dgraphClient.alter(op)
+      store.deleteAll()
     }
 
     async function setSchema(dgraphClient) {
@@ -18,23 +19,26 @@ module.exports = (dgraphClient, dgraph, Person, Topic) => {
       await dgraphClient.alter(op)
     }
 
+    const rootTopics = ['Design Thinking', 'Lean Startup', 'User Experience', 'Agile']
     return dropAll(dgraphClient)
       .then(() => setSchema(dgraphClient))
       .then(async () => {
         const txn = dgraphClient.newTxn()
         try {
           const mu = new dgraph.Mutation()
-          const image = 'xcamp.png'
-          mu.setSetJson({
-            name: 'XCamp 2019', type: 'root', image, topics: [
-              {type: 'topic', name: 'Design Thinking'},
-              {type: 'topic', name: 'Lean Startup'},
-              {type: 'topic', name: 'User Experience'},
-              {type: 'topic', name: 'Agile'}
-            ]
-          })
-          await txn.mutate(mu)
+          const data = {
+            name: 'XCamp 2019',
+            type: 'root',
+            image: 'xcamp.png',
+            topics: rootTopics.map(name => ({type: 'topic', name}))
+          }
+          mu.setSetJson(data)
+          const assigned = await txn.mutate(mu)
           txn.commit()
+          store.add({type: 'root-added', node: {id: assigned.getUidsMap().get('blank-0'), name: data.name, image: data.image}})
+          rootTopics.forEach((name, num) => {
+            store.add({type: 'topic-added', node: {id: assigned.getUidsMap().get(`blank-${num + 1}`), name}})
+          })
         } finally {
           txn.discard()
         }

@@ -62,7 +62,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         postcode: data.addresses.postcode,
         city: data.addresses.city,
         country: data.addresses.country,
-        access_code: result.access_code,
+        access_code: data.access_code,
         person: {
           id: result.person[0].uid,
           firstName: result.person[0].firstName,

@@ -23,7 +23,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     const mu = new dgraph.Mutation()
     await mu.setSetNquads(`<${customer.uid}> <password> "${passwordHash}" .`)
     await txn.mutate(mu)
-    store.add({type: 'password-changed', userId: uster.uid, passwordHash})
+    store.add({type: 'password-changed', userId: customer.uid, passwordHash})
   }
 
   async function setPassword(txn, accessCode, password) {
@@ -35,6 +35,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
             reject(error)
           } else {
             await setPasswordHash(user, passwordHash, txn)
+            store.add({type: 'password-changed', userId: user.uid, passwordHash})
             fulfil('Passwort ist geändert')
           }
         } catch (error) {
