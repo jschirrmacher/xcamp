@@ -152,7 +152,7 @@ app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
 app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.query.what, req.user), res))
-app.delete('/network', requireJWT(), (req, res) => exec(Network.rebuild(), res))
+app.delete('/network', requireJWT(), requireAdmin, (req, res) => exec(Network.rebuild(), res))
 
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
