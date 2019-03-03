@@ -32,6 +32,7 @@ services:
       - BASEURL=https://xcamp.co/netvis/
       - NODE_ENV=production
       - DGRAPH_URL=server:9080
+      - SMTP_HOST=172.20.0.1
     volumes:
       - ./profile-pictures:/app/profile-pictures
     restart: always
