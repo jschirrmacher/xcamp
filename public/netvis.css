@@ -88,7 +88,8 @@ svg .node {
   height: 100%;
   width: 100%; }
   .details > div {
-    display: table-cell; }
+    display: table-cell;
+    padding-bottom: 30px; }
   .details .details {
     display: table;
     visibility: visible;
@@ -98,15 +99,16 @@ svg .node {
     padding: 0 15px 15px;
     line-height: 1.3em;
     max-width: 100%;
+    width: 500px;
     margin: 0 5px;
     border: 1px solid #ccc;
     background: white;
     box-shadow: 1px 1px 5px #ddd;
     transition: opacity 1s; }
+    .details .detailForm.editable {
+      width: 800px; }
     @media (min-width: 500px) {
       .details .detailForm {
-        max-width: 640px;
-        width: 500px;
         margin: 0 auto; } }
     .details .detailForm:after {
       content: '';
@@ -197,6 +199,11 @@ svg .node {
       display: none; }
     .details .detailForm.topic .if-topic {
       display: inherit; }
+
+html,
+body.dialogOpen,
+body.dialogOpen #root {
+  overflow: visible; }
 
 .dialogOpen .details {
   display: table;
@@ -380,5 +387,15 @@ label[for="image-upload"] {
 
 #image-upload {
   display: none; }
+
+.flex-columns {
+  display: flex; }
+
+.node-info-column {
+  flex-grow: 1; }
+
+.qr-column {
+  flex-direction: column;
+  padding-left: 15px; }
 
 /*# sourceMappingURL=netvis.css.map */

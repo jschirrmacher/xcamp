@@ -9,7 +9,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
     isAdmin,
     person { uid firstName lastName email }
     addresses { address postcode city country }
-    invoices { uid tickets { uid participant { uid } } }`
+    invoices { uid tickets { uid access_code participant { uid } } }`
   )
 
   async function get(txn, uid) {

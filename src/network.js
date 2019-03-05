@@ -103,6 +103,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
       const tickets = await getAllTickets(txn)
       await Promise.all(tickets.map(async ticket => {
         const person = await Person.get(txn, ticket.participant[0].uid)
+        const myUID = user && (user.type === 'customer' ? user.person[0].uid : user.uid)
         nodes.push({
           id: person.uid,
           editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) >= 0,
@@ -110,6 +111,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
           name: person.firstName + ' ' + person.lastName,
           image: person.image,
           type: 'person',
+          access_code: myUID === person.uid ? user.access_code : undefined,
           links: {
             topics: person.topics && await Promise.all(person.topics.map(topic => handleTopic(txn, topic, person.id, 'persons')))
           }

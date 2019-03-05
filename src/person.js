@@ -54,6 +54,14 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     const person = await get(txn, uid)
     if (canAdmin(user, uid)) {
       person.editable = true
+      if (user && user.type === 'customer') {
+        const ticket = user.invoices[0].tickets.find(ticket => ticket.participant[0].uid === uid)
+        if (ticket) {
+          person.access_code = ticket.access_code
+        }
+      } else {
+        person.access_code = user.access_code
+      }
     } else {
       delete person.email
     }

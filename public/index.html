@@ -28,45 +28,54 @@
         </div>
     </div>
 
-    <div class="row">
-        {{#image}}
-        <div style="background-image: url('{{{this}}}')" class="profile-picture"></div>
-        <div class="if-editable">
-            <label for="image-upload">⇪</label>
-            <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+    <div class="flex-columns">
+        <div class="node-info-column">
+            <div class="row">
+                {{#image}}
+                <div style="background-image: url('{{{this}}}')" class="profile-picture"></div>
+                <div class="if-editable">
+                    <label for="image-upload">⇪</label>
+                    <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+                </div>
+                {{/image}}
+
+                <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
+            </div>
+
+            <div class="if-person">
+                <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
+                <span class="label">E-Mail</span>
+            </div>
+
+            {{#url}}<a href="{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
+            <div class="if-editable">
+                <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
+                <span class="label">URL</span>
+            </div>
+
+            {{#twitterName}}<a href="https://twitter.com/{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/twitterName}}
+            <div class="if-editable if-person">
+                <span class="input twitterName" data-name="twitterName" {{{editable}}}>{{twitterName}}</span>
+                <span class="label">Twitter name</span>
+            </div>
+
+            <div class="tag-view if-person">
+                {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
+                {{/each}}
+                <span class="tag new-tag" {{{editable}}}></span>
+            </div>
+
+            <div class="commands">
+                {{#each linkTitles}}
+                <a href="#" class="command" data-cmd="showNodes" data-params="{{this.type}}">{{this.title}}</a>
+                {{/each}}
+            </div>
         </div>
-        {{/image}}
 
-        <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
-    </div>
-
-    <div class="if-person">
-        <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
-        <span class="label">E-Mail</span>
-    </div>
-
-    {{#url}}<a href="{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
-    <div class="if-editable">
-        <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
-        <span class="label">URL</span>
-    </div>
-
-    {{#twitterName}}<a href="https://twitter.com/{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/twitterName}}
-    <div class="if-editable if-person">
-        <span class="input twitterName" data-name="twitterName" {{{editable}}}>{{twitterName}}</span>
-        <span class="label">Twitter name</span>
-    </div>
-
-    <div class="tag-view if-person">
-        {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
-        {{/each}}
-        <span class="tag new-tag" {{{editable}}}></span>
-    </div>
-
-    <div class="commands">
-        {{#each linkTitles}}
-        <a href="#" class="command" data-cmd="showNodes" data-params="{{this.type}}">{{this.title}}</a>
-        {{/each}}
+        <div class="if-editable qr-column">
+            <canvas class="ticketNo if-person" id="{{access_code}}"></canvas>
+            <button class="button small noprint printTicket if-person" data-id="{{access_code}}">Ausdrucken</button>
+        </div>
     </div>
 
     <div class="if-editable">
@@ -80,6 +89,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"
         integrity="sha256-qlku5J3WO/ehJpgXYoJWC2px3+bZquKChi4oIWrAKoI=" crossorigin="anonymous"></script>
+<script src="qrcode/qrcode.min.js"></script>
 <script src="netvis-frontend.js"></script>
 
 </body>

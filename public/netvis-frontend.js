@@ -62,6 +62,15 @@ script.addEventListener('load', function () {
       form.classList.toggle('editable', !!data.editable)
       form.classList.add(data.type)
 
+      Array.prototype.forEach.call(document.querySelectorAll('.ticketNo'), el => {
+        QRCode.toCanvas(el, window.location.origin + '/tickets/' + el.id)
+      })
+      Array.prototype.forEach.call(document.querySelectorAll('.printTicket'), el => {
+        el.addEventListener('click', function (e) {
+          window.open('tickets/' + e.target.dataset.id + '/print')
+        })
+      })
+
       const tagView = form.querySelector('.tag-view')
       const newTag = tagView.querySelector('.new-tag')
       const profilePic = form.querySelector('.profile-picture')
@@ -208,7 +217,7 @@ script.addEventListener('load', function () {
 
   const icons = {
     topics: '💬',
-    interestedParties: '👤'
+    persons: '👤'
   }
   const nodeRenderer = new NodeRenderer({levelSteps: 0.15, showRefLinks: true})
   nodeRenderer.renderRefLinksContent = function (enter) {
