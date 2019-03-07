@@ -36,7 +36,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
           } else {
             await setPasswordHash(user, passwordHash, txn)
             store.add({type: 'password-changed', userId: user.uid, passwordHash})
-            fulfil('Passwort ist geändert')
+            fulfil({message: 'Passwort ist geändert'})
           }
         } catch (error) {
           reject(error)

@@ -11,6 +11,7 @@ const texts = {
 }
 
 let network
+let userInfo = {}
 const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
 const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
@@ -57,8 +58,14 @@ script.addEventListener('load', function () {
     window.history.pushState(null, null, '#' + id)
     return new Promise(resolve => {
       const editable = data.editable && 'contenteditable="true"'
-      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${texts[type]} anzeigen`}))
-      form.innerHTML = detailFormTemplate(Object.assign({}, data, {editable, linkTitles}))
+      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${texts[type]} einblenden`}))
+      form.innerHTML = detailFormTemplate(Object.assign({}, data, {
+        editable,
+        linkTitles,
+        accessCode: userInfo.access_code,
+        setText: userInfo.hasPasswordSet ? 'ändern' : 'setzen',
+        change: userInfo.hasPasswordSet
+      }))
       form.classList.toggle('editable', !!data.editable)
       form.classList.add(data.type)
 
@@ -69,6 +76,36 @@ script.addEventListener('load', function () {
         el.addEventListener('click', function (e) {
           window.open('tickets/' + e.target.dataset.id + '/print')
         })
+      })
+
+      const pwd = document.getElementById('password')
+      const pwd2 = document.getElementById('password-repeat')
+
+      Array.prototype.forEach.call(document.querySelectorAll('.change-pwd'), el => {
+        el.addEventListener('click', function (e) {
+          pwd.value = ''
+          pwd2.value = ''
+          document.querySelector('#personDetails').style.display = 'none';
+          document.querySelector('#chgPwdForm').style.display = 'block';
+        })
+      })
+
+      document.getElementById('chg-pwd-form').addEventListener('submit', function (event) {
+        event.preventDefault()
+        if (pwd.value !== pwd2.value) {
+          showMessage('Passwörter stimmen nicht überein.')
+          return false;
+        }
+        const headers = {'content-type': 'application/json', authorization}
+        fetch('accounts/password', {method: 'POST', headers, body: JSON.stringify({password: pwd.value})})
+          .then(result => result.json())
+          .then(({message}) => showMessage(message))
+          .catch(console.error)
+          .then(() => {
+            document.querySelector('#chgPwdForm').style.display = 'none';
+            document.querySelector('#personDetails').style.display = 'block';
+          })
+        return false;
       })
 
       const tagView = form.querySelector('.tag-view')
@@ -244,7 +281,10 @@ script.addEventListener('load', function () {
     })
     .then(function (data) {
       document.getElementById('login').style.display = data.loggedIn ? 'none' : 'block'
+      if (data.loggedIn) {
+        userInfo = data
+      }
     })
 })
-script.src = 'https://jschirrmacher.github.io/netvis/dist/bundle.js'
+script.src = location.hostname === 'localhost' ? '/js-netvis/dist/bundle.js' : 'https://jschirrmacher.github.io/netvis/dist/bundle.js'
 document.body.appendChild(script)

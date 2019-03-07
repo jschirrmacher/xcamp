@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp Network</title>
     <link rel="stylesheet" type="text/css" href="netvis.css"/>
+    <link rel="stylesheet" type="text/css" href="ticket.css"/>
 </head>
 <body>
 <svg id="root">
@@ -15,7 +16,8 @@
         <div id="login" onclick="location.href='login/undefined/%252f'" title="Login"></div>
         <div id="zoomOut" onclick="network.scale(0.66)" title="Zoom out">-</div>
         <div id="zoomIn" onclick="network.scale(1.5)" title="Zoom in">+</div>
-    </div></div>
+    </div>
+</div>
 
 <script id="detailForm" type="text/x-handlebars-template">
     <button class="close" title="Schließen">×</button>
@@ -28,67 +30,93 @@
         </div>
     </div>
 
-    <div class="flex-columns">
-        <div class="node-info-column">
-            <div class="row">
-                {{#image}}
-                <div style="background-image: url('{{{this}}}')" class="profile-picture"></div>
-                <div class="if-editable">
-                    <label for="image-upload">⇪</label>
-                    <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+    <div id="personDetails">
+        <div class="flex-columns">
+            <div class="node-info-column">
+                <div class="row">
+                    {{#image}}
+                    <div style="background-image: url('{{{this}}}')" class="profile-picture"></div>
+                    <div class="if-editable">
+                        <label for="image-upload">⇪</label>
+                        <input type="file" class="upload" id="image-upload" name="profilePicture"/>
+                    </div>
+                    {{/image}}
+
+                    <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
                 </div>
-                {{/image}}
 
-                <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
+                <div class="if-person">
+                    <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
+                    <span class="label">E-Mail</span>
+                </div>
+
+                {{#url}}<div class="url-link"><a href="{{{this}}}" target="_blank" class="if-readonly">{{this}}</a></div>{{/url}}
+                <div class="if-editable">
+                    <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
+                    <span class="label">URL</span>
+                </div>
+
+                <div class="if-person">
+                    {{#twitterName}}<a href="https://twitter.com/{{{this}}}" target="_blank" class="if-readonly">https://twitter.com/{{this}}</a>{{/twitterName}}
+                    <div class="if-editable">
+                        <span class="input twitterName" data-name="twitterName" {{{editable}}}>{{twitterName}}</span>
+                        <span class="label">Twitter name</span>
+                    </div>
+                </div>
+
+                <div class="tag-view if-person">
+                    {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
+                    {{/each}}
+                    <span class="tag new-tag" {{{editable}}}></span>
+                </div>
+
+                <div class="commands">
+                    {{#each linkTitles}}
+                    <a href="#" class="command" data-cmd="showNodes" data-params="{{this.type}}">{{this.title}}</a>
+                    {{/each}}
+                </div>
             </div>
 
-            <div class="if-person">
-                <span class="input email" data-name="email" {{{editable}}}>{{email}}</span>
-                <span class="label">E-Mail</span>
-            </div>
-
-            {{#url}}<a href="{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/url}}
             <div class="if-editable">
-                <span class="input url" data-name="url" {{{editable}}}>{{url}}</span>
-                <span class="label">URL</span>
-            </div>
-
-            {{#twitterName}}<a href="https://twitter.com/{{{this}}}" target="_blank" class="if-readonly">{{this}}</a>{{/twitterName}}
-            <div class="if-editable if-person">
-                <span class="input twitterName" data-name="twitterName" {{{editable}}}>{{twitterName}}</span>
-                <span class="label">Twitter name</span>
-            </div>
-
-            <div class="tag-view if-person">
-                {{#each topics}}<span class="tag">{{this.name}}<span class="delete"></span></span>
-                {{/each}}
-                <span class="tag new-tag" {{{editable}}}></span>
-            </div>
-
-            <div class="commands">
-                {{#each linkTitles}}
-                <a href="#" class="command" data-cmd="showNodes" data-params="{{this.type}}">{{this.title}}</a>
-                {{/each}}
+                <div class="if-person qr-column">
+                    <canvas class="ticketNo" id="{{access_code}}"></canvas>
+                    <button class="button small noprint printTicket" data-id="{{access_code}}">Ausdrucken</button>
+                    <button class="button small noprint change-pwd">Passwort ändern</button>
+                </div>
             </div>
         </div>
-
-        <div class="if-editable qr-column">
-            <canvas class="ticketNo if-person" id="{{access_code}}"></canvas>
-            <button class="button small noprint printTicket if-person" data-id="{{access_code}}">Ausdrucken</button>
+        <div class="if-editable">
+            <div class="info if-person">
+                Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
+                XCamp Teilnehmer untereinander. Durch einfache E-Mail an <a class="mail2info"></a> kannst du uns jederzeit
+                sagen, dass wir deine Daten löschen sollen.
+            </div>
         </div>
     </div>
 
-    <div class="if-editable">
-        <div class="info if-person">
-            Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
-            XCamp Teilnehmer untereinander. Durch einfache E-Mail an <a class="mail2info"></a> kannst du uns jederzeit
-            sagen, dass wir deine Daten löschen sollen.
-        </div>
+    <div id="chgPwdForm">
+        <h2>Passwort {{setText}}</h2>
+        <p>
+            Du kannst hier dein Passwort {{setText}}:
+        </p>
+
+        <form id="chg-pwd-form">
+            <label>
+                {{#change}}Neues {{/change}}Passwort:
+                <input type="password" name="password" id="password" autocomplete="new-password">
+            </label>
+            <label>
+                Passwort wiederholen:
+                <input type="password" id="password-repeat" autocomplete="new-password">
+            </label>
+            <button type="submit" class="button small primary">Ändern</button>
+        </form>
     </div>
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"
         integrity="sha256-qlku5J3WO/ehJpgXYoJWC2px3+bZquKChi4oIWrAKoI=" crossorigin="anonymous"></script>
+<script src="common.js"></script>
 <script src="qrcode/qrcode.min.js"></script>
 <script src="netvis-frontend.js"></script>
 

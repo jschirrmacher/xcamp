@@ -123,9 +123,14 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
     }
   }
 
+  function getNodeId(user) {
+    return user.type === 'customer' ? user.person[0].uid : user.uid
+  }
+
   return {
     rebuild,
     getGraph,
-    getAllTickets
+    getAllTickets,
+    getNodeId
   }
 }

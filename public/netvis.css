@@ -160,9 +160,10 @@ svg .node {
       padding: 5px 15px;
       height: 20px;
       border-radius: 4px;
-      background: #ffffaa;
+      background: #f9d400;
       font-size: 0.9em;
-      white-space: nowrap; }
+      white-space: nowrap;
+      box-sizing: content-box; }
       .details .detailForm .tag .delete {
         display: none;
         position: relative; }
@@ -220,6 +221,7 @@ body.dialogOpen #root {
   .zoom > div {
     margin-top: -100%; }
     .zoom > div > * {
+      box-sizing: content-box;
       cursor: pointer;
       border-radius: 50%;
       margin: 10px 0;
@@ -397,5 +399,40 @@ label[for="image-upload"] {
 .qr-column {
   flex-direction: column;
   padding-left: 15px; }
+
+.button {
+  background: #ff696c;
+  width: 150px;
+  display: block;
+  margin: 50px auto;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  border: 2px solid #343434;
+  text-decoration: none;
+  font-size: 18px;
+  cursor: pointer; }
+  .button[disabled] {
+    opacity: 0.3;
+    cursor: auto; }
+  .button.small {
+    display: inline-block;
+    font-size: 14px;
+    width: auto;
+    margin: 10px 2em 20px 0; }
+    .button.small.saveTicket {
+      display: none; }
+  .button.wide {
+    width: 250px; }
+
+.details .detailForm button.button.small {
+  display: block;
+  margin-right: 0; }
+
+#chgPwdForm {
+  display: none; }
+
+.url-link {
+  margin-top: 10px; }
 
 /*# sourceMappingURL=netvis.css.map */

@@ -63,7 +63,7 @@ const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
 
 function requireAdmin(req, res, next) {
-  if (!req.user || !req.user.isAdmin) {
+  if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
     throw {status: 403, message: 'Not allowed'}
   } else {
     next()
@@ -113,12 +113,21 @@ async function doInTransaction(action, params = [], commit = false) {
   }
 }
 
+function sendUserInfo() {
+  return (req, res) => res.json({
+    loggedIn: !!req.user,
+    hasPasswordSet: req.user && !!req.user.password,
+    access_code: req.user && req.user.access_code
+  })
+}
+
 app.use('/', express.static(path.join(__dirname, '/../public')))
 app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
+
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
-app.get('/login', requireJWT({allowAnonymous}), (req, res) => res.json({loggedIn: !!req.user}))
+app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
 app.get('/login/:accessCode/:url', (req, res) => exec(loginPage(req.params.accessCode, req.params.url), res, 'send'))
 
 app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body, req.user], true), res))
@@ -132,7 +141,6 @@ app.put('/topics/:uid', requireJWT(), (req, res) => exec(doInTransaction(Topic.u
 
 app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
 app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
-app.get('/ticket/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.show(req.params.accessCode, baseUrl), res))
 app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.show(req.params.accessCode, baseUrl), res))
 app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
 app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
@@ -142,7 +150,7 @@ app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, (req, res) =
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
 app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/password', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
-app.post('/accounts/:accessCode/password', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.params.accessCode, req.body.password], true), res))
+app.post('/accounts/password', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.user, req.body.password], true), res))
 app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
 app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
@@ -261,9 +269,10 @@ async function checkinApp() {
   return templateGenerator.generate('checkinApp', {baseUrl}, subTemplates)
 }
 
-async function setPassword(txn, accessCode, password) {
-  const message = await auth.setPassword(txn, accessCode, password)
-  return {isRedirection: true, url: baseUrl + 'accounts/' + accessCode + '/info?message=' + encodeURIComponent(message)}
+async function setPassword(txn, user, password) {
+  const result = await auth.setPassword(txn, user.access_code, password)
+  result.userId = Network.getNodeId(user)
+  return result
 }
 
 async function createOrgaMember(txn, data) {

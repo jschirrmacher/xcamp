@@ -17,31 +17,7 @@
 
         {{#invoice}}
             <p>Auf dieser Seite findest du die Rechnung und kannst die gekauften Tickets verwalten.</p>
-        {{/invoice}}
 
-        {{^password}}
-            <div class="chg-pwd">
-                <h2>Schütze diesen Zugang</h2>
-                <p>
-                    Setze ein Passwort für die Seite, damit nur du diese Daten sehen und
-                    bearbeiten kannst. Gib' hier das Passwort ein:
-                </p>
-
-                <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
-                    <label>
-                        Passwort:
-                        <input type="password" name="password" id="password" autocomplete="new-password">
-                    </label>
-                    <label>
-                        Passwort wiederholen:
-                        <input type="password" id="password-repeat" autocomplete="new-password">
-                    </label>
-                    <button type="submit">Passwort setzen</button>
-                </form>
-            </div>
-        {{/password}}
-
-        {{#invoice}}
             <p><a href="accounts/{{accessCode}}/invoices/current" target="_blank" class="button wide">
                 Hier ist deine Rechnung
             </a></p>
@@ -72,27 +48,6 @@
             </form>
 
         {{/tickets}}
-
-        {{#password}}
-            <div class="chg-pwd">
-                <h2>Passwort ändern</h2>
-                <p>
-                    Du kannst hier dein Passwort ändern:
-                </p>
-
-                <form action="accounts/{{accessCode}}/password" method="post" id="chg-pwd-form">
-                    <label>
-                        Neues Passwort:
-                        <input type="password" name="password" id="password" autocomplete="new-password">
-                    </label>
-                    <label>
-                        Passwort wiederholen:
-                        <input type="password" id="password-repeat" autocomplete="new-password">
-                    </label>
-                    <button type="submit">Ändern</button>
-                </form>
-            </div>
-        {{/password}}
     </div>
 </div>
 {{> footer}}

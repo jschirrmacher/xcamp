@@ -13,11 +13,11 @@ html, body {
 h2 {
   line-height: 2; }
 
-a {
+a, button {
   text-decoration: none;
   color: #ff696c;
   transition: color .2s linear; }
-  a:hover {
+  a:hover, button:hover {
     color: #4ED9D5; }
 
 .container {
@@ -99,7 +99,7 @@ button {
 
 @media print {
   .noprint {
-    display: none; } }
+    display: none !important; } }
 
 .ticket {
   margin: 1em 0;
@@ -133,31 +133,6 @@ button {
     .ticket input {
       font-size: 14px; } }
 
-.button {
-  background: #ff696c;
-  width: 150px;
-  display: block;
-  margin: 50px auto;
-  padding: 10px;
-  text-align: center;
-  color: white;
-  border: 2px solid #343434;
-  text-decoration: none;
-  font-size: 18px;
-  cursor: pointer; }
-  .button[disabled] {
-    opacity: 0.3;
-    cursor: auto; }
-  .button.small {
-    display: inline-block;
-    font-size: 14px;
-    width: auto;
-    margin: 10px 2em 20px 0; }
-    .button.small.saveTicket {
-      display: none; }
-  .button.wide {
-    width: 250px; }
-
 dl {
   margin: 0; }
   dl dt {
@@ -180,7 +155,6 @@ dl {
   display: none; }
 
 .netvis {
-  background-image: url(netvis.png);
   width: 225px;
   height: 150px;
   clear: both; }
@@ -427,5 +401,30 @@ footer {
   padding: 35px;
   text-align: center;
   line-height: 1.5em; }
+
+.button {
+  background: #ff696c;
+  width: 150px;
+  display: block;
+  margin: 50px auto;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  border: 2px solid #343434;
+  text-decoration: none;
+  font-size: 18px;
+  cursor: pointer; }
+  .button[disabled] {
+    opacity: 0.3;
+    cursor: auto; }
+  .button.small {
+    display: inline-block;
+    font-size: 14px;
+    width: auto;
+    margin: 10px 2em 20px 0; }
+    .button.small.saveTicket {
+      display: none; }
+  .button.wide {
+    width: 250px; }
 
 /*# sourceMappingURL=ticket.css.map */

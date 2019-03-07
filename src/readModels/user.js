@@ -4,6 +4,7 @@ const users = {
   byAccessCode: {}
 }
 const logger = console
+let adminIsDefined = false
 
 function getAll() {
   return Object.values(users.byId)
@@ -47,7 +48,6 @@ function handleEvent(event) {
         assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
         assert(!users.byEMail[event.customer.person.email], `Referenced user ${event.customer.person.email} already exists`)
         const user = {
-          uid: event.customer.id,
           id: event.customer.id,
           type: 'customer',
           access_code: event.customer.access_code,
@@ -67,10 +67,18 @@ function handleEvent(event) {
         assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
         users.byId[event.userId].hash = event.hash
         break
+
+      case 'invoice-added':
+        if (event.invoice.ticketType === 'orga') {
+          assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
+          users.byId[event.invoice.customerId].isAdmin = true
+          adminIsDefined = true
+        }
+        break
     }
   } catch (error) {
     logger.error(error)
   }
 }
 
-module.exports = { handleEvent, getAll, getById, getByAccessCode, getByEMail }
+module.exports = { handleEvent, getAll, getById, getByAccessCode, getByEMail, adminIsDefined }

@@ -230,9 +230,10 @@ svg {
       padding: 5px 15px;
       height: 20px;
       border-radius: 4px;
-      background: #ffffaa;
+      background: #f9d400;
       font-size: 0.9em;
       white-space: nowrap;
+      box-sizing: content-box;
 
       .delete {
         display: none;
@@ -333,6 +334,7 @@ body.dialogOpen #root {
     margin-top: -100%;
 
     > * {
+      box-sizing: content-box;
       cursor: pointer;
       border-radius: 50%;
       margin: 10px 0;
@@ -515,4 +517,19 @@ label[for="image-upload"] {
 .qr-column {
   flex-direction: column;
   padding-left: 15px;
+}
+
+@import "button";
+
+.details .detailForm button.button.small {
+  display: block;
+  margin-right: 0;
+}
+
+#chgPwdForm {
+  display: none;
+}
+
+.url-link {
+  margin-top: 10px;
 }

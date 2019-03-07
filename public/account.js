@@ -42,14 +42,4 @@
     showMessage(decodeURIComponent(RegExp.$1))
     window.history.replaceState(null, null, location.pathname)
   }
-
-  var pwd = document.getElementById('password')
-  var pwd2 = document.getElementById('password-repeat')
-  document.getElementById('chg-pwd-form').addEventListener('submit', function (event) {
-    if (pwd.value !== pwd2.value) {
-      event.preventDefault()
-      showMessage('Passwörter stimmen nicht überein.')
-      return false;
-    }
-  })
 })()
