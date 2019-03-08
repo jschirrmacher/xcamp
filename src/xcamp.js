@@ -164,7 +164,6 @@ app.delete('/network', requireJWT(), requireAdmin, (req, res) => exec(Network.re
 
 app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
 app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
-app.get('/orga/fix', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(fixTopics, [], true), res))
 app.get('/orga/participants', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
 app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
 app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
@@ -279,7 +278,7 @@ async function createOrgaMember(txn, data) {
   data.payment = 'none'
   const customer = await Customer.create(txn, data)
   const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-  const invoice = await Invoice.create(txn, data, customer, tickets)
+  await Invoice.create(txn, data, customer, tickets)
   sendHashMail(txn, 'send-free-ticket-mail', customer)
 }
 
@@ -288,6 +287,7 @@ async function createCoupon(txn) {
   const access_code = rack()
   mu.setSetJson({type: 'coupon', access_code})
   const assigned = await txn.mutate(mu)
+  store.add({type: 'coupon-created', access_code})
   return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
 }
 
@@ -295,29 +295,6 @@ async function createAdditionalTicket(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const tickets = await Ticket.create(txn, customer.person[0], 1)
   return Invoice.addTicket(txn, customer.invoices[0], tickets[0])
-}
-
-const toObject = (acc, cur) => ({...acc, [cur.uid]: cur})
-
-async function fixTopics(txn) {
-  const result = await txn.query(`{ all(func: anyofterms(type, "person topic")) { uid type name topics {uid name}}}`)
-  const all = result.getJson().all
-  const topics = all.filter(d => d.type === 'topic').reduce(toObject, {})
-  const persons = all.filter(d => d.type === 'person').map(p => {
-    if (p.topics) {
-      p.topics.forEach(t => {
-        topics[t.uid].inUse = true
-      })
-    }
-    return p
-  })
-  const unusedTopics = Object.values(topics).filter(t => !t.inUse).map(t => t.uid)
-  if (unusedTopics.length) {
-    const mu = new dgraph.Mutation()
-    mu.setDelNquads(unusedTopics.map(uid => '<' + uid + '> * * .').join('\n'))
-    await txn.mutate(mu)
-  }
-  return Object.values(topics).filter(t => !t.inUse).map(t => t.name)
 }
 
 async function listInvoices(txn) {
