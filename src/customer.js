@@ -28,6 +28,10 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
   }
 
   async function create(txn, customerData) {
+    if (await findByEMail(txn, customerData.email)) {
+      throw 'User already exist'
+    }
+
     const data = {
       type: 'customer',
       firm: customerData.firm,
