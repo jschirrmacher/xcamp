@@ -70,15 +70,10 @@ function requireAdmin(req, res, next) {
   }
 }
 
-async function exec(func, res, type = 'json') {
-  return func
-    .catch(error => {
-      res.status(error.status || 500)
-      logger.error(new Date(), error.stack || error)
-      error = isProduction ? error.toString() : error.stack
-      return type === 'json' ? {error} : error
-    })
-    .then(result => {
+function makeHandler(func, type = 'json') {
+  return async function (req, res, next) {
+    try {
+      const result = await func(req)
       if (result && result.isRedirection) {
         if (result.user) {
           auth.signIn({user: result.user}, res)
@@ -94,7 +89,13 @@ async function exec(func, res, type = 'json') {
       } else {
         res[type](result)
       }
-    })
+    } catch (error) {
+      res.status(error.status || 500)
+      logger.error(new Date(), error.stack || error)
+      error = isProduction ? error.toString() : error.stack
+      next(type === 'json' ? {error} : error)
+    }
+  }
 }
 
 async function doInTransaction(action, params = [], commit = false) {
@@ -128,49 +129,49 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
-app.get('/login/:accessCode/:url', (req, res) => exec(loginPage(req.params.accessCode, req.params.url), res, 'send'))
+app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
 
-app.post('/persons', requireJWT(), (req, res) => exec(doInTransaction(Person.upsert, [{}, req.body, req.user], true), res))
-app.get('/persons/:uid', requireJWT({allowAnonymous}), (req, res) => exec(doInTransaction(Person.getPublicDetails, [req.params.uid, req.user]), res))
-app.put('/persons/:uid', requireJWT(), (req, res) => exec(doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true), res))
-app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), (req, res) => exec(doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true), res))
-app.get('/persons/:uid/picture/:name', (req, res) => exec(doInTransaction(Person.getProfilePicture, req.params.uid), res, 'send'))
+app.post('/persons', requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
+app.get('/persons/:uid', requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
+app.put('/persons/:uid', requireJWT(), makeHandler(req => doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true)))
+app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), makeHandler(req => doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true)))
+app.get('/persons/:uid/picture/:name', makeHandler(req => doInTransaction(Person.getProfilePicture, req.params.uid), 'send'))
 
-app.get('/topics', (req, res) => exec(doInTransaction(Topic.find, [req.query.q]), res))
-app.put('/topics/:uid', requireJWT(), (req, res) => exec(doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true), res))
+app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
+app.put('/topics/:uid', requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
 
-app.get('/tickets', (req, res) => exec(getTicketPage(req.query.code), res, 'send'))
-app.post('/tickets', (req, res) => exec(Ticket.buy(req.body, baseUrl), res))
-app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), (req, res) => exec(Ticket.show(req.params.accessCode, baseUrl), res))
-app.put('/tickets/:accessCode', requireJWT(), (req, res) => exec(Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user), res))
-app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'show']), res, 'send'))
-app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getTicket, [req.params.accessCode, 'print']), res, 'send'))
-app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Ticket.checkin, [req.params.accessCode], true), res))
+app.get('/tickets', makeHandler(req => getTicketPage(req.query.code), 'send'))
+app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
+app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
+app.put('/tickets/:accessCode', requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user)))
+app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
+app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
+app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
 
 app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
-app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getAccountInfoPage, req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/password', (req, res) => exec(doInTransaction(sendPassword, req.params.accessCode, true), res, 'send'))
-app.post('/accounts/password', requireJWT(), (req, res) => exec(doInTransaction(setPassword, [req.user, req.body.password], true), res))
-app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), (req, res) => exec(resetPassword(req.params.accessCode), res, 'send'))
-app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), (req, res) => exec(doInTransaction(getLastInvoice, req.params.accessCode), res, 'send'))
-app.post('/accounts/:accessCode/tickets', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createAdditionalTicket, [req.params.accessCode], true), res))
+app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getAccountInfoPage, req.params.accessCode), 'send'))
+app.get('/accounts/:accessCode/password', makeHandler(req => doInTransaction(sendPassword, req.params.accessCode, true), 'send'))
+app.post('/accounts/password', requireJWT(), makeHandler(req => doInTransaction(setPassword, [req.user, req.body.password], true)))
+app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
+app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
+app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getLastInvoice, req.params.accessCode), 'send'))
+app.post('/accounts/:accessCode/tickets', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createAdditionalTicket, [req.params.accessCode], true)))
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
-app.get('/network', requireJWT({allowAnonymous}), (req, res) => exec(Network.getGraph(req.query.what, req.user), res))
-app.delete('/network', requireJWT(), requireAdmin, (req, res) => exec(Network.rebuild(), res))
+app.get('/network', requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
+app.delete('/network', requireJWT(), requireAdmin, makeHandler(req => Network.rebuild()))
 
-app.post('/orga', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createOrgaMember, [req.body], true), res))
-app.post('/orga/coupon', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(createCoupon, [], true), res))
-app.get('/orga/participants', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(exportParticipants, req.query.format || 'txt'), res, 'send'))
-app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, (req, res) => exec(doInTransaction(listInvoices), res, 'send'))
-app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, true], true), res))
-app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(invoicePayment, [req.params.invoiceNo, false], true), res))
-app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, (req, res) => exec(doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true), res))
-app.get('/orga/checkin', requireJWT({redirect}), requireAdmin, (req, res) => exec(checkinApp(), res, 'send'))
-app.get('/orga/tiles', requireJWT(), requireAdmin, (req, res) => exec(generateTile(req.query), res, 'send'))
+app.post('/orga', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
+app.post('/orga/coupon', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createCoupon, [], true)))
+app.get('/orga/participants', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
+app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(listInvoices), 'send'))
+app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, true], true)))
+app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, false], true)))
+app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true)))
+app.get('/orga/checkin', requireJWT({redirect}), requireAdmin, makeHandler(req => checkinApp(), 'send'))
+app.get('/orga/tiles', requireJWT(), requireAdmin, makeHandler(req => generateTile(req.query), 'send'))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
