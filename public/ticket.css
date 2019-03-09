@@ -99,8 +99,10 @@ button {
 
 @media print {
   .noprint {
-    display: none !important; } }
+    display: none !important; }
 
+  input {
+    border: none; } }
 .ticket {
   margin: 1em 0;
   border: 1px solid #ccc;

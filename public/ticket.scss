@@ -126,9 +126,13 @@ button {
   padding: 15px;
 }
 
-.noprint {
-  @media print {
+@media print {
+  .noprint {
     display: none !important;
+  }
+
+  input {
+    border: none;
   }
 }
 
