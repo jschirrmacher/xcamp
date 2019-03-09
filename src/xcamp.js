@@ -22,7 +22,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const multer = require('multer')
-const upload = multer({dest: 'uploads/'})
+const upload = multer({dest: 'profile-pictures/'})
 const app = express()
 app.set('json spaces', 2)
 
