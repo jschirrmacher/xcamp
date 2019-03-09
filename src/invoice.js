@@ -115,7 +115,8 @@ module.exports = (dgraphClient, dgraph, store) => {
       tickets,
       ticketType: data.type,
       ticketPrice: ticketTypes[data.type].price,
-      payment: data.payment
+      payment: data.payment,
+      isAdmin: data.type === 'orga' ? 1 : undefined
     }
 
     const mu = new dgraph.Mutation()

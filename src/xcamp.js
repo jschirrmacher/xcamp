@@ -90,10 +90,7 @@ function makeHandler(func, type = 'json') {
         res[type](result)
       }
     } catch (error) {
-      res.status(error.status || 500)
-      logger.error(new Date(), error.stack || error)
-      error = isProduction ? error.toString() : error.stack
-      next(type === 'json' ? {error} : error)
+      next(error)
     }
   }
 }
@@ -163,7 +160,7 @@ app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 app.get('/network', requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
 app.delete('/network', requireJWT(), requireAdmin, makeHandler(req => Network.rebuild()))
 
-app.post('/orga', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
+app.post('/orga', requireJWT({allowAnonymous}), requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
 app.post('/orga/coupon', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createCoupon, [], true)))
 app.get('/orga/participants', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
 app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(listInvoices), 'send'))

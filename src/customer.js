@@ -12,24 +12,27 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
     invoices { uid tickets { uid access_code participant { uid } } }`
   )
 
-  async function get(txn, uid) {
-    return query.one(txn, `func: uid(${uid})`)
+  async function get(txn, uid, rejectIfNotFound = true) {
+    return query.one(txn, `func: uid(${uid})`, '', rejectIfNotFound)
   }
 
-  async function findByAccessCode(txn, accessCode) {
-    return query.one(txn, `func: eq(access_code, "${accessCode}")`)
+  async function findByAccessCode(txn, accessCode, rejectIfNotFound = true) {
+    return query.one(txn, `func: eq(access_code, "${accessCode}")`, '', rejectIfNotFound)
   }
 
-  async function findByEMail(txn, email) {
+  async function findByEMail(txn, email, rejectIfNotFound = true) {
     const emailQuery = QueryFunction('Customer', `uid password person @filter(eq(email, "${email}")) { email }`)
-    const customer = await emailQuery.all(txn, `func: eq(type, "customer")`)
+    const customer = await emailQuery.all(txn, `func: eq(type, "customer")`, '', rejectIfNotFound)
     const result = customer.find(entry => entry.person)
+    if (!result) {
+      return null
+    }
     return get(txn, result.uid)
   }
 
   async function create(txn, customerData) {
-    if (await findByEMail(txn, customerData.email)) {
-      throw 'User already exist'
+    if (await findByEMail(txn, customerData.email, false)) {
+      throw {status: 409, message: 'A customer with this email address already exists'}
     }
 
     const data = {
