@@ -4,6 +4,8 @@ services:
     image: dgraph/dgraph:stable
     volumes:
       - ./data:/dgraph
+    networks:
+      - xcamp
     ports:
       - "127.0.0.1:5080:5080"
       - "127.0.0.1:6080:6080"
@@ -14,6 +16,8 @@ services:
     image: dgraph/dgraph:stable
     volumes:
       - ./data:/dgraph
+    networks:
+      - xcamp
     ports:
       - "127.0.0.1:8080:8080"
       - "9080:9080"
@@ -22,6 +26,8 @@ services:
 
   xcamp:
     build: .
+    networks:
+      - xcamp
     ports:
       - "127.0.0.1:8010:3000"
     links:
@@ -36,3 +42,9 @@ services:
     volumes:
       - ./profile-pictures:/app/profile-pictures
     restart: always
+
+networks:
+  xcamp:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: xcamp
