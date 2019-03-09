@@ -246,7 +246,8 @@ script.addEventListener('load', function () {
   function prepareNode(node) {
     return Object.assign({}, node, {
       visible: node.type === what || node.open || node.id === detailsNode,
-      shape: node.shape || (node.type === 'person' ? 'circle' : undefined)
+      shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
+      className: node.type
     })
   }
 
