@@ -27,7 +27,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     if (!person.image) {
       person.image = 'user.png'
     } else if (person.image.match(/^\w+\/\w+:.*$/)) {
-      person.image = 'persons/' + uid + '/picture/' + person.image.replace(/.*:/, '')
+      person.image = 'persons/' + uid + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
     } else if (person.image.match(/^persons\/0x\w+\/picture$/)) {
       person.image += '/picture'
     }
