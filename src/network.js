@@ -93,8 +93,9 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
     const txn = dgraphClient.newTxn()
     const nodes = []
     try {
+      const rootAttributes = {type: 'root', shape: 'circle', open: true, editable: user && user.isAdmin}
       const base = await txn.query('{ all(func: eq(type, "root")) {id: uid name image topics {uid name}}}')
-      const xcamp = Object.assign(base.getJson().all[0], {type: 'root', shape: 'circle', open: true})
+      const xcamp = Object.assign(base.getJson().all[0], rootAttributes)
       xcamp.links = {topics: xcamp.topics && await Promise.all(xcamp.topics.map(topic => handleTopic(txn, topic)))}
       delete xcamp.topics
       nodes.push(xcamp)
