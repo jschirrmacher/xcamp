@@ -20,7 +20,7 @@
 </div>
 
 <script id="detailForm" type="text/x-handlebars-template">
-    <button class="close" title="Schließen">×</button>
+    <button class="icon close" title="Schließen">×</button>
 
     <div>
         <h2 class="input max-column" data-name="name" {{{editable}}}>{{name}}</h2>
@@ -80,6 +80,7 @@
                     <canvas class="ticketNo" id="{{access_code}}"></canvas>
                     <button class="button small noprint printTicket" data-id="{{access_code}}">Ausdrucken</button>
                     <button class="button small noprint change-pwd">Passwort ändern</button>
+                    <button class="button small noprint close">Schließen</button>
                 </div>
             </div>
         </div>

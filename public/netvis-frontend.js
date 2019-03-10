@@ -127,11 +127,11 @@ script.addEventListener('load', function () {
         })
       })
 
-      form.querySelector('.close').addEventListener('click', event => {
+      form.querySelectorAll('.close').forEach(el => el.addEventListener('click', event => {
         event.preventDefault()
         window.history.pushState(null, null, location.pathname)
         resolve()
-      })
+      }))
 
       document.querySelectorAll('.mail2info').forEach(link => {
         const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')

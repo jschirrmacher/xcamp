@@ -405,14 +405,14 @@ footer {
   line-height: 1.5em; }
 
 .button {
-  background: #ff696c;
+  background: #dddddd;
   width: 150px;
   display: block;
   margin: 50px auto;
   padding: 10px;
   text-align: center;
-  color: white;
-  border: 2px solid #343434;
+  color: #800002;
+  border: 2px solid #888888;
   text-decoration: none;
   font-size: 18px;
   cursor: pointer; }
@@ -423,7 +423,7 @@ footer {
     display: inline-block;
     font-size: 14px;
     width: auto;
-    margin: 10px 2em 20px 0; }
+    margin: 10px 2em 5px 0; }
     .button.small.saveTicket {
       display: none; }
   .button.wide {
