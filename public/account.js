@@ -8,9 +8,10 @@
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
   })
 
-  forEachElementOfClass('mail2info', function (link) {
-    link.setAttribute('href', 'mailto:info@justso.de')
-    link.innerText = 'info@justso.de'
+  document.querySelectorAll('.mail2info').forEach(link => {
+    const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
+    link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject + '&body=node=' + id)
+    link.innerText = 'netvis@xcamp.co'
   })
 
   bindHandler('saveTicket', 'click', function (button) {
