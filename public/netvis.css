@@ -163,7 +163,8 @@ svg .node {
       background: #f9d400;
       font-size: 0.9em;
       white-space: nowrap;
-      box-sizing: content-box; }
+      box-sizing: content-box;
+      margin-right: 5px; }
       .details .detailForm .tag .delete {
         display: none;
         position: relative; }
