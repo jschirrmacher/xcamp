@@ -223,7 +223,8 @@ async function getAccountInfoPage(txn, accessCode) {
     password,
     paid,
     tickets,
-    baseUrl
+    baseUrl,
+    config
   }, subTemplates)
 }
 
