@@ -42,6 +42,7 @@ services:
     volumes:
       - ./profile-pictures:/app/profile-pictures
       - ./store:/app/store
+      - ./config:/app/config
     restart: always
 
 networks:

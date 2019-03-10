@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Ticket für das XCamp kaufen</title>
+    <title>Ticket für das {{eventName}} kaufen</title>
     <base href="{{baseUrl}}">
     <link rel="stylesheet" href="ticket.css">
 </head>
@@ -11,17 +11,7 @@
 {{> logo}}
 <div id="main">
     <div class="container">
-        <h1>Tickets für das XCamp kaufen</h1>
-
-        <div id="ticket-presale">
-            <h2>Noch gibt es leider keine Tickets für das XCamp18</h2>
-            <p>
-                Du kannst dich in unseren Newsletter eintragen, damit wir dich sofort informieren,
-                sobald es welche gibt.
-
-                <a href="/#newsletter" target="_parent" class="button">Zum Newsletter</a>
-            </p>
-        </div>
+        <h1>Tickets für das {{eventName}} kaufen</h1>
 
         <form id="ticket-form" method="post" action="tickets">
             <h2>Gib hier die Rechnungs-Daten an:</h2>
@@ -133,7 +123,7 @@
             <div class="form-group checkbox">
                 <label>
                     <input type="checkbox" name="tos_accepted" class="form-control" id="tos-accepted"/>
-                    Ich kaufe hiermit das/die oben spezifizierte(n) Ticket(s) für das XCamp 2019. Ich habe
+                    Ich kaufe hiermit das/die oben spezifizierte(n) Ticket(s) für das {{eventName}}. Ich habe
                     die Hinweise zum Datenschutz zur Kenntnis genommen und bin damit einverstanden, dass meine
                     Rechnungsdaten wie beschrieben elektronisch gespeichert werden.
                 </label>
@@ -145,6 +135,9 @@
 </div>
 {{> footer}}
 
+<script>
+    const categories = { {{categories}} }
+</script>
 <script src="ticket.js"></script>
 </body>
 </html>

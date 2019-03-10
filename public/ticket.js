@@ -32,7 +32,7 @@
       if (ticketCount.value < 1) {
         ticketCount.value = 1
       }
-      var ticketPrice = isCorporate ? 238 : ticketType === 'private' ? 119 : 59.50
+      var ticketPrice = (1.19 * categories[ticketType]).toFixed(2)
       var totals = (ticketCount.value * ticketPrice).toFixed(2)
       singlePrice.innerText = ticketPrice.toFixed(2)
       invoiceDetails.innerText = 'Summe: ' + totals + '€ inkl. 19% MWSt.'
@@ -50,10 +50,12 @@
   }
 
   function isPrivate() {
+    privateTicket && (privateTicket.checked = true)
     firmField.style.display = 'none'
   }
 
   function isCorporate() {
+    corporateTicket && (corporateTicket.checked = true)
     firmField.style.display = 'initial'
   }
 
@@ -67,21 +69,11 @@
   })
 
   if (location.search.match(/type=private/) || location.search.match(/code=/)) {
-    privateTicket && (privateTicket.checked = true)
     isPrivate()
+  } else {
+    isCorporate()
   }
 
-  if (location.search.match(/dev=true/)) {
-    localStorage.setItem('isDev', true)
-  }
-  if (location.search.match(/dev=false/)) {
-    localStorage.clear('isDev')
-  }
-
-  if (true || localStorage.getItem('isDev')) {
-    document.getElementById('ticket-presale').style.display = 'none'
-    document.getElementById('ticket-form').style.display = 'block'
-  }
   adaptDependendFields()
   setSubmitButtonState()
 })()

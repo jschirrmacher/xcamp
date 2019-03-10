@@ -4,9 +4,10 @@ const port = process.env.PORT || 8001
 const baseUrl = process.env.BASEURL
 const AUTH_SECRET = process.env.AUTH_SECRET
 const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
-
 const logger = console
+
 const path = require('path')
+const config = require(path.resolve(__dirname, '..', 'config', 'config.json'))
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
@@ -137,7 +138,7 @@ app.get('/persons/:uid/picture/:name', makeHandler(req => doInTransaction(Person
 app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
 app.put('/topics/:uid', requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
 
-app.get('/tickets', makeHandler(req => getTicketPage(req.query.code), 'send'))
+app.get('/tickets', requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
 app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
 app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
 app.put('/tickets/:accessCode', requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user)))
@@ -189,8 +190,11 @@ async function loginPage(accessCode, url) {
   return templateGenerator.generate('login-page', {url, baseUrl, accessCode}, subTemplates)
 }
 
-async function getTicketPage(code) {
-  return templateGenerator.generate('buy-ticket', {baseUrl, code}, subTemplates)
+async function getTicketPage(code, isAdmin) {
+  const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
+  const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
+  const data = {baseUrl, code, eventName: config.eventName, categories}
+  return templateGenerator.generate(templateName, data, subTemplates)
 }
 
 function getAccountInfoURL(user) {
