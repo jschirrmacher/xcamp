@@ -226,7 +226,7 @@ script.addEventListener('load', function () {
                 return result.json()
               })
               .then(function (person) {
-                profilePic.src = person.image
+                profilePic.style.backgroundImage = 'url(' + person.node.image + ')'
               })
           }
           image.src = e.target.result
