@@ -117,6 +117,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
       mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`)
     })
     const newValues = [{type: 'person'}]
+    if (newData.name && !newData.firstName && !newData.lastName) {
+      [newData.firstName, newData.lastName] = newData.name.split(/ (.*)/)
+    }
     Object.keys(newData).forEach(key => {
       const obj = {}
       obj[key] = newData[key]
