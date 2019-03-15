@@ -173,13 +173,16 @@ dl {
 
 #logo {
   position: absolute;
-  left: 8px; }
+  left: 30px;
+  top: 75px; }
 
 #main {
   background-color: #f5f5f5;
   background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
   background-repeat: no-repeat;
-  padding: 30px 15px; }
+  background-position: left -45px;
+  padding: 30px 15px;
+  min-height: 100%; }
   @media (min-width: 740px) {
     #main {
       padding: 30px; } }
@@ -346,7 +349,12 @@ table {
         align-items: center;
         padding: 0 13px; }
   .main-menu .menu > li > a {
-    height: 44px; }
+    height: 44px;
+    font-family: "Open Sans", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0px;
+    font-style: normal; }
   .main-menu .sub-menu {
     position: absolute;
     left: -20px;
@@ -370,7 +378,7 @@ table {
 
 .social-networks-wrapper {
   color: #545455;
-  padding-left: 10px; }
+  padding-left: 18px; }
   .social-networks-wrapper .social-network-icon {
     display: inline-flex;
     align-items: center;

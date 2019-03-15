@@ -50,6 +50,11 @@
 
   .menu > li > a {
     height: 44px;
+    font-family: "Open Sans", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0px;
+    font-style: normal;
   }
 
   .sub-menu {
@@ -85,7 +90,7 @@
 
 .social-networks-wrapper {
   color: #545455;
-  padding-left: 10px;
+  padding-left: 18px;
 
   .social-network-icon {
     display: inline-flex;
