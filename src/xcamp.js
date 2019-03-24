@@ -43,6 +43,7 @@ const readModels = require('./readModels')(store)
 const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
 const User = require('./user')(dgraphClient, QueryFunction, store)
+const Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
 const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
 const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic, store)
 const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store)
@@ -137,6 +138,8 @@ app.get('/persons/:uid/picture/:name', makeHandler(req => doInTransaction(Person
 
 app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
 app.put('/topics/:uid', requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
+
+app.put('/roots/:uid', requireJWT(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
 
 app.get('/tickets', requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
 app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
