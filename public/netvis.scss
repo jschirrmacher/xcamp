@@ -63,13 +63,14 @@ svg {
       ry: 5px;
     }
 
+
     .reflinks {
       position: absolute;
       opacity: 0.001;
       transition: opacity 0.3s;
 
       text {
-        font-size: 32px;
+        font-size: 24px;
         stroke: #428bca;
       }
 

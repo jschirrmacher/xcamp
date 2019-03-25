@@ -10,6 +10,12 @@ const texts = {
   persons: 'Interessierte Personen'
 }
 
+const icons = {
+  topics: '💬',
+  events: '',
+  persons: '👤'
+}
+
 let network
 let userInfo = {}
 const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
@@ -58,7 +64,7 @@ script.addEventListener('load', function () {
     window.history.pushState(null, null, '#' + id)
     return new Promise(resolve => {
       const editable = data.editable && 'contenteditable="true"'
-      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${texts[type]} einblenden`}))
+      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${icons[type]} ${texts[type]} einblenden`}))
       form.innerHTML = detailFormTemplate(Object.assign({}, data, {
         editable,
         linkTitles,
@@ -259,13 +265,9 @@ script.addEventListener('load', function () {
 
   window.onpopstate = handleHash
 
-  const icons = {
-    topics: '💬',
-    persons: '👤'
-  }
   const nodeRenderer = new NodeRenderer({levelSteps: 0.15, showRefLinks: true})
   nodeRenderer.renderRefLinksContent = function (enter) {
-    enter.text(d => icons[d.type])
+    enter.text(d => icons[d.type] + ' ' + texts[d.type])
   }
   network = new Network({
     dataUrl: history + 'network',
