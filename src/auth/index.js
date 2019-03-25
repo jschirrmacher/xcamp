@@ -19,6 +19,10 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     return token
   }
 
+  function logout(res) {
+    res.cookie('token', undefined)
+  }
+
   async function setPasswordHash(customer, passwordHash, txn) {
     const mu = new dgraph.Mutation()
     await mu.setSetNquads(`<${customer.uid}> <password> "${passwordHash}" .`)
@@ -167,6 +171,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   return {
     authenticate,
     signIn,
-    setPassword
+    setPassword,
+    logout
   }
 }

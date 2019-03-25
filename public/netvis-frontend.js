@@ -287,7 +287,8 @@ script.addEventListener('load', function () {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
     })
     .then(function (data) {
-      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'block'
+      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'inline'
+      document.getElementById('logout').style.display = data.loggedIn ? 'inline' : 'none'
       if (data.loggedIn) {
         userInfo = data
       }

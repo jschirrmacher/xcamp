@@ -229,49 +229,29 @@ body.dialogOpen #root {
 
 .zoom {
   position: absolute;
-  right: 5px;
-  top: 50%;
+  right: 20px;
+  bottom: 30px;
   font-size: 20px; }
   .zoom > div {
     margin-top: -100%; }
     .zoom > div > * {
       box-sizing: content-box;
       cursor: pointer;
-      border-radius: 50%;
-      margin: 10px 0;
+      border: 1px solid #777777;
+      margin: -1px 0;
       position: relative;
       text-align: center;
       display: block;
-      height: 39px;
-      width: 27px;
-      padding-left: 12px;
-      font: 15px Courier, monospace;
-      line-height: 54px; }
+      padding: 2px 10px;
+      font: 32px Courier, monospace; }
       .zoom > div > *:hover {
         background: #cccfcf; }
     .zoom > div #zoomIn:before, .zoom > div #zoomOut:before {
-      content: '🔎';
+      content: '';
       font-size: 20px;
       position: absolute;
       top: -8px;
       left: 7px; }
-    .zoom > div #login:before {
-      content: ' ';
-      position: absolute;
-      top: 11px;
-      left: 10px;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      border: 3px solid #333;
-      border-top: none; }
-    .zoom > div #login:after {
-      content: ' ';
-      position: absolute;
-      top: 8px;
-      height: 11px;
-      left: 18px;
-      border-left: 3px solid #333; }
 
 .dialogOpen .zoom {
   display: none; }
@@ -318,24 +298,6 @@ body.dialogOpen #root {
 
 .line.level-3 {
   stroke-opacity: 0.3; }
-
-.menu {
-  position: absolute;
-  top: 5px;
-  left: 0;
-  right: 0;
-  text-align: center; }
-  .menu div div {
-    background-color: #f7f7f7;
-    border: 1px solid #ccc;
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer; }
-    .menu div div:hover {
-      background-color: #eee; }
-    .menu div div:active {
-      background-color: #ddd; }
 
 .buyButtons {
   position: fixed;
@@ -447,6 +409,6 @@ label[for="image-upload"] {
   display: none; }
 
 .url-link {
-  margin-top: 10px; }
+  margin: 10px 0; }
 
 /*# sourceMappingURL=netvis.css.map */

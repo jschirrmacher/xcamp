@@ -6,6 +6,7 @@ const AUTH_SECRET = process.env.AUTH_SECRET
 const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 const logger = console
 
+const fs = require('fs')
 const path = require('path')
 const config = require(path.resolve(__dirname, '..', 'config', 'config.json'))
 global.fetch = require('node-fetch')
@@ -121,6 +122,18 @@ function sendUserInfo() {
   })
 }
 
+function getNetVisPage() {
+  const index = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html')).toString()
+  const menu = templateGenerator.generate('menu')
+  return index.replace('<body>', '<body>\n' + menu + '\n')
+}
+
+function logout(req, res) {
+  auth.logout(res)
+  res.redirect('.')
+}
+
+app.get('/', (req, res) => res.send(getNetVisPage()))
 app.use('/', express.static(path.join(__dirname, '/../public')))
 app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
 
@@ -129,6 +142,7 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
 app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
+app.get('/logout', logout)
 
 app.post('/persons', requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
 app.get('/persons/:uid', requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
