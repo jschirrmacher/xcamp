@@ -327,7 +327,8 @@ table {
 .main-menu {
   background-color: whitesmoke;
   font-size: 14px;
-  color: #343434; }
+  color: #343434;
+  box-shadow: 0 0 5px rgba(128, 128, 128, 0.5); }
   @media only screen and (max-width: 1099px) {
     .main-menu .alignright, .main-menu .alignleft {
       text-align: center; } }

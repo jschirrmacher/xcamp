@@ -18,6 +18,7 @@ const icons = {
 
 let network
 let userInfo = {}
+let myNode
 const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
 const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
@@ -251,7 +252,15 @@ script.addEventListener('load', function () {
   function handleHash() {
     if (location.hash) {
       const id = location.hash.replace('#', '')
-      network.showDetails(network.nodes.find(n => n.id === id))
+      const node = network.getNode(id)
+      if (!node.visible) {
+        node.visible = true
+        node.x = node.x || network.diagram.center.x
+        node.y = node.y || network.diagram.center.y
+        network.diagram.add([node])
+        network.diagram.update()
+      }
+      network.showDetails(node)
     }
   }
 
@@ -263,9 +272,21 @@ script.addEventListener('load', function () {
     })
   }
 
+  function initialized() {
+    handleHash()
+    const profileButton = document.getElementById('profile')
+    if (myNode) {
+      profileButton.style.display = 'block'
+      profileButton.addEventListener('click', e => {
+        e.preventDefault()
+        location.hash = myNode
+      })
+    }
+  }
+
   window.onpopstate = handleHash
 
-  const nodeRenderer = new NodeRenderer({levelSteps: 0.15, showRefLinks: true})
+  const nodeRenderer = new NodeRenderer({showRefLinks: true})
   nodeRenderer.renderRefLinksContent = function (enter) {
     enter.text(d => icons[d.type] + ' ' + texts[d.type])
   }
@@ -276,11 +297,13 @@ script.addEventListener('load', function () {
     nodeRenderer,
     handlers: {
       prepare(data) {
-        return Object.assign(data, {nodes: data.nodes.map(prepareNode)})
+        data.nodes = data.nodes.map(prepareNode)
+        myNode = data.myNode
+        return data
       },
 
       showDetails,
-      initialized: handleHash
+      initialized
     }
   })
 

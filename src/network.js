@@ -100,11 +100,11 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
       delete xcamp.topics
       nodes.push(xcamp)
 
+      const myUID = user && (user.type === 'customer' ? user.person[0].uid : user.uid)
       const myTickets = getTickets(user)
       const tickets = await getAllTickets(txn)
       await Promise.all(tickets.map(async ticket => {
         const person = await Person.get(txn, ticket.participant[0].uid)
-        const myUID = user && (user.type === 'customer' ? user.person[0].uid : user.uid)
         nodes.push({
           id: person.uid,
           editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) >= 0,
@@ -118,7 +118,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
           }
         })
       }))
-      return {nodes}
+      return {nodes, myNode: myUID}
     } finally {
       txn.discard()
     }

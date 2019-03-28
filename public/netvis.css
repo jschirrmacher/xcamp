@@ -227,34 +227,39 @@ body.dialogOpen #root {
 .dialogOpen .detailForm {
   opacity: 1; }
 
-.zoom {
+.sidebar-buttons > div {
   position: absolute;
-  right: 20px;
-  bottom: 30px;
-  font-size: 20px; }
-  .zoom > div {
-    margin-top: -100%; }
-    .zoom > div > * {
-      box-sizing: content-box;
-      cursor: pointer;
-      border: 1px solid #777777;
-      margin: -1px 0;
-      position: relative;
-      text-align: center;
-      display: block;
-      padding: 2px 10px;
-      font: 32px Courier, monospace;
-      background: white; }
-      .zoom > div > *:hover {
-        background: #cccfcf; }
-    .zoom > div #zoomIn:before, .zoom > div #zoomOut:before {
-      content: '';
-      font-size: 20px;
-      position: absolute;
-      top: -8px;
-      left: 7px; }
+  right: 20px; }
+  .sidebar-buttons > div > div {
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #777777;
+    background: white;
+    font-size: 28px; }
+    .sidebar-buttons > div > div:hover {
+      background: #cccfcf; }
+.sidebar-buttons .other {
+  top: 70px; }
+  .sidebar-buttons .other > div {
+    width: 45px;
+    height: 45px;
+    text-align: center;
+    border-radius: 50%;
+    padding: 5px;
+    margin-bottom: 10px; }
+  .sidebar-buttons .other #profile {
+    display: none; }
+.sidebar-buttons .zoom {
+  bottom: 30px; }
+  .sidebar-buttons .zoom > div {
+    box-sizing: content-box;
+    margin: -1px 0;
+    text-align: center;
+    display: block;
+    padding: 2px 10px;
+    font: 32px Courier, monospace; }
 
-.dialogOpen .zoom {
+.dialogOpen .sidebar-buttons {
   display: none; }
 
 .selection {
