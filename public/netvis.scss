@@ -8,6 +8,11 @@ html, body, #root {
   overflow: hidden;
 }
 
+body {
+  background: url("//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png");
+  background-size: cover;
+}
+
 button {
   -webkit-appearance: button;
   text-transform: none;
@@ -21,7 +26,7 @@ svg {
 }
 
 body.initialized svg {
-  opacity: 1;
+  opacity: 0.95;
 }
 
 svg {
