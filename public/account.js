@@ -10,7 +10,7 @@
 
   document.querySelectorAll('.mail2info').forEach(link => {
     const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
-    link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject + '&body=node=' + id)
+    link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject)
     link.innerText = 'netvis@xcamp.co'
   })
 
