@@ -78,11 +78,11 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
-  async function setParticipant(accessCode, data, baseUrl, subTemplates, user) {
+  async function setParticipant(accessCode, data, baseUrl, user) {
     const txn = dgraphClient.newTxn()
     try {
       const ticket = await findByAccessCode(txn, accessCode)
-      const person = await Person.getOrCreate(txn, data, user)
+      const person = await Person.getOrCreate(txn, data, user, false)
 
       if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
         if (ticket.participant) {
@@ -98,7 +98,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
         const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
-        const html = templateGenerator.generate('ticket-mail', {url, baseUrl}, subTemplates)
+        const html = templateGenerator.generate('ticket-mail', {url})
         return mailSender.send(person.email, 'XCamp Ticket', html)
       }
       txn.commit()

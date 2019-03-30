@@ -13,7 +13,8 @@ global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
-const templateGenerator = require('./TemplateGenerator')
+const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
+const templateGenerator = require('./TemplateGenerator')({globalData: {baseUrl}, subTemplates})
 const nodemailer = require('nodemailer')
 const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
 
@@ -64,6 +65,9 @@ const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_co
 const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', options)
 const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
+
+const MailChimp = require('./mailchimp')
+const newsletterRouter = require('./NewsletterRouter')({express, MailChimp, config, makeHandler, doInTransaction, templateGenerator, fetch, Customer, sendHashMail, requireCodeAndHash, store})
 
 function requireAdmin(req, res, next) {
   if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
@@ -144,6 +148,8 @@ app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
 app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
 app.get('/logout', logout)
 
+app.use('/newsletter', requireJWT({allowAnonymous}), newsletterRouter)
+
 app.post('/persons', requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
 app.get('/persons/:uid', requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
 app.put('/persons/:uid', requireJWT(), makeHandler(req => doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true)))
@@ -158,7 +164,7 @@ app.put('/roots/:uid', requireJWT(), makeHandler(req => doInTransaction(Root.upd
 app.get('/tickets', requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
 app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
 app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
-app.put('/tickets/:accessCode', requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, subTemplates, req.user)))
+app.put('/tickets/:accessCode', requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, req.user)))
 app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
 app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
 app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
@@ -201,17 +207,15 @@ app.listen(port, () => logger.info('Running on port ' + port +
   (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
 ))
 
-const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
-
 async function loginPage(accessCode, url) {
-  return templateGenerator.generate('login-page', {url, baseUrl, accessCode}, subTemplates)
+  return templateGenerator.generate('login-page', {url, accessCode})
 }
 
 async function getTicketPage(code, isAdmin) {
   const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
   const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
-  const data = {baseUrl, code, eventName: config.eventName, categories}
-  return templateGenerator.generate(templateName, data, subTemplates)
+  const data = {code, eventName: config.eventName, categories}
+  return templateGenerator.generate(templateName, data)
 }
 
 function getAccountInfoURL(user) {
@@ -240,52 +244,52 @@ async function getAccountInfoPage(txn, accessCode) {
     password,
     paid,
     tickets,
-    baseUrl,
     config
-  }, subTemplates)
+  })
 }
 
 async function getLastInvoice(txn, accessCode) {
   const customer = await Customer.findByAccessCode(txn, accessCode)
   const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice, baseUrl), subTemplates)
+  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice))
 }
 
 async function getTicket(txn, accessCode, mode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const disabled = mode === 'print' ? 'disabled' : ''
   const print = mode === 'print'
-  const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0], baseUrl}
-  return templateGenerator.generate('ticket', params, subTemplates)
+  const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0]}
+  return templateGenerator.generate('ticket', params)
 }
 
-async function sendHashMail(txn, templateName, customer) {
+async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
   const hash = rack()
   const mu = new dgraph.Mutation()
   await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
   await txn.mutate(mu)
 
-  const link = baseUrl + 'accounts/' + customer.access_code + '/password/reset/' + hash
-  const html = templateGenerator.generate(templateName, {baseUrl, link})
-  const subject = 'XCamp Passwort'
+  const link = baseUrl + action + '/' + hash
+  const firstName = customer.person[0].firstName
+  const html = templateGenerator.generate(templateName, {link, customer, firstName})
   const to = customer.person[0].email
   mailSender.send(to, subject, html)
-  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
+  return hash
 }
 
 async function sendPassword(txn, accessCode) {
   const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
   const customer = await Customer[method](txn, accessCode)
-  sendHashMail(txn,'sendPassword-mail', customer)
-  return templateGenerator.generate('password-sent', {baseUrl}, subTemplates)
+  const hash = sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
+  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
+  return templateGenerator.generate('password-sent')
 }
 
 async function resetPassword(accessCode) {
-  return templateGenerator.generate('password-reset-form', {accessCode, baseUrl}, subTemplates)
+  return templateGenerator.generate('password-reset-form', {accessCode})
 }
 
 async function checkinApp() {
-  return templateGenerator.generate('checkinApp', {baseUrl}, subTemplates)
+  return templateGenerator.generate('checkinApp')
 }
 
 async function setPassword(txn, user, password) {
@@ -299,7 +303,8 @@ async function createOrgaMember(txn, data) {
   const customer = await Customer.create(txn, data)
   const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
   await Invoice.create(txn, data, customer, tickets)
-  sendHashMail(txn, 'send-free-ticket-mail', customer)
+  const hash = sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
+  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
 }
 
 async function createCoupon(txn) {
@@ -352,11 +357,10 @@ async function listInvoices(txn) {
   })
   return templateGenerator.generate('invoices-list', {
     invoices,
-    baseUrl,
     participantCount,
     paidTickets,
     totals
-  }, subTemplates)
+  })
 }
 
 async function invoicePayment(txn, invoiceId, state) {
@@ -382,7 +386,7 @@ async function generateTile(data) {
     })
     return templateGenerator.generate('colorOptions', flags)
   }
-  return templateGenerator.generate('tile-form', {baseUrl, colorSelect, ...data}, subTemplates)
+  return templateGenerator.generate('tile-form', {colorSelect, ...data})
 }
 
 async function exportParticipants(txn, format) {

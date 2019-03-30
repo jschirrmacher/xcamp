@@ -48,7 +48,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
   function getTickets(user) {
     if (user && user.type === 'ticket') {
       return user.uid
-    } else if (user && user.type === 'customer') {
+    } else if (user && user.type === 'customer' && user.invoices) {
       return user.invoices["0"].tickets.map(ticket => ticket.uid)
     }
     return []

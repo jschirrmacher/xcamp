@@ -16,7 +16,7 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
     const person = customer.person[0]
     const ticketCount = invoice.tickets.length
     const subject = 'XCamp Ticketbuchung'
-    const params = {customer, person, baseUrl, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}
+    const params = {customer, person, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}
     send(person.email, subject, templateGenerator.generate('invoice-mail', params))
     send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
     return url
