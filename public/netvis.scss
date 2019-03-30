@@ -519,3 +519,38 @@ label[for="image-upload"] {
 .url-link {
   margin: 10px 0;
 }
+
+.help {
+  position: absolute;
+  opacity: 0;
+  top: -100%;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(128,128,128,0.5);
+  transition: opacity 0.3s;
+
+  > div {
+    max-width: 50%;
+    margin: -100% auto 5em;
+    background: white;
+    padding: 1em 2em;
+    transition: all 0.3s;
+
+    .close {
+      float: right;
+      border: none;
+      background: transparent;
+    }
+  }
+
+  &.open {
+    top: 0;
+    bottom: 0;
+    opacity: 1;
+
+    > div {
+      margin-top: 5em;
+    }
+  }
+}

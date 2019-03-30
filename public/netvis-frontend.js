@@ -284,6 +284,14 @@ script.addEventListener('load', function () {
     }
   }
 
+  const helpBox = document.querySelector('.help')
+  document.getElementById('help').addEventListener('click', () => {
+    helpBox.classList.add('open')
+  })
+  document.querySelector('.help .close').addEventListener('click', () => {
+    helpBox.classList.remove('open')
+  })
+
   window.onpopstate = handleHash
 
   const nodeRenderer = new NodeRenderer({showRefLinks: true})
