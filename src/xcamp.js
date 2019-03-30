@@ -14,7 +14,8 @@ const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
 const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
-const templateGenerator = require('./TemplateGenerator')({globalData: {baseUrl}, subTemplates})
+const globalData = {baseUrl, trackingId: config.analyticsTrackingId}
+const templateGenerator = require('./TemplateGenerator')({globalData, subTemplates})
 const nodemailer = require('nodemailer')
 const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
 
