@@ -78,7 +78,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
       person = await getByEMail(txn, data.email)
     } catch(e) {}
     try {
-      return upsert(txn, person, data, user)
+      const result = await upsert(txn, person, data, user)
+      return result.node
     } catch (e) {
       return person   // person exists but user don't have write access, so just return the person
     }
