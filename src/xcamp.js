@@ -13,7 +13,7 @@ global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
-const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer']
+const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'analytics']
 const globalData = {baseUrl, trackingId: config.analyticsTrackingId}
 const templateGenerator = require('./TemplateGenerator')({globalData, subTemplates})
 const nodemailer = require('nodemailer')
@@ -130,7 +130,8 @@ function sendUserInfo() {
 function getNetVisPage() {
   const index = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html')).toString()
   const menu = templateGenerator.generate('menu')
-  return index.replace('<body>', '<body>\n' + menu + '\n')
+  const analytics = templateGenerator.generate('analytics')
+  return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
 }
 
 function logout(req, res) {
