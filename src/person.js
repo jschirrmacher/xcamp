@@ -42,7 +42,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     } else if (user.isAdmin) {
       return true
     } else if (user.type === 'customer') {
-      return user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
+      return !uid || user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
     } else if (user.type === 'ticket') {
       return uid === user.participant[0].uid
     } else {
