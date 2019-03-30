@@ -18,6 +18,7 @@ const globalData = {baseUrl, trackingId: config.analyticsTrackingId}
 const templateGenerator = require('./TemplateGenerator')({globalData, subTemplates})
 const nodemailer = require('nodemailer')
 const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
+const eventName = config.eventName
 
 const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)
@@ -53,7 +54,8 @@ const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack
 const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store)
 const Invoice = require('./invoice')(dgraphClient, dgraph, store)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction, store)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, rack, store)
+const mailChimp = require('./mailchimp')(config.mailChimp, eventName, fetch, store)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store)
 
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
@@ -67,8 +69,7 @@ const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', opti
 const requireJWT = (options = {}) => auth.authenticate('jwt', options)
 const requireLogin = (options = {}) => auth.authenticate('login', options)
 
-const MailChimp = require('./mailchimp')
-const newsletterRouter = require('./NewsletterRouter')({express, MailChimp, config, makeHandler, doInTransaction, templateGenerator, fetch, Customer, sendHashMail, requireCodeAndHash, store})
+const newsletterRouter = require('./NewsletterRouter')({express, mailChimp, eventName, makeHandler, doInTransaction, templateGenerator, Customer, sendHashMail, requireCodeAndHash, store})
 
 function requireAdmin(req, res, next) {
   if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
@@ -216,7 +217,7 @@ async function loginPage(accessCode, url) {
 async function getTicketPage(code, isAdmin) {
   const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
   const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
-  const data = {code, eventName: config.eventName, categories}
+  const data = {code, eventName: eventName, categories}
   return templateGenerator.generate(templateName, data)
 }
 
