@@ -32,10 +32,10 @@
       if (ticketCount.value < 1) {
         ticketCount.value = 1
       }
-      var ticketPrice = (1.19 * categories[ticketType]).toFixed(2)
-      var totals = (ticketCount.value * ticketPrice).toFixed(2)
+      var ticketPrice = 1.19 * categories[ticketType]
+      var totals = ticketCount.value * ticketPrice
       singlePrice.innerText = ticketPrice.toFixed(2)
-      invoiceDetails.innerText = 'Summe: ' + totals + '€ inkl. 19% MWSt.'
+      invoiceDetails.innerText = 'Summe: ' + totals.toFixed(2) + '€ inkl. 19% MWSt.'
     } else {
       invoiceDetails.innerText = 'Geben Sie bitte eine Ticketanzahl ein!'
     }
