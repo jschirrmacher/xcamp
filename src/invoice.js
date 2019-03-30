@@ -93,7 +93,7 @@ module.exports = (dgraphClient, dgraph, store) => {
     const result = await txn.query(`{customer(func: uid("${customerId}")){uid invoices {uid}}}`)
     const customer = result.getJson().customer[0]
     const invoice = customer.invoices
-    return invoice.length ? get(txn, invoice[0].uid) : Promise.reject('Invoice not found')
+    return invoice && invoice.length ? get(txn, invoice[0].uid) : Promise.reject('Invoice not found')
   }
 
   async function getNextInvoiceNo(txn) {
