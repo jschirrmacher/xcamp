@@ -132,7 +132,7 @@
             <div class="invoice-id">Rechnungs-Nr. {{invoiceNo}}</div>
             <div class="date">Datum {{created}}</div>
             <div><br>
-                Ihr Kontakt:<br>
+                Kontakt:<br>
                 xcamp@justso.de
             </div>
         </div>
@@ -149,14 +149,14 @@
         <h2>Rechnung</h2>
 
         <div class="invoice-text">
-            <p>Liebe(r) XCamp Teilnehmer(in),</p>
-            <p>wir freuen uns über deine Teilnahme beim XCamp 2019!</p>
+            <p>Liebe(r) {{eventName}} Teilnehmer(in),</p>
+            <p>wir freuen uns über deine Teilnahme beim {{eventName}}!</p>
             <p>Hier ist die Rechnung für {{bookedString}}.</p>
         </div>
 
         <div class="product">
             {{ticketString}} für {{ticketType}}<br>
-            zur Veranstaltungsteilnahme am XCamp19
+            zum {{eventName}} am {{eventDate}}
             <div class="amount">{{netAmount}}</div>
         </div>
         <div class="vat">
@@ -169,7 +169,7 @@
         </div>
 
         {{^paid}}
-            <p>Der Betrag ist sofort zur Zahlung fällig. Bitte überweises Sie ihn ohne Abzug auf unser Konto:</p>
+            <p>Der Betrag ist sofort zur Zahlung fällig. Bitte überweise ihn ohne Abzug auf unser Konto:</p>
             <p class="account-rel">Justso GmbH<br/>
                 Frankfurter Volksbank<br/>
                 IBAN DE68 501 900 00 6100 700 610
@@ -180,7 +180,7 @@
         {{/paid}}
 
         <p>Mit freundlichen Grüßen</p>
-        <p>Ihr XCamp Team</p>
+        <p>XCamp Team</p>
 
         <footer>
             Justso GmbH, Praunheimer Landstraße 95, 60488 Frankfurt am Main<br/>

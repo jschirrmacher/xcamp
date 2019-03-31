@@ -48,7 +48,8 @@ module.exports = (dependencies) => {
   async function getLastInvoice(txn, accessCode) {
     const customer = await Customer.findByAccessCode(txn, accessCode)
     const invoice = await Invoice.getNewest(txn, customer.uid)
-    return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice))
+    const data = {...Invoice.getPrintableInvoiceData(invoice), eventName: config.eventName, eventDate: config.eventDate, baseUrl}
+    return templateGenerator.generate('invoice', data)
   }
 
   async function sendPassword(txn, accessCode) {
