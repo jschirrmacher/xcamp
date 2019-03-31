@@ -1,6 +1,7 @@
 module.exports = (dependencies) => {
   const {
     express,
+    auth,
     mailChimp,
     eventName,
     makeHandler,
@@ -8,7 +9,6 @@ module.exports = (dependencies) => {
     templateGenerator,
     Customer,
     sendHashMail,
-    requireCodeAndHash,
     store
   } = dependencies
 
@@ -44,7 +44,7 @@ module.exports = (dependencies) => {
 
   router.get('/', makeHandler(() => getNewsletterPage(), 'send'))
   router.post('/', makeHandler(req => doInTransaction(registerForNewsletter, [req.body], true), 'send'))
-  router.get('/approve/:accessCode/:hash', requireCodeAndHash({redirect: true}), makeHandler(req => doInTransaction(approveRegistration, [req.params.accessCode], true), 'send'))
+  router.get('/approve/:accessCode/:hash', auth.requireCodeAndHash({redirect: true}), makeHandler(req => doInTransaction(approveRegistration, [req.params.accessCode], true), 'send'))
 
   return router
 }

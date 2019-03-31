@@ -8,7 +8,7 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL, store) => {
+module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL, readModels, store) => {
   function tokenForUser(user) {
     return jwt.sign({sub: user.uid}, secret, {expiresIn: '24h'})
   }
@@ -168,10 +168,29 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   app.use(passport.initialize())
   app.use(passport.session())
 
+  const requireCodeOrAuth = (options = {}) => authenticate(['jwt', 'access_code'], options)
+  const requireCodeAndHash = (options = {}) => authenticate('codeNHash', options)
+  const requireJWT = (options = {}) => authenticate('jwt', options)
+  const requireLogin = (options = {}) => authenticate('login', options)
+
+  function requireAdmin(req, res, next) {
+    if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
+      throw {status: 403, message: 'Not allowed'}
+    } else {
+      next()
+    }
+  }
+
   return {
     authenticate,
     signIn,
     setPassword,
-    logout
+    logout,
+
+    requireCodeOrAuth,
+    requireCodeAndHash,
+    requireJWT,
+    requireLogin,
+    requireAdmin
   }
 }

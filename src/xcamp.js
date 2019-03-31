@@ -64,20 +64,9 @@ function getLoginUrl(req) {
 const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
 const redirect = true
 const allowAnonymous = true
-const requireCodeOrAuth = (options = {}) => auth.authenticate(['jwt', 'access_code'], options)
-const requireCodeAndHash = (options = {}) => auth.authenticate('codeNHash', options)
-const requireJWT = (options = {}) => auth.authenticate('jwt', options)
-const requireLogin = (options = {}) => auth.authenticate('login', options)
 
-const newsletterRouter = require('./NewsletterRouter')({express, mailChimp, eventName, makeHandler, doInTransaction, templateGenerator, Customer, sendHashMail, requireCodeAndHash, store})
-
-function requireAdmin(req, res, next) {
-  if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
-    throw {status: 403, message: 'Not allowed'}
-  } else {
-    next()
-  }
-}
+const newsletterRouter = require('./NewsletterRouter')({express, auth, mailChimp, eventName, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, store})
+const accountsRouter = require('./AccountsRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
 
 function makeHandler(func, type = 'json') {
   return async function (req, res, next) {
@@ -153,56 +142,49 @@ app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-n
 
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
-app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
-app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
+app.post('/login', auth.requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
+app.get('/login', auth.requireJWT({allowAnonymous}), sendUserInfo())
 app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
 app.get('/logout', nocache, logout)
 
-app.use('/newsletter', requireJWT({allowAnonymous}), newsletterRouter)
+app.use('/newsletter', auth.requireJWT({allowAnonymous}), newsletterRouter)
 
-app.post('/persons', requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
-app.get('/persons/:uid', requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
-app.put('/persons/:uid', requireJWT(), makeHandler(req => doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true)))
-app.put('/persons/:uid/picture', requireJWT(), upload.single('picture'), makeHandler(req => doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true)))
+app.post('/persons', auth.requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
+app.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
+app.put('/persons/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true)))
+app.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true)))
 app.get('/persons/:uid/picture/:name', makeHandler(req => doInTransaction(Person.getProfilePicture, req.params.uid), 'send'))
 
 app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
-app.put('/topics/:uid', requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
+app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
 
-app.put('/roots/:uid', requireJWT(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
+app.put('/roots/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
 
-app.get('/tickets', requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
+app.get('/tickets', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
 app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
-app.get('/tickets/:accessCode', requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
-app.put('/tickets/:accessCode', requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, req.user)))
-app.get('/tickets/:accessCode/show', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
-app.get('/tickets/:accessCode/print', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
-app.get('/tickets/:accessCode/checkin', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
+app.get('/tickets/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
+app.put('/tickets/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, req.user)))
+app.get('/tickets/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
+app.get('/tickets/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
+app.get('/tickets/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
 
-app.get('/accounts/my', requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
-app.get('/accounts/:accessCode/info', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getAccountInfoPage, req.params.accessCode), 'send'))
-app.get('/accounts/:accessCode/password', makeHandler(req => doInTransaction(sendPassword, req.params.accessCode, true), 'send'))
-app.post('/accounts/password', requireJWT(), makeHandler(req => doInTransaction(setPassword, [req.user, req.body.password], true)))
-app.get('/accounts/:accessCode/password/reset', requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
-app.get('/accounts/:accessCode/password/reset/:hash', requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
-app.get('/accounts/:accessCode/invoices/current', requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getLastInvoice, req.params.accessCode), 'send'))
-app.post('/accounts/:accessCode/tickets', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createAdditionalTicket, [req.params.accessCode], true)))
+app.use('/accounts', accountsRouter)
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
-app.get('/network', requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
-app.delete('/network', requireJWT(), requireAdmin, makeHandler(req => Network.rebuild()))
+app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
+app.delete('/network', auth.requireJWT(), auth.requireAdmin, makeHandler(req => Network.rebuild()))
 
-app.post('/orga', requireJWT({allowAnonymous}), requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
-app.post('/orga/coupon', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(createCoupon, [], true)))
-app.get('/orga/participants', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
-app.get('/orga/invoices', requireJWT({redirect}), requireAdmin, makeHandler(req => doInTransaction(listInvoices), 'send'))
-app.put('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, true], true)))
-app.delete('/orga/invoices/:invoiceNo/paid', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, false], true)))
-app.delete('/orga/invoices/:invoiceNo', requireJWT(), requireAdmin, makeHandler(req => doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true)))
-app.get('/orga/checkin', requireJWT({redirect}), requireAdmin, makeHandler(req => checkinApp(), 'send'))
-app.get('/orga/tiles', requireJWT(), requireAdmin, makeHandler(req => generateTile(req.query), 'send'))
+app.post('/orga', auth.requireJWT({allowAnonymous}), auth.requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
+app.post('/orga/coupon', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(createCoupon, [], true)))
+app.get('/orga/participants', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
+app.get('/orga/invoices', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => doInTransaction(listInvoices), 'send'))
+app.put('/orga/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, true], true)))
+app.delete('/orga/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, false], true)))
+app.delete('/orga/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true)))
+app.get('/orga/checkin', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => checkinApp(), 'send'))
+app.get('/orga/tiles', auth.requireJWT(), auth.requireAdmin, makeHandler(req => generateTile(req.query), 'send'))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
@@ -228,42 +210,6 @@ async function getTicketPage(code, isAdmin) {
   return templateGenerator.generate(templateName, data)
 }
 
-function getAccountInfoURL(user) {
-  return baseUrl + 'accounts/' + user.access_code + '/info'
-}
-
-async function getAccountInfoPage(txn, accessCode) {
-  const user = await User.findByAccessCode(txn, accessCode)
-  const customer = user.type === 'customer' ? await Customer.get(txn, user.uid) : null
-  let invoice = customer ? await Invoice.getNewest(txn, customer.uid) : null
-  let tickets
-  if (user.type === 'ticket') {
-    const ticket = await Ticket.get(txn, user.uid)
-    ticket.participant = ticket.participant[0]
-    ticket.isPersonalized = true
-    tickets = [ticket]
-  } else {
-    tickets = invoice.tickets
-  }
-  const paid = invoice && invoice.paid
-  const password = !!user.password
-  invoice = invoice && invoice.invoiceNo ? invoice : null
-  return templateGenerator.generate('account-info', {
-    invoice,
-    accessCode,
-    password,
-    paid,
-    tickets,
-    config
-  })
-}
-
-async function getLastInvoice(txn, accessCode) {
-  const customer = await Customer.findByAccessCode(txn, accessCode)
-  const invoice = await Invoice.getNewest(txn, customer.uid)
-  return templateGenerator.generate('invoice', Invoice.getPrintableInvoiceData(invoice))
-}
-
 async function getTicket(txn, accessCode, mode) {
   const ticket = await Ticket.findByAccessCode(txn, accessCode)
   const disabled = mode === 'print' ? 'disabled' : ''
@@ -286,26 +232,8 @@ async function sendHashMail(txn, templateName, customer, action, subject = 'XCam
   return hash
 }
 
-async function sendPassword(txn, accessCode) {
-  const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
-  const customer = await Customer[method](txn, accessCode)
-  const hash = sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
-  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
-  return templateGenerator.generate('password-sent')
-}
-
-async function resetPassword(accessCode) {
-  return templateGenerator.generate('password-reset-form', {accessCode})
-}
-
 async function checkinApp() {
   return templateGenerator.generate('checkinApp')
-}
-
-async function setPassword(txn, user, password) {
-  const result = await auth.setPassword(txn, user.access_code, password)
-  result.userId = Network.getNodeId(user)
-  return result
 }
 
 async function createOrgaMember(txn, data) {
@@ -324,12 +252,6 @@ async function createCoupon(txn) {
   const assigned = await txn.mutate(mu)
   store.add({type: 'coupon-created', access_code})
   return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
-}
-
-async function createAdditionalTicket(txn, accessCode) {
-  const customer = await Customer.findByAccessCode(txn, accessCode)
-  const tickets = await Ticket.create(txn, customer.person[0], 1)
-  return Invoice.addTicket(txn, customer.invoices[0], tickets[0])
 }
 
 async function listInvoices(txn) {
