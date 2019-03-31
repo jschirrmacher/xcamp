@@ -7,8 +7,8 @@ module.exports = function ({apiKey, eventListId}, tag, fetch, store) {
     return fetch('https://' + apiKey.replace(/.*-(\w+)$/, '$1') + '.api.mailchimp.com/3.0' + path, options)
   }
 
-  async function addTags(listPath, email, tags) {
-    const segmentPath = listPath + '/segments'
+  async function addTags(email, tags) {
+    const segmentPath = `/lists/${eventListId}/segments`
     const segments = await fetchMailchimp(segmentPath)
     return Promise.all(tags.map(async tag => {
       const segment = segments.segments.find(s => s.name === tag)
@@ -24,19 +24,17 @@ module.exports = function ({apiKey, eventListId}, tag, fetch, store) {
   }
 
   async function addSubscriber(customer) {
-    const listPath = `/lists/${eventListId}`
     const person = customer.person[0]
     const member = {
       email_address: person.email,
       merge_fields: {FNAME: person.firstName, LNAME: person.lastName}
     }
     const email = member.email_address.toLowerCase()
-    const path = `${listPath}/members/${md5(email)}`
+    const path = `/lists/${eventListId}/members/${md5(email)}`
+    store.add({type: 'newsletter-approved', customer})
     member.status = 'subscribed'
     await fetchMailchimp(path, {method: 'put', body: JSON.stringify(member)})
-    store.add({type: 'newsletter-approved', customer})
-    return addTags(listPath, email, [tag])
   }
 
-  return {addSubscriber}
+  return {addSubscriber, addTags}
 }

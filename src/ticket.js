@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, eventName) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -58,6 +58,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const invoice = await Invoice.create(txn, data, customer, tickets)
 
       await mailChimp.addSubscriber(customer)
+      await mailChimp.addTags(customer.person[0], [eventName])
 
       txn.commit()
 
@@ -101,6 +102,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
         store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
         await mailChimp.addSubscriber({person: [person]})
+        await mailChimp.addTags(person, [eventName])
 
         const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
         const html = templateGenerator.generate('ticket-mail', {url})
