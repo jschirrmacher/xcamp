@@ -6,13 +6,14 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     Ticket,
+    config,
     baseUrl
   } = dependencies
 
   async function getTicketPage(code, isAdmin) {
     const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
-    const data = {code, eventName: eventName, categories}
+    const data = {code, eventName: config.eventName, categories}
     return templateGenerator.generate(templateName, data)
   }
 

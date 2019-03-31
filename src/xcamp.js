@@ -65,7 +65,7 @@ const allowAnonymous = true
 
 const newsletterRouter = require('./NewsletterRouter')({express, auth, mailChimp, eventName, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, store})
 const accountsRouter = require('./AccountsRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
-const ticketRouter = require('./TicketRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, Ticket, baseUrl})
+const ticketRouter = require('./TicketRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, Ticket, config, baseUrl})
 const personRouter = require('./PersonRouter')({express, auth, doInTransaction, makeHandler, Person})
 const orgaRouter = require('./OrgaRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl, dgraph})
 
