@@ -173,11 +173,13 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   const requireJWT = (options = {}) => authenticate('jwt', options)
   const requireLogin = (options = {}) => authenticate('login', options)
 
-  function requireAdmin(req, res, next) {
-    if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
-      throw {status: 403, message: 'Not allowed'}
-    } else {
-      next()
+  function requireAdmin() {
+    return function(req, res, next) {
+      if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
+        throw {status: 403, message: 'Not allowed'}
+      } else {
+        next()
+      }
     }
   }
 

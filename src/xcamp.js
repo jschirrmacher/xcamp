@@ -26,8 +26,6 @@ const dgraphClient = new dgraph.DgraphClient(clientStub)
 const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const multer = require('multer')
-const upload = multer({dest: path.resolve(__dirname , '..', 'profile-pictures')})
 const app = express()
 app.set('json spaces', 2)
 
@@ -67,6 +65,9 @@ const allowAnonymous = true
 
 const newsletterRouter = require('./NewsletterRouter')({express, auth, mailChimp, eventName, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, store})
 const accountsRouter = require('./AccountsRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
+const ticketRouter = require('./TicketRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, Ticket, baseUrl})
+const personRouter = require('./PersonRouter')({express, auth, doInTransaction, makeHandler, Person})
+const orgaRouter = require('./OrgaRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl, dgraph})
 
 function makeHandler(func, type = 'json') {
   return async function (req, res, next) {
@@ -148,43 +149,22 @@ app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.acces
 app.get('/logout', nocache, logout)
 
 app.use('/newsletter', auth.requireJWT({allowAnonymous}), newsletterRouter)
-
-app.post('/persons', auth.requireJWT(), makeHandler(req => doInTransaction(Person.upsert, [{}, req.body, req.user], true)))
-app.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => doInTransaction(Person.getPublicDetails, [req.params.uid, req.user])))
-app.put('/persons/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Person.updateById, [req.params.uid, req.body, req.user], true)))
-app.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => doInTransaction(Person.uploadProfilePicture, [req.params.uid, req.file, req.user], true)))
-app.get('/persons/:uid/picture/:name', makeHandler(req => doInTransaction(Person.getProfilePicture, req.params.uid), 'send'))
+app.use('/persons', personRouter)
 
 app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
 app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
+app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
 
-app.put('/roots/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
-
-app.get('/tickets', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
-app.post('/tickets', makeHandler(req => Ticket.buy(req.body, baseUrl)))
-app.get('/tickets/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
-app.put('/tickets/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, req.user)))
-app.get('/tickets/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
-app.get('/tickets/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
-app.get('/tickets/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
-
+app.use('/tickets', ticketRouter)
 app.use('/accounts', accountsRouter)
 
 app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
 app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
 
 app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
-app.delete('/network', auth.requireJWT(), auth.requireAdmin, makeHandler(req => Network.rebuild()))
+app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Network.rebuild()))
 
-app.post('/orga', auth.requireJWT({allowAnonymous}), auth.requireAdmin, makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
-app.post('/orga/coupon', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(createCoupon, [], true)))
-app.get('/orga/participants', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
-app.get('/orga/invoices', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => doInTransaction(listInvoices), 'send'))
-app.put('/orga/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, true], true)))
-app.delete('/orga/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, false], true)))
-app.delete('/orga/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true)))
-app.get('/orga/checkin', auth.requireJWT({redirect}), auth.requireAdmin, makeHandler(req => checkinApp(), 'send'))
-app.get('/orga/tiles', auth.requireJWT(), auth.requireAdmin, makeHandler(req => generateTile(req.query), 'send'))
+app.use('/orga', orgaRouter)
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
@@ -203,21 +183,6 @@ async function loginPage(accessCode, url) {
   return templateGenerator.generate('login-page', {url, accessCode})
 }
 
-async function getTicketPage(code, isAdmin) {
-  const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
-  const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
-  const data = {code, eventName: eventName, categories}
-  return templateGenerator.generate(templateName, data)
-}
-
-async function getTicket(txn, accessCode, mode) {
-  const ticket = await Ticket.findByAccessCode(txn, accessCode)
-  const disabled = mode === 'print' ? 'disabled' : ''
-  const print = mode === 'print'
-  const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0]}
-  return templateGenerator.generate('ticket', params)
-}
-
 async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
   const hash = rack()
   const mu = new dgraph.Mutation()
@@ -230,118 +195,4 @@ async function sendHashMail(txn, templateName, customer, action, subject = 'XCam
   const to = customer.person[0].email
   mailSender.send(to, subject, html)
   return hash
-}
-
-async function checkinApp() {
-  return templateGenerator.generate('checkinApp')
-}
-
-async function createOrgaMember(txn, data) {
-  data.payment = 'none'
-  const customer = await Customer.create(txn, data)
-  const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-  await Invoice.create(txn, data, customer, tickets)
-  const hash = sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
-  store.add({type: 'set-mail-hash', userId: customer.uid, hash})
-}
-
-async function createCoupon(txn) {
-  const mu = new dgraph.Mutation()
-  const access_code = rack()
-  mu.setSetJson({type: 'coupon', access_code})
-  const assigned = await txn.mutate(mu)
-  store.add({type: 'coupon-created', access_code})
-  return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
-}
-
-async function listInvoices(txn) {
-  let participantCount = 0
-  let paidTickets = 0
-  let totals = 0
-  const paymentType = {
-    paypal: 'PayPal',
-    invoice: 'Rechnung',
-    none: 'N/A'
-  }
-  const invoices = await Invoice.listAll(txn)
-  invoices.forEach(invoice => {
-    if (!invoice.customer) {
-      throw 'No customer defined for invoice: ' + JSON.stringify(invoice)
-    }
-    if (!invoice.customer[0].person) {
-      throw 'No person defined for customer: ' + JSON.stringify(invoice)
-    }
-    invoice.customer = invoice.customer[0]
-    invoice.customer.person = invoice.customer.person[0]
-    invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
-    invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
-    invoice.participants = invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
-      const participant = ticket.participant[0]
-      participant.checkedIn = ticket.checkedIn ? 'checked' : ''
-      return participant
-    })
-    participantCount += invoice.tickets.length
-    if (invoice.paid) {
-      paidTickets += invoice.tickets.length
-      totals += invoice.tickets.length * invoice.ticketPrice
-    }
-    invoice.paid = invoice.paid ? 'paid' : 'open'
-  })
-  return templateGenerator.generate('invoices-list', {
-    invoices,
-    participantCount,
-    paidTickets,
-    totals
-  })
-}
-
-async function invoicePayment(txn, invoiceId, state) {
-  const invoice = await Invoice.get(txn, invoiceId)
-  if (state && invoice.payment === 'paypal') {
-    await Payment.paymentReceived(txn, invoice)
-  } else {
-    const mu = new dgraph.Mutation()
-    if (state) {
-      mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
-    } else {
-      mu.setDelNquads(`<${invoiceId}> <paid> * .`)
-    }
-    await txn.mutate(mu)
-  }
-}
-
-async function generateTile(data) {
-  const colorSelect = () => value => {
-    const flags = {};
-    ['yellow', 'turquoise', 'red', 'grey', 'tuatara'].forEach(color => {
-      flags['is_' + color] = color === data[value] ? 'selected' : ''
-    })
-    return templateGenerator.generate('colorOptions', flags)
-  }
-  return templateGenerator.generate('tile-form', {colorSelect, ...data})
-}
-
-async function exportParticipants(txn, format) {
-  const tickets = await Network.getAllTickets(txn)
-  const content = tickets.map(ticket => {
-    const person = ticket.participant[0]
-    if (format === 'excel') {
-      return `"${person.firstName}";"${person.lastName}";"${person.email}";"${ticket.firm}"`
-    } else if (format === 'csv') {
-      return `"${person.firstName}","${person.lastName}","${person.email}","${ticket.firm}"`
-    } else {
-      return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt; ' + ticket.firm
-    }
-  }).join('\n')
-
-  if (format === 'csv' || format === 'excel') {
-    return {
-      mimeType: 'application/x-ms-excel',
-      disposition: 'attachment',
-      name: 'participants.csv',
-      content
-    }
-  } else {
-    return content.replace(/\n/g, '<br>\n')
-  }
 }

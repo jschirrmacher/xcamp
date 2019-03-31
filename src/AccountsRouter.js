@@ -85,7 +85,7 @@ module.exports = (dependencies) => {
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
   router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getLastInvoice, req.params.accessCode), 'send'))
-  router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin, makeHandler(req => doInTransaction(createAdditionalTicket, [req.params.accessCode], true)))
+  router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(createAdditionalTicket, [req.params.accessCode], true)))
 
   return router
 }
