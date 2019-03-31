@@ -17,8 +17,17 @@ module.exports = (dependencies) => {
   }
 
   async function registerForNewsletter(txn, data) {
+    let customer
     try {
-      const customer = await Customer.create(txn, data)
+      customer = await Customer.create(txn, data)
+    } catch (e) {
+      if (e.status === 409) {
+        customer = await Customer.findByEMail(txn, data.email)
+      } else {
+        return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
+      }
+    }
+    try {
       const subject = 'XCamp Newsletter - Bitte bestätigen!'
       const action = 'newsletter/approve/' + customer.access_code
       await sendHashMail(txn, 'newsletter-approval-mail', customer, action, subject)
