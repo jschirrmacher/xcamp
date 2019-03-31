@@ -161,7 +161,18 @@ svg {
     transition: opacity 1s;
 
     &.editable {
-      width: 800px;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      @media (min-width: 800px) {
+        width: 800px;
+      }
+    }
+
+    #personDetails .flex-columns {
+      @media (max-width: 799px) {
+        display: block;
+      }
     }
 
     @media (min-width: 500px) {

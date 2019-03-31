@@ -110,7 +110,14 @@ svg .node {
     box-shadow: 1px 1px 5px #ddd;
     transition: opacity 1s; }
     .details .detailForm.editable {
-      width: 800px; }
+      max-width: 100%;
+      box-sizing: border-box; }
+      @media (min-width: 800px) {
+        .details .detailForm.editable {
+          width: 800px; } }
+    @media (max-width: 799px) {
+      .details .detailForm #personDetails .flex-columns {
+        display: block; } }
     @media (min-width: 500px) {
       .details .detailForm {
         margin: 0 auto; } }
