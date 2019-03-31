@@ -140,6 +140,13 @@ function logout(req, res) {
   res.redirect('.')
 }
 
+function nocache(req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
+  next();
+}
+
 app.get('/', (req, res) => res.send(getNetVisPage()))
 app.use('/', express.static(path.join(__dirname, '/../public')))
 app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
@@ -149,7 +156,7 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 app.post('/login', requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login', requireJWT({allowAnonymous}), sendUserInfo())
 app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
-app.get('/logout', logout)
+app.get('/logout', nocache, logout)
 
 app.use('/newsletter', requireJWT({allowAnonymous}), newsletterRouter)
 
