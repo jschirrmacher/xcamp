@@ -2,7 +2,6 @@ module.exports = (dependencies) => {
   const {
     express,
     auth,
-    doInTransaction,
     makeHandler,
     templateGenerator,
     Ticket,
@@ -29,13 +28,13 @@ module.exports = (dependencies) => {
   const redirect = true
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), 'send'))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), {type: 'send'}))
   router.post('/', makeHandler(req => Ticket.buy(req.body, baseUrl)))
   router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
-  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.params.accessCode, req.body, baseUrl, req.user)))
-  router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'show']), 'send'))
-  router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getTicket, [req.params.accessCode, 'print']), 'send'))
-  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(Ticket.checkin, [req.params.accessCode], true)))
+  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.txn, req.params.accessCode, req.body, baseUrl, req.user), {commit: true}))
+  router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'show'), {type: 'send', txn: true}))
+  router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'print'), {type: 'send', txn: true}))
+  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))
 
   return router
 }

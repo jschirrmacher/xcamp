@@ -58,7 +58,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const invoice = await Invoice.create(txn, data, customer, tickets)
 
       await mailChimp.addSubscriber(customer)
-      await mailChimp.addTags(customer.person[0], [eventName])
+      await mailChimp.addTags(customer.person[0].email, [eventName])
 
       txn.commit()
 
@@ -82,39 +82,30 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
-  async function setParticipant(accessCode, data, baseUrl, user) {
-    const txn = dgraphClient.newTxn()
-    try {
-      const ticket = await findByAccessCode(txn, accessCode)
-      const person = await Person.getOrCreate(txn, data, user, false)
+  async function setParticipant(txn, accessCode, data, baseUrl, user) {
+    const ticket = await findByAccessCode(txn, accessCode)
+    const person = await Person.getOrCreate(txn, data, user, false)
 
-      if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
-        if (ticket.participant) {
-          const uid = ticket.participant[0].uid
-          const mu = new dgraph.Mutation()
-          await mu.setDelNquads(`<${ticket.uid}> <participant> <${uid}> .`)
-          await txn.mutate(mu)
-        }
+    if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
+      if (ticket.participant) {
+        const uid = ticket.participant[0].uid
         const mu = new dgraph.Mutation()
-        await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
+        await mu.setDelNquads(`<${ticket.uid}> <participant> <${uid}> .`)
         await txn.mutate(mu)
-        txn.commit()
-        store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
-
-        await mailChimp.addSubscriber({person: [person]})
-        await mailChimp.addTags(person, [eventName])
-
-        const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
-        const html = templateGenerator.generate('ticket-mail', {url})
-        return mailSender.send(person.email, 'XCamp Ticket', html)
       }
-      txn.commit()
-      return {}
-    } catch (error) {
-      throw error
-    } finally {
-      txn.discard()
+      const mu = new dgraph.Mutation()
+      await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
+      await txn.mutate(mu)
+      store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
+
+      await mailChimp.addSubscriber({person: [person]})
+      await mailChimp.addTags(person, [eventName])
+
+      const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
+      const html = templateGenerator.generate('ticket-mail', {url})
+      return mailSender.send(person.email, 'XCamp Ticket', html)
     }
+    return {}
   }
 
   async function show(accessCode, baseUrl) {
@@ -146,5 +137,14 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return result
   }
 
-  return {get, create, buy, setParticipant, findByAccessCode, show, checkin}
+  async function createCoupon(txn, baseUrl) {
+    const mu = new dgraph.Mutation()
+    const access_code = rack()
+    mu.setSetJson({type: 'coupon', access_code})
+    const assigned = await txn.mutate(mu)
+    store.add({type: 'coupon-created', access_code})
+    return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
+  }
+
+  return {get, create, buy, setParticipant, findByAccessCode, show, checkin, createCoupon}
 }

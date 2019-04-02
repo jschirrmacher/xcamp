@@ -2,7 +2,6 @@ module.exports = (dependencies) => {
   const {
     express,
     auth,
-    doInTransaction,
     makeHandler,
     templateGenerator,
     sendHashMail,
@@ -80,13 +79,13 @@ module.exports = (dependencies) => {
   const redirect = true
 
   router.get('/my', auth.requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
-  router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getAccountInfoPage, req.params.accessCode), 'send'))
-  router.get('/:accessCode/password', makeHandler(req => doInTransaction(sendPassword, req.params.accessCode, true), 'send'))
-  router.post('/password', auth.requireJWT(), makeHandler(req => doInTransaction(setPassword, [req.user, req.body.password], true)))
-  router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
-  router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), 'send'))
-  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => doInTransaction(getLastInvoice, req.params.accessCode), 'send'))
-  router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(createAdditionalTicket, [req.params.accessCode], true)))
+  router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => getAccountInfoPage(req.txn, req.params.accessCode), {txn: true, type: 'send'}))
+  router.get('/:accessCode/password', makeHandler(req => sendPassword(req.txn, req.params.accessCode), {type: 'send', commit: true}))
+  router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.txn, req.user, req.body.password), {commit: true}))
+  router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
+  router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
+  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.txn, req.params.accessCode), {type: 'send', txn: true}))
+  router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => createAdditionalTicket(req.txn, req.params.accessCode), {commit: true}))
 
   return router
 }

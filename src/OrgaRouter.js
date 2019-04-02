@@ -2,7 +2,6 @@ module.exports = (dependencies) => {
   const {
     express,
     auth,
-    doInTransaction,
     makeHandler,
     templateGenerator,
     sendHashMail,
@@ -11,8 +10,7 @@ module.exports = (dependencies) => {
     Ticket,
     Network,
     store,
-    baseUrl,
-    dgraph
+    baseUrl
   } = dependencies
 
   async function checkinApp() {
@@ -26,15 +24,6 @@ module.exports = (dependencies) => {
     await Invoice.create(txn, data, customer, tickets)
     const hash = sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
-  }
-
-  async function createCoupon(txn) {
-    const mu = new dgraph.Mutation()
-    const access_code = rack()
-    mu.setSetJson({type: 'coupon', access_code})
-    const assigned = await txn.mutate(mu)
-    store.add({type: 'coupon-created', access_code})
-    return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
   }
 
   async function listInvoices(txn) {
@@ -133,15 +122,15 @@ module.exports = (dependencies) => {
   const redirect = true
   const allowAnonymous = true
 
-  router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => doInTransaction(createOrgaMember, [req.body], true)))
-  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(createCoupon, [], true)))
-  router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => doInTransaction(exportParticipants, req.query.format || 'txt'), 'send'))
-  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => doInTransaction(listInvoices), 'send'))
-  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, true], true)))
-  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(invoicePayment, [req.params.invoiceNo, false], true)))
-  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(Invoice.deleteInvoice, [req.params.invoiceNo, true], true)))
-  router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => checkinApp(), 'send'))
-  router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), 'send'))
+  router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req,txn, req.body), {commit: true}))
+  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Ticket.createCoupon(req.txn, baseUrl), {commit: true}))
+  router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
+  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(req.txn), {txn: true, type: 'send'}))
+  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, true), {commit: true}))
+  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, false), {commit: true}))
+  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
+  router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => checkinApp(), {type: 'send'}))
+  router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
 
   return router
 }

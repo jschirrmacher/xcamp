@@ -53,26 +53,30 @@ const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store)
 const Invoice = require('./invoice')(dgraphClient, dgraph, store)
 const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction, store)
 const mailChimp = require('./mailchimp')(config.mailChimp, eventName, fetch, store)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store)
+const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, eventName)
 
 function getLoginUrl(req) {
   return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 
 const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
-const redirect = true
 const allowAnonymous = true
 
-const newsletterRouter = require('./NewsletterRouter')({express, auth, mailChimp, eventName, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, store})
-const accountsRouter = require('./AccountsRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
-const ticketRouter = require('./TicketRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, Ticket, config, baseUrl})
-const personRouter = require('./PersonRouter')({express, auth, doInTransaction, makeHandler, Person})
-const orgaRouter = require('./OrgaRouter')({express, auth, doInTransaction, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl, dgraph})
+const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, mailChimp, eventName, Customer, store})
+const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
+const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, Ticket, config, baseUrl})
+const personRouter = require('./PersonRouter')({express, auth, makeHandler, Person})
+const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl})
 
-function makeHandler(func, type = 'json') {
+function makeHandler(func, options = {}) {
+  const {type = 'json', txn = false, commit = false} = options
   return async function (req, res, next) {
     try {
+      req.txn = txn || commit ? dgraphClient.newTxn() : undefined
       const result = await func(req)
+      if (commit) {
+        req.txn.commit()
+      }
       if (result && result.isRedirection) {
         if (result.user) {
           auth.signIn({user: result.user}, res)
@@ -90,23 +94,11 @@ function makeHandler(func, type = 'json') {
       }
     } catch (error) {
       next(error)
+    } finally {
+      if (txn) {
+        req.txn.discard()
+      }
     }
-  }
-}
-
-async function doInTransaction(action, params = [], commit = false) {
-  const txn = dgraphClient.newTxn()
-  params = Array.isArray(params) ? params : [params]
-  try {
-    const result = await action.apply(global, [txn, ...params])
-    if (commit) {
-      txn.commit()
-    }
-    return result
-  } catch (error) {
-    throw error
-  } finally {
-    txn.discard()
   }
 }
 
@@ -145,15 +137,15 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 
 app.post('/login', auth.requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
 app.get('/login', auth.requireJWT({allowAnonymous}), sendUserInfo())
-app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), 'send'))
+app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), {type: 'send'}))
 app.get('/logout', nocache, logout)
 
 app.use('/newsletter', auth.requireJWT({allowAnonymous}), newsletterRouter)
 app.use('/persons', personRouter)
 
-app.get('/topics', makeHandler(req => doInTransaction(Topic.find, [req.query.q])))
-app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => doInTransaction(Topic.updateById, [req.params.uid, req.body, req.user], true)))
-app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => doInTransaction(Root.updateById, [req.params.uid, req.body, req.user], true)))
+app.get('/topics', makeHandler(req => Topic.find(req.txn, req.query.q), {txn: true}))
+app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 
 app.use('/tickets', ticketRouter)
 app.use('/accounts', accountsRouter)
