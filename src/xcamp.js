@@ -13,11 +13,11 @@ global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
-const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'analytics']
-const globalData = {baseUrl, trackingId: config.analyticsTrackingId}
+const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'analytics', 'public-interest', 'privacy']
+const globalData = {baseUrl, trackingId: config.analyticsTrackingId, eventName: config.eventName}
 const templateGenerator = require('./TemplateGenerator')({globalData, subTemplates})
 const nodemailer = require('nodemailer')
-const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator)
+const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator, config)
 const eventName = config.eventName
 
 const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
@@ -62,9 +62,9 @@ function getLoginUrl(req) {
 const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
 const allowAnonymous = true
 
-const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, mailChimp, eventName, Customer, store})
+const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, mailChimp, Customer, store})
 const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
-const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, Ticket, config, baseUrl})
+const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Ticket, store, config, baseUrl})
 const personRouter = require('./PersonRouter')({express, auth, makeHandler, Person})
 const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl})
 

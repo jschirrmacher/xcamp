@@ -61,19 +61,21 @@
 
   form.addEventListener('submit', assertTOSAccepted)
   tosAccepted.addEventListener('change', setSubmitButtonState)
-  ticketCount.addEventListener('change', adaptDependendFields)
-  privateTicket && privateTicket.addEventListener('change', isPrivate)
-  corporateTicket && corporateTicket.addEventListener('change', isCorporate)
-  Array.prototype.forEach.call(form.elements.type, function (el) {
-    el.addEventListener('change', adaptDependendFields)
-  })
 
   if (location.search.match(/type=private/) || location.search.match(/code=/)) {
     isPrivate()
-  } else {
+  } else if (!location.search.match(/type=student/)) {
     isCorporate()
   }
 
-  adaptDependendFields()
+  if (form.elements.type) {
+    ticketCount.addEventListener('change', adaptDependendFields)
+    privateTicket.addEventListener('change', isPrivate)
+    corporateTicket.addEventListener('change', isCorporate)
+    form.elements.type.forEach(function (el) {
+      el.addEventListener('change', adaptDependendFields)
+    })
+    adaptDependendFields()
+  }
   setSubmitButtonState()
 })()

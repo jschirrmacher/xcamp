@@ -2,12 +2,10 @@
 
 const ticketTypes = require('./ticketTypes')
 
-const from = 'XCamp <mail@xcamp.co>'
-
-module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
+module.exports = (baseUrl, isProduction, nodemailer, templateGenerator, config) => {
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
-      transporter.sendMail({from, to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
+      transporter.sendMail({from: config['mail-sender'], to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
     })
   }
 
@@ -18,7 +16,7 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator) => {
     const subject = 'XCamp Ticketbuchung'
     const params = {customer, person, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}
     send(person.email, subject, templateGenerator.generate('invoice-mail', params))
-    send('xcamp@justso.de', subject, templateGenerator.generate('booking-mail', params))
+    send(config['mail-recipients']['ticket-sold'], subject, templateGenerator.generate('booking-mail', params))
     return url
   }
 

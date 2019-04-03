@@ -13,6 +13,9 @@ html, body {
 h2 {
   line-height: 2; }
 
+h3 {
+  margin-top: 0.5em; }
+
 a, button {
   text-decoration: none;
   color: #ff696c;
@@ -65,11 +68,11 @@ a, button {
 .checkbox, .radio {
   margin-bottom: 10px; }
 
-input, select {
+input, select, textarea {
   font-size: 18px;
   padding: 5px;
   width: 100%; }
-  input[type=radio], input[type=checkbox], select[type=radio], select[type=checkbox] {
+  input[type=radio], input[type=checkbox], select[type=radio], select[type=checkbox], textarea[type=radio], textarea[type=checkbox] {
     width: auto; }
 
 .checkbox label {
@@ -272,6 +275,9 @@ table {
         line-height: 0.6; }
       #main.maximize .container #characteristics .button.small {
         margin-right: 0; }
+
+#application-description {
+  height: 4em; }
 
 .info {
   background: #f7f7f7;

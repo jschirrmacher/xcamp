@@ -4,13 +4,17 @@ module.exports = (dependencies) => {
     auth,
     makeHandler,
     templateGenerator,
+    mailSender,
+    mailChimp,
     Ticket,
+    store,
     config,
     baseUrl
   } = dependencies
 
-  async function getTicketPage(code, isAdmin) {
-    const templateName = config.ticketSaleStarted || isAdmin ? 'buy-ticket' : 'no-tickets-yet'
+  async function getTicketPage(code, type, isAdmin) {
+    const template = type === 'student' ? 'apply-to-reduced-ticket' : 'buy-ticket'
+    const templateName = config.ticketSaleStarted || isAdmin ? template : 'no-tickets-yet'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
     const data = {code, eventName: config.eventName, categories}
     return templateGenerator.generate(templateName, data)
@@ -24,12 +28,22 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('ticket', params)
   }
 
+  async function applyToReduced(data) {
+    await mailChimp.addSubscriber({person: [data]})
+    const html = templateGenerator.generate('application-mail', data)
+    const to = config['mail-recipients']['apply-to-reduced']
+    mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)
+    store.add({type: 'applied-to-reduced', data})
+    return templateGenerator.generate('applied-to-reduced')
+  }
+
   const router = express.Router()
   const redirect = true
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.user && req.user.isAdmin), {type: 'send'}))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
   router.post('/', makeHandler(req => Ticket.buy(req.body, baseUrl)))
+  router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
   router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
   router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.txn, req.params.accessCode, req.body, baseUrl, req.user), {commit: true}))
   router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'show'), {type: 'send', txn: true}))

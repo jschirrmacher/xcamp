@@ -3,7 +3,6 @@ module.exports = (dependencies) => {
     express,
     auth,
     mailChimp,
-    eventName,
     makeHandler,
     templateGenerator,
     Customer,
@@ -12,7 +11,7 @@ module.exports = (dependencies) => {
   } = dependencies
 
   async function getNewsletterPage() {
-    return templateGenerator.generate('register-newsletter', {eventName})
+    return templateGenerator.generate('register-newsletter')
   }
 
   async function registerForNewsletter(txn, data) {
