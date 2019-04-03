@@ -13,7 +13,7 @@ module.exports = (dependencies) => {
   } = dependencies
 
   async function getTicketPage(code, type, isAdmin) {
-    const template = type === 'student' ? 'apply-to-reduced-ticket' : 'buy-ticket'
+    const template = type === 'reduced' ? 'apply-to-reduced-ticket' : 'buy-ticket'
     const templateName = config.ticketSaleStarted || isAdmin ? template : 'no-tickets-yet'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
     const data = {code, eventName: config.eventName, categories}

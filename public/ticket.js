@@ -64,7 +64,7 @@
 
   if (location.search.match(/type=private/) || location.search.match(/code=/)) {
     isPrivate()
-  } else if (!location.search.match(/type=student/)) {
+  } else if (!location.search.match(/type=reduced/)) {
     isCorporate()
   }
 
