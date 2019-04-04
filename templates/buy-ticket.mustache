@@ -38,47 +38,60 @@
                 <div class="form-group col-12">
                     <label for="payment-firm"></label>
                     <input type="text" id="payment-firm" name="firm" class="form-control" placeholder="Name der Firma"
-                           autocomplete='organization'/>
+                           autocomplete="organization"/>
                 </div>
                 <div class="form-group col-6">
                     <label for="payment-first-name"></label>
                     <input type="text" id="payment-first-name" name="firstName" class="form-control mandatory"
-                           placeholder="Rufname" autocomplete='given-name'
+                           placeholder="Rufname" autocomplete="given-name"
                            required/>
                 </div>
                 <div class="form-group col-6">
                     <label for="payment-name"></label>
                     <input type="text" id="payment-name" name="lastName" class="form-control mandatory"
                            placeholder="Familienname"
-                           autocomplete='family-name' required/>
+                           autocomplete="family-name" required/>
                 </div>
                 <div class="form-group col-12">
                     <label for="payment-email"></label>
                     <input type="email" id="payment-email" name="email" class="form-control mandatory"
-                           autocomplete='email' placeholder="E-Mail-Adresse" required/>
+                           autocomplete="email" placeholder="E-Mail-Adresse" required/>
                 </div>
                 <div class="form-group col-12">
                     <label for="payment-address"></label>
                     <input type="text" id="payment-address" name="address" class="form-control mandatory"
-                           autocomplete='address-line1' placeholder="Straße, Hausnummer" required/>
+                           autocomplete="address-line1" placeholder="Straße, Hausnummer" required/>
                 </div>
                 <div class="form-group col-4">
                     <label for="payment-post-code"></label>
                     <input type="text" id="payment-post-code" name="postcode" class="form-control mandatory"
-                           autocomplete='postal-code' placeholder="Postleitzahl" required/>
+                           autocomplete="postal-code" placeholder="Postleitzahl" required/>
                 </div>
                 <div class="form-group col-8">
                     <label for="payment-city"></label>
                     <input type="text" id="payment-city" name="city" class="form-control mandatory" placeholder="Stadt"
-                           autocomplete='address-level2' required/>
+                           autocomplete="address-level2" required/>
                 </div>
                 <div class="form-group col-12">
                     <label for="payment-country"></label>
                     <select id="payment-country" name="country" class="form-control mandatory"
-                            autocomplete='country-name'>
+                            autocomplete="country-name">
                         <option value="de" selected>Deutschland</option>
                         <option value="ch">Schweiz</option>
                         <option value="at">Österreich</option>
+                    </select>
+                </div>
+                <div class="form-group col-12">
+                    <label for="profession"></label>
+                    <select id="profession" name="profession" class="form-control mandatory" autocomplete="profession">
+                        <option>Bitte auswählen (optional)</option>
+                        <option value="small-company">Angestellt Kleines Unternehmen (<= 50 MA)</option>
+                        <option value="medium-company">Angestellt Mittleres Unternehmen (> 50 MA <= 250 MA)</option>
+                        <option value="large-company">Angestellt Großes Unternehmen (> 250 MA)</option>
+                        <option value="student">Schüler / Student</option>
+                        <option value="self-employed">Selbständig</option>
+                        <option value="founder">Gründer</option>
+                        <option value="transition">In Transition / Orientierung</option>
                     </select>
                 </div>
 

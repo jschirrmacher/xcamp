@@ -44,6 +44,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         lastName: customerData.lastName,
         name: customerData.firstName + ' ' + customerData.lastName,
         email: customerData.email,
+        profession: customerData.profession
       },
       access_code: rack(),
       addresses: {
@@ -74,7 +75,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
           id: result.person[0].uid,
           firstName: result.person[0].firstName,
           lastName: result.person[0].lastName,
-          email: result.person[0].email
+          email: result.person[0].email,
+          profession: customerData.profession
         }
       }
     })
