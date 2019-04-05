@@ -154,6 +154,7 @@ svg .node {
       min-height: 4em; }
     .details .detailForm .input {
       line-height: 2em;
+      min-height: 2.5rem;
       display: block;
       outline-offset: -4px;
       padding: 2px 9px;
