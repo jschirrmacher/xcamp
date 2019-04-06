@@ -8,7 +8,7 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, secret, getLoginURL, readModels, store) => {
+module.exports = (app, Model, dgraphClient, dgraph, secret, getLoginURL, readModels, store) => {
   function tokenForUser(user) {
     return jwt.sign({sub: user.uid}, secret, {expiresIn: '24h'})
   }
@@ -31,7 +31,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   }
 
   async function setPassword(txn, accessCode, password) {
-    const user = await User.findByAccessCode(txn, accessCode)
+    const user = await Model.User.findByAccessCode(txn, accessCode)
     return new Promise((fulfil, reject) => {
       bcrypt.hash(password, 10, async (error, passwordHash) => {
         try {
@@ -39,7 +39,6 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
             reject(error)
           } else {
             await setPasswordHash(user, passwordHash, txn)
-            store.add({type: 'password-changed', userId: user.uid, passwordHash})
             fulfil({message: 'Passwort ist geändert'})
           }
         } catch (error) {
@@ -51,9 +50,9 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
 
   async function getActualUserObject(txn, user) {
     if (user.type === 'customer') {
-      return Customer.get(txn, user.uid)
+      return Model.Customer.get(txn, user.uid)
     } else if (user.type === 'ticket') {
-      return Ticket.get(txn, user.uid)
+      return Model.Ticket.get(txn, user.uid)
     }
     return user
   }
@@ -62,7 +61,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     async (username, password, done) => {
       const txn = dgraphClient.newTxn()
       try {
-        const user = await User.findByAccessCode(txn, username)
+        const user = await Model.User.findByAccessCode(txn, username)
         bcrypt.compare(password, user.password, async (err, isValid) => {
           done(err, isValid ? await getActualUserObject(txn, user) : false)
         })
@@ -77,9 +76,9 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     try {
       let user
       if (email) {
-        user = await Customer.findByEMail(txn, email)
+        user = await Model.Customer.findByEMail(txn, email)
       } else {
-        user = await User.findByAccessCode(txn, username)
+        user = await Model.User.findByAccessCode(txn, username)
       }
       const hash = user.password
       user = await getActualUserObject(txn, user)
@@ -99,7 +98,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
     }, async (payload, done) => {
       const txn = dgraphClient.newTxn()
       try {
-        const user = await User.get(txn, payload.sub)
+        const user = await Model.User.get(txn, payload.sub)
         done(null, user ? await getActualUserObject(txn, user) : false)
       } catch (error) {
         done(error, false)
@@ -112,7 +111,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   passport.use(new AccessCodeStrategy(async (accessCode, done) => {
     const txn = dgraphClient.newTxn()
     try {
-      const user = await User.findByAccessCode(txn, accessCode)
+      const user = await Model.User.findByAccessCode(txn, accessCode)
       if (!user.password) {
         done(null, user)
       } else {
@@ -130,7 +129,7 @@ module.exports = (app, Person, Customer, Ticket, User, dgraphClient, dgraph, sec
   passport.use(new CodeAndHashStrategy(async (accessCode, hash, done) => {
     const txn = dgraphClient.newTxn()
     try {
-      const user = await User.findByAccessCode(txn, accessCode)
+      const user = await Model.User.findByAccessCode(txn, accessCode)
       if (user && user.hash && user.hash === hash) {
         done(null, await getActualUserObject(txn, user))
       } else {

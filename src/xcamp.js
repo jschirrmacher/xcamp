@@ -44,31 +44,23 @@ const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')(store)
 
 const QueryFunction = require('./QueryFunction')
-const User = require('./user')(dgraphClient, QueryFunction, store)
-const Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
-const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
-const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic, store)
-const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store)
-const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store)
-const Invoice = require('./invoice')(dgraphClient, dgraph, store)
-const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, !isProduction, store)
 const mailChimp = require('./mailchimp')(config.mailChimp, eventName, fetch, store)
-const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, eventName)
+const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, eventName, baseUrl, isProduction})
 
 function getLoginUrl(req) {
   return baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 
-const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
+const auth = require('./auth')(app, Model, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
 const allowAnonymous = true
 
 const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, baseUrl})
-const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Customer, store})
-const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, User, Customer, Invoice, Ticket, store, config, baseUrl})
-const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Ticket, store, config, baseUrl})
-const personRouter = require('./PersonRouter')({express, auth, makeHandler, Person})
-const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Customer, Invoice, Ticket, Network, store, baseUrl})
-const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
+const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
+const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config, baseUrl})
+const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, config, baseUrl})
+const personRouter = require('./PersonRouter')({express, auth, makeHandler, Model})
+const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, baseUrl})
+const paypalRouter = require('./PaypalRouter')({express, makeHandler, Model})
 
 function makeHandler(func, options = {}) {
   const {type = 'json', txn = false, commit = false} = options
@@ -133,11 +125,11 @@ app.use('/accounts', accountsRouter)
 app.use('/paypal/ipn', paypalRouter)
 app.use('/orga', orgaRouter)
 
-app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
-app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Network.rebuild()))
-app.get('/topics', makeHandler(req => Topic.find(req.txn, req.query.q), {txn: true}))
-app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.query.what, req.user)))
+app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Network.rebuild()))
+app.get('/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
+app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
@@ -149,5 +141,5 @@ app.use((err, req, res, next) => {
 app.listen(port, () => logger.info('Running on port ' + port +
   ' in ' + nodeenv + ' mode' +
   ' with baseURL=' + baseUrl +
-  (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
+  (Model.Payment.useSandbox ? ' using sandbox' : ' using PayPal')
 ))

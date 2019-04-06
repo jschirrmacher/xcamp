@@ -5,10 +5,7 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     mailSender,
-    Customer,
-    Invoice,
-    Ticket,
-    Network,
+    Model,
     store,
     baseUrl
   } = dependencies
@@ -19,9 +16,9 @@ module.exports = (dependencies) => {
 
   async function createOrgaMember(txn, data) {
     data.payment = 'none'
-    const customer = await Customer.create(txn, data)
-    const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-    await Invoice.create(txn, data, customer, tickets)
+    const customer = await Model.Customer.create(txn, data)
+    const tickets = await Model.Ticket.create(txn, customer.person[0], data.ticketCount || 1)
+    await Model.Invoice.create(txn, data, customer, tickets)
     const hash = await mailSender.sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
   }
@@ -35,7 +32,7 @@ module.exports = (dependencies) => {
       invoice: 'Rechnung',
       none: 'N/A'
     }
-    const invoices = await Invoice.listAll(txn)
+    const invoices = await Model.Invoice.listAll(txn)
     invoices.forEach(invoice => {
       if (!invoice.customer) {
         throw 'No customer defined for invoice: ' + JSON.stringify(invoice)
@@ -45,7 +42,7 @@ module.exports = (dependencies) => {
       }
       invoice.customer = invoice.customer[0]
       invoice.customer.person = invoice.customer.person[0]
-      invoice.created = Invoice.getFormattedDate(new Date(invoice.created))
+      invoice.created = Model.Invoice.getFormattedDate(new Date(invoice.created))
       invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
       invoice.participants = invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
         const participant = ticket.participant[0]
@@ -68,7 +65,7 @@ module.exports = (dependencies) => {
   }
 
   async function invoicePayment(txn, invoiceId, state) {
-    const invoice = await Invoice.get(txn, invoiceId)
+    const invoice = await Model.Invoice.get(txn, invoiceId)
     if (state && invoice.payment === 'paypal') {
       await Payment.paymentReceived(txn, invoice)
     } else {
@@ -94,7 +91,7 @@ module.exports = (dependencies) => {
   }
 
   async function exportParticipants(txn, format) {
-    const tickets = await Network.getAllTickets(txn)
+    const tickets = await Model.Network.getAllTickets(txn)
     const content = tickets.map(ticket => {
       const person = ticket.participant[0]
       if (format === 'excel') {
@@ -123,12 +120,12 @@ module.exports = (dependencies) => {
   const allowAnonymous = true
 
   router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req,txn, req.body), {commit: true}))
-  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Ticket.createCoupon(req.txn, baseUrl), {commit: true}))
+  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, baseUrl), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
   router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(req.txn), {txn: true, type: 'send'}))
   router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, false), {commit: true}))
-  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
+  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
 

@@ -6,7 +6,7 @@ module.exports = (dependencies) => {
     templateGenerator,
     mailSender,
     mailChimp,
-    Ticket,
+    Model,
     store,
     config,
     baseUrl
@@ -21,7 +21,7 @@ module.exports = (dependencies) => {
   }
 
   async function getTicket(txn, accessCode, mode) {
-    const ticket = await Ticket.findByAccessCode(txn, accessCode)
+    const ticket = await Model.Ticket.findByAccessCode(txn, accessCode)
     const disabled = mode === 'print' ? 'disabled' : ''
     const print = mode === 'print'
     const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0]}
@@ -42,13 +42,13 @@ module.exports = (dependencies) => {
   const allowAnonymous = true
 
   router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
-  router.post('/', makeHandler(req => Ticket.buy(req.body, baseUrl)))
+  router.post('/', makeHandler(req => Model.Ticket.buy(req.body, baseUrl)))
   router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
-  router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Ticket.show(req.params.accessCode, baseUrl)))
-  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Ticket.setParticipant(req.txn, req.params.accessCode, req.body, baseUrl, req.user), {commit: true}))
+  router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode, baseUrl)))
+  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.txn, req.params.accessCode, req.body, baseUrl, req.user), {commit: true}))
   router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'show'), {type: 'send', txn: true}))
   router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'print'), {type: 'send', txn: true}))
-  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))
+  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))
 
   return router
 }

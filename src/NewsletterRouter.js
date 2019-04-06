@@ -5,7 +5,7 @@ module.exports = (dependencies) => {
     mailChimp,
     makeHandler,
     templateGenerator,
-    Customer,
+    Model,
     mailSender,
     store
   } = dependencies
@@ -17,10 +17,10 @@ module.exports = (dependencies) => {
   async function registerForNewsletter(txn, data) {
     let customer
     try {
-      customer = await Customer.create(txn, data)
+      customer = await Model.Customer.create(txn, data)
     } catch (e) {
       if (e.status === 409) {
-        customer = await Customer.findByEMail(txn, data.email)
+        customer = await Model.Customer.findByEMail(txn, data.email)
       } else {
         return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
       }
@@ -39,7 +39,7 @@ module.exports = (dependencies) => {
 
   async function approveRegistration(txn, code) {
     try {
-      const customer = await Customer.findByAccessCode(txn, code)
+      const customer = await Model.Customer.findByAccessCode(txn, code)
       await mailChimp.addSubscriber(customer)
       return templateGenerator.generate('register-approved', {person: customer.person[0]})
     } catch (e) {

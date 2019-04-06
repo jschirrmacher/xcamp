@@ -5,10 +5,7 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     mailSender,
-    User,
-    Customer,
-    Invoice,
-    Ticket,
+    Model,
     store,
     config,
     baseUrl
@@ -19,12 +16,12 @@ module.exports = (dependencies) => {
   }
 
   async function getAccountInfoPage(txn, accessCode) {
-    const user = await User.findByAccessCode(txn, accessCode)
-    const customer = user.type === 'customer' ? await Customer.get(txn, user.uid) : null
-    let invoice = customer ? await Invoice.getNewest(txn, customer.uid) : null
+    const user = await Model.User.findByAccessCode(txn, accessCode)
+    const customer = user.type === 'customer' ? await Model.Customer.get(txn, user.uid) : null
+    let invoice = customer ? await Model.Invoice.getNewest(txn, customer.uid) : null
     let tickets
     if (user.type === 'ticket') {
-      const ticket = await Ticket.get(txn, user.uid)
+      const ticket = await Model.Ticket.get(txn, user.uid)
       ticket.participant = ticket.participant[0]
       ticket.isPersonalized = true
       tickets = [ticket]
@@ -45,15 +42,15 @@ module.exports = (dependencies) => {
   }
 
   async function getLastInvoice(txn, accessCode) {
-    const customer = await Customer.findByAccessCode(txn, accessCode)
-    const invoice = await Invoice.getNewest(txn, customer.uid)
-    const data = {...Invoice.getPrintableInvoiceData(invoice), eventName: config.eventName, eventDate: config.eventDate, baseUrl}
+    const customer = await Model.Customer.findByAccessCode(txn, accessCode)
+    const invoice = await Model.Invoice.getNewest(txn, customer.uid)
+    const data = {...Model.Invoice.getPrintableInvoiceData(invoice), eventName: config.eventName, eventDate: config.eventDate, baseUrl}
     return templateGenerator.generate('invoice', data)
   }
 
   async function sendPassword(txn, accessCode) {
     const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
-    const customer = await Customer[method](txn, accessCode)
+    const customer = await Model.Customer[method](txn, accessCode)
     const hash = await mailSender.sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
     return templateGenerator.generate('password-sent')
@@ -70,9 +67,9 @@ module.exports = (dependencies) => {
   }
 
   async function createAdditionalTicket(txn, accessCode) {
-    const customer = await Customer.findByAccessCode(txn, accessCode)
-    const tickets = await Ticket.create(txn, customer.person[0], 1)
-    return Invoice.addTicket(txn, customer.invoices[0], tickets[0])
+    const customer = await Model.Customer.findByAccessCode(txn, accessCode)
+    const tickets = await Model.Ticket.create(txn, customer.person[0], 1)
+    return Model.Invoice.addTicket(txn, customer.invoices[0], tickets[0])
   }
 
   const router = express.Router()
