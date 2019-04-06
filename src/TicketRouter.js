@@ -8,8 +8,7 @@ module.exports = (dependencies) => {
     mailChimp,
     Model,
     store,
-    config,
-    baseUrl
+    config
   } = dependencies
 
   async function getTicketPage(code, type, isAdmin) {
@@ -42,10 +41,10 @@ module.exports = (dependencies) => {
   const allowAnonymous = true
 
   router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
-  router.post('/', makeHandler(req => Model.Ticket.buy(req.body, baseUrl)))
+  router.post('/', makeHandler(req => Model.Ticket.buy(req.body, config.baseUrl)))
   router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
-  router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode, baseUrl)))
-  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.txn, req.params.accessCode, req.body, baseUrl, req.user), {commit: true}))
+  router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode, config.baseUrl)))
+  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.txn, req.params.accessCode, req.body, config.baseUrl, req.user), {commit: true}))
   router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'show'), {type: 'send', txn: true}))
   router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'print'), {type: 'send', txn: true}))
   router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))

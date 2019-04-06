@@ -2,7 +2,7 @@
 
 const ticketTypes = require('./ticketTypes')
 
-module.exports = (dgraph, baseUrl, isProduction, nodemailer, templateGenerator, config, rack) => {
+module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
       transporter.sendMail({from: config['mail-sender'], to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
@@ -10,7 +10,7 @@ module.exports = (dgraph, baseUrl, isProduction, nodemailer, templateGenerator, 
   }
 
   function sendTicketNotifications(customer, invoice) {
-    const url = baseUrl + 'accounts/' + customer.access_code + '/info'
+    const url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
     const person = customer.person[0]
     const ticketCount = invoice.tickets.length
     const subject = 'XCamp Ticketbuchung'
@@ -21,7 +21,7 @@ module.exports = (dgraph, baseUrl, isProduction, nodemailer, templateGenerator, 
   }
 
   let transporter
-  if (!isProduction) {
+  if (!config.isProduction) {
     transporter = nodemailer.createTransport({
       host: 'smtp.ethereal.email',
       port: 587,
@@ -47,7 +47,7 @@ module.exports = (dgraph, baseUrl, isProduction, nodemailer, templateGenerator, 
     await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
     await txn.mutate(mu)
 
-    const link = baseUrl + action + '/' + hash
+    const link = config.baseUrl + action + '/' + hash
     const firstName = customer.person[0].firstName
     const html = templateGenerator.generate(templateName, {link, customer, firstName})
     const to = customer.person[0].email

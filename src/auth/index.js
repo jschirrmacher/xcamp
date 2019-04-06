@@ -8,9 +8,9 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = (app, Model, dgraphClient, dgraph, secret, getLoginURL, readModels, store) => {
+module.exports = ({app, Model, dgraphClient, dgraph, getLoginURL, readModels, store, config}) => {
   function tokenForUser(user) {
-    return jwt.sign({sub: user.uid}, secret, {expiresIn: '24h'})
+    return jwt.sign({sub: user.uid}, config.authSecret, {expiresIn: '24h'})
   }
 
   function signIn(req, res) {
@@ -94,7 +94,7 @@ module.exports = (app, Model, dgraphClient, dgraph, secret, getLoginURL, readMod
 
   passport.use(new JwtStrategy({
       jwtFromRequest: req => (req.cookies && req.cookies.token) || req.headers.authorization,
-      secretOrKey: secret
+      secretOrKey: config.authSecret
     }, async (payload, done) => {
       const txn = dgraphClient.newTxn()
       try {

@@ -7,12 +7,11 @@ module.exports = (dependencies) => {
     mailSender,
     Model,
     store,
-    config,
-    baseUrl
+    config
   } = dependencies
 
   function getAccountInfoURL(user) {
-    return baseUrl + 'accounts/' + user.access_code + '/info'
+    return config.baseUrl + 'accounts/' + user.access_code + '/info'
   }
 
   async function getAccountInfoPage(txn, accessCode) {
@@ -44,7 +43,7 @@ module.exports = (dependencies) => {
   async function getLastInvoice(txn, accessCode) {
     const customer = await Model.Customer.findByAccessCode(txn, accessCode)
     const invoice = await Model.Invoice.getNewest(txn, customer.uid)
-    const data = {...Model.Invoice.getPrintableInvoiceData(invoice), eventName: config.eventName, eventDate: config.eventDate, baseUrl}
+    const data = {...Model.Invoice.getPrintableInvoiceData(invoice, config.baseUrl)}
     return templateGenerator.generate('invoice', data)
   }
 

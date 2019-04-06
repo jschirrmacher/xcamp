@@ -1,12 +1,4 @@
-module.exports = (dependencies) => {
-  const {
-    express,
-    auth,
-    makeHandler,
-    templateGenerator,
-    baseUrl
-  } = dependencies
-
+module.exports = ({express, auth, makeHandler, templateGenerator, config}) => {
   function getUserInfo(user) {
     return {
       loggedIn: !!user,
@@ -21,7 +13,7 @@ module.exports = (dependencies) => {
 
   function logout(req, res) {
     auth.logout(res)
-    res.redirect(baseUrl)
+    res.redirect(config.baseUrl)
   }
 
   const router = express.Router()
