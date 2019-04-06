@@ -158,7 +158,7 @@ script.addEventListener('load', function () {
           .filter(String)
           .map(name => ({name}))
         const body = JSON.stringify(data)
-        return fetch(`${node.type}s/${node.id}`, {method: 'PUT', headers, body})
+        return fetch(`network/${node.type}s/${node.id}`, {method: 'PUT', headers, body})
           .then(result => result.json())
           .then(result => {
             result.nodes2create.forEach(n => network.addNode(n))
@@ -234,7 +234,7 @@ script.addEventListener('load', function () {
 
             const body = new FormData()
             body.append('picture', new Blob([new Uint8Array(array)], {type: mime}), event.target.files[0].name)
-            fetch('persons/' + id + '/picture', {method: 'PUT', body, headers: {authorization}})
+            fetch('network/persons/' + id + '/picture', {method: 'PUT', body, headers: {authorization}})
               .then(function (result) {
                 return result.json()
               })

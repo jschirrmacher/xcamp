@@ -118,7 +118,6 @@ app.use(nocache)
 
 app.use('/session', sessionRouter)
 app.use('/newsletter', newsletterRouter)
-app.use('/persons', personRouter)
 app.use('/tickets', ticketRouter)
 app.use('/accounts', accountsRouter)
 app.use('/paypal/ipn', paypalRouter)
@@ -126,9 +125,10 @@ app.use('/orga', orgaRouter)
 
 app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.query.what, req.user)))
 app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Network.rebuild()))
-app.get('/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
-app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.use('/network/persons', personRouter)
+app.get('/network/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
+app.put('/network/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.put('/network/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)

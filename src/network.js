@@ -108,7 +108,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
         nodes.push({
           id: person.uid,
           editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) >= 0,
-          details: 'persons/' + person.uid,
+          details: 'network/persons/' + person.uid,
           name: person.firstName + ' ' + person.lastName,
           image: person.image,
           type: 'person',

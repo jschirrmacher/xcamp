@@ -27,9 +27,14 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     if (!person.image) {
       person.image = 'user.png'
     } else if (person.image.match(/^\w+\/\w+:.*$/)) {
-      person.image = 'persons/' + uid + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
+      person.image = 'network/persons/' + uid + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
     } else if (person.image.match(/^persons\/0x\w+\/picture$/)) {
       person.image += '/picture'
+    } else if (person.image.match(/^persons\//)) {
+      person.image = 'network/' + person.image
+    }
+    if (person.details && person.details.match(/^persons\//)) {
+      person.details = 'network/' + person.details
     }
     person.id = person.uid
     person.name = person.firstName + ' ' + person.lastName
