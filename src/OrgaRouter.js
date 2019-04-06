@@ -4,7 +4,7 @@ module.exports = (dependencies) => {
     auth,
     makeHandler,
     templateGenerator,
-    sendHashMail,
+    mailSender,
     Customer,
     Invoice,
     Ticket,
@@ -22,7 +22,7 @@ module.exports = (dependencies) => {
     const customer = await Customer.create(txn, data)
     const tickets = await Ticket.create(txn, customer.person[0], data.ticketCount || 1)
     await Invoice.create(txn, data, customer, tickets)
-    const hash = sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
+    const hash = await mailSender.sendHashMail(txn, 'send-free-ticket-mail', customer,'accounts/' + customer.access_code + '/password/reset')
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
   }
 

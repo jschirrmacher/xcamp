@@ -17,7 +17,8 @@ const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'a
 const globalData = {baseUrl, trackingId: config.analyticsTrackingId, eventName: config.eventName}
 const templateGenerator = require('./TemplateGenerator')({globalData, subTemplates})
 const nodemailer = require('nodemailer')
-const mailSender = require('./mailSender')(baseUrl, isProduction, nodemailer, templateGenerator, config)
+const rack = require('hat').rack(128, 36)
+const mailSender = require('./mailSender')(dgraph, baseUrl, isProduction, nodemailer, templateGenerator, config, rack)
 const eventName = config.eventName
 
 const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
@@ -42,7 +43,6 @@ const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')(store)
 
-const rack = require('hat').rack(128, 36)
 const QueryFunction = require('./QueryFunction')
 const User = require('./user')(dgraphClient, QueryFunction, store)
 const Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
@@ -56,17 +56,18 @@ const mailChimp = require('./mailchimp')(config.mailChimp, eventName, fetch, sto
 const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, eventName)
 
 function getLoginUrl(req) {
-  return baseUrl + 'login/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
+  return baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 
 const auth = require('./auth')(app, Person, Customer, Ticket, User, dgraphClient, dgraph, AUTH_SECRET, getLoginUrl, store)
 const allowAnonymous = true
 
-const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, mailChimp, Customer, store})
-const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, User, Customer, Invoice, Ticket, store, config, baseUrl})
+const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, baseUrl})
+const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Customer, store})
+const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, User, Customer, Invoice, Ticket, store, config, baseUrl})
 const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Ticket, store, config, baseUrl})
 const personRouter = require('./PersonRouter')({express, auth, makeHandler, Person})
-const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, sendHashMail, Customer, Invoice, Ticket, Network, store, baseUrl})
+const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Customer, Invoice, Ticket, Network, store, baseUrl})
 
 function makeHandler(func, options = {}) {
   const {type = 'json', txn = false, commit = false} = options
@@ -102,24 +103,11 @@ function makeHandler(func, options = {}) {
   }
 }
 
-function sendUserInfo() {
-  return (req, res) => res.json({
-    loggedIn: !!req.user,
-    hasPasswordSet: req.user && !!req.user.password,
-    access_code: req.user && req.user.access_code
-  })
-}
-
 function getNetVisPage() {
   const index = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html')).toString()
   const menu = templateGenerator.generate('menu')
   const analytics = templateGenerator.generate('analytics')
   return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
-}
-
-function logout(req, res) {
-  auth.logout(res)
-  res.redirect('.')
 }
 
 function nocache(req, res, next) {
@@ -132,14 +120,11 @@ function nocache(req, res, next) {
 app.get('/', (req, res) => res.send(getNetVisPage()))
 app.use('/', express.static(path.join(__dirname, '/../public')))
 app.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
-
 app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
-app.post('/login', auth.requireLogin(), (req, res) => res.json({token: auth.signIn(req, res)}))
-app.get('/login', auth.requireJWT({allowAnonymous}), sendUserInfo())
-app.get('/login/:accessCode/:url', makeHandler(req => loginPage(req.params.accessCode, req.params.url), {type: 'send'}))
-app.get('/logout', nocache, logout)
+app.use(nocache)
 
+app.use('/session', sessionRouter)
 app.use('/newsletter', auth.requireJWT({allowAnonymous}), newsletterRouter)
 app.use('/persons', personRouter)
 
@@ -170,21 +155,3 @@ app.listen(port, () => logger.info('Running on port ' + port +
   ' with baseURL=' + baseUrl +
   (Payment.useSandbox ? ' using sandbox' : ' using PayPal')
 ))
-
-async function loginPage(accessCode, url) {
-  return templateGenerator.generate('login-page', {url, accessCode})
-}
-
-async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
-  const hash = rack()
-  const mu = new dgraph.Mutation()
-  await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
-  await txn.mutate(mu)
-
-  const link = baseUrl + action + '/' + hash
-  const firstName = customer.person[0].firstName
-  const html = templateGenerator.generate(templateName, {link, customer, firstName})
-  const to = customer.person[0].email
-  mailSender.send(to, subject, html)
-  return hash
-}

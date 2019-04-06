@@ -4,7 +4,7 @@ module.exports = (dependencies) => {
     auth,
     makeHandler,
     templateGenerator,
-    sendHashMail,
+    mailSender,
     User,
     Customer,
     Invoice,
@@ -54,7 +54,7 @@ module.exports = (dependencies) => {
   async function sendPassword(txn, accessCode) {
     const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
     const customer = await Customer[method](txn, accessCode)
-    const hash = sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
+    const hash = await mailSender.sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
     return templateGenerator.generate('password-sent')
   }

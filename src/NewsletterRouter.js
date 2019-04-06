@@ -6,7 +6,7 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     Customer,
-    sendHashMail,
+    mailSender,
     store
   } = dependencies
 
@@ -28,7 +28,7 @@ module.exports = (dependencies) => {
     try {
       const subject = 'XCamp Newsletter - Bitte bestätigen!'
       const action = 'newsletter/approve/' + customer.access_code
-      await sendHashMail(txn, 'newsletter-approval-mail', customer, action, subject)
+      await mailSender.sendHashMail(txn, 'newsletter-approval-mail', customer, action, subject)
       store.add({type: 'newsletter-subscription', customer})
       const firstName = customer.person[0].firstName
       return templateGenerator.generate('register-success', {firstName})

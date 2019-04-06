@@ -15,19 +15,22 @@
 
         <p>Diese Seite ist mit einem Passwort geschützt.</p>
 
-        <form id="login-form" action="login" method="post">
-            <label id="email">E-Mail-Adresse
+        <form id="login-form" action="session" method="post">
+            <label id="email">Deine E-Mail-Adresse
                 <input type="email" name="email">
             </label>
-            <label>Passwort
+            <label>Dein Passwort
                 <input type="password" name="password">
             </label>
             <input type="hidden" name="username" value="{{accessCode}}">
             <input type="hidden" name="url" value="{{url}}">
-            <button class="button" type="submit">Login</button>
+            <button class="button" type="submit">Anmelden</button>
 
-            <h2>Passwort vergessen?</h2>
-            <button class="button wide" id="lost-pwd">Neues Passwort setzen</button>
+            <h2>Du hast dein Passwort vergessen?</h2>
+            <p>Wir können dir einen Zugangslink per E-Mail senden, wenn du oben deine E-Mail-Adresse angibst,
+                dass Passwortfeld leer lässt und auf den folgenden Button klickst:
+            </p>
+            <button class="button wide" id="lost-pwd">Zugangslink erhalten</button>
         </form>
     </div>
 </div>

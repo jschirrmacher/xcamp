@@ -315,7 +315,7 @@ script.addEventListener('load', function () {
     }
   })
 
-  fetch(history + 'login', {headers: {authorization}})
+  fetch(history + 'session', {headers: {authorization}})
     .then(function (response) {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
     })

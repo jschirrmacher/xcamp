@@ -2,7 +2,7 @@
 
 const ticketTypes = require('./ticketTypes')
 
-module.exports = (baseUrl, isProduction, nodemailer, templateGenerator, config) => {
+module.exports = (dgraph, baseUrl, isProduction, nodemailer, templateGenerator, config, rack) => {
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
       transporter.sendMail({from: config['mail-sender'], to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
@@ -41,5 +41,19 @@ module.exports = (baseUrl, isProduction, nodemailer, templateGenerator, config) 
     })
   }
 
-  return {send, sendTicketNotifications}
+  async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
+    const hash = rack()
+    const mu = new dgraph.Mutation()
+    await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
+    await txn.mutate(mu)
+
+    const link = baseUrl + action + '/' + hash
+    const firstName = customer.person[0].firstName
+    const html = templateGenerator.generate(templateName, {link, customer, firstName})
+    const to = customer.person[0].email
+    send(to, subject, html)
+    return hash
+  }
+
+  return {send, sendTicketNotifications, sendHashMail}
 }
