@@ -68,6 +68,7 @@ const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, 
 const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Ticket, store, config, baseUrl})
 const personRouter = require('./PersonRouter')({express, auth, makeHandler, Person})
 const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Customer, Invoice, Ticket, Network, store, baseUrl})
+const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
 
 function makeHandler(func, options = {}) {
   const {type = 'json', txn = false, commit = false} = options
@@ -125,23 +126,18 @@ app.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/
 app.use(nocache)
 
 app.use('/session', sessionRouter)
-app.use('/newsletter', auth.requireJWT({allowAnonymous}), newsletterRouter)
+app.use('/newsletter', newsletterRouter)
 app.use('/persons', personRouter)
-
-app.get('/topics', makeHandler(req => Topic.find(req.txn, req.query.q), {txn: true}))
-app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-
 app.use('/tickets', ticketRouter)
 app.use('/accounts', accountsRouter)
-
-app.get('/paypal/ipn', (req, res) => res.redirect('/accounts/my', 303))
-app.post('/paypal/ipn', (req, res) => res.send(Payment.paypalIpn(req)))
+app.use('/paypal/ipn', paypalRouter)
+app.use('/orga', orgaRouter)
 
 app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Network.getGraph(req.query.what, req.user)))
 app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Network.rebuild()))
-
-app.use('/orga', orgaRouter)
+app.get('/topics', makeHandler(req => Topic.find(req.txn, req.query.q), {txn: true}))
+app.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)

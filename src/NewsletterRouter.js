@@ -48,9 +48,10 @@ module.exports = (dependencies) => {
   }
 
   const router = express.Router()
+  const allowAnonymous = true
 
-  router.get('/', makeHandler(() => getNewsletterPage(), {type: 'send'}))
-  router.post('/', makeHandler(req => registerForNewsletter(req.txn, req.body), {type: 'send', txn: true}))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(() => getNewsletterPage(), {type: 'send'}))
+  router.post('/', auth.requireJWT({allowAnonymous}), makeHandler(req => registerForNewsletter(req.txn, req.body), {type: 'send', txn: true}))
   router.get('/approve/:accessCode/:hash', auth.requireCodeAndHash({redirect: true}), makeHandler(req => approveRegistration(req.txn, req.params.accessCode), {type: 'send', commit: true}))
 
   return router
