@@ -61,7 +61,7 @@ module.exports = (dependencies) => {
 
   async function setPassword(txn, user, password) {
     const result = await auth.setPassword(txn, user.access_code, password)
-    result.userId = Network.getNodeId(user)
+    result.userId = Model.Network.getNodeId(user)
     return result
   }
 
