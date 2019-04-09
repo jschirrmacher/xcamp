@@ -7,13 +7,15 @@ const maxImageWidth = 240
 const texts = {
   topics: 'Themen',
   events: 'Events',
-  persons: 'Interessierte Personen'
+  persons: 'Interessierte Personen',
+  info: 'Beschreibung'
 }
 
 const icons = {
   topics: '💬',
   events: '',
-  persons: '👤'
+  persons: '👤',
+  info: '✍'
 }
 
 let network
@@ -65,7 +67,9 @@ script.addEventListener('load', function () {
     window.history.pushState(null, null, '#' + id)
     return new Promise(resolve => {
       const editable = data.editable && 'contenteditable="true"'
-      const linkTitles = Object.keys(node.links).map(type => ({type, title: `${icons[type]} ${texts[type]} einblenden`}))
+      const linkTitles = Object.keys(node.links)
+        .filter(type => type !== 'info')
+        .map(type => ({type, title: `${icons[type]} ${texts[type]} einblenden`}))
       form.innerHTML = detailFormTemplate(Object.assign({}, data, {
         editable,
         linkTitles,
@@ -265,10 +269,13 @@ script.addEventListener('load', function () {
   }
 
   function prepareNode(node) {
+    const getTopicInfoAsLink = links => ({...links, info: []})
+
     return Object.assign({}, node, {
       visible: node.type === what || node.open || node.id === detailsNode,
       shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
-      className: node.type
+      className: node.type,
+      links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links
     })
   }
 
@@ -308,6 +315,22 @@ script.addEventListener('load', function () {
         data.nodes = data.nodes.map(prepareNode)
         myNode = data.myNode
         return data
+      },
+
+      clickOnNode(node) {
+        if (node.type === 'topic') {
+          network.toggleNodes(node, 'persons')
+        } else {
+          network.showDetails(node)
+        }
+      },
+
+      clickOnRefLink(node, ref) {
+        if (ref === 'info') {
+          network.showDetails(node)
+        } else {
+          network.toggleNodes(node, ref)
+        }
       },
 
       showDetails,
