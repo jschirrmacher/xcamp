@@ -34,8 +34,8 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
 app.use((req, res, next) => {
-  next()
   logger.info(new Date(), req.method + ' ' + req.path, req.headers['user-agent'])
+  next()
 })
 
 const EventStore = require('./EventStore')
@@ -57,7 +57,7 @@ const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, te
 const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
 const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config})
 const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, config})
-const personRouter = require('./PersonRouter')({express, auth, makeHandler, Model})
+const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model})
 const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config})
 const paypalRouter = require('./PaypalRouter')({express, makeHandler, Model})
 
@@ -122,13 +122,7 @@ app.use('/tickets', ticketRouter)
 app.use('/accounts', accountsRouter)
 app.use('/paypal/ipn', paypalRouter)
 app.use('/orga', orgaRouter)
-
-app.get('/network', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.query.what, req.user)))
-app.delete('/network', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Network.rebuild()))
-app.use('/network/persons', personRouter)
-app.get('/network/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
-app.put('/network/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-app.put('/network/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+app.use('/network', networkRouter)
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500)
