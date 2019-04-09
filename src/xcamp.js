@@ -51,7 +51,6 @@ function getLoginUrl(req) {
 }
 
 const auth = require('./auth')({app, Model, dgraphClient, dgraph, getLoginUrl, readModels, store, config})
-const allowAnonymous = true
 
 const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, config})
 const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
