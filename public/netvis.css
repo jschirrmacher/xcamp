@@ -461,4 +461,7 @@ label[for="image-upload"] {
   color: #6688aa;
   padding-left: 6px; }
 
+.details .detailForm button.button.small.account {
+  display: none; }
+
 /*# sourceMappingURL=netvis.css.map */

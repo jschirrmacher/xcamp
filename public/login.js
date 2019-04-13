@@ -31,10 +31,10 @@ loginForm.addEventListener('submit', function (event) {
 
   fetch(loginForm.getAttribute('action'), {credentials: 'same-origin', method, headers, body})
     .then(function (result) {
-      return result.ok ? result.text() : Promise.reject(result.status + ' ' + result.statusText)
+      return result.ok ? result.json() : Promise.reject(result.status + ' ' + result.statusText)
     })
     .then(function (data) {
-      window.location.href = document.baseURI + decodeURIComponent(loginForm.elements.url.value).replace(/^\//, '')
+      window.location.href = document.baseURI + data.path
     })
     .catch(function (error) {
       console.error(error)
@@ -42,3 +42,5 @@ loginForm.addEventListener('submit', function (event) {
     })
   return false
 })
+
+document.body.classList.add('logged-out')

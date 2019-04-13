@@ -80,7 +80,7 @@ module.exports = (dependencies) => {
   router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.txn, req.user, req.body.password), {commit: true}))
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
-  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.txn, req.params.accessCode), {type: 'send', txn: true}))
+  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.txn, req.user.access_code), {type: 'send', txn: true}))
   router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => createAdditionalTicket(req.txn, req.params.accessCode), {commit: true}))
 
   return router

@@ -60,11 +60,16 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     if (canAdmin(user, uid)) {
       person.editable = true
       if (user && user.type === 'customer') {
-        const ticket = user.invoices[0].tickets.find(ticket => ticket.participant[0].uid === uid)
+        const tickets = user.invoices[0].tickets
+        if (user.invoices[0].invoiceNo) {
+          person.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
+        }
+        const ticket = tickets.find(ticket => ticket.participant[0].uid === uid)
         if (ticket) {
           person.access_code = ticket.access_code
         }
       } else {
+        person.accountPath = 'accounts/my/invoices/current'
         person.access_code = user.access_code
       }
     } else {

@@ -418,8 +418,9 @@ table {
   .social-networks-wrapper .icon-facebook:before {
     content: "\e604"; }
 
-#logout {
-  display: none; }
+body.logged-in .logged-out,
+body.logged-out .logged-in {
+  display: none !important; }
 
 footer {
   background-color: #f5f5f5;

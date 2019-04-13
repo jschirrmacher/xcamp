@@ -80,25 +80,21 @@ script.addEventListener('load', function () {
       form.classList.toggle('editable', !!data.editable)
       form.classList.add(data.type)
 
-      Array.prototype.forEach.call(document.querySelectorAll('.ticketNo'), el => {
-        QRCode.toCanvas(el, window.location.origin + '/tickets/' + el.id)
-      })
-      Array.prototype.forEach.call(document.querySelectorAll('.printTicket'), el => {
-        el.addEventListener('click', function (e) {
-          window.open('tickets/' + e.target.dataset.id + '/print')
-        })
-      })
+      const ticketUrl = window.location.origin + '/tickets/'
+      forEachElementOfClass('ticketNo', el => QRCode.toCanvas(el, ticketUrl + el.id))
+      bindHandler('printTicket', 'click', el => window.open('tickets/' + el.dataset.id + '/print'))
+      if (data.accountPath) {
+        document.querySelector('.account').style.display = 'inline'
+        bindHandler('account', 'click', () => window.open(data.accountPath))
+      }
 
       const pwd = document.getElementById('password')
       const pwd2 = document.getElementById('password-repeat')
-
-      Array.prototype.forEach.call(document.querySelectorAll('.change-pwd'), el => {
-        el.addEventListener('click', function (e) {
-          pwd.value = ''
-          pwd2.value = ''
-          document.querySelector('#personDetails').style.display = 'none';
-          document.querySelector('#chgPwdForm').style.display = 'block';
-        })
+      bindHandler('change-pwd', 'click',el => {
+        pwd.value = ''
+        pwd2.value = ''
+        document.querySelector('#personDetails').style.display = 'none';
+        document.querySelector('#chgPwdForm').style.display = 'block';
       })
 
       document.getElementById('chg-pwd-form').addEventListener('submit', function (event) {
@@ -129,7 +125,7 @@ script.addEventListener('load', function () {
       form.querySelectorAll('.delete').forEach(el => el.addEventListener('click', deleteTag))
       form.querySelectorAll('.upload').forEach(el => el.addEventListener('change', fileUploadHandler))
 
-      document.querySelectorAll('.command').forEach(el => {
+      forEachElementOfClass('command', el => {
         el.classList.toggle('active', !el.dataset.visible || !!eval(el.dataset.visible))
         el.addEventListener('click', event => {
           network[event.target.dataset.cmd](node, event.target.dataset.params)
@@ -144,7 +140,7 @@ script.addEventListener('load', function () {
         resolve()
       }))
 
-      document.querySelectorAll('.mail2info').forEach(link => {
+      forEachElementOfClass('mail2info',link => {
         const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
         link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject + '&body=node=' + id)
         link.innerText = 'netvis@xcamp.co'
@@ -343,8 +339,8 @@ script.addEventListener('load', function () {
       return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
     })
     .then(function (data) {
-      document.getElementById('login').style.display = data.loggedIn ? 'none' : 'inline'
-      document.getElementById('logout').style.display = data.loggedIn ? 'inline' : 'none'
+      document.body.classList.toggle('logged-in', data.loggedIn)
+      document.body.classList.toggle('logged-out', !data.loggedIn)
       if (data.loggedIn) {
         userInfo = data
       }

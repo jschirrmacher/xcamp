@@ -139,6 +139,7 @@
   }
 }
 
-#logout {
-  display: none;
+body.logged-in .logged-out,
+body.logged-out .logged-in {
+  display: none !important;
 }
