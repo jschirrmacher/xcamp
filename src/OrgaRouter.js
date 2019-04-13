@@ -66,7 +66,7 @@ module.exports = (dependencies) => {
   async function invoicePayment(txn, invoiceId, state) {
     const invoice = await Model.Invoice.get(txn, invoiceId)
     if (state && invoice.payment === 'paypal') {
-      await Payment.paymentReceived(txn, invoice)
+      await Model.Payment.paymentReceived(txn, invoice)
     } else {
       const mu = new dgraph.Mutation()
       if (state) {
