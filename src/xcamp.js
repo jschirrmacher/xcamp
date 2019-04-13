@@ -46,11 +46,11 @@ const QueryFunction = require('./QueryFunction')
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config})
 
-function getLoginUrl(req) {
+function getLoginURL(req) {
   return config.baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
 }
 
-const auth = require('./auth')({app, Model, dgraphClient, dgraph, getLoginUrl, readModels, store, config})
+const auth = require('./auth')({app, Model, dgraphClient, dgraph, getLoginURL, readModels, store, config})
 
 const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, config})
 const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
