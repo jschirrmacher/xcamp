@@ -245,11 +245,16 @@ body.dialogOpen #root {
   .sidebar-buttons > div > div {
     position: relative;
     cursor: pointer;
-    border: 1px solid #777777;
-    background: white;
-    font-size: 28px; }
+    background-color: #aaaaaa;
+    color: white;
+    font-size: 28px;
+    transition: background-color 0.3s;
+    margin-bottom: 2px; }
     .sidebar-buttons > div > div:hover {
-      background: #cccfcf; }
+      background: #848484; }
+    .sidebar-buttons > div > div:active {
+      left: 1px;
+      top: 1px; }
 .sidebar-buttons .other {
   top: 70px; }
   .sidebar-buttons .other > div {
@@ -265,11 +270,18 @@ body.dialogOpen #root {
   bottom: 30px; }
   .sidebar-buttons .zoom > div {
     box-sizing: content-box;
-    margin: -1px 0;
     text-align: center;
     display: block;
     padding: 2px 10px;
     font: 32px Courier, monospace; }
+.sidebar-buttons #help {
+  line-height: 1.3em;
+  font-family: Arial Rounded MT Bold, Arial, sans-serif;
+  color: #ffffff;
+  background-color: #4ed9d5;
+  padding-left: 6px; }
+  .sidebar-buttons #help:hover {
+    background-color: #27b4b0; }
 
 .dialogOpen .sidebar-buttons {
   display: none; }
@@ -454,12 +466,6 @@ label[for="image-upload"] {
     opacity: 1; }
     .help.open > div {
       margin-top: 5em; }
-
-#help {
-  line-height: 1.3em;
-  font-family: Arial Rounded MT Bold, Arial, sans-serif;
-  color: #6688aa;
-  padding-left: 6px; }
 
 .details .detailForm button.button.small.account {
   display: none; }
