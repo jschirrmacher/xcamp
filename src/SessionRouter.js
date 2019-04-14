@@ -12,12 +12,7 @@ module.exports = ({express, auth, makeHandler, templateGenerator, config}) => {
   }
 
   async function login(req, res) {
-    let path = ''
-    if (req.user.invoices && req.user.invoices[0].tickets && req.user.invoices[0].tickets.length > 1) {
-      path = 'accounts/my'
-    }
-    const token = auth.signIn(req, res)
-    res.json({token, path})
+    res.json({token: auth.signIn(req, res)})
   }
 
   function logout(req, res) {

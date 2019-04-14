@@ -83,10 +83,7 @@ script.addEventListener('load', function () {
       const ticketUrl = window.location.origin + '/tickets/'
       forEachElementOfClass('ticketNo', el => QRCode.toCanvas(el, ticketUrl + el.id))
       bindHandler('printTicket', 'click', el => window.open('tickets/' + el.dataset.id + '/print'))
-      if (data.accountPath) {
-        document.querySelector('.account').style.display = 'inline'
-        bindHandler('account', 'click', () => window.open(data.accountPath))
-      }
+      bindHandler('account', 'click', () => window.open('accounts/my'))
 
       const pwd = document.getElementById('password')
       const pwd2 = document.getElementById('password-repeat')
@@ -346,5 +343,5 @@ script.addEventListener('load', function () {
       }
     })
 })
-script.src = location.hostname === 'localhost' ? '/js-netvis/dist/bundle.js' : 'https://jschirrmacher.github.io/netvis/dist/bundle.js'
+script.src = 'js-netvis/dist/bundle.js'
 document.body.appendChild(script)

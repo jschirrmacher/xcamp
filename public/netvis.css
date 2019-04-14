@@ -402,7 +402,7 @@ label[for="image-upload"] {
 .node-info-column {
   flex-grow: 1; }
 
-.qr-column {
+.button-column {
   flex-direction: column;
   padding-left: 15px; }
 
@@ -466,8 +466,5 @@ label[for="image-upload"] {
     opacity: 1; }
     .help.open > div {
       margin-top: 5em; }
-
-.details .detailForm button.button.small.account {
-  display: none; }
 
 /*# sourceMappingURL=netvis.css.map */
