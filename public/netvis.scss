@@ -363,9 +363,9 @@ body.dialogOpen #root {
     position: absolute;
     right: 20px;
 
-    > div {
+    button {
       position: relative;
-      cursor: pointer;
+      outline: none;
       background-color: #aaaaaa;
       color: white;
       font-size: 28px;
@@ -386,7 +386,7 @@ body.dialogOpen #root {
   .other {
     top: 70px;
 
-    > div {
+    button {
       width: 45px;
       height: 45px;
       text-align: center;
@@ -403,7 +403,7 @@ body.dialogOpen #root {
   .zoom {
     bottom: 30px;
 
-    > div {
+    button {
       box-sizing: content-box;
       text-align: center;
       display: block;

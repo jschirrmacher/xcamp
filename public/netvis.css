@@ -242,22 +242,22 @@ body.dialogOpen #root {
 .sidebar-buttons > div {
   position: absolute;
   right: 20px; }
-  .sidebar-buttons > div > div {
+  .sidebar-buttons > div button {
     position: relative;
-    cursor: pointer;
+    outline: none;
     background-color: #aaaaaa;
     color: white;
     font-size: 28px;
     transition: background-color 0.3s;
     margin-bottom: 2px; }
-    .sidebar-buttons > div > div:hover {
+    .sidebar-buttons > div button:hover {
       background: #848484; }
-    .sidebar-buttons > div > div:active {
+    .sidebar-buttons > div button:active {
       left: 1px;
       top: 1px; }
 .sidebar-buttons .other {
   top: 70px; }
-  .sidebar-buttons .other > div {
+  .sidebar-buttons .other button {
     width: 45px;
     height: 45px;
     text-align: center;
@@ -268,7 +268,7 @@ body.dialogOpen #root {
     display: none; }
 .sidebar-buttons .zoom {
   bottom: 30px; }
-  .sidebar-buttons .zoom > div {
+  .sidebar-buttons .zoom button {
     box-sizing: content-box;
     text-align: center;
     display: block;
