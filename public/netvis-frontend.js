@@ -81,21 +81,19 @@ script.addEventListener('load', function () {
       form.classList.add(data.type)
 
       const ticketUrl = window.location.origin + '/tickets/'
-      forEachElementOfClass('ticketNo', el => QRCode.toCanvas(el, ticketUrl + el.id))
-      bindHandler('printTicket', 'click', el => window.open('tickets/' + el.dataset.id + '/print'))
-      bindHandler('account', 'click', () => window.open('accounts/my'))
+      select('.ticketNo').forEach(el => QRCode.toCanvas(el, ticketUrl + el.id))
+      select('.account').addEventListener('click', () => window.open('accounts/my'))
 
       const pwd = document.getElementById('password')
       const pwd2 = document.getElementById('password-repeat')
-      bindHandler('change-pwd', 'click',el => {
+      select('.change-pwd').addEventListener('click',() => {
         pwd.value = ''
         pwd2.value = ''
         document.querySelector('#personDetails').style.display = 'none';
         document.querySelector('#chgPwdForm').style.display = 'block';
       })
 
-      document.getElementById('chg-pwd-form').addEventListener('submit', function (event) {
-        event.preventDefault()
+      select('#chg-pwd-form').addEventListener('submit', () => {
         if (pwd.value !== pwd2.value) {
           showMessage('Passwörter stimmen nicht überein.')
           return false;
@@ -119,10 +117,10 @@ script.addEventListener('load', function () {
       form.addEventListener('input', debounce(e => !e.target.classList.contains('new-tag') && save(), 1000))
       newTag.addEventListener('keydown', handleKeydownInNewTag)
       newTag.addEventListener('blur', handleCreateTagEvent)
-      form.querySelectorAll('.delete').forEach(el => el.addEventListener('click', deleteTag))
-      form.querySelectorAll('.upload').forEach(el => el.addEventListener('change', fileUploadHandler))
+      select('.delete', form).forEach(el => el.addEventListener('click', deleteTag))
+      select('.upload', form).forEach(el => el.addEventListener('change', fileUploadHandler))
 
-      forEachElementOfClass('command', el => {
+      select('.command').forEach(el => {
         el.classList.toggle('active', !el.dataset.visible || !!eval(el.dataset.visible))
         el.addEventListener('click', event => {
           network[event.target.dataset.cmd](node, event.target.dataset.params)
@@ -131,13 +129,13 @@ script.addEventListener('load', function () {
         })
       })
 
-      form.querySelectorAll('.close').forEach(el => el.addEventListener('click', event => {
+      select('.close', form).forEach(el => el.addEventListener('click', event => {
         event.preventDefault()
         window.history.pushState(null, null, location.pathname)
         resolve()
       }))
 
-      forEachElementOfClass('mail2info',link => {
+      select('.mail2info').forEach(link => {
         const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
         link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject + '&body=node=' + id)
         link.innerText = 'netvis@xcamp.co'

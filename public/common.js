@@ -1,18 +1,22 @@
-function bindHandler(className, eventType, callback) {
-  forEachElementOfClass(className, function (element) {
-    element.addEventListener(eventType, function (event) {
-      event.preventDefault()
-      callback(element)
-    })
-  })
-}
+function select(selector, where = document) {
+  return {
+    forEach(callback) {
+      where.querySelectorAll(selector).forEach(callback)
+    },
 
-function forEachElementOfClass(className, callback) {
-  Array.prototype.forEach.call(document.getElementsByClassName(className), callback)
+    addEventListener(eventType, listener) {
+      where.querySelectorAll(selector).forEach(function (el) {
+        el.addEventListener(eventType, function (event) {
+          event.preventDefault()
+          listener(event, el)
+        })
+      })
+    }
+  }
 }
 
 function encodeParams(params, otherOptions) {
-  const body = Object.keys(params).map(function (key) {
+  var body = Object.keys(params).map(function (key) {
     return key + '=' + encodeURIComponent(params[key])
   }).join('&')
   return Object.assign({body, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}, otherOptions)

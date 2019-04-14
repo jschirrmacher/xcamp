@@ -4,17 +4,18 @@
   var token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
   var authorization = token ? token[2] : null
 
-  forEachElementOfClass('ticketNo', function (el) {
+  select('.ticketNo').forEach(function (el) {
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
   })
 
-  document.querySelectorAll('.mail2info').forEach(link => {
-    const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
+  document.querySelectorAll('.mail2info').forEach(function(link) {
+    var subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
     link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject)
     link.innerText = 'netvis@xcamp.co'
   })
 
-  bindHandler('saveTicket', 'click', function (button) {
+  select('.saveTicket').addEventListener('click', function (event) {
+    var button = event.target
     var options = encodeParams({
       firstName: button.form.elements['participant_firstName'].value,
       lastName: button.form.elements['participant_lastName'].value,
@@ -23,11 +24,11 @@
     fetchReload('tickets/' + button.form.id, options)
   })
 
-  bindHandler('printTicket', 'click', function (button) {
-    window.open('tickets/' + button.form.id + '/print')
+  select('.printTicket').addEventListener('click', function (event) {
+    window.open('tickets/' + event.target.form.id + '/print')
   })
 
-  Array.from(document.getElementsByTagName('input')).forEach(function (field) {
+  select('input').forEach(function (field) {
     field.addEventListener('keyup', function () {
       field.form.modified = false
       Array.from(field.form.elements).forEach(function (input) {
