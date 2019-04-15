@@ -29,7 +29,8 @@ html, body {
   height: 250px;
   margin: 2em auto;
   padding: 2em 1em 1em 12em;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+  box-shadow: 0 0 7px #eee; }
   .tile.yellow {
     background-color: #F9D400; }
   .tile.turquoise {
