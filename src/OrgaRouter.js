@@ -123,7 +123,7 @@ module.exports = (dependencies) => {
   const redirect = true
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(showAdminPage, {type: 'send'}))
+  router.get('/', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(showAdminPage, {type: 'send'}))
   router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.txn, req.body), {commit: true}))
   router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
