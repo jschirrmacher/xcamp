@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, eventName) => {
+module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -58,7 +58,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       const invoice = await Invoice.create(txn, data, customer, tickets)
 
       await mailChimp.addSubscriber(customer)
-      await mailChimp.addTags(customer.person[0].email, [eventName])
+      await mailChimp.addTags(customer.person[0].email, [config.eventName])
 
       txn.commit()
 
@@ -82,7 +82,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
-  async function setParticipant(txn, accessCode, data, baseUrl, user) {
+  async function setParticipant(txn, accessCode, data, user) {
     const ticket = await findByAccessCode(txn, accessCode)
     const person = await Person.getOrCreate(txn, data, user, false)
 
@@ -99,22 +99,22 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
       await mailChimp.addSubscriber({person: [person]})
-      await mailChimp.addTags(person, [eventName])
+      await mailChimp.addTags(person, [config.eventName])
 
-      const url = baseUrl + 'accounts/' + ticket.access_code + '/info'
+      const url = config.baseUrl + 'accounts/' + ticket.access_code + '/info'
       const html = templateGenerator.generate('ticket-mail', {url})
       return mailSender.send(person.email, 'XCamp Ticket', html)
     }
     return {}
   }
 
-  async function show(accessCode, baseUrl) {
+  async function show(accessCode) {
     const txn = dgraphClient.newTxn()
     try {
       const ticket = await findByAccessCode(txn, accessCode)
       return {
         isRedirection: true,
-        url: baseUrl + 'tickets/' + accessCode + '/show'
+        url: config.baseUrl + 'tickets/' + accessCode + '/show'
       }
     } finally {
       txn.discard()
@@ -137,13 +137,14 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     return result
   }
 
-  async function createCoupon(txn, baseUrl) {
+  async function createCoupon(txn, user) {
     const mu = new dgraph.Mutation()
     const access_code = rack()
     mu.setSetJson({type: 'coupon', access_code})
     const assigned = await txn.mutate(mu)
-    store.add({type: 'coupon-created', access_code})
-    return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link: baseUrl + 'tickets?code=' + access_code}
+    store.add({type: 'coupon-created', access_code, generated_by: user.id})
+    const link = config.baseUrl + 'tickets?code=' + access_code
+    return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
   }
 
   return {get, create, buy, setParticipant, findByAccessCode, show, checkin, createCoupon}

@@ -7,7 +7,7 @@ module.exports = ({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mail
   const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store)
   const Invoice = require('./invoice')(dgraphClient, dgraph, store)
   const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, config.baseUrl, mailSender, !config.isProduction, store)
-  const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config.eventName)
+  const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config)
 
   return {User, Root, Topic, Person, Customer, Network, Invoice, Payment, Ticket}
 }

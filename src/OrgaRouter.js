@@ -125,7 +125,7 @@ module.exports = (dependencies) => {
 
   router.get('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(showAdminPage, {type: 'send'}))
   router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.txn, req.body), {commit: true}))
-  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, config.baseUrl), {commit: true}))
+  router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
   router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(req.txn), {txn: true, type: 'send'}))
   router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, true), {commit: true}))
