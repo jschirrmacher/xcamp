@@ -70,9 +70,9 @@
 
   if (form.elements.type) {
     ticketCount.addEventListener('change', adaptDependendFields)
-    privateTicket.addEventListener('change', isPrivate)
-    corporateTicket.addEventListener('change', isCorporate)
-    form.elements.type.forEach(function (el) {
+    privateTicket && privateTicket.addEventListener('change', isPrivate)
+    corporateTicket && corporateTicket.addEventListener('change', isCorporate)
+    form.elements.type.forEach && form.elements.type.forEach(function (el) {
       el.addEventListener('change', adaptDependendFields)
     })
     adaptDependendFields()
