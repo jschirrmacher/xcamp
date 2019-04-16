@@ -1,0 +1,224 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font: 15px Arial, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: Martel, Arial, Helvetica, sans-serif; }
+
+* {
+  box-sizing: border-box; }
+
+h2 {
+  line-height: 2; }
+
+h3 {
+  margin-top: 0.5em; }
+
+a, button {
+  text-decoration: none;
+  color: #ff696c;
+  transition: color .2s linear; }
+  a:hover, button:hover {
+    color: #4ED9D5; }
+
+.container {
+  position: relative;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 15px; }
+  .container:after {
+    content: ' ';
+    display: table;
+    clear: both; }
+
+.col-4, .col-6, .col-8 {
+  display: inline-block; }
+
+.col-12 {
+  width: 100%; }
+
+.col-8 {
+  width: 66.667%; }
+
+.col-6 {
+  width: 50%; }
+
+.col-4 {
+  width: 33.333%; }
+
+.col-2 {
+  width: 16.667%; }
+
+.row:before, .row:after {
+  content: ' ';
+  display: table;
+  clear: both; }
+
+#logo {
+  position: absolute;
+  left: 30px;
+  top: 75px; }
+
+#main {
+  background-color: #f5f5f5;
+  background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
+  background-repeat: no-repeat;
+  background-position: left -45px;
+  padding: 30px 15px;
+  min-height: 100%; }
+  @media (min-width: 740px) {
+    #main {
+      padding: 30px; } }
+  #main .container {
+    max-width: 1100px;
+    background-color: #f5f5f5;
+    margin-top: 140px;
+    padding: 1em 10px; }
+    @media (min-width: 740px) {
+      #main .container {
+        padding: 1em 3em; } }
+
+h2 {
+  line-height: 1;
+  margin-top: 0.5em; }
+
+.tiles {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start; }
+  .tiles .tile {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: calc(33% - 10px);
+    background: #4ED9D5;
+    margin: 5px;
+    padding: 20px; }
+    .tiles .tile .image-container {
+      position: relative;
+      background: white;
+      display: inline-block; }
+      .tiles .tile .image-container img {
+        width: 210px;
+        transition: transform 1s;
+        padding: 10px; }
+      .tiles .tile .image-container .frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 10px solid white; }
+      .tiles .tile .image-container:hover img {
+        transform: scale(1.05); }
+    .tiles .tile p {
+      font-size: 18px; }
+
+@font-face {
+  font-family: "icomoon";
+  src: url("icomoon.eot");
+  src: url("icomoon.eot?#iefix") format("embedded-opentype"), url("icomoon.woff") format("woff"), url("icomoon.ttf") format("truetype"), url("icomoon.svg#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+.main-menu {
+  background-color: whitesmoke;
+  font-size: 14px;
+  color: #343434;
+  box-shadow: 0 0 5px rgba(128, 128, 128, 0.5); }
+  @media only screen and (max-width: 1099px) {
+    .main-menu .alignright, .main-menu .alignleft {
+      text-align: center; } }
+  @media only screen and (min-width: 1100px) {
+    .main-menu .alignright {
+      float: right; }
+    .main-menu .alignleft {
+      float: left; } }
+  .main-menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none; }
+    .main-menu ul li {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle; }
+      .main-menu ul li a {
+        display: flex;
+        align-items: center;
+        padding: 0 13px;
+        color: #343434;
+        transition: 0.2s color linear; }
+        .main-menu ul li a:hover {
+          color: #ff696c; }
+  .main-menu .menu {
+    position: absolute;
+    top: 0;
+    right: 30px;
+    text-align: center; }
+    .main-menu .menu div div {
+      background-color: #f7f7f7;
+      border: 1px solid #ccc;
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer; }
+      .main-menu .menu div div:active {
+        background-color: #ddd; }
+    .main-menu .menu > li > a {
+      height: 44px;
+      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0;
+      font-style: normal; }
+  .main-menu .sub-menu {
+    position: absolute;
+    left: -20px;
+    background-color: #f5f5f5;
+    border: 1px solid #343434;
+    width: 180px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .2s ease-in; }
+    .main-menu .sub-menu li {
+      display: block; }
+      .main-menu .sub-menu li a {
+        display: block;
+        padding: 7px 10px;
+        text-align: left; }
+        .main-menu .sub-menu li a:hover {
+          background-color: #d8d8d8; }
+  .main-menu .menu li:hover .sub-menu {
+    visibility: visible;
+    opacity: 1; }
+
+.social-networks-wrapper {
+  color: #545455;
+  padding-left: 18px; }
+  .social-networks-wrapper .social-network-icon {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #545455;
+    font-family: icomoon !important; }
+  .social-networks-wrapper .icon-twitter:before {
+    content: "\e605"; }
+  .social-networks-wrapper .icon-facebook:before {
+    content: "\e604"; }
+
+body.logged-in .logged-out,
+body.logged-out .logged-in {
+  display: none !important; }
+
+footer {
+  background-color: #f5f5f5;
+  color: #343434;
+  border-top: 1px solid #4b4c4d;
+  padding: 35px;
+  text-align: center;
+  line-height: 1.5em; }
+
+/*# sourceMappingURL=talk-list.css.map */
