@@ -55,8 +55,15 @@ script.addEventListener('load', function () {
   }
 
   function getFormDataAsObject(form) {
+    function getValue(el) {
+      if (el.type === 'checkbox') {
+        return el.checked && el.value
+      } else {
+        return el.innerText
+      }
+    }
     function setData(data, el) {
-      return Object.assign(data, {[el.dataset.name]: el.innerText})
+      return Object.assign(data, {[el.dataset.name]: getValue(el)})
     }
 
     return Array.from(form.querySelectorAll('*[data-name]')).reduce(setData, {})
@@ -83,6 +90,12 @@ script.addEventListener('load', function () {
       const ticketUrl = window.location.origin + '/tickets/'
       select('.ticketNo').forEach(el => QRCode.toCanvas(el, ticketUrl + el.id))
       select('.account').addEventListener('click', () => window.open('accounts/my'))
+      select('.talk').addEventListener('click', () => {
+        form.classList.add('talk-is-open')
+      })
+      select('#back-from-talk').addEventListener('click', () => {
+        form.classList.remove('talk-is-open')
+      })
 
       const pwd = document.getElementById('password')
       const pwd2 = document.getElementById('password-repeat')

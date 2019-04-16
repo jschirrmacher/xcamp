@@ -307,22 +307,27 @@ table {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3); }
-  .alert div {
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 18px; }
+  .alert .alert-content {
     position: relative;
-    margin: 40% auto;
+    margin: 20% auto;
     background: yellow;
     border: 1px solid #ccc;
     border-radius: 6px;
     max-width: 480px;
     padding: 20px; }
-    .alert div:after {
-      content: 'x';
-      color: #333333;
+    .alert .alert-content.type-error {
+      background-color: #ff696c; }
+    .alert .alert-content .close {
       position: absolute;
       right: 5px;
-      top: 0;
+      top: 5px;
       cursor: pointer; }
+      .alert .alert-content .close:after {
+        display: block;
+        content: 'x';
+        color: #333333; }
 
 @font-face {
   font-family: "icomoon";

@@ -584,3 +584,22 @@ label[for="image-upload"] {
     }
   }
 }
+
+#my-talk-dialog {
+  display: none;
+
+  div[data-name="talk"] {
+    height: 10em;
+  }
+}
+
+.details .detailForm.person.talk-is-open.talk-is-open {
+  #my-talk-dialog {
+    display: block;
+  }
+
+  .node-info-column,
+  .button-column {
+    display: none;
+  }
+}

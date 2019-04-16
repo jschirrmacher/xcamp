@@ -64,7 +64,7 @@
                     </div>
                     {{/image}}
 
-                    <div class="textarea" data-name="description" {{{editable}}}>{{{description}}}</div>
+                    <div class="textarea" data-name="description" {{{editable}}}>{{description}}</div>
                 </div>
 
                 <div class="if-person">
@@ -101,10 +101,31 @@
                 <div class="if-person button-column">
                     <button class="button small noprint change-pwd">Passwort ändern</button>
                     <button class="button small noprint account">Ticket &amp; Rechnung</button>
+                    <button class="button small noprint talk">Dein Talk</button>
                     <button class="button small noprint close">Schließen</button>
                 </div>
             </div>
+
+            <div id="my-talk-dialog" class="noprint">
+                <h2>Deinen Talk bearbeiten</h2>
+
+                <p>
+                    Das {{eventName}} ist ein BarCamp+, daher sind die Teilnehmenden auch gleichzeitig Vortragende.
+                    Damit du schon mal Interessenten gewinnen kannst, gib' hier schon mal eine Kurzbeschreibung ein!
+                </p>
+
+                <div class="textarea" data-name="talk" {{{editable}}}>{{talk}}</div>
+                <label>
+                    <input type="checkbox" data-name="talkReady" value="checked" {{talkReady}}>
+                    Mein Text ist fertig vorbereitet und kann auf die Website übernommen werden
+                </label>
+
+                <button id="back-from-talk" class="button small">Zurück</button>
+            </div>
         </div>
+
+        <p class="noprint">Alle Änderungen werden automatisch gespeichert.</p>
+
         <div class="if-editable">
             <div class="info if-person">
                 Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der

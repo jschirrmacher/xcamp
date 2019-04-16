@@ -14,6 +14,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     url
     twitterName
     me
+    talk
+    talkReady
     topics {
       uid
       name
