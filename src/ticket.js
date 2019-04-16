@@ -142,7 +142,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
     const access_code = rack()
     mu.setSetJson({type: 'coupon', access_code})
     const assigned = await txn.mutate(mu)
-    store.add({type: 'coupon-created', access_code, generated_by: user.id})
+    store.add({type: 'coupon-created', access_code, generated_by: user.uid})
     const link = config.baseUrl + 'tickets?code=' + access_code
     return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
   }
