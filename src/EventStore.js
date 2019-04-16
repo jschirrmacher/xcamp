@@ -22,7 +22,7 @@ class EventStore {
   listen(listener) {
     this.listeners.push(listener)
     const events = this.getEvents()
-    events.forEach(listener)
+    events.forEach(event => listener(event, 'replay'))
   }
 
   getEvents() {
@@ -35,7 +35,7 @@ class EventStore {
 
   add(event) {
     fs.appendFileSync(this.eventsFileName, YAML.stringify([{ts: new Date(), ...event}]))
-    this.listeners.forEach(listener => listener(event))
+    this.listeners.forEach(listener => listener(event, 'new'))
   }
 
   deleteAll() {

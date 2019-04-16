@@ -1,9 +1,11 @@
-const readModels = ['user']
+const readModels = ['user', 'person', 'talks']
 
-module.exports = function(store) {
-  const models = Object.assign({}, ...readModels.map(model => ({[model]: require('./' + model)})))
+module.exports = function({store, logger}) {
+  const models = Object.assign({}, ...readModels.map(name => {
+    return {[name]: require('./' + name)({logger})}
+  }))
 
-  store.listen(event => Object.values(models).forEach(model => model.handleEvent(event)))
+  Object.values(models).forEach(model => store.listen(model.handleEvent))
 
   return models
 }

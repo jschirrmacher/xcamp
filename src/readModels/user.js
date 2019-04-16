@@ -1,84 +1,87 @@
-const users = {
-  byId: {},
-  byEMail: {},
-  byAccessCode: {}
-}
-const logger = console
-let adminIsDefined = false
-
-function getAll() {
-  return Object.values(users.byId)
-}
-
-function getById(userId) {
-  const user = users.byId[userId]
-  if (user) {
-    return user
+module.exports = function ({logger}) {
+  const users = {
+    byId: {},
+    byEMail: {},
+    byAccessCode: {}
   }
-  throw `User '${userId}' doesn't exist`
-}
+  let adminIsDefined = false
 
-function getByAccessCode(accessCode) {
-  const user = users.byAccessCode[accessCode]
-  if (user) {
-    return user
-  }
-  throw `No user found with this access code`
-}
-
-function getByEMail(email) {
-  const user = users.byEMail[email]
-  if (user) {
-    return user
-  }
-  throw `No user found with this e-mail address`
-}
-
-function handleEvent(event) {
-  function assert(condition, message) {
-    if (!condition) {
-      throw `Event '${event.type}' (${event.ts}): ${message}`
-    }
-  }
-
-  try {
-    switch (event.type) {
-      case 'customer-added':
-        assert(!users.byId[event.customer.person.id], `Referenced user ${event.customer.id} already exists`)
-        assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-        assert(!users.byEMail[event.customer.person.email], `Referenced user ${event.customer.person.email} already exists`)
-        const user = {
-          id: event.customer.id,
-          type: 'customer',
-          access_code: event.customer.access_code,
-          email: event.customer.person.email
+  return {
+    handleEvent(event) {
+      function assert(condition, message) {
+        if (!condition) {
+          throw `Event '${event.type}' (${event.ts}): ${message}`
         }
-        users.byId[user.id] = user
-        users.byAccessCode[user.access_code] = user
-        users.byEMail[user.email] = user
-        break;
+      }
 
-      case 'password-changed':
-        assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-        users.byId[event.userId].password = event.passwordHash
-        break
+      try {
+        switch (event.type) {
+          case 'customer-added':
+            assert(!users.byId[event.customer.person.id], `Referenced user ${event.customer.id} already exists`)
+            assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
+            assert(!users.byEMail[event.customer.person.email], `Referenced user ${event.customer.person.email} already exists`)
+            const user = {
+              id: event.customer.id,
+              type: 'customer',
+              access_code: event.customer.access_code,
+              email: event.customer.person.email
+            }
+            users.byId[user.id] = user
+            users.byAccessCode[user.access_code] = user
+            users.byEMail[user.email] = user
+            break;
 
-      case 'set-mail-hash':
-        assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-        users.byId[event.userId].hash = event.hash
-        break
+          case 'password-changed':
+            assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
+            users.byId[event.userId].password = event.passwordHash
+            break
 
-      case 'invoice-added':
-        if (event.invoice.ticketType === 'orga') {
-          assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
-          users.byId[event.invoice.customerId].isAdmin = true
-          adminIsDefined = true
+          case 'set-mail-hash':
+            assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
+            users.byId[event.userId].hash = event.hash
+            break
+
+          case 'invoice-added':
+            if (event.invoice.ticketType === 'orga') {
+              assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
+              users.byId[event.invoice.customerId].isAdmin = true
+              adminIsDefined = true
+            }
+            break
         }
-        break
-    }
-  } catch (error) {
-    logger.error(error)
+      } catch (error) {
+        logger.error(error)
+      }
+    },
+
+    getAll() {
+      return Object.values(users.byId)
+    },
+
+    getById(userId) {
+      const user = users.byId[userId]
+      if (user) {
+        return user
+      }
+      throw `User '${userId}' doesn't exist`
+    },
+
+    getByAccessCode(accessCode) {
+      const user = users.byAccessCode[accessCode]
+      if (user) {
+        return user
+      }
+      throw `No user found with this access code`
+    },
+
+    getByEMail(email) {
+      const user = users.byEMail[email]
+      if (user) {
+        return user
+      }
+      throw `No user found with this e-mail address`
+    },
+
+    adminIsDefined
   }
 }
-
-module.exports = { handleEvent, getAll, getById, getByAccessCode, getByEMail, adminIsDefined }

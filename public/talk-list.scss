@@ -1,0 +1,54 @@
+@import "general";
+
+h2 {
+  line-height: 1;
+  margin-top: 0.5em;
+}
+
+.tiles {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+
+  .tile {
+    flex-grow:0;
+    flex-shrink:0;
+    flex-basis:calc(33% - 10px);
+    background: $turqoise;
+    margin: 5px;
+    padding: 20px;
+
+    .image-container {
+      position: relative;
+      background: white;
+      display: inline-block;
+
+      img {
+        width: 210px;
+        transition: transform 1s;
+        padding: 10px;
+      }
+
+      .frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 10px solid white;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+
+    p {
+      font-size: 18px;
+    }
+  }
+}
+
+@import "menu";
+@import "footer";

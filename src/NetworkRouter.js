@@ -7,9 +7,20 @@ module.exports = (dependencies) => {
     express,
     auth,
     makeHandler,
-    Model
+    templateGenerator,
+    Model,
+    readModels
   } = dependencies
 
+  function getTalksList() {
+    const talks = readModels.talks.getAll().map(talk => {
+      const person = readModels.person.getById(talk.person.id)
+      talk.image = person.image
+      talk.talk = talk.talk.length < 140 ? talk.talk : talk.talk.substring(0, 139) + '…'
+      return talk
+    })
+    return templateGenerator.generate('talks-list', {talks})
+  }
 
   const router = express.Router()
   const allowAnonymous = true
@@ -28,5 +39,6 @@ module.exports = (dependencies) => {
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => Model.Person.uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/:name', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
 
+  router.get('/talks', makeHandler(req => getTalksList(req.txn), {type: 'send'}))
   return router
 }

@@ -40,11 +40,12 @@ app.use((req, res, next) => {
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
-const readModels = require('./readModels')(store)
+const readModels = require('./readModels')({store, logger})
+const actionHandlers = require('./actionHandlers')({store, logger, mailSender})
 
 const QueryFunction = require('./QueryFunction')
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
-const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config})
+const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config, readModels})
 
 function getLoginURL(req) {
   return config.baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
@@ -56,7 +57,7 @@ const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, te
 const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
 const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config})
 const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, config})
-const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model})
+const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, templateGenerator, Model, readModels})
 const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config})
 const paypalRouter = require('./PaypalRouter')({express, makeHandler, Model})
 

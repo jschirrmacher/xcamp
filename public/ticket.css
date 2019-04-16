@@ -56,6 +56,30 @@ a, button {
   display: table;
   clear: both; }
 
+#logo {
+  position: absolute;
+  left: 30px;
+  top: 75px; }
+
+#main {
+  background-color: #f5f5f5;
+  background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
+  background-repeat: no-repeat;
+  background-position: left -45px;
+  padding: 30px 15px;
+  min-height: 100%; }
+  @media (min-width: 740px) {
+    #main {
+      padding: 30px; } }
+  #main .container {
+    max-width: 1100px;
+    background-color: #f5f5f5;
+    margin-top: 140px;
+    padding: 1em 10px; }
+    @media (min-width: 740px) {
+      #main .container {
+        padding: 1em 3em; } }
+
 .form-group {
   margin-bottom: 5px;
   float: left; }
@@ -173,30 +197,6 @@ dl {
     @media (min-width: 480px) {
       .chg-pwd input {
         width: 60%; } }
-
-#logo {
-  position: absolute;
-  left: 30px;
-  top: 75px; }
-
-#main {
-  background-color: #f5f5f5;
-  background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
-  background-repeat: no-repeat;
-  background-position: left -45px;
-  padding: 30px 15px;
-  min-height: 100%; }
-  @media (min-width: 740px) {
-    #main {
-      padding: 30px; } }
-  #main .container {
-    max-width: 1100px;
-    background-color: #f5f5f5;
-    margin-top: 140px;
-    padding: 1em 10px; }
-    @media (min-width: 740px) {
-      #main .container {
-        padding: 1em 3em; } }
 
 table {
   border-collapse: separate;

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels) => {
   const query = QueryFunction('Person', `
     uid
     type
@@ -40,6 +40,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
     }
     person.id = person.uid
     person.name = person.firstName + ' ' + person.lastName
+    person.talkReady = (person.talkReady === 'true') ? 'checked' : null
     return person
   }
 
@@ -134,20 +135,30 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store) => {
       [newData.firstName, newData.lastName] = newData.name.split(/ (.*)/)
     }
     Object.keys(newData).forEach(key => {
-      const obj = {}
-      obj[key] = newData[key]
-      newValues.push(obj)
+      if (person[key] !== newData[key]) {
+        const obj = {}
+        obj[key] = newData[key]
+        newValues.push(obj)
+      }
     })
-    const newObject = Object.assign(person, ...newValues)
+    const newObject = Object.assign({}, person, ...newValues)
+    newObject.talkReady = newObject.talkReady === 'checked'
     newObject.name = newObject.firstName + ' ' + newObject.lastName
     mu.setSetJson(newObject)
 
     const assigned = await txn.mutate(mu)
     if (!person.uid) {
       person.uid = assigned.getUidsMap().get('blank-0')
+      newValues.push({id: person.uid})
+    }
+    const currentTalk = readModels.talks.getByUserId(person.uid)
+    if (newObject.talkReady && !currentTalk) {
+      store.add({type: 'talk-published', person: {id: person.uid, name: newObject.name}, talk: person.talk})
+    } else if (!newObject.talkReady && currentTalk) {
+      store.add({type: 'talk-withdrawn', person: {id: person.uid, name: newObject.name}})
     }
     person = await get(txn, person.uid)
-    store.add({type: 'person-updated', person})
+    store.add({type: 'person-updated', person: Object.assign({id: person.uid}, ...newValues)})
     const nodes2create = await Promise.all(newTopics
       .map(n => {
         const topic = person.topics.find(t => t.name === n.name)
