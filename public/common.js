@@ -44,14 +44,19 @@ function fetchReload(url, options) {
 }
 
 
-function showMessage(msg) {
-  var div = document.createElement('div')
-  var span = document.createElement('div')
-  span.innerText = msg
-  div.className = 'alert'
-  div.addEventListener('click', function () {
-    div.remove()
+function showMessage(msg, type = 'info') {
+  var container = document.createElement('div')
+  container.className = 'alert type-' + type
+
+  var content = document.createElement('div')
+  content.className = 'alert-content'
+  content.innerText = msg
+  const closeButton = document.createElement('div')
+  closeButton.className = 'close'
+  closeButton.addEventListener('click', function () {
+    container.remove()
   })
-  div.appendChild(span)
-  document.body.appendChild(div)
+  content.appendChild(closeButton)
+  container.appendChild(content)
+  document.body.appendChild(container)
 }

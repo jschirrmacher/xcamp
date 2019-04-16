@@ -30,23 +30,32 @@
   right: 0;
   bottom: 0;
   background: rgba(0,0,0,0.3);
+  font-size: 18px;
 
-  div {
+  .alert-content {
     position: relative;
-    margin: 40% auto;
+    margin: 20% auto;
     background: yellow;
     border: 1px solid #ccc;
     border-radius: 6px;
     max-width: 480px;
     padding: 20px;
 
-    &:after {
-      content: 'x';
-      color: #333333;
+    &.type-error {
+      background-color: #ff696c;
+    }
+
+    .close {
       position: absolute;
       right: 5px;
-      top: 0;
+      top: 5px;
       cursor: pointer;
+
+      &:after {
+        display: block;
+        content: 'x';
+        color: #333333;
+      }
     }
   }
 }
