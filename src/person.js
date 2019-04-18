@@ -40,7 +40,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
     }
     person.id = person.uid
     person.name = person.firstName + ' ' + person.lastName
-    person.talkReady = (person.talkReady === 'true') ? 'checked' : null
+    person.talkReady = person.talkReady ? 'checked' : null
     return person
   }
 
