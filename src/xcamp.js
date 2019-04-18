@@ -131,8 +131,16 @@ app.use((err, req, res, next) => {
   res.send(isProduction ? message : err.stack || message)
 })
 
-app.listen(port, () => logger.info('Running on port ' + port +
-  ' in ' + nodeenv + ' mode' +
-  ' with baseURL=' + config.baseUrl +
-  (Model.Payment.useSandbox ? ' using sandbox' : ' using PayPal')
-))
+const server = app.listen(port, () => {
+  const paymentType = Model.Payment.useSandbox ? 'sandbox' : 'PayPal'
+  logger.info(`Running on port ${port} in ${nodeenv} mode with baseURL=${config.baseUrl} using ${paymentType}`)
+})
+
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM signal received.')
+  server.close(() => {
+    logger.info('http server closed, closing event stream now.')
+    store.end()
+    process.exit(0)
+  })
+})

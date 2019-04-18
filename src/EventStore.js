@@ -15,6 +15,7 @@ const exists = path => {
 class EventStore {
   constructor({basePath, logger}) {
     this.eventsFileName = path.join(basePath, 'events.yaml')
+    this.changeStream = fs.createWriteStream(this.eventsFileName, {flags:'a'})
     this.logger = logger
     this.listeners = []
   }
@@ -34,7 +35,7 @@ class EventStore {
   }
 
   add(event) {
-    fs.appendFileSync(this.eventsFileName, YAML.stringify([{ts: new Date(), ...event}]))
+    this.changeStream.write(YAML.stringify([{ts: new Date(), ...event}]))
     this.listeners.forEach(listener => listener(event, 'new'))
   }
 
@@ -42,6 +43,10 @@ class EventStore {
     if (fs.existsSync(this.eventsFileName)) {
       fs.unlinkSync(this.eventsFileName)
     }
+  }
+
+  end() {
+    this.changeStream.close()
   }
 }
 
