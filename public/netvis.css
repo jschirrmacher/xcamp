@@ -176,7 +176,8 @@ svg .node {
       font-size: 0.9em;
       white-space: nowrap;
       box-sizing: content-box;
-      margin-right: 5px; }
+      margin-right: 5px;
+      margin-bottom: 5px; }
       .details .detailForm .tag .delete {
         display: none;
         position: relative; }
