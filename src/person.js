@@ -103,34 +103,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
-    const links2delete = []
-    const links2create = []
-    const newTopics = []
-    if (!person.topics) {
-      person.topics = []
-    }
-    if (newData.topics) {
-      const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
-      newData.topics = newData.topics.map(topic => {
-        topic.name = topic.name.trim()
-        const currentTopic = allTopics.find(t => !t.name.toLowerCase().localeCompare(topic.name.toLowerCase())) || Object.assign(topic, {type: 'topic'})
-        const index = person.topics.findIndex(t => !t.name.toLowerCase().localeCompare(topic.name.toLowerCase()))
-        if (index >= 0) {
-          person.topics.splice(index, 1)
-        } else {
-          links2create.push({source: {id: person.uid}, target: {id: currentTopic.uid, ...currentTopic}})
-          if (!currentTopic.uid) {
-            newTopics.push({index: links2create.length -1, ...currentTopic})
-          }
-        }
-        return currentTopic
-      })
-    }
-    person.topics.forEach(topic => {
-      links2delete.push({source: {id: person.uid}, target: {id: topic.uid}})
-      mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`)
-    })
-    const newValues = [{type: 'person'}]
+    const nodes2create= []
+    const newValues = []
     if (newData.name && !newData.firstName && !newData.lastName) {
       [newData.firstName, newData.lastName] = newData.name.split(/ (.*)/)
     }
@@ -141,7 +115,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
         newValues.push(obj)
       }
     })
-    const newObject = Object.assign({}, person, ...newValues)
+    const newObject = Object.assign({}, person, ...newValues, {type: 'person'})
     newObject.talkReady = newObject.talkReady === 'checked'
     newObject.name = newObject.firstName + ' ' + newObject.lastName
     mu.setSetJson(newObject)
@@ -150,6 +124,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
     if (!person.uid) {
       person.uid = assigned.getUidsMap().get('blank-0')
       newValues.push({id: person.uid})
+      nodes2create.push(newObject)
     }
     const currentTalk = readModels.talks.getByUserId(person.uid)
     if (newObject.talkReady && !currentTalk) {
@@ -159,15 +134,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
     }
     person = await get(txn, person.uid)
     store.add({type: 'person-updated', person: Object.assign({id: person.uid}, ...newValues)})
-    const nodes2create = await Promise.all(newTopics
-      .map(n => {
-        const topic = person.topics.find(t => t.name === n.name)
-        links2create[n.index].target.id = topic.uid
-        return topic
-      })
-      .map(async n => ({id: n.uid, numLinks: 1, ...await Topic.get(txn, n.uid)}))
-    )
-    return {links2create, links2delete, nodes2create, node: person}
+    return {links2create: [], links2delete: [], nodes2create, node: person}
   }
 
   async function updateById(txn, id, data, user) {
@@ -203,5 +170,57 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  return {get, getPublicDetails, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate}
+  async function assignTopic(txn, personId, topicName, user) {
+    if (!canAdmin(user, personId)) {
+      throw 'Changing this node is not allowed!'
+    }
+    const links2create = []
+    const links2delete = []
+    const nodes2create = []
+    topicName = topicName.trim()
+    const topicNameLower = topicName.toLowerCase()
+    const person = await get(txn, personId)
+    if (!person.topics.some(t => !t.name.toLowerCase().localeCompare(topicNameLower))) {
+      const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
+      const topic = allTopics.find(t => !t.name.toLowerCase().localeCompare(topicNameLower))
+      const mu = new dgraph.Mutation()
+      if (topic) {
+        topic.id = topic.uid
+        person.topics.push(topic)
+        links2create.push({source: {id: personId}, target: {id: topic.id, ...topic}})
+        mu.setSetNquads(`<${personId}> <topics> <${topic.id}> .`)
+        store.add({type: 'person-topic-linked', personId, topic})
+      } else {
+        const result = await Topic.upsert(txn, {}, {name: topicName}, user)
+        person.topics.push(result.node)
+        nodes2create.push(result.node)
+        links2create.push({source: {id: personId}, target: {id: result.node.uid, ...result.node}})
+        mu.setSetNquads(`<${personId}> <topics> <${result.node.id}> .`)
+        store.add({type: 'person-topic-linked', personId, topic: result.node})
+      }
+      await txn.mutate(mu)
+    }
+    return {links2create, links2delete, nodes2create, node: person}
+  }
+
+  async function removeTopic(txn, personId, topicName, user) {
+    if (!canAdmin(user, personId)) {
+      throw 'Changing this node is not allowed!'
+    }
+    const person = await get(txn, personId)
+    const topicIndex = person.topics.findIndex(t => !t.name.toLowerCase().localeCompare(topicName.toLowerCase()))
+    const links2delete = []
+    if (topicIndex >= 0) {
+      const topic = person.topics[topicIndex]
+      const mu = new dgraph.Mutation()
+      mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`)
+      await txn.mutate(mu)
+      links2delete.push({source: {id: personId}, target: {id: topic.uid}})
+      person.topics = person.topics.filter(t => t.uid !== topic.uid)
+      store.add({type: 'person-topic-unlinked', personId, topicId: topic.uid})
+    }
+    return {links2delete, node: person}
+  }
+
+  return {get, getPublicDetails, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate, assignTopic, removeTopic}
 }

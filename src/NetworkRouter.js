@@ -38,6 +38,8 @@ module.exports = (dependencies) => {
   router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => Model.Person.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => Model.Person.uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/:name', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
+  router.put('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.assignTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
+  router.delete('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.removeTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
 
   router.get('/talks', makeHandler(req => getTalksList(req.txn), {type: 'send'}))
   return router

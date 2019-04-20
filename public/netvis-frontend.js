@@ -128,9 +128,9 @@ script.addEventListener('load', function () {
       const profilePic = form.querySelector('.profile-picture')
 
       form.addEventListener('input', debounce(e => !e.target.classList.contains('new-tag') && save(), 1000))
-      newTag.addEventListener('keydown', handleKeydownInNewTag)
+      newTag.addEventListener('keydown', e => (e.key === ',' || e.key === 'Enter') && handleCreateTagEvent(e))
       newTag.addEventListener('blur', handleCreateTagEvent)
-      select('.delete', form).forEach(el => el.addEventListener('click', deleteTag))
+      form.addEventListener('click', e => e.target.classList.contains('delete') && deleteTag(e.target.parentNode))
       select('.upload', form).forEach(el => el.addEventListener('change', fileUploadHandler))
 
       select('.command').forEach(el => {
@@ -155,40 +155,44 @@ script.addEventListener('load', function () {
       })
 
       function save() {
-        if (newTag.innerText.trim()) {
-          createTag(newTag.innerText.trim())
-          newTag.innerText = ''
-        }
         const headers = {'content-type': 'application/json', authorization}
         const data = getFormDataAsObject(form)
-        data.topics = Array.from(document.querySelectorAll('.tag'))
-          .map(e => e.innerText.trim())
-          .filter(String)
-          .map(name => ({name}))
         const body = JSON.stringify(data)
         return fetch(`network/${node.type}s/${node.id}`, {method: 'PUT', headers, body})
           .then(result => result.json())
           .then(result => {
             result.nodes2create.forEach(n => network.addNode(n))
-            network.removeLinks(result.links2delete)
-            network.addLinks(result.links2create)
             network.nodes.some(n => node.id === n.id && Object.assign(n, result.node))
             network.update()
             return result.node
           })
+          .catch(console.error)
       }
 
-      function deleteTag(event) {
-        const value = event.target.parentNode.innerText
-        tagView.childNodes.forEach(function (topic) {
-          if (topic.innerText === value) {
-            topic.remove()
-          }
-        })
-        save()
+      function deleteTag(el) {
+        const topicName = el.innerText
+        el.remove()
+        const headers = {'content-type': 'application/json', authorization}
+        return fetch(`network/persons/${node.id}/topics/${topicName}`, {method: 'DELETE', headers})
+          .then(result => result.json())
+          .then(result => {
+            network.removeLinks(result.links2delete)
+            network.update()
+          })
+          .catch(console.error)
       }
 
-      function createTag(value) {
+      function createTag() {
+        const value = newTag.innerText.trim()
+        newTag.innerText = ''
+        const newPos = tagView.children.length - 1
+        const foundPos = Array.from(tagView.children)
+          .map(el => el.innerText)
+          .findIndex(t => !t.toLowerCase().localeCompare(value.toLowerCase()))
+        if (foundPos >= 0 && foundPos < newPos) {
+          showMessage('Das Thema ist bereits zugeordnet')
+          return
+        }
         const el = document.createElement('span')
         el.className = 'tag'
         el.innerText = value
@@ -196,21 +200,27 @@ script.addEventListener('load', function () {
         del.className = 'delete'
         el.append(del)
         tagView.insertBefore(el, newTag)
+        const headers = {'content-type': 'application/json', authorization}
+        return fetch(`network/persons/${node.id}/topics/${value}`, {method: 'PUT', headers})
+          .then(result => result.json())
+          .then(result => {
+            result.nodes2create.forEach(n => network.addNode(n))
+            result.links2create.forEach(l => {
+              const node = network.getNode(l.target.id)
+              node.visible = true
+              network.diagram.add([node], [])
+              network.update(node)
+            })
+            network.addLinks(result.links2create)
+            network.update()
+          })
+          .catch(console.error)
       }
 
       function handleCreateTagEvent(event) {
         event.preventDefault()
-        const value = newTag.innerText.trim()
-        if (value) {
-          newTag.innerText = ''
-          createTag(value)
-          save()
-        }
-      }
-
-      function handleKeydownInNewTag(event) {
-        if (event.key === ',' || event.key === 'Enter') {
-          handleCreateTagEvent(event)
+        if (newTag.innerText.trim()) {
+          createTag()
         }
       }
 
