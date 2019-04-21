@@ -190,7 +190,7 @@ svg .node {
     .details .detailForm .new-tag {
       display: none; }
       .details .detailForm .new-tag:empty:before {
-        content: 'Thema';
+        content: 'Thema hinzufügen';
         color: #aaaaaa; }
     .details .detailForm .if-editable {
       display: none; }
