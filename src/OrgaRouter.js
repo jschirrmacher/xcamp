@@ -31,6 +31,17 @@ module.exports = (dependencies) => {
     let participantCount = 0
     let paidTickets = 0
     let totals = 0
+    const stats = {
+      participants: 0,
+      totals: 0,
+      totalsPaid: 0,
+      tickets: {
+        orga: 0,
+        corporate: 0,
+        private: 0,
+        reduced: 0
+      }
+    }
     const paymentType = {
       paypal: 'PayPal',
       invoice: 'Rechnung',
@@ -53,18 +64,17 @@ module.exports = (dependencies) => {
         participant.checkedIn = ticket.checkedIn ? 'checked' : ''
         return participant
       })
-      participantCount += invoice.tickets.length
+      stats.tickets[invoice.ticketType] += invoice.tickets.length
+      stats.participants += invoice.tickets.length
+      stats.totals += invoice.tickets.length * invoice.ticketPrice
       if (invoice.paid) {
-        paidTickets += invoice.tickets.length
-        totals += invoice.tickets.length * invoice.ticketPrice
+        stats.totalsPaid += invoice.tickets.length * invoice.ticketPrice
       }
       invoice.paid = invoice.paid ? 'paid' : 'open'
     })
     return templateGenerator.generate('invoices-list', {
       invoices,
-      participantCount,
-      paidTickets,
-      totals
+      stats
     })
   }
 
