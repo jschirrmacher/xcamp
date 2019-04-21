@@ -9,6 +9,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       firstName
       lastName
       email
+      image
     }`
   )
 

@@ -6,8 +6,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
     access_code
     password
     hash
-    isAdmin,
-    person { uid firstName lastName email }
+    isAdmin
+    person { uid firstName lastName email image }
     addresses { address postcode city country }
     invoices { uid invoiceNo tickets { uid access_code participant { uid } } }`
   )

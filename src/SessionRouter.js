@@ -1,9 +1,13 @@
 module.exports = ({express, auth, makeHandler, templateGenerator, config}) => {
   function getUserInfo(user) {
+    const profileImage = user && (
+      (user.person && user.person[0].image) || (user.participant && user.participant[0].image) || 'user.png')
+
     return {
       loggedIn: !!user,
       hasPasswordSet: user && !!user.password,
-      access_code: user && user.access_code
+      access_code: user && user.access_code,
+      profileImage
     }
   }
 

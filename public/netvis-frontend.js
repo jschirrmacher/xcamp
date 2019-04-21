@@ -361,6 +361,7 @@ script.addEventListener('load', function () {
       document.body.classList.toggle('logged-out', !data.loggedIn)
       if (data.loggedIn) {
         userInfo = data
+        document.querySelector('#profile').style.backgroundImage = 'url(' + data.profileImage + ')'
       }
     })
 })

@@ -266,7 +266,8 @@ body.dialogOpen #root {
     padding: 5px;
     margin-bottom: 10px; }
   .sidebar-buttons .other #profile {
-    display: none; }
+    display: none;
+    background-size: cover; }
 .sidebar-buttons .zoom {
   bottom: 30px; }
   .sidebar-buttons .zoom button {
