@@ -143,6 +143,9 @@
         </p>
 
         <form id="chg-pwd-form">
+            <label class="hidden">
+                <input type="text" name="username" value="{{{email}}}" autocomplete="username">
+            </label>
             <label>
                 {{#change}}Neues {{/change}}Passwort:
                 <input type="password" name="password" id="password" autocomplete="new-password">
