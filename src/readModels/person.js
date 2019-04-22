@@ -1,11 +1,11 @@
-module.exports = function ({logger}) {
+module.exports = function ({logger, models}) {
   const persons = {}
 
   return {
     handleEvent(event) {
       function assert(condition, message) {
         if (!condition) {
-          throw `Event '${event.type}' (${event.ts}): ${message}`
+          throw `Read model '${__filename}, event '${event.type}' (${event.ts}): ${message}`
         }
       }
 
@@ -17,17 +17,21 @@ module.exports = function ({logger}) {
             break
 
           case 'person-topic-linked':
-            assert(event.topic && event.topic.id, 'No topic id found in event')
+            assert(event.topicId, 'No topic id found in event')
             assert(event.personId, 'No person id found in event')
             assert(persons[event.personId], 'Person not found')
-            assert(!persons[event.personId].topics.some(t => t.id === event.topic.id), 'Topic already linked')
-            persons[event.personId].topics.push(event.topic)
+            const topic = models.topic.getById(event.topicId)
+            assert(topic, 'Topic not found')
+            persons[event.personId].topics = persons[event.personId].topics || []
+            assert(!persons[event.personId].topics.some(t => t.id === event.topicId), 'Topic already linked')
+            persons[event.personId].topics.push(topic)
             break
 
           case 'person-topic-unlinked':
             assert(event.topicId, 'No topic id found in event')
             assert(event.personId, 'No person id found in event')
             assert(persons[event.personId], 'Person not found')
+            assert(persons[event.personId].topics, 'Person doesn\'t have topics')
             persons[event.personId].topics = persons[event.personId].topics.filter(t => t.id !== event.topicId)
             break
         }
