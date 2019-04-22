@@ -3,6 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const YAML = require('yaml')
+const stream = require('stream')
 const es = require('event-stream')
 
 const exists = path => {
@@ -10,6 +11,18 @@ const exists = path => {
     return fs.existsSync(path)
   } catch (e) {
     return false
+  }
+}
+
+class JsonStringify extends stream.Transform {
+  constructor(options = {}) {
+    options.objectMode = true
+    super(options)
+  }
+
+  _transform(event, encoding, callback) {
+    this.push(JSON.stringify(event) + '\n')
+    callback()
   }
 }
 
@@ -28,7 +41,6 @@ class EventStore {
     const migrationsDir = path.resolve(__dirname, 'migrations')
     const migrations = fs.readdirSync(migrationsDir)
       .filter(name => parseInt(name.replace('from_', '')) >= eventsVersionNo)
-      .reverse()
     const currentVersionNo = eventsVersionNo + migrations.length
 
     if (eventsVersionNo < currentVersionNo) {
@@ -45,20 +57,15 @@ class EventStore {
           this.logger.info('Migration successful')
           resolve()
         })
-        const migratorPipe = migrations
-          .reduce((pipe, migratorName) => {
-            return require(path.resolve(migrationsDir, migratorName))(pipe)
-          }, event => outputStream.write(JSON.stringify(event) + '\n'))
-        if (eventsVersionNo <= 3) {
-          YAML.parse(fs.readFileSync(path.join(basePath, 'events.yaml')).toString())
-            .forEach(event => migratorPipe(event))
-        } else {
-          fs.createReadStream(this.eventsFileName)
-            .pipe(es.split())
-            .pipe(es.parse())
-            .pipe(es.mapSync(migratorPipe))
-        }
-        outputStream.end()
+        const readStream = eventsVersionNo <= 3
+          ? es.readArray(YAML.parse(fs.readFileSync(path.join(basePath, 'events.yaml')).toString()))
+          : fs.createReadStream(this.eventsFileName).pipe(es.split(JSON.parse()))
+        migrations.reduce((stream, migration) => {
+          const migrator = require(path.resolve(migrationsDir, migration))
+          return stream.pipe(new migrator())
+        }, readStream)
+          .pipe(new JsonStringify())
+          .pipe(outputStream)
       })
     } else {
       return Promise.resolve()
@@ -72,7 +79,7 @@ class EventStore {
   async replay() {
     await this.ready
     const self = this
-    const readStream = fs.createReadStream(this.eventsFileName)
+    fs.createReadStream(this.eventsFileName)
       .pipe(es.split())
       .pipe(es.parse())
       .pipe(es.mapSync(event => {
@@ -86,7 +93,8 @@ class EventStore {
 
   async add(event) {
     await this.ready
-    this.changeStream.write(YAML.stringify([{ts: new Date(), ...event}]))
+    const {type, ...rest} = event
+    this.changeStream.write(JSON.stringify({ts: new Date(), type, ...rest}) + '\n')
     this.listeners.forEach(listener => listener(event, 'new'))
   }
 

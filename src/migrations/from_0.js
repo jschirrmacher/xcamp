@@ -1,11 +1,14 @@
-module.exports = function(add) {
-  const objects = {}
+const stream = require('stream')
+const diff = require('../lib/diff')
+const objects = {}
 
-  function diff(a, b) {
-    return Object.keys(b).reduce((diff, key) => b[key] === a[key] ? diff : {...diff, [key]: b[key]}, {})
+module.exports = class From_0 extends stream.Transform {
+  constructor(options = {}) {
+    options.objectMode = true
+    super(options)
   }
 
-  return function (event) {
+  _transform(event, encoding, callback) {
     switch (event.type) {
       case 'person-updated':
       case 'root-updated':
@@ -16,15 +19,17 @@ module.exports = function(add) {
         if (object) {
           const delta = diff(object, changed)
           objects[changed.id] = {...object, ...delta}
-          add({type: event.type, ts: event.ts, [type]: {id: changed.id, ...delta}})
+          this.push({type: event.type, ts: event.ts, [type]: {id: changed.id, ...delta}})
         } else {
           objects[changed.id] = changed
-          add(event)
+          this.push(event)
         }
         break
 
       default:
-        add(event)
+        this.push(event)
     }
+
+    callback()
   }
 }

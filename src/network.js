@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
+module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()
@@ -35,9 +35,9 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store) => {
           mu.setSetJson(data)
           const assigned = await txn.mutate(mu)
           txn.commit()
-          store.add({type: 'root-added', node: {id: assigned.getUidsMap().get('blank-0'), name: data.name, image: data.image}})
+          store.add({type: 'root-created', root: {id: assigned.getUidsMap().get('blank-0'), name: data.name, image: data.image}})
           rootTopics.forEach((name, num) => {
-            store.add({type: 'topic-added', node: {id: assigned.getUidsMap().get(`blank-${num + 1}`), name}})
+            store.add({type: 'topic-created', topic: {id: assigned.getUidsMap().get(`blank-${num + 1}`), name}})
           })
         } finally {
           txn.discard()

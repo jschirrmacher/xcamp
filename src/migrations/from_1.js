@@ -1,14 +1,20 @@
-module.exports = function(add) {
-  const persons = {}
+const stream = require('stream')
+const persons = {}
 
-  return function (event) {
+module.exports = class From_1 extends stream.Transform {
+  constructor(options = {}) {
+    options.objectMode = true
+    super(options)
+  }
+
+  _transform(event, encoding, callback) {
     if (event.type === 'person-updated') {
       delete event.person.uid
       const topics = event.person.topics
       if (topics) {
         delete event.person.topics
         if (Object.keys(event.person).length > 1) {
-          add(event)
+          this.push(event)
         }
         const personId = event.person.id
         const existingTopics = persons[personId] || []
@@ -16,20 +22,22 @@ module.exports = function(add) {
           topic.id = topic.uid
           delete topic.uid
           if (!existingTopics.some(t => t.id === topic.id)) {
-            add({type: 'person-topic-linked', ts: event.ts, personId, topic})
+            this.push({type: 'person-topic-linked', ts: event.ts, personId, topic})
           }
         })
         existingTopics.forEach(topic => {
           if (!topics.some(t => t.id === topic.id)) {
-            add({type: 'person-topic-unlinked', ts: event.ts, personId, topicId: topic.id})
+            this.push({type: 'person-topic-unlinked', ts: event.ts, personId, topicId: topic.id})
           }
         })
         persons[personId] = topics
       } else {
-        add(event)
+        this.push(event)
       }
     } else {
-      add(event)
+      this.push(event)
     }
+
+    callback()
   }
 }
