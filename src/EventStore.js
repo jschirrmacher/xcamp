@@ -3,6 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const YAML = require('yaml')
+const es = require('event-stream')
 
 const exists = path => {
   try {
@@ -14,7 +15,7 @@ const exists = path => {
 
 class EventStore {
   constructor({basePath, logger}) {
-    this.eventsFileName = path.join(basePath, 'events.yaml')
+    this.eventsFileName = path.join(basePath, 'events.json')
     this.logger = logger
     this.listeners = []
     this.ready = this.migrateIfNecessary(basePath)
@@ -33,10 +34,13 @@ class EventStore {
     if (eventsVersionNo < currentVersionNo) {
       return new Promise(resolve => {
         this.logger.info(`Migrating data from ${eventsVersionNo} to ${currentVersionNo}`)
-        const outputStream = fs.createWriteStream(this.eventsFileName + '.migrated')
+        const fileExt = eventsVersionNo <= 3 ? 'yaml' : 'json'
+        const oldEventsFile = path.join(basePath, 'events.' + (fileExt))
+        const migrationFile = this.eventsFileName + '.migrated'
+        const outputStream = fs.createWriteStream(migrationFile)
         outputStream.on('finish', () => {
-          fs.renameSync(this.eventsFileName, path.join(basePath, `events-${eventsVersionNo}.yaml`))
-          fs.renameSync(this.eventsFileName + '.migrated', this.eventsFileName)
+          fs.renameSync(oldEventsFile, path.join(basePath, `events-${eventsVersionNo}.${fileExt}`))
+          fs.renameSync(migrationFile, this.eventsFileName)
           fs.writeFileSync(versionFile, JSON.stringify({versionNo: currentVersionNo}))
           this.logger.info('Migration successful')
           resolve()
@@ -44,8 +48,16 @@ class EventStore {
         const migratorPipe = migrations
           .reduce((pipe, migratorName) => {
             return require(path.resolve(migrationsDir, migratorName))(pipe)
-          }, event => outputStream.write(YAML.stringify([event])))
-        YAML.parse(fs.readFileSync(this.eventsFileName).toString()).forEach(event => migratorPipe(event))
+          }, event => outputStream.write(JSON.stringify(event) + '\n'))
+        if (eventsVersionNo <= 3) {
+          YAML.parse(fs.readFileSync(path.join(basePath, 'events.yaml')).toString())
+            .forEach(event => migratorPipe(event))
+        } else {
+          fs.createReadStream(this.eventsFileName)
+            .pipe(es.split())
+            .pipe(es.parse())
+            .pipe(es.mapSync(migratorPipe))
+        }
         outputStream.end()
       })
     } else {
@@ -58,30 +70,18 @@ class EventStore {
   }
 
   async replay() {
-    const self = this
-    function handleEvent(data) {
-      try {
-        const event = YAML.parse(data)
-        self.listeners.forEach(listener => listener(event, 'replay'))
-      } catch (error) {
-        self.logger.error(error)
-      }
-    }
-
     await this.ready
-    const data = fs.readFileSync(this.eventsFileName).toString()
-    const lines = data.split('\n')
-    const entry = []
-    lines.forEach(line => {
-      if (line.match(/^- /) && entry.length) {
-        handleEvent(entry.join('\n'))
-        entry.length = 0
-      }
-      entry.push(line.substr(2))
-    })
-    if (entry.length) {
-      handleEvent(entry.join('\n'))
-    }
+    const self = this
+    const readStream = fs.createReadStream(this.eventsFileName)
+      .pipe(es.split())
+      .pipe(es.parse())
+      .pipe(es.mapSync(event => {
+        try {
+          self.listeners.forEach(listener => listener(event, 'replay'))
+        } catch (error) {
+          self.logger.error(error)
+        }
+      }))
   }
 
   async add(event) {
