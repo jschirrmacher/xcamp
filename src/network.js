@@ -37,9 +37,12 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
           mu.setSetJson(data)
           const assigned = await txn.mutate(mu)
           txn.commit()
-          store.add({type: 'root-created', root: {id: assigned.getUidsMap().get('blank-0'), name: data.name, image: data.image}})
+          const rootId = assigned.getUidsMap().get('blank-0')
+          store.add({type: 'root-created', root: {id: rootId, name: data.name, image: data.image}})
           rootTopics.forEach((name, num) => {
-            store.add({type: 'topic-created', topic: {id: assigned.getUidsMap().get(`blank-${num + 1}`), name}})
+            const topicId = assigned.getUidsMap().get(`blank-${num + 1}`)
+            store.add({type: 'topic-created', topic: {id: topicId, name}})
+            store.add({type: 'topic-root-linked', topicId, rootId })
           })
         } finally {
           txn.discard()
