@@ -41,6 +41,7 @@ class EventStore {
     const migrationsDir = path.resolve(__dirname, 'migrations')
     const migrations = fs.readdirSync(migrationsDir)
       .filter(name => parseInt(name.replace('from_', '')) >= eventsVersionNo)
+      .map(migration => require(path.resolve(migrationsDir, migration)))
     const currentVersionNo = eventsVersionNo + migrations.length
 
     if (eventsVersionNo < currentVersionNo) {
@@ -59,11 +60,9 @@ class EventStore {
         })
         const readStream = eventsVersionNo <= 3
           ? es.readArray(YAML.parse(fs.readFileSync(path.join(basePath, 'events.yaml')).toString()))
-          : fs.createReadStream(this.eventsFileName).pipe(es.split(JSON.parse()))
-        migrations.reduce((stream, migration) => {
-          const migrator = require(path.resolve(migrationsDir, migration))
-          return stream.pipe(new migrator())
-        }, readStream)
+          : fs.createReadStream(this.eventsFileName).pipe(es.split()).pipe(es.parse())
+
+        migrations.reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
           .pipe(new JsonStringify())
           .pipe(outputStream)
       })
