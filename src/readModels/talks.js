@@ -1,4 +1,4 @@
-talkInfoReceiver = 'j.schirrmacher@justso.de'
+const talkInfoReceiver = 'j.schirrmacher@justso.de'
 
 module.exports = function ({logger}) {
   const talks = {}
