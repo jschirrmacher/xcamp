@@ -1,4 +1,4 @@
-module.exports = function ({logger}) {
+module.exports = function ({logger, models}) {
   const users = {
     byId: {},
     byEMail: {},
@@ -16,20 +16,21 @@ module.exports = function ({logger}) {
 
       try {
         switch (event.type) {
-          case 'customer-added':
-            assert(!users.byId[event.customer.person.id], `Referenced user ${event.customer.id} already exists`)
+          case 'customer-created':
+            const person = models.person.getById(event.customer.personId)
+            assert(!users.byId[person.id], `Referenced user ${person.id} already exists`)
             assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-            assert(!users.byEMail[event.customer.person.email], `Referenced user ${event.customer.person.email} already exists`)
+            assert(!users.byEMail[person.email], `Referenced user ${person.email} already exists`)
             const user = {
               id: event.customer.id,
               type: 'customer',
               access_code: event.customer.access_code,
-              email: event.customer.person.email
+              email: person.email
             }
             users.byId[user.id] = user
             users.byAccessCode[user.access_code] = user
             users.byEMail[user.email] = user
-            break;
+            break
 
           case 'password-changed':
             assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
@@ -41,7 +42,7 @@ module.exports = function ({logger}) {
             users.byId[event.userId].hash = event.hash
             break
 
-          case 'invoice-added':
+          case 'invoice-created':
             if (event.invoice.ticketType === 'orga') {
               assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
               users.byId[event.invoice.customerId].isAdmin = true

@@ -11,13 +11,6 @@ module.exports = function ({logger, models}) {
 
       try {
         switch (event.type) {
-          case 'customer-added':
-            assert(event.customer, 'No customer found in event')
-            assert(event.customer.person, 'No person in customer')
-            assert(event.customer.person.id, 'No id in person')
-            persons[event.customer.person.id] = event.customer.person
-            break
-
           case 'person-created':
             assert(event.person.id, 'No person id found in event')
             assert(!persons[event.person.id], 'A person with this id already exists')
