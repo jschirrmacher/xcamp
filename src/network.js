@@ -1,5 +1,7 @@
 'use strict'
 
+const select = require('./lib/select')
+
 module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
@@ -69,63 +71,22 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
     return Object.values(tickets)
   }
 
-  async function getGraph(what = 'participants', user = null) {
-    async function handleTopic(txn, topic, backlinkId, backlinkType) {
-      const found = nodes.find(node => node.id === topic.uid)
-      if (!found) {
-        const newNode = await Topic.get(txn, topic.uid)
-        newNode.editable = !!user
-        newNode.type = 'topic'
-        newNode.links = {}
-        if (backlinkId && backlinkType) {
-          newNode.links[backlinkType] = [backlinkId]
-        }
-        nodes.push(newNode)
-        return topic.uid
-      } else {
-        if (backlinkId && backlinkType) {
-          found.links[backlinkType] = (found.links[backlinkType] || []).concat(backlinkId)
-        }
-        return found.id
+  async function getGraph(user = null) {
+    const nodes = readModels.network.getAll().map(node => {
+      if (user && (user.isAdmin || node.id === user.id)) {
+        node.editable = true
       }
-    }
-
-    const txn = dgraphClient.newTxn()
-    const nodes = []
-    try {
-      const rootAttributes = {type: 'root', shape: 'circle', open: true, editable: user && user.isAdmin}
-      const base = await txn.query('{ all(func: eq(type, "root")) {id: uid name description url image topics {uid name}}}')
-      const xcamp = Object.assign(base.getJson().all[0], rootAttributes)
-      xcamp.links = {topics: xcamp.topics && await Promise.all(xcamp.topics.map(topic => handleTopic(txn, topic)))}
-      delete xcamp.topics
-      nodes.push(xcamp)
-
-      const myUID = user && (user.type === 'customer' ? user.person[0].uid : user.uid)
-      const myTickets = getTickets(user)
-      const tickets = await getAllTickets(txn)
-      await Promise.all(tickets.map(async ticket => {
-        const person = await Person.get(txn, ticket.participant[0].uid)
-        nodes.push({
-          id: person.uid,
-          editable: (user && user.isAdmin) || myTickets.indexOf(ticket.uid) >= 0,
-          details: 'network/persons/' + person.uid,
-          name: person.firstName + ' ' + person.lastName,
-          image: person.image,
-          type: 'person',
-          access_code: myUID === person.uid ? user.access_code : undefined,
-          links: {
-            topics: person.topics && await Promise.all(person.topics.map(topic => handleTopic(txn, topic, person.id, 'persons')))
-          }
-        })
-      }))
-      return {nodes, myNode: myUID}
-    } finally {
-      txn.discard()
-    }
+      if (node.type === 'person') {
+        node.details = 'network/persons/' + node.id
+        node = select(node, ['id', 'editable', 'details', 'name', 'image', 'type', 'access_code', 'links'])
+      }
+      return node
+    })
+    return {nodes, myNode: getNodeId(user)}
   }
 
   function getNodeId(user) {
-    return user.type === 'customer' ? user.person[0].uid : user.uid
+    return user && (user.type === 'customer' ? user.person[0].uid : user.uid)
   }
 
   return {
