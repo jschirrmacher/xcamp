@@ -50,15 +50,6 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
       })
   }
 
-  function getTickets(user) {
-    if (user && user.type === 'ticket') {
-      return user.uid
-    } else if (user && user.type === 'customer' && user.invoices) {
-      return user.invoices["0"].tickets.map(ticket => ticket.uid)
-    }
-    return []
-  }
-
   async function getAllTickets(txn) {
     const tickets = {}
     const data = await txn.query(`{ all(func: eq(type, "invoice"))
