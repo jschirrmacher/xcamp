@@ -1,5 +1,4 @@
 const stream = require('stream')
-const diff = require('../lib/diff')
 const topics = {}
 
 module.exports = class From_4 extends stream.Transform {
@@ -28,12 +27,9 @@ module.exports = class From_4 extends stream.Transform {
       case 'topic-created':
       case 'topic-updated':
         if (topics[event.topic.id]) {
-          const delta = diff(topics[event.topic.id], event.topic)
-          if (Object.keys(delta).length) {
-            event.type = 'topic-updated'
-            topics[event.topic.id] = event.topic
-            this.push(event)
-          }
+          event.type = 'topic-updated'
+          topics[event.topic.id] = {...topics[event.topic.id], ...event.topic}
+          this.push(event)
         } else {
           event.type = 'topic-created'
           topics[event.topic.id] = event.topic
