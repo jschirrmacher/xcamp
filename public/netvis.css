@@ -188,7 +188,8 @@ svg .node {
           right: -11px;
           cursor: pointer; }
     .details .detailForm .new-tag {
-      display: none; }
+      display: none;
+      background-color: white; }
       .details .detailForm .new-tag:empty:before {
         content: 'Thema hinzufügen';
         color: #aaaaaa; }

@@ -271,6 +271,7 @@ svg {
 
     .new-tag {
       display: none;
+      background-color: white;
 
       &:empty:before {
         content: 'Thema hinzufügen';
