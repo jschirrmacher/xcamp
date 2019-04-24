@@ -86,8 +86,8 @@ module.exports = function ({logger, models}) {
       return Object.values(nodes)
     },
 
-    getByUserId(userId) {
-      return talks[userId]
+    getByUserId(id) {
+      return nodes[id]
     }
   }
 }
