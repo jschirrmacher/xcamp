@@ -26,18 +26,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
 
   async function get(txn, uid) {
     const person = await query.one(txn, `func: uid(${uid})`)
-    if (!person.image) {
-      person.image = 'user.png'
-    } else if (person.image.match(/^\w+\/\w+:.*$/)) {
-      person.image = 'network/persons/' + uid + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
-    } else if (person.image.match(/^persons\/0x\w+\/picture$/)) {
-      person.image += '/picture'
-    } else if (person.image.match(/^persons\//)) {
-      person.image = 'network/' + person.image
-    }
-    if (person.details && person.details.match(/^persons\//)) {
-      person.details = 'network/' + person.details
-    }
     person.id = person.uid
     person.name = person.firstName + ' ' + person.lastName
     person.talkReady = person.talkReady ? 'checked' : null
@@ -189,14 +177,15 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
         person.topics.push(topic)
         links2create.push({source: {id: personId}, target: {id: topic.id, ...topic}})
         mu.setSetNquads(`<${personId}> <topics> <${topic.id}> .`)
-        store.add({type: 'person-topic-linked', personId, topic})
+        store.add({type: 'person-topic-linked', personId, topicid: topic.id})
       } else {
         const result = await Topic.upsert(txn, {}, {name: topicName}, user)
+        store.add({type: 'topic-created', topic: result.node})
         person.topics.push(result.node)
         nodes2create.push(result.node)
         links2create.push({source: {id: personId}, target: {id: result.node.uid, ...result.node}})
         mu.setSetNquads(`<${personId}> <topics> <${result.node.id}> .`)
-        store.add({type: 'person-topic-linked', personId, topic: result.node})
+        store.add({type: 'person-topic-linked', personId, topicId: result.node.id})
       }
       await txn.mutate(mu)
     }

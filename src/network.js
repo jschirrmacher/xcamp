@@ -71,6 +71,11 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
         node.editable = true
       }
       if (node.type === 'person') {
+        if (!node.image) {
+          node.image = 'user.png'
+        } else if (node.image.match(/^\w+\/\w+:.*$/)) {
+          node.image = 'network/persons/' + node.id + '/picture/' + encodeURIComponent(node.image.replace(/.*:/, ''))
+        }
         node.details = 'network/persons/' + node.id
         node = select(node, ['id', 'editable', 'details', 'name', 'image', 'type', 'access_code', 'links'])
       }
