@@ -20,7 +20,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
       cmd: '_s-xclick',
       hosted_button_id: buttonCodes[invoice.ticketType][useSandbox ? 'sandbox' : 'live'],
       quantity: invoice.tickets.length,
-      notify_url: baseUrl + '/paypal/ipn',
+      notify_url: baseUrl + 'paypal/ipn',
       no_shipping: 0,
       first_name: customer.firstName,
       last_name: customer.lastName,
