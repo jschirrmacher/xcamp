@@ -77,6 +77,7 @@ module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
           node.image = 'network/persons/' + node.id + '/picture/' + encodeURIComponent(node.image.replace(/.*:/, ''))
         }
         node.details = 'network/persons/' + node.id
+        node.name = node.firstName + ' ' + node.lastName
         node = select(node, ['id', 'editable', 'details', 'name', 'image', 'type', 'access_code', 'links'])
       }
       return node
