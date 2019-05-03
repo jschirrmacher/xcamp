@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config) => {
+module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -54,9 +54,9 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       if (data.type === 'reduced') {
         await assertCoupon(txn, data.code)
       }
-      const customer = await Customer.create(txn, data)
+      const customer = await Model.Customer.create(txn, data)
       const tickets = await create(txn, customer.person[0], +data.ticketCount)
-      const invoice = await Invoice.create(txn, data, customer, tickets)
+      const invoice = await Model.Invoice.create(txn, data, customer, tickets)
 
       await mailChimp.addSubscriber(customer)
       await mailChimp.addTags(customer.person[0].email, [config.eventName])
@@ -67,7 +67,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
       if (invoice.payment === 'invoice') {
         url = mailSender.sendTicketNotifications(customer, invoice)
       } else {
-        url = Payment.exec(customer, invoice)
+        url = Model.Payment.exec(customer, invoice)
       }
       return redirectTo(url, customer)
     } finally {
@@ -85,7 +85,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
   async function setParticipant(txn, accessCode, data, user) {
     const ticket = await findByAccessCode(txn, accessCode)
-    const person = await Person.getOrCreate(txn, data, user, false)
+    const person = await Model.Person.getOrCreate(txn, data, user, false)
 
     if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
       if (ticket.participant) {
@@ -124,7 +124,7 @@ module.exports = (dgraphClient, dgraph, Customer, Person, Invoice, Payment, Quer
 
   async function checkin(txn, accessCode) {
     const ticket = await findByAccessCode(txn, accessCode)
-    const person = await Person.get(txn, ticket.participant[0].uid)
+    const person = await Model.Person.get(txn, ticket.participant[0].uid)
     const result = {ok: true, uid: person.uid, name: person.name, image: person.image}
     if (!ticket.checkedIn) {
       const mu = new dgraph.Mutation()

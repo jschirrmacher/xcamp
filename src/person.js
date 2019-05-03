@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels) => {
   const query = QueryFunction('Person', `
     uid
     type
@@ -179,7 +179,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
         mu.setSetNquads(`<${personId}> <topics> <${topic.id}> .`)
         store.add({type: 'person-topic-linked', personId, topicid: topic.id})
       } else {
-        const result = await Topic.upsert(txn, {}, {name: topicName}, user)
+        const result = await Model.Topic.upsert(txn, {}, {name: topicName}, user)
         store.add({type: 'topic-created', topic: result.node})
         person.topics.push(result.node)
         nodes2create.push(result.node)

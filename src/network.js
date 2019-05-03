@@ -2,7 +2,7 @@
 
 const select = require('./lib/select')
 
-module.exports = (dgraphClient, dgraph, Person, Topic, store, readModels) => {
+module.exports = (dgraphClient, dgraph, store, readModels) => {
   function rebuild() {
     async function dropAll(dgraphClient) {
       const op = new dgraph.Operation()
