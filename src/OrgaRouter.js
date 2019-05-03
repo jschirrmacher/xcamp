@@ -72,6 +72,8 @@ module.exports = (dependencies) => {
       }
       invoice.paid = invoice.paid ? 'paid' : 'open'
     })
+    stats.totals = stats.totals.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+    stats.totalsPaid = stats.totalsPaid.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
     return templateGenerator.generate('invoices-list', {
       invoices,
       stats
