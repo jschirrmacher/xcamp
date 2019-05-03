@@ -1,14 +1,8 @@
 'use strict'
 
-const buttonCodes = {
-  corporate: {live: 'YU36H9CWXCPAA', sandbox: '8LPMUVP9T6GKJ'},
-  private: {live: '2A7U58XVNP73G', sandbox: 'XD3TZQ8PTDQVJ'},
-  reduced: {live: 'XEJF3HM3C7CNW', sandbox: 'ANBYFPEREZ6AE'}
-}
-
-module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, useSandbox, store) => {
+module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config) => {
   function paypalUrl() {
-    return 'https://www.' + (useSandbox ? 'sandbox.' : '') + 'paypal.com/cgi-bin/webscr'
+    return 'https://www.' + (config.isProduction ? '' : 'sandbox.') + 'paypal.com/cgi-bin/webscr'
   }
 
   function encodeParams(params) {
@@ -18,9 +12,9 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
   function exec(customer, invoice) {
     return paypalUrl() + '/payment?' + encodeParams({
       cmd: '_s-xclick',
-      hosted_button_id: buttonCodes[invoice.ticketType][useSandbox ? 'sandbox' : 'live'],
+      hosted_button_id: config.paypal.buttons[invoice.ticketType],
       quantity: invoice.tickets.length,
-      notify_url: baseUrl + 'paypal/ipn',
+      notify_url: config.baseUrl + 'paypal/ipn',
       no_shipping: 0,
       first_name: customer.firstName,
       last_name: customer.lastName,
@@ -36,7 +30,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
 
   async function paymentReceived(txn, invoice) {
     const customer = invoice.customer[0]
-    const invoiceNo = invoice.invoiceNo || await Invoice.getNextInvoiceNo(txn)
+    const invoiceNo = invoice.invoiceNo || await Model.Invoice.getNextInvoiceNo(txn)
 
     const mu = new dgraph.Mutation()
     await mu.setSetNquads(`
@@ -51,6 +45,7 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
   }
 
   async function paypalIpn(req) {
+    const admin = config['mail-recipients'].admin
     console.log('PayPal payment received', req.body)
     req.body.cmd = '_notify-validate'
     const options = {
@@ -61,11 +56,11 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
     try {
       const content = await fetch(paypalUrl(), options)
       if (content !== 'VERIFIED') {
-        mailSender.send('tech@justso.de', 'IPN not verified', JSON.stringify(req.body) + '\n\n' + content)
+        mailSender.send(admin, 'IPN not verified', JSON.stringify(req.body) + '\n\n' + content)
       } else {
         const txn = dgraphClient.newTxn()
         try {
-          await paymentReceived(txn, await Invoice.get(txn, req.body.custom))
+          await paymentReceived(txn, await Model.Invoice.get(txn, req.body.custom))
           txn.commit()
         } catch (error) {
           console.error(new Date(), error)
@@ -74,11 +69,11 @@ module.exports = (dgraphClient, dgraph, Invoice, fetch, baseUrl, mailSender, use
         }
       }
     } catch (error) {
-      mailSender.send('tech@justso.de', 'Invalid IPN received from PayPal', JSON.stringify(error))
+      mailSender.send(admin, 'Invalid IPN received from PayPal', JSON.stringify(error))
     }
 
     return ''
   }
 
-  return {exec, paypalIpn, paymentReceived, useSandbox}
+  return {exec, paypalIpn, paymentReceived}
 }

@@ -1,13 +1,15 @@
 module.exports = ({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config, readModels}) => {
-  const User = require('./user')(dgraphClient, QueryFunction, store)
-  const Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
-  const Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
-  const Person = require('./person')(dgraphClient, dgraph, QueryFunction, Topic, store, readModels)
-  const Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store)
-  const Network = require('./network')(dgraphClient, dgraph, Person, Topic, store, readModels)
-  const Invoice = require('./invoice')(dgraphClient, dgraph, store)
-  const Payment = require('./payment')(dgraphClient, dgraph, Invoice, fetch, config.baseUrl, mailSender, !config.isProduction, store)
-  const Ticket = require('./ticket')(dgraphClient, dgraph, Customer, Person, Invoice, Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config)
+  const Model = {}
 
-  return {User, Root, Topic, Person, Customer, Network, Invoice, Payment, Ticket}
+  Model.User = require('./user')(dgraphClient, QueryFunction, store)
+  Model.Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
+  Model.Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
+  Model.Person = require('./person')(dgraphClient, dgraph, QueryFunction, Model.Topic, store, readModels)
+  Model.Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store)
+  Model.Network = require('./network')(dgraphClient, dgraph, Model.Person, Model.Topic, store, readModels)
+  Model.Invoice = require('./invoice')(dgraphClient, dgraph, store)
+  Model.Payment = require('./payment')(dgraphClient, dgraph, Model, fetch, mailSender, store, config)
+  Model.Ticket = require('./ticket')(dgraphClient, dgraph, Model.Customer, Model.Person, Model.Invoice, Model.Payment, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config)
+
+  return Model
 }

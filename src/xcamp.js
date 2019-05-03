@@ -132,7 +132,7 @@ app.use((err, req, res, next) => {
 })
 
 const server = app.listen(port, () => {
-  const paymentType = Model.Payment.useSandbox ? 'sandbox' : 'PayPal'
+  const paymentType = config.paypal.useSandbox ? 'sandbox' : 'PayPal'
   logger.info(`Running on port ${port} in ${nodeenv} mode with baseURL=${config.baseUrl} using ${paymentType}`)
 })
 
