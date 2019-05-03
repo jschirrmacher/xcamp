@@ -1,0 +1,47 @@
+{
+  "eventName": "XCamp 2019",
+  "eventDate": "13.09.2019",
+  "eventTime": "9:00",
+  "eventLocation": "Skydeck der DB Systel, Jürgen-Ponto-Platz 1, Frankfurt",
+
+  "analyticsTrackingId": "UA-xxx-dev",
+
+  "mailChimp": {
+    "apiKey": "xxxx-us9",
+    "eventListId": "xxx"
+  },
+
+  "ticketSaleStarted": true,
+  "ticketCategories": {
+    "private": 95,
+    "corporate": 250,
+    "reduced": 29.41
+  },
+  "paypal": {
+    "useSandbox": true,
+    "buttons": {
+      "private": "xxx",
+      "corporate": "xxx",
+      "reduced": "xxx"
+    }
+  },
+
+  "mail-sender": "XCamp <mail@xcamp.co>",
+  "mail-recipients": {
+    "apply-to-reduced": "application@xcamp.co",
+    "ticket-sold": "accounting@xcamp.co",
+    "admin": "tech@xcamp.co"
+  },
+  "mailTransport": {
+    "host": "localhost",
+    "port": 25,
+    "auth": {
+      "user": "user",
+      "pass": "xxx"
+    },
+    "ignoreTLS": false,
+    "secure": true,
+    "debug": true,
+    "newline": "unix"
+  }
+}
