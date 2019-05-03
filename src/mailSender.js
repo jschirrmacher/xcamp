@@ -20,27 +20,6 @@ module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
     return url
   }
 
-  let transporter
-  if (!config.isProduction) {
-    transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PWD
-      }
-    })
-  } else {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT || 25,
-      ignoreTLS: true,
-      secure: false,
-      debug: true,
-      newline: 'unix'
-    })
-  }
-
   async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
     const hash = rack()
     const mu = new dgraph.Mutation()
@@ -55,5 +34,6 @@ module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
     return hash
   }
 
+  const transporter = nodemailer.createTransport(config.mailTransport)
   return {send, sendTicketNotifications, sendHashMail}
 }
