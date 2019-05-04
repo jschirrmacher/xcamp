@@ -8,7 +8,11 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = ({app, Model, dgraphClient, dgraph, getLoginURL, readModels, store, config}) => {
+module.exports = ({app, Model, dgraphClient, dgraph, readModels, store, config}) => {
+  function getLoginURL(req) {
+    return config.baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
+  }
+
   function tokenForUser(user) {
     return jwt.sign({sub: user.uid}, config.authSecret, {expiresIn: '24h'})
   }
