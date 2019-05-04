@@ -44,8 +44,6 @@ const loggerOptions = {
   colorize: false,
 }
 const logger = winston.createLogger(loggerOptions)
-const msg = "HTTP {{res.statusCode}} {{req.method}} {{req.url}} ({{res.responseTime}}ms) - {{req.headers['user-agent']}}"
-app.use(expressWinston.logger({...loggerOptions, msg}))
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
@@ -58,6 +56,8 @@ const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, ra
 const auth = require('./auth')({app, Model, dgraphClient, dgraph, readModels, store, config})
 const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, store, config, readModels})
 
+const msg = "HTTP {{res.statusCode}} {{req.method}} {{req.url}} ({{res.responseTime}}ms) - {{req.headers['user-agent']}}"
+app.use(expressWinston.logger({...loggerOptions, msg}))
 app.use('/', mainRouter)
 app.use(expressWinston.errorLogger(loggerOptions))
 
