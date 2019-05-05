@@ -72,12 +72,14 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   function getPublicViewOfNode(node, user) {
-    const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description', 'twitterName']
+    const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description']
     if (user && (user.isAdmin || node.id === user.id)) {
       node.editable = true
       fields.push('access_code', 'email')
     }
     if (node.type === 'person') {
+      fields.push('topics')
+      fields.push('twitterName')
       if (!node.image) {
         node.image = 'user.png'
       } else if (node.image.match(/^\w+\/\w+:.*$/)) {

@@ -23,7 +23,12 @@ module.exports = (dependencies) => {
   }
 
   function getPersonDetails(id, user) {
-    return Model.Network.getPublicViewOfNode({...readModels.network.getById(id)}, user)
+    const node = {...readModels.network.getById(id)}
+    node.topics = node.links.topics.map(id => {
+      const linkedNode = readModels.network.getById(id)
+      return {id, name: linkedNode.name}
+    })
+    return Model.Network.getPublicViewOfNode(node, user)
   }
 
   async function uploadProfilePicture(txn, id, file, user) {

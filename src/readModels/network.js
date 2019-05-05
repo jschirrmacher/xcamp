@@ -29,6 +29,7 @@ module.exports = function ({models}) {
           assert(event.person, 'No person found in event')
           assert(event.person.id, 'No person id found in event')
           assert(!nodes[event.person.id], 'Person already exists')
+          event.person.details = '/network/persons/' + event.person.id
           nodes[event.person.id] = event.person
           break
 
