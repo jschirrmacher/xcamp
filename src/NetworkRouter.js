@@ -22,6 +22,10 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('talks-list', {talks})
   }
 
+  function getPersonDetails(id, user) {
+    return Model.Network.getPublicViewOfNode({...readModels.network.getById(id)}, user)
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
@@ -34,7 +38,7 @@ module.exports = (dependencies) => {
   router.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 
   router.post('/persons', auth.requireJWT(), makeHandler(req => Model.Person.upsert(req.txn, {}, req.body, req.user), {commit: true}))
-  router.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Person.getPublicDetails(req.txn, req.params.uid, req.user), {txn: true}))
+  router.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.uid, req.user)))
   router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => Model.Person.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => Model.Person.uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/:name', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))

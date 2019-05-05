@@ -83,7 +83,7 @@ module.exports = function ({models}) {
       return Object.values(nodes)
     },
 
-    getByUserId(id) {
+    getById(id) {
       return nodes[id]
     }
   }

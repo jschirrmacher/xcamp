@@ -66,23 +66,28 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   async function getGraph(user = null) {
-    const nodes = readModels.network.getAll().map(node => {
-      if (user && (user.isAdmin || node.id === user.id)) {
-        node.editable = true
-      }
-      if (node.type === 'person') {
-        if (!node.image) {
-          node.image = 'user.png'
-        } else if (node.image.match(/^\w+\/\w+:.*$/)) {
-          node.image = 'network/persons/' + node.id + '/picture/' + encodeURIComponent(node.image.replace(/.*:/, ''))
-        }
-        node.details = 'network/persons/' + node.id
-        node.name = node.firstName + ' ' + node.lastName
-        node = select(node, ['id', 'editable', 'details', 'name', 'image', 'type', 'access_code', 'links'])
-      }
-      return node
-    })
+    const nodes = readModels.network.getAll()
+      .map(node => getPublicViewOfNode(node, user))
     return {nodes, myNode: getNodeId(user)}
+  }
+
+  function getPublicViewOfNode(node, user) {
+    const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links']
+    if (user && (user.isAdmin || node.id === user.id)) {
+      node.editable = true
+      fields.push('access_code')
+    }
+    if (node.type === 'person') {
+      if (!node.image) {
+        node.image = 'user.png'
+      } else if (node.image.match(/^\w+\/\w+:.*$/)) {
+        node.image = 'network/persons/' + node.id + '/picture/' + encodeURIComponent(node.image.replace(/.*:/, ''))
+      }
+      node.details = 'network/persons/' + node.id
+      node.name = node.firstName + ' ' + node.lastName
+      node = select(node, fields)
+    }
+    return node
   }
 
   function getNodeId(user) {
@@ -93,6 +98,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     rebuild,
     getGraph,
     getAllTickets,
-    getNodeId
+    getNodeId,
+    getPublicViewOfNode
   }
 }
