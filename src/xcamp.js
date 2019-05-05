@@ -36,10 +36,7 @@ const expressWinston = require('express-winston')
 const loggerOptions = {
   level: process.env.LOGLEVEL || 'info',
   transports: [new winston.transports.Console()],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.simple(),
-  ),
+  format: winston.format.simple(),
   meta: false,
   colorize: false,
 }
@@ -56,10 +53,10 @@ const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, ra
 const auth = require('./auth')({app, Model, dgraphClient, dgraph, readModels, store, config})
 const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, store, config, readModels})
 
-const msg = "HTTP {{res.statusCode}} {{req.method}} {{req.url}} ({{res.responseTime}}ms) - {{req.headers['user-agent']}}"
+const msg = "{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}"
 app.use(expressWinston.logger({...loggerOptions, msg}))
 app.use('/', mainRouter)
-app.use(expressWinston.errorLogger(loggerOptions))
+app.use(expressWinston.errorLogger({...loggerOptions, meta: true}))
 
 const server = app.listen(port, () => {
   const paymentType = config.paypal.useSandbox ? 'sandbox' : 'PayPal'
