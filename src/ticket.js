@@ -100,7 +100,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
       await mailChimp.addSubscriber({person: [person]})
-      await mailChimp.addTags(person, [config.eventName])
+      await mailChimp.addTags(person.email, [config.eventName])
 
       const url = config.baseUrl + 'accounts/' + ticket.access_code + '/info'
       const html = templateGenerator.generate('ticket-mail', {url})
