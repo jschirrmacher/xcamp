@@ -62,7 +62,17 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
     const result = await get(txn, assigned.getUidsMap().get('blank-0'))
 
     store.add({
-      type: 'customer-added',
+      type: 'person-created',
+      person: {
+        id: result.person[0].uid,
+        firstName: result.person[0].firstName,
+        lastName: result.person[0].lastName,
+        email: result.person[0].email,
+        profession: customerData.profession
+      }
+    })
+    store.add({
+      type: 'customer-created',
       customer: {
         id: result.uid,
         firm: result.firm,
@@ -71,13 +81,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         city: data.addresses.city,
         country: data.addresses.country,
         access_code: data.access_code,
-        person: {
-          id: result.person[0].uid,
-          firstName: result.person[0].firstName,
-          lastName: result.person[0].lastName,
-          email: result.person[0].email,
-          profession: customerData.profession
-        }
+        personId: result.person[0].uid,
       }
     })
     return result

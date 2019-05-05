@@ -1,3 +1,9 @@
+const paymentType = {
+  paypal: 'PayPal',
+  invoice: 'Rechnung',
+  none: 'N/A'
+}
+
 module.exports = (dependencies) => {
   const {
     express,
@@ -6,8 +12,8 @@ module.exports = (dependencies) => {
     templateGenerator,
     mailSender,
     Model,
-    store,
-    config
+    readModels,
+    store
   } = dependencies
 
   async function showAdminPage() {
@@ -27,10 +33,7 @@ module.exports = (dependencies) => {
     store.add({type: 'set-mail-hash', userId: customer.uid, hash})
   }
 
-  async function listInvoices(txn) {
-    let participantCount = 0
-    let paidTickets = 0
-    let totals = 0
+  async function listInvoices() {
     const stats = {
       participants: 0,
       totals: 0,
@@ -42,35 +45,23 @@ module.exports = (dependencies) => {
         reduced: 0
       }
     }
-    const paymentType = {
-      paypal: 'PayPal',
-      invoice: 'Rechnung',
-      none: 'N/A'
-    }
-    const invoices = await Model.Invoice.listAll(txn)
-    invoices.forEach(invoice => {
-      if (!invoice.customer) {
-        throw 'No customer defined for invoice: ' + JSON.stringify(invoice)
-      }
-      if (!invoice.customer[0].person) {
-        throw 'No person defined for customer: ' + JSON.stringify(invoice)
-      }
-      invoice.customer = invoice.customer[0]
-      invoice.customer.person = invoice.customer.person[0]
-      invoice.created = Model.Invoice.getFormattedDate(new Date(invoice.created))
-      invoice.payment = invoice.paid ? paymentType[invoice.payment] : 'Offen'
-      invoice.participants = invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
-        const participant = ticket.participant[0]
-        participant.checkedIn = ticket.checkedIn ? 'checked' : ''
-        return participant
-      })
+
+    const invoices = (await readModels.invoice.getAll()).map(invoice => {
       stats.tickets[invoice.ticketType] += invoice.tickets.length
       stats.participants += invoice.tickets.length
       stats.totals += invoice.tickets.length * invoice.ticketPrice
-      if (invoice.paid) {
-        stats.totalsPaid += invoice.tickets.length * invoice.ticketPrice
+      stats.totalsPaid += invoice.paid ? invoice.tickets.length * invoice.ticketPrice : 0
+      return {
+        ...invoice,
+        created: Model.Invoice.getFormattedDate(new Date(invoice.created)),
+        payment: invoice.paid ? paymentType[invoice.payment] : 'Offen',
+        participants: invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
+          const participant = ticket.participant
+          participant.checkedIn = ticket.checkedIn ? 'checked' : ''
+          return participant
+        }),
+        paid: invoice.paid ? 'paid' : 'open'
       }
-      invoice.paid = invoice.paid ? 'paid' : 'open'
     })
     stats.totals = stats.totals.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
     stats.totalsPaid = stats.totalsPaid.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
@@ -78,21 +69,6 @@ module.exports = (dependencies) => {
       invoices,
       stats
     })
-  }
-
-  async function invoicePayment(txn, invoiceId, state) {
-    const invoice = await Model.Invoice.get(txn, invoiceId)
-    if (state && invoice.payment === 'paypal') {
-      await Model.Payment.paymentReceived(txn, invoice)
-    } else {
-      const mu = new dgraph.Mutation()
-      if (state) {
-        mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
-      } else {
-        mu.setDelNquads(`<${invoiceId}> <paid> * .`)
-      }
-      await txn.mutate(mu)
-    }
   }
 
   async function generateTile(data) {
@@ -139,9 +115,9 @@ module.exports = (dependencies) => {
   router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.txn, req.body), {commit: true}))
   router.post('/coupon', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
-  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(req.txn), {txn: true, type: 'send'}))
-  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, true), {commit: true}))
-  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => invoicePayment(req.txn, req.params.invoiceNo, false), {commit: true}))
+  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(), {type: 'send'}))
+  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, true), {commit: true}))
+  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, false), {commit: true}))
   router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))

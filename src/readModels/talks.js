@@ -1,22 +1,22 @@
 const talkInfoReceiver = 'j.schirrmacher@justso.de'
 
-module.exports = function ({logger}) {
+module.exports = function () {
   const talks = {}
 
   return {
-    handleEvent(event) {
-      try {
-        switch (event.type) {
-          case 'talk-published':
-            talks[event.person.id] = {person: {id: event.person.id, name: event.person.name}, talk: event.talk}
-            break
+    handleEvent(event, assert) {
+      switch (event.type) {
+        case 'talk-published':
+          assert(event.person, 'No person in event')
+          assert(event.person.id, 'No person id in event')
+          talks[event.person.id] = {person: {id: event.person.id, name: event.person.name}, talk: event.talk}
+          break
 
-          case 'talk-withdrawn':
-            delete talks[event.person.id]
-            break
-        }
-      } catch (error) {
-        logger.error(error)
+        case 'talk-withdrawn':
+          assert(event.person, 'No person in event')
+          assert(event.person.id, 'No person id in event')
+          delete talks[event.person.id]
+          break
       }
     },
 

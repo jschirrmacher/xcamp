@@ -12,7 +12,7 @@ const countries = {
 const leadingZero = num => ('0' + num).substr(-2)
 const currency = n => (''+Math.floor(n)).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
-module.exports = (dgraphClient, dgraph, store) => {
+module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
   function getFormattedDate(date) {
     return date ? leadingZero(date.getDate()) + '.' + leadingZero(date.getMonth()+1) + '.' + date.getFullYear() : ''
   }
@@ -134,10 +134,10 @@ module.exports = (dgraphClient, dgraph, store) => {
     invoice.id = invoiceId
     invoice.customerId = customer.uid
     invoice.created = new Date(invoice.created).toISOString()
-    store.add({type: 'invoice-added', invoice})
+    store.add({type: 'invoice-created', invoice})
 
     tickets.forEach(t => {
-      store.add({type: 'ticket-added', ticket: {access_code: t.access_code, personId: t.participant.uid, invoiceId}})
+      store.add({type: 'ticket-created', ticket: {access_code: t.access_code, personId: t.participant.uid, invoiceId}})
     })
 
     return result
@@ -161,6 +161,7 @@ module.exports = (dgraphClient, dgraph, store) => {
       tickets {uid participant {name} checkedIn}
     }}`)
     return result.getJson().all
+    return readModels.invoice.getAll()
   }
 
   async function deleteInvoice(txn, invoiceId) {
@@ -180,5 +181,22 @@ module.exports = (dgraphClient, dgraph, store) => {
     store.add({type: 'invoice-deleted', invoiceId})
   }
 
-  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice, addTicket}
+  async function paid(txn, invoiceId, state) {
+    const invoice = await get(txn, invoiceId)
+    if (state && invoice.payment === 'paypal') {
+      await Model.Payment.paymentReceived(txn, invoice)
+    } else {
+      const mu = new dgraph.Mutation()
+      if (state) {
+        mu.setSetNquads(`<${invoiceId}> <paid> "1" .`)
+        store.add({type: 'payment-received', invoiceId})
+      } else {
+        mu.setDelNquads(`<${invoiceId}> <paid> * .`)
+        store.add({type: 'payment-withdrawn', invoiceId})
+      }
+      await txn.mutate(mu)
+    }
+  }
+
+  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice, addTicket, paid}
 }

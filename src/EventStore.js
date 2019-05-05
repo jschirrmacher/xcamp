@@ -75,6 +75,18 @@ class EventStore {
     this.listeners.push(listener)
   }
 
+  static assert(event, condition, message) {
+    if (!condition) {
+      const originalFunc = Error.prepareStackTrace
+      const err = new Error()
+      Error.prepareStackTrace = (err, stack) => stack.map(e => e.getFileName())
+      const currentfile = err.stack.shift()
+      const callerFile = err.stack.find(s => s !== currentfile).split(/[\\/]/).pop()
+      Error.prepareStackTrace = originalFunc;
+      throw `Read model '${callerFile}', event '${event.type}' (${event.ts}): ${message}`
+    }
+  }
+
   async replay() {
     await this.ready
     const self = this
@@ -83,7 +95,9 @@ class EventStore {
       .pipe(es.parse())
       .pipe(es.mapSync(event => {
         try {
-          self.listeners.forEach(listener => listener(event, 'replay'))
+          self.listeners.forEach(listener => {
+            listener(event, (condition, message) => EventStore.assert(event, condition, message), 'replay')
+          })
         } catch (error) {
           self.logger.error(error)
         }
@@ -94,7 +108,9 @@ class EventStore {
     await this.ready
     const {type, ...rest} = event
     this.changeStream.write(JSON.stringify({ts: new Date(), type, ...rest}) + '\n')
-    this.listeners.forEach(listener => listener(event, 'new'))
+    this.listeners.forEach(listener => {
+      listener(event, (condition, message) => EventStore.assert(event, condition, message), 'new')
+    })
   }
 
   deleteAll() {

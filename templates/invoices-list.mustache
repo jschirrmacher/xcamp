@@ -18,7 +18,7 @@
         <th></th>
     </tr>
     {{#invoices}}
-    <tr class="{{paid}}" id="{{uid}}">
+    <tr class="{{paid}}" id="{{id}}">
         <td>
             <a href="accounts/{{customer.access_code}}/info" target="_blank">{{invoiceNo}} - {{created}}</a>
         </td>
@@ -29,7 +29,7 @@
             <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
         </td>
         <td>
-            {{#participants}}<div class="participant">{{name}}<input type="checkbox" {{checkedIn}} readonly disabled onclick="return false"></div>{{/participants}}
+            {{#participants}}<div class="participant">{{firstName}} {{lastName}}<input type="checkbox" {{checkedIn}} readonly disabled onclick="return false"></div>{{/participants}}
         </td>
         <td>
             {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}

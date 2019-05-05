@@ -44,8 +44,8 @@ const logger = winston.createLogger(loggerOptions)
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
-const readModels = require('./readModels')({store, logger})
-require('./actionHandlers')({store, logger, mailSender})
+const readModels = require('./readModels')({store})
+require('./actionHandlers')({store, mailSender})
 const QueryFunction = require('./QueryFunction')
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)

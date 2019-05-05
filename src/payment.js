@@ -39,7 +39,11 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
       `)
     await txn.mutate(mu)
 
-    store.add({type: 'payment-received', invoiceNo})
+    if (!invoice.invoiceNo) {
+      store.add({type: 'invoice-updated', invoice: {id: invoice.id, invoiceNo}})
+      invoice.invoiceNo = invoiceNo
+    }
+    store.add({type: 'payment-received', invoiceId: invoice.uid})
 
     mailSender.sendTicketNotifications(customer, invoice)
   }

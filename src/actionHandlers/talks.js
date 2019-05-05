@@ -1,29 +1,25 @@
 talkInfoReceiver = 'j.schirrmacher@justso.de'
 
-module.exports = function ({logger, mailSender}) {
+module.exports = function ({mailSender}) {
   return {
-    handleEvent(event, type) {
+    handleEvent(event, assert, type) {
       if (type === 'new') {
-        try {
-          switch (event.type) {
-            case 'talk-published':
-              mailSender.send(
-                talkInfoReceiver,
-                'Talk veröffentlicht',
-                `<p>${event.person.name} hat seinen/ihren Talk veröffentlicht</p>\n<p>\n${event.talk}</p>`
-              )
-              break
+        switch (event.type) {
+          case 'talk-published':
+            mailSender.send(
+              talkInfoReceiver,
+              'Talk veröffentlicht',
+              `<p>${event.person.name} hat seinen/ihren Talk veröffentlicht</p>\n<p>\n${event.talk}</p>`
+            )
+            break
 
-            case 'talk-withdrawn':
-              mailSender.send(
-                talkInfoReceiver,
-                'Talk zurückgezogen',
-                `${event.person.name} hat seinen/ihren Talk zurückgezogen`
-              )
-              break
-          }
-        } catch (error) {
-          logger.error(error)
+          case 'talk-withdrawn':
+            mailSender.send(
+              talkInfoReceiver,
+              'Talk zurückgezogen',
+              `${event.person.name} hat seinen/ihren Talk zurückgezogen`
+            )
+            break
         }
       }
     }

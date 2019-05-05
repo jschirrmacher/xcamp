@@ -68,7 +68,7 @@ module.exports = (dependencies) => {
   const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config})
   const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, config})
   const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, templateGenerator, Model, readModels})
-  const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, config })
+  const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Model})
 
   const router = express.Router()
