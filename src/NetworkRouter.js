@@ -32,6 +32,12 @@ module.exports = (dependencies) => {
     return result
   }
 
+  async function updatePerson(txn, id, body, user) {
+    const result = await Model.Person.updateById(txn, id, body, user)
+    result.node = Model.Network.getPublicViewOfNode(result.node, user)
+    return result
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
@@ -45,7 +51,7 @@ module.exports = (dependencies) => {
 
   router.post('/persons', auth.requireJWT(), makeHandler(req => Model.Person.upsert(req.txn, {}, req.body, req.user), {commit: true}))
   router.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.uid, req.user)))
-  router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => Model.Person.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+  router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => updatePerson(req.txn, req.params.uid, req.body, req.user), {commit: true}))
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/:name', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
   router.put('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.assignTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
