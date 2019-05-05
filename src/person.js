@@ -145,7 +145,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
       fs.unlinkSync(fileName)
     }
     fs.renameSync(file.path, fileName)
-    return await upsert(txn, person, {image: file.mimetype + ':' + file.originalname}, user)
+    return await upsert(txn, person, {...person, image: file.mimetype + ':' + file.originalname}, user)
   }
 
   async function getProfilePicture(txn, id) {
