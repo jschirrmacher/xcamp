@@ -107,9 +107,10 @@ class EventStore {
   async add(event) {
     await this.ready
     const {type, ...rest} = event
-    this.changeStream.write(JSON.stringify({ts: new Date(), type, ...rest}) + '\n')
+    const completeEvent = {ts: new Date(), type, ...rest}
+    this.changeStream.write(JSON.stringify(completeEvent) + '\n')
     this.listeners.forEach(listener => {
-      listener(event, (condition, message) => EventStore.assert(event, condition, message), 'new')
+      listener(completeEvent, (condition, message) => EventStore.assert(event, condition, message), 'new')
     })
   }
 
