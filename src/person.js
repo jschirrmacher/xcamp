@@ -46,29 +46,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     }
   }
 
-  async function getPublicDetails(txn, uid, user) {
-    const person = await get(txn, uid)
-    if (canAdmin(user, uid)) {
-      person.editable = true
-      if (user && user.type === 'customer') {
-        const tickets = user.invoices[0].tickets
-        if (user.invoices[0].invoiceNo) {
-          person.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
-        }
-        const ticket = tickets.find(ticket => ticket.participant[0].uid === uid)
-        if (ticket) {
-          person.access_code = ticket.access_code
-        }
-      } else {
-        person.accountPath = 'accounts/my/invoices/current'
-        person.access_code = user.access_code
-      }
-    } else {
-      delete person.email
-    }
-    return person
-  }
-
   async function getByEMail(txn, email) {
     return await query.one(txn, `func: eq(email, "${email}")`)
   }
@@ -211,5 +188,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return {links2delete, node: person}
   }
 
-  return {get, getPublicDetails, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate, assignTopic, removeTopic}
+  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate, assignTopic, removeTopic}
 }

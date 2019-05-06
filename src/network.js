@@ -72,14 +72,15 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   function getPublicViewOfNode(node, user) {
-    const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description']
-    if (user && (user.isAdmin || node.id === user.id)) {
+    const fields = ['id', 'editable', 'details', 'url', 'name', 'image', 'type', 'links', 'description']
+    const editable = user && (user.isAdmin || node.id === user.id)
+    if (editable) {
       node.editable = true
-      fields.push('access_code', 'email')
     }
     if (node.type === 'person') {
       fields.push('topics')
       fields.push('twitterName')
+      fields.push('talk')
       if (!node.image) {
         node.image = 'user.png'
       } else if (node.image.match(/^\w+\/\w+:.*$/)) {
@@ -87,6 +88,25 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       }
       node.details = 'network/persons/' + node.id
       node.name = node.firstName + ' ' + node.lastName
+      if (editable) {
+        fields.push('talkReady')
+        fields.push('access_code')
+        fields.push('accountPath')
+        fields.push('email')
+        if (user.type === 'customer') {
+          const tickets = user.invoices[0].tickets
+          if (user.invoices[0].invoiceNo) {
+            node.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
+          }
+          const ticket = tickets.find(ticket => ticket.participant[0].uid === node.id)
+          if (ticket) {
+            node.access_code = ticket.access_code
+          }
+        } else {
+          node.accountPath = 'accounts/my/invoices/current'
+          node.access_code = user.access_code
+        }
+      }
       node = select(node, fields)
     }
     return node
