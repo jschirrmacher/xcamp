@@ -40,7 +40,7 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
     await txn.mutate(mu)
 
     if (!invoice.invoiceNo) {
-      store.add({type: 'invoice-updated', invoice: {id: invoice.id, invoiceNo}})
+      store.add({type: 'invoice-updated', invoice: {id: invoice.uid, invoiceNo}})
       invoice.invoiceNo = invoiceNo
     }
     store.add({type: 'payment-received', invoiceId: invoice.uid})
