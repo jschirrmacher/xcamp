@@ -24,6 +24,7 @@ let myNode
 const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
 const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
+const profileButton = document.querySelector('#profile')
 
 const script = document.createElement('script')
 script.addEventListener('load', function () {
@@ -258,6 +259,7 @@ script.addEventListener('load', function () {
               })
               .then(function (person) {
                 profilePic.style.backgroundImage = 'url(' + person.node.image + ')'
+                profileButton.style.backgroundImage = 'url(' + person.node.image + ')'
               })
           }
           image.src = e.target.result
@@ -361,7 +363,7 @@ script.addEventListener('load', function () {
       document.body.classList.toggle('logged-out', !data.loggedIn)
       if (data.loggedIn) {
         userInfo = data
-        document.querySelector('#profile').style.backgroundImage = 'url(' + data.profileImage + ')'
+        profileButton.style.backgroundImage = 'url(' + data.profileImage + ')'
       }
     })
 })

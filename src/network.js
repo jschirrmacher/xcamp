@@ -71,6 +71,33 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     return {nodes, myNode: getNodeId(user)}
   }
 
+  function getImageURL(id, image) {
+    if (image) {
+      if (image.match(/^\w+\/\w+:.*$/)) {
+        return 'network/persons/' + id + '/picture/' + encodeURIComponent(image.replace(/.*:/, ''))
+      } else {
+        return image
+      }
+    }
+    return 'user.png'
+  }
+
+  function setAccountData(node, user) {
+    if (user.type === 'customer') {
+      const tickets = user.invoices[0].tickets
+      if (user.invoices[0].invoiceNo) {
+        node.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
+      }
+      const ticket = tickets.find(ticket => ticket.participant[0].uid === node.id)
+      if (ticket) {
+        node.access_code = ticket.access_code
+      }
+    } else {
+      node.accountPath = 'accounts/my/invoices/current'
+      node.access_code = user.access_code
+    }
+  }
+
   function getPublicViewOfNode(node, user) {
     const fields = ['id', 'editable', 'details', 'url', 'name', 'image', 'type', 'links', 'description']
     const editable = user && (user.isAdmin || node.id === user.id)
@@ -81,11 +108,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       fields.push('topics')
       fields.push('twitterName')
       fields.push('talk')
-      if (!node.image) {
-        node.image = 'user.png'
-      } else if (node.image.match(/^\w+\/\w+:.*$/)) {
-        node.image = 'network/persons/' + node.id + '/picture/' + encodeURIComponent(node.image.replace(/.*:/, ''))
-      }
+      node.image = getImageURL(node.id, node.image)
       node.details = 'network/persons/' + node.id
       node.name = node.firstName + ' ' + node.lastName
       if (editable) {
@@ -93,19 +116,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
         fields.push('access_code')
         fields.push('accountPath')
         fields.push('email')
-        if (user.type === 'customer') {
-          const tickets = user.invoices[0].tickets
-          if (user.invoices[0].invoiceNo) {
-            node.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
-          }
-          const ticket = tickets.find(ticket => ticket.participant[0].uid === node.id)
-          if (ticket) {
-            node.access_code = ticket.access_code
-          }
-        } else {
-          node.accountPath = 'accounts/my/invoices/current'
-          node.access_code = user.access_code
-        }
+        setAccountData(node, user)
       }
       node = select(node, fields)
     }
@@ -121,6 +132,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     getGraph,
     getAllTickets,
     getNodeId,
-    getPublicViewOfNode
+    getPublicViewOfNode,
+    getImageURL
   }
 }
