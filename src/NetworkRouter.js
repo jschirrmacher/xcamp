@@ -24,7 +24,7 @@ module.exports = (dependencies) => {
 
   function getPersonDetails(id, user) {
     const node = {...readModels.network.getById(id)}
-    node.topics = node.links.topics.map(id => {
+    node.topics = node.links && node.links.topics && node.links.topics.map(id => {
       const linkedNode = readModels.network.getById(id)
       return {id, name: linkedNode.name}
     })
