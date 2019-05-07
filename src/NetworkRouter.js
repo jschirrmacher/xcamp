@@ -15,7 +15,7 @@ module.exports = (dependencies) => {
   function getTalksList() {
     const talks = readModels.talks.getAll().map(talk => {
       const person = readModels.person.getById(talk.person.id)
-      talk.image = person.image
+      talk.image = Model.Network.getImageURL(person.id, person.image)
       talk.talk = talk.talk.length < 140 ? talk.talk : talk.talk.substring(0, 139) + '…'
       return talk
     })
