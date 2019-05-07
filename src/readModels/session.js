@@ -1,7 +1,7 @@
 const talkInfoReceiver = 'j.schirrmacher@justso.de'
 
 module.exports = function () {
-  const talks = {}
+  const sessions = {}
 
   return {
     handleEvent(event, assert) {
@@ -9,23 +9,23 @@ module.exports = function () {
         case 'talk-published':
           assert(event.person, 'No person in event')
           assert(event.person.id, 'No person id in event')
-          talks[event.person.id] = {person: {id: event.person.id, name: event.person.name}, talk: event.talk}
+          sessions[event.person.id] = {person: {id: event.person.id, name: event.person.name}, talk: event.talk}
           break
 
         case 'talk-withdrawn':
           assert(event.person, 'No person in event')
           assert(event.person.id, 'No person id in event')
-          delete talks[event.person.id]
+          delete sessions[event.person.id]
           break
       }
     },
 
     getAll() {
-      return Object.values(talks)
+      return Object.values(sessions)
     },
 
     getByUserId(userId) {
-      return talks[userId]
+      return sessions[userId]
     }
   }
 }

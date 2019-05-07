@@ -12,14 +12,14 @@ module.exports = (dependencies) => {
     readModels
   } = dependencies
 
-  function getTalksList() {
-    const talks = readModels.talks.getAll().map(talk => {
-      const person = readModels.person.getById(talk.person.id)
-      talk.image = Model.Network.getImageURL(person.id, person.image)
-      talk.talk = talk.talk.length < 140 ? talk.talk : talk.talk.substring(0, 139) + '…'
-      return talk
+  function getSessionList() {
+    const sessions = readModels.session.getAll().map(session => {
+      const person = readModels.person.getById(session.person.id)
+      session.image = Model.Network.getImageURL(person.id, person.image)
+      session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
+      return session
     })
-    return templateGenerator.generate('talks-list', {talks})
+    return templateGenerator.generate('session-list', {sessions})
   }
 
   function getPersonDetails(id, user) {
@@ -62,6 +62,6 @@ module.exports = (dependencies) => {
   router.put('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.assignTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
   router.delete('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.removeTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
 
-  router.get('/talks', makeHandler(req => getTalksList(req.txn), {type: 'send'}))
+  router.get('/sessions', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
   return router
 }

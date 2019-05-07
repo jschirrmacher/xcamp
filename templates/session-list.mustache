@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp - Session-liste</title>
     <base href="{{baseUrl}}">
-    <link rel="stylesheet" href="talk-list.css">
+    <link rel="stylesheet" href="session-list.css">
 </head>
 <body>
 {{> menu}}
@@ -14,7 +14,7 @@
         <h1>Sessions auf dem {{eventName}}</h1>
 
         <div class="tiles">
-            {{#talks}}
+            {{#sessions}}
                 <div class="tile">
                     <h2>{{person.name}}</h2>
                     <div class="image-container">
@@ -23,7 +23,7 @@
                     </div>
                     <p>{{talk}}</p>
                 </div>
-            {{/talks}}
+            {{/sessions}}
         </div>
     </div>
 </div>

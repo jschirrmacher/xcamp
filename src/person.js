@@ -91,7 +91,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
       newValues.push({id: person.uid})
       nodes2create.push(newObject)
     }
-    const currentTalk = readModels.talks.getByUserId(person.uid)
+    const currentTalk = readModels.session.getByUserId(person.uid)
     if (newObject.talkReady && !currentTalk) {
       store.add({type: 'talk-published', person: {id: person.uid, name: newObject.name}, talk: person.talk})
     } else if (!newObject.talkReady && currentTalk) {
