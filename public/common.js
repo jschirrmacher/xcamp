@@ -61,7 +61,15 @@ function showMessage(msg, type = 'info') {
   document.body.appendChild(container)
 }
 
-document.querySelectorAll('.mail2info').forEach(function(link) {
-  link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + encodeURIComponent(link.dataset.message))
+function setupMail2InfoLink(link, mailBody) {
+  link.addEventListener('click', function (e) {
+    e.preventDefault()
+    const subject = encodeURIComponent(link.dataset.message)
+    const body = mailBody ? '&body=' + encodeURIComponent(mailBody) : ''
+    location.href = 'mailto:netvis@xcamp.co?subject=' + subject + body
+    return false
+  })
   link.innerText = 'netvis@xcamp.co'
-})
+}
+
+document.querySelectorAll('.mail2info').forEach(setupMail2InfoLink)

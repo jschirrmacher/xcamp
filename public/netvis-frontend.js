@@ -149,11 +149,7 @@ script.addEventListener('load', function () {
         resolve()
       }))
 
-      select('.mail2info').forEach(link => {
-        const subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
-        link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject + '&body=node=' + id)
-        link.innerText = 'netvis@xcamp.co'
-      })
+      select('.mail2info').forEach(link => setupMail2InfoLink(link, 'node=' + id))
 
       function save() {
         const headers = {'content-type': 'application/json', authorization}
