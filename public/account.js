@@ -8,12 +8,6 @@
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
   })
 
-  document.querySelectorAll('.mail2info').forEach(function(link) {
-    var subject = encodeURIComponent('Bitte aus dem XCamp-Netzwerk entfernen')
-    link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + subject)
-    link.innerText = 'netvis@xcamp.co'
-  })
-
   select('.saveTicket').addEventListener('click', function (event) {
     var button = event.target
     var options = encodeParams({

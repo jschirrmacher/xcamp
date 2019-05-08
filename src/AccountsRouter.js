@@ -50,9 +50,11 @@ module.exports = (dependencies) => {
   async function sendPassword(txn, accessCode) {
     const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
     const customer = await Model.Customer[method](txn, accessCode)
-    const hash = await mailSender.sendHashMail(txn,'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
-    store.add({type: 'set-mail-hash', userId: customer.uid, hash})
-    return templateGenerator.generate('password-sent')
+    if (customer) {
+      const hash = await mailSender.sendHashMail(txn, 'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
+      store.add({type: 'set-mail-hash', userId: customer.uid, hash})
+    }
+    return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (customer ? 'sent' : 'failed')}
   }
 
   async function resetPassword(accessCode) {
@@ -76,7 +78,9 @@ module.exports = (dependencies) => {
 
   router.get('/my', auth.requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
   router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => getAccountInfoPage(req.txn, req.params.accessCode), {txn: true, type: 'send'}))
-  router.get('/:accessCode/password', makeHandler(req => sendPassword(req.txn, req.params.accessCode), {type: 'send', commit: true}))
+  router.get('/:accessCode/password', makeHandler(req => sendPassword(req.txn, req.params.accessCode), {commit: true}))
+  router.get('/password/sent', makeHandler(req => templateGenerator.generate('password-sent'), {type: 'send'}))
+  router.get('/password/failed', makeHandler(req => templateGenerator.generate('password-failed'), {type: 'send'}))
   router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.txn, req.user, req.body.password), {commit: true}))
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))

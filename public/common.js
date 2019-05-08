@@ -60,3 +60,8 @@ function showMessage(msg, type = 'info') {
   container.appendChild(content)
   document.body.appendChild(container)
 }
+
+document.querySelectorAll('.mail2info').forEach(function(link) {
+  link.setAttribute('href', 'mailto:netvis@xcamp.co?subject=' + encodeURIComponent(link.dataset.message))
+  link.innerText = 'netvis@xcamp.co'
+})
