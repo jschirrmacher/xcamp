@@ -67,7 +67,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
 
   async function getGraph(user = null) {
     const nodes = readModels.network.getAll()
-      .map(node => getPublicViewOfNode(node, user))
+      .map(node => getPublicViewOfNode({...node}, user))
     return {nodes, myNode: getNodeId(user)}
   }
 
