@@ -1,6 +1,18 @@
 module.exports = function ({models}) {
   const nodes = {}
   const ticketsByInvoiceId = {}
+  const tickets = {}
+
+  function removePersonFromNetwork(personId) {
+    if (nodes[personId].links && nodes[personId].links.topics) {
+      nodes[personId].links.topics.forEach(topicId => {
+        if (nodes[topicId].links && nodes[topicId].links.persons) {
+          nodes[topicId].links.persons = nodes[topicId].links.persons.filter(t => t !== personId)
+        }
+      })
+    }
+    delete nodes[personId]
+  }
 
   return {
     handleEvent(event, assert) {
@@ -18,7 +30,7 @@ module.exports = function ({models}) {
           break
         }
 
-        case 'ticket-created':
+        case 'ticket-created': {
           assert(event.ticket, `No ticket found in event`)
           assert(event.ticket.personId, `No person id found in event`)
           const person = models.person.getById(event.ticket.personId)
@@ -26,7 +38,9 @@ module.exports = function ({models}) {
           nodes[event.ticket.personId] = {...person, type: 'person', shape: 'circle'}
           ticketsByInvoiceId[event.ticket.invoiceId] = ticketsByInvoiceId[event.ticket.invoiceId] || []
           ticketsByInvoiceId[event.ticket.invoiceId].push(event.ticket.personId)
+          tickets[event.ticket.id] = event.ticket.personId
           break
+        }
 
         case 'person-created':
           assert(event.person, 'No person found in event')
@@ -83,19 +97,21 @@ module.exports = function ({models}) {
         case 'invoice-deleted':
           assert(event.invoiceId, 'No invoiceId specified')
           assert(ticketsByInvoiceId[event.invoiceId], 'Invoice not found')
-          ticketsByInvoiceId[event.invoiceId].forEach(personId => {
-            if (nodes[personId].links && nodes[personId].links.topics) {
-              nodes[personId].links.topics.forEach(topicId => {
-                if (nodes[topicId].links && nodes[topicId].links.persons) {
-                  nodes[topicId].links.persons = nodes[topicId].links.persons.filter(t => t !== personId)
-                }
-              })
-            }
-            delete nodes[personId]
-          })
+          ticketsByInvoiceId[event.invoiceId].forEach(removePersonFromNetwork)
           delete ticketsByInvoiceId[event.invoiceId]
           break
 
+        case 'participant-set': {
+          assert(event.ticketId, 'ticketId not specified')
+          assert(event.personId, 'personId not specified')
+          assert(tickets[event.ticketId], 'Ticket not found')
+          const person = models.person.getById(event.personId)
+          assert(person, 'Person not found')
+          removePersonFromNetwork(tickets[event.ticketId])
+          nodes[event.personId] = {...person, type: 'person', shape: 'circle'}
+          tickets[event.ticketId] = event.personId
+          break
+        }
       }
     },
 
