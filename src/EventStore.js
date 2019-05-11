@@ -48,7 +48,7 @@ class EventStore {
       return new Promise(resolve => {
         this.logger.info(`Migrating data from ${eventsVersionNo} to ${currentVersionNo}`)
         const fileExt = eventsVersionNo <= 3 ? 'yaml' : 'json'
-        const oldEventsFile = path.join(basePath, 'events.' + (fileExt))
+        const oldEventsFile = path.join(basePath, 'events.' + fileExt)
         const migrationFile = this.eventsFileName + '.migrated'
         const outputStream = fs.createWriteStream(migrationFile)
         outputStream.on('finish', () => {
