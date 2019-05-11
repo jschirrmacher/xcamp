@@ -59,7 +59,13 @@
     firmField.style.display = 'initial'
   }
 
-  form.addEventListener('submit', assertTOSAccepted)
+  form.addEventListener('submit', event => {
+    if (!assertTOSAccepted()) {
+      return false
+    }
+    toggleDisabled(submitButton, false)
+    return true
+  })
   tosAccepted.addEventListener('change', setSubmitButtonState)
 
   if (location.search.match(/type=private/) || location.search.match(/code=/)) {
