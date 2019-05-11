@@ -4,7 +4,7 @@ module.exports = function ({models}) {
   const tickets = {}
 
   function removePersonFromNetwork(personId) {
-    if (nodes[personId].links && nodes[personId].links.topics) {
+    if (nodes[personId] && nodes[personId].links && nodes[personId].links.topics) {
       nodes[personId].links.topics.forEach(topicId => {
         if (nodes[topicId].links && nodes[topicId].links.persons) {
           nodes[topicId].links.persons = nodes[topicId].links.persons.filter(t => t !== personId)
@@ -59,8 +59,10 @@ module.exports = function ({models}) {
         }
 
         case 'person-updated':
-          assert(nodes[event.person.id], 'Referenced person is unknown')
-          nodes[event.person.id] = Object.assign(nodes[event.person.id], event.person)
+          // Don't use 'assert' here because not all known persons are in the network
+          if (nodes[event.person.id]) {
+            nodes[event.person.id] = Object.assign(nodes[event.person.id], event.person)
+          }
           break
 
         case 'person-topic-linked':
