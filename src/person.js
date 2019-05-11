@@ -86,20 +86,19 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     mu.setSetJson(newObject)
 
     const assigned = await txn.mutate(mu)
+    const id = person.uid || assigned.getUidsMap().get('blank-0')
+    const type = person.uid ? 'person-updated' : 'person-created'
     if (!person.uid) {
-      person.uid = assigned.getUidsMap().get('blank-0')
-      newValues.push({id: person.uid})
       nodes2create.push(newObject)
     }
-    const currentTalk = readModels.session.getByUserId(person.uid)
+    store.add({type, person: Object.assign({id}, ...newValues)})
+    const currentTalk = readModels.session.getByUserId(id)
     if (newObject.talkReady && !currentTalk) {
-      store.add({type: 'talk-published', person: {id: person.uid, name: newObject.name}, talk: person.talk})
+      store.add({type: 'talk-published', person: {iduid, name: newObject.name}, talk: person.talk})
     } else if (!newObject.talkReady && currentTalk) {
-      store.add({type: 'talk-withdrawn', person: {id: person.uid, name: newObject.name}})
+      store.add({type: 'talk-withdrawn', person: {id, name: newObject.name}})
     }
-    person = await get(txn, person.uid)
-    store.add({type: 'person-updated', person: Object.assign({id: person.uid}, ...newValues)})
-    return {links2create: [], links2delete: [], nodes2create, node: person}
+    return {links2create: [], links2delete: [], nodes2create, node: await get(txn, id)}
   }
 
   async function updateById(txn, id, data, user) {
