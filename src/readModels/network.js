@@ -1,5 +1,6 @@
 module.exports = function ({models}) {
   const nodes = {}
+  const ticketsByInvoiceId = {}
 
   return {
     handleEvent(event, assert) {
@@ -23,6 +24,8 @@ module.exports = function ({models}) {
           const person = models.person.getById(event.ticket.personId)
           assert(person, `Person in event not found`)
           nodes[event.ticket.personId] = {...person, type: 'person', shape: 'circle'}
+          ticketsByInvoiceId[event.ticket.invoiceId] = ticketsByInvoiceId[event.ticket.invoiceId] || []
+          ticketsByInvoiceId[event.ticket.invoiceId].push(event.ticket.personId)
           break
 
         case 'person-created':
@@ -75,6 +78,22 @@ module.exports = function ({models}) {
           nodes[event.topicId].links = nodes[event.topicId].links || {}
           nodes[event.topicId].links.persons = nodes[event.topicId].links.persons || []
           nodes[event.topicId].links.persons.push(event.rootId)
+          break
+
+        case 'invoice-deleted':
+          assert(event.invoiceId, 'No invoiceId specified')
+          assert(ticketsByInvoiceId[event.invoiceId], 'Invoice not found')
+          ticketsByInvoiceId[event.invoiceId].forEach(personId => {
+            if (nodes[personId].links && nodes[personId].links.topics) {
+              nodes[personId].links.topics.forEach(topicId => {
+                if (nodes[topicId].links && nodes[topicId].links.persons) {
+                  nodes[topicId].links.persons = nodes[topicId].links.persons.filter(t => t !== personId)
+                }
+              })
+            }
+            delete nodes[personId]
+          })
+          delete ticketsByInvoiceId[event.invoiceId]
           break
 
       }
