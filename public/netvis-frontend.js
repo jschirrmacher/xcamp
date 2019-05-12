@@ -315,13 +315,29 @@ script.addEventListener('load', function () {
   window.onpopstate = handleHash
 
   const nodeRenderer = new NodeRenderer({showRefLinks: true})
-  nodeRenderer.renderRefLinksContent = function (enter) {
-    enter.text(d => icons[d.type] + ' ' + texts[d.type])
+  nodeRenderer.renderRefLinks = function (enter) {
+    enter.append('g')
+      .attr('class', 'reflinks')
+      .selectAll(null)
+      .data(d => {
+        const y = d.bbox.y + d.bbox.height + 24
+        return Object.keys(d.links || {}).map((type, i) => ({type, x: d.bbox.x, y: y + i * 24}))
+      })
+      .enter()
+      .append('g')
+      .attr('transform', d => `translate(${d.x}, ${d.y})`)
+      .attr('data-ref', d => d.type)
+      .append('text')
+      .text(d => d.name = icons[d.type] + ' ' + texts[d.type])
+      .call(d => this.wrap(d, 200, true))
   }
   network = new Network({
     dataUrl: history + 'network',
     domSelector: '#root',
     maxLevel: 3,
+    collide: function (collide) {
+      return collide.radius(d => (d.radius * 2 || d.width || 100) * 1.1)
+    },
     nodeRenderer,
     handlers: {
       prepare(data) {
