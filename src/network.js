@@ -100,8 +100,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
 
   function getPublicViewOfNode(node, user) {
     const fields = ['id', 'editable', 'details', 'url', 'name', 'image', 'type', 'links', 'description']
-    const editable = user && (user.isAdmin || node.id === user.id)
-    if (editable) {
+    if (hasAccess(user, node)) {
       node.editable = true
     }
     if (node.type === 'person') {
@@ -111,7 +110,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       node.image = getImageURL(node.id, node.image)
       node.details = 'network/persons/' + node.id
       node.name = node.firstName + ' ' + node.lastName
-      if (editable) {
+      if (node.editable) {
         fields.push('talkReady')
         fields.push('access_code')
         fields.push('accountPath')
@@ -121,6 +120,20 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       node = select(node, fields)
     }
     return node
+  }
+
+  function hasAccess(user, node) {
+    if (!user) {
+      return false
+    }
+    if (user.isAdmin) {
+      return true
+    }
+    if (user.type === 'customer') {
+      return user.invoices[0].tickets.some(t => t.participant[0].uid === node.id)
+    } else {
+      return user.participant[0].uid === node.id
+    }
   }
 
   function getNodeId(user) {

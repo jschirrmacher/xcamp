@@ -158,6 +158,7 @@ module.exports = ({app, Model, dgraphClient, dgraph, readModels, store, config})
             res.status(401).json({error: 'Not authenticated'})
           }
         } else if (!req.user && user) {
+          user.id = user.id || user.uid
           req.user = user
           signIn(req, res)
           next()

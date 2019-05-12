@@ -10,19 +10,16 @@ module.exports = function ({models}) {
     handleEvent(event, assert) {
       switch (event.type) {
         case 'customer-created':
-          const person = models.person.getById(event.customer.personId)
-          assert(!users.byId[person.id], `Referenced user ${person.id} already exists`)
+          assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
           assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-          assert(!users.byEMail[person.email], `Referenced user ${person.email} already exists`)
-          const user = {
+          const email = models.person.getById(event.customer.personId).email
+          assert(!users.byEMail[email], `Referenced user ${email} already exists`)
+          addUser({
             id: event.customer.id,
             type: 'customer',
             access_code: event.customer.access_code,
-            email: person.email
-          }
-          users.byId[user.id] = user
-          users.byAccessCode[user.access_code] = user
-          users.byEMail[user.email] = user
+            email
+          })
           break
 
         case 'password-changed':
@@ -42,6 +39,20 @@ module.exports = function ({models}) {
             adminIsDefined = true
           }
           break
+
+        case 'ticket-created':
+          addUser({
+            id: event.ticket.id,
+            type: 'ticket',
+            access_code: event.ticket.access_code,
+            email: models.person.getById(event.ticket.personId).email
+          })
+          break
+
+        case 'participant-set':
+          users.byId[event.ticketId].email = models.person.getById(event.personId).email
+          break
+
       }
     },
 
@@ -74,5 +85,11 @@ module.exports = function ({models}) {
     },
 
     adminIsDefined
+  }
+
+  function addUser(user) {
+    users.byId[user.id] = user
+    users.byAccessCode[user.access_code] = user
+    users.byEMail[user.email] = user
   }
 }
