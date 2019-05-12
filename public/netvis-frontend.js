@@ -288,7 +288,7 @@ script.addEventListener('load', function () {
       shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
       className: node.type,
       links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
-      fontSize: node.type === 'topic' ? Math.log(node.links.persons.length) : 1
+      fontSize: node.type === 'topic' ? Math.log(node.links.persons.length + 1) : 1
     })
   }
 
