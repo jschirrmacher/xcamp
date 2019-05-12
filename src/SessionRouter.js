@@ -1,11 +1,7 @@
 module.exports = ({express, auth, makeHandler, templateGenerator, Model, config}) => {
-  function getProfilePicture(person) {
-    return Model.Network.getImageURL(person.uid, person.image)
-  }
-
   function getUserInfo(user) {
     const person = user && (user.person && user.person[0] || user.participant && user.participant[0])
-    const profileImage = user && getProfilePicture(person)
+    const profileImage = user && Model.Network.getImageURL(person.uid, person.image)
 
     return {
       loggedIn: !!user,

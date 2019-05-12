@@ -28,47 +28,43 @@ class JsonStringify extends stream.Transform {
 
 class EventStore {
   constructor({basePath, logger}) {
-    this.eventsFileName = path.join(basePath, 'events.json')
     this.logger = logger
     this.listeners = []
-    this.ready = this.migrateIfNecessary(basePath)
-      .then(() => this.changeStream = fs.createWriteStream(this.eventsFileName, {flags:'a'}))
-  }
-
-  migrateIfNecessary(basePath) {
     const versionFile = path.resolve(basePath, 'version.json')
     const eventsVersionNo = !exists(versionFile) ? 0 : JSON.parse(fs.readFileSync(versionFile).toString()).versionNo
     const migrationsDir = path.resolve(__dirname, 'migrations')
     const migrations = fs.readdirSync(migrationsDir)
       .filter(name => parseInt(name.replace('from_', '')) >= eventsVersionNo)
       .map(migration => require(path.resolve(migrationsDir, migration)))
-    const currentVersionNo = eventsVersionNo + migrations.length
-
-    if (eventsVersionNo < currentVersionNo) {
-      return new Promise(resolve => {
-        this.logger.info(`Migrating data from ${eventsVersionNo} to ${currentVersionNo}`)
-        const fileExt = eventsVersionNo <= 3 ? 'yaml' : 'json'
-        const oldEventsFile = path.join(basePath, 'events.' + fileExt)
-        const migrationFile = this.eventsFileName + '.migrated'
-        const outputStream = fs.createWriteStream(migrationFile)
-        outputStream.on('finish', () => {
-          fs.renameSync(oldEventsFile, path.join(basePath, `events-${eventsVersionNo}.${fileExt}`))
-          fs.renameSync(migrationFile, this.eventsFileName)
-          fs.writeFileSync(versionFile, JSON.stringify({versionNo: currentVersionNo}))
-          this.logger.info('Migration successful')
-          resolve()
-        })
-        const readStream = eventsVersionNo <= 3
-          ? es.readArray(YAML.parse(fs.readFileSync(path.join(basePath, 'events.yaml')).toString()))
-          : fs.createReadStream(this.eventsFileName).pipe(es.split()).pipe(es.parse())
-
-        migrations.reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
-          .pipe(new JsonStringify())
-          .pipe(outputStream)
-      })
+    const versionNo = eventsVersionNo + migrations.length
+    this.eventsFileName = path.join(basePath, `events-${versionNo}.json`)
+    if (eventsVersionNo < versionNo) {
+      this.logger.info(`Migrating data from ${eventsVersionNo} to ${versionNo}`)
+      this.changeStream = fs.createWriteStream(this.eventsFileName)
+      this.ready = this
+        .migrate(basePath, eventsVersionNo, migrations)
+        .then(() => fs.writeFileSync(versionFile, JSON.stringify({versionNo})))
+        .then(() => this.logger.info('Migration successful'))
     } else {
-      return Promise.resolve()
+      this.changeStream = fs.createWriteStream(this.eventsFileName, {flags: 'a'})
+      this.ready = Promise.resolve()
     }
+  }
+
+  migrate(basePath, fromVersion, migrations) {
+    return new Promise(resolve => {
+      const fileExt = fromVersion <= 3 ? 'yaml' : 'json'
+      const oldVersionExt = fromVersion < 12 ? '' : '-' + fromVersion
+      const oldEventsFile = path.join(basePath, `events${oldVersionExt}.${fileExt}`)
+      const readStream = fromVersion <= 3
+        ? es.readArray(YAML.parse(fs.readFileSync(oldEventsFile).toString()))
+        : fs.createReadStream(oldEventsFile).pipe(es.split()).pipe(es.parse())
+      readStream.on('end', resolve)
+
+      migrations.reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
+        .pipe(new JsonStringify())
+        .pipe(this.changeStream)
+    })
   }
 
   listen(listener) {
