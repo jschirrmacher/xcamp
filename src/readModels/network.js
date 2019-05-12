@@ -118,7 +118,7 @@ module.exports = function ({models}) {
     },
 
     getAll() {
-      return Object.values(nodes)
+      return Object.values(nodes).filter(n => n.type !== 'topic' || n.links.persons.length)
     },
 
     getById(id) {
