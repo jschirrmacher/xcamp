@@ -21,7 +21,7 @@ const icons = {
 let network
 let userInfo = {}
 let myNode
-const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : ''
+const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : 'topic'
 const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
 const profileButton = document.querySelector('#profile')
@@ -287,7 +287,8 @@ script.addEventListener('load', function () {
       visible: node.type === what || node.open || node.id === detailsNode,
       shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
       className: node.type,
-      links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links
+      links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
+      fontSize: node.type === 'topic' ? Math.log(node.links.persons.length) : 1
     })
   }
 
