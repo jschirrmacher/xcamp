@@ -33,7 +33,7 @@ module.exports = function ({models}) {
         case 'ticket-created': {
           assert(event.ticket, `No ticket found in event`)
           assert(event.ticket.personId, `No person id found in event`)
-          const person = models.person.getById(event.ticket.personId)
+          const person = models.network.getById(event.ticket.personId)
           assert(person, `Person in event not found`)
           nodes[event.ticket.personId] = {...person, type: 'person', shape: 'circle'}
           ticketsByInvoiceId[event.ticket.invoiceId] = ticketsByInvoiceId[event.ticket.invoiceId] || []
@@ -65,36 +65,28 @@ module.exports = function ({models}) {
           }
           break
 
-        case 'person-topic-linked':
-          assert(nodes[event.personId], 'Referenced person is unknown')
+        case 'topic-linked': {
+          assert(nodes[event.nodeId], 'Referenced node is unknown')
           assert(nodes[event.topicId], 'Referenced topic is unknown')
-          nodes[event.personId].links = nodes[event.personId].links || {}
-          nodes[event.personId].links.topics = nodes[event.personId].links.topics || []
-          nodes[event.personId].links.topics.push(event.topicId)
+          nodes[event.nodeId].links = nodes[event.nodeId].links || {}
+          nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics || []
+          nodes[event.nodeId].links.topics.push(event.topicId)
 
+          const type = nodes[event.nodeId].type + 's'
           nodes[event.topicId].links = nodes[event.topicId].links || {}
-          nodes[event.topicId].links.persons = nodes[event.topicId].links.persons || []
-          nodes[event.topicId].links.persons.push(event.personId)
+          nodes[event.topicId].links[type] = nodes[event.topicId].links[type] || []
+          nodes[event.topicId].links[type].push(event.nodeId)
           break
+        }
 
-        case 'person-topic-unlinked':
-          assert(nodes[event.personId], 'Referenced person is unknown')
+        case 'topic-unlinked': {
+          assert(nodes[event.nodeId], 'Referenced node is unknown')
           assert(nodes[event.topicId], 'Referenced topic is unknown')
-          nodes[event.personId].links.topics = nodes[event.personId].links.topics.filter(t => t !== event.topicId)
-          nodes[event.topicId].links.persons = nodes[event.topicId].links.persons.filter(t => t !== event.personId)
+          const type = nodes[event.nodeId].type + 's'
+          nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics.filter(t => t !== event.topicId)
+          nodes[event.topicId].links[type] = nodes[event.topicId].links[type].filter(t => t !== event.nodeId)
           break
-
-        case 'topic-root-linked':
-          assert(nodes[event.rootId], 'Referenced root is unknown')
-          assert(nodes[event.topicId], 'Referenced topic is unknown')
-          nodes[event.rootId].links = nodes[event.rootId].links || {}
-          nodes[event.rootId].links.topics = nodes[event.rootId].links.topics || []
-          nodes[event.rootId].links.topics.push(event.topicId)
-
-          nodes[event.topicId].links = nodes[event.topicId].links || {}
-          nodes[event.topicId].links.persons = nodes[event.topicId].links.persons || []
-          nodes[event.topicId].links.persons.push(event.rootId)
-          break
+        }
 
         case 'invoice-deleted':
           assert(event.invoiceId, 'No invoiceId specified')
@@ -107,7 +99,7 @@ module.exports = function ({models}) {
           assert(event.ticketId, 'ticketId not specified')
           assert(event.personId, 'personId not specified')
           assert(tickets[event.ticketId], 'Ticket not found')
-          const person = models.person.getById(event.personId)
+          const person = models.network.getById(event.personId)
           assert(person, 'Person not found')
           removePersonFromNetwork(tickets[event.ticketId])
           nodes[event.personId] = {...person, type: 'person', shape: 'circle'}
@@ -118,7 +110,7 @@ module.exports = function ({models}) {
     },
 
     getAll() {
-      return Object.values(nodes).filter(n => n.type !== 'topic' || n.links.persons.length)
+      return Object.values(nodes).filter(n => n.type !== 'topic' || (n.links.persons && n.links.persons.length) || (n.links.topics && n.links.topics.length))
     },
 
     getById(id) {

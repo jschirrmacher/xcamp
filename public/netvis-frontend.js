@@ -5,15 +5,15 @@ const maxImageHeight = 300
 const maxImageWidth = 240
 
 const texts = {
+  roots: 'Events',
   topics: 'Themen',
-  events: 'Events',
   persons: 'Interessierte Personen',
   info: 'Beschreibung'
 }
 
 const icons = {
+  roots: '🔥',
   topics: '💬',
-  events: '',
   persons: '👤',
   info: '✍'
 }
@@ -81,6 +81,7 @@ script.addEventListener('load', function () {
       form.innerHTML = detailFormTemplate(Object.assign({}, data, {
         editable,
         linkTitles,
+        tags: (node.links.topics && node.links.topics.map(link => link.target.name)) || [],
         accessCode: userInfo.access_code,
         setText: userInfo.hasPasswordSet ? 'ändern' : 'setzen',
         change: userInfo.hasPasswordSet
@@ -170,7 +171,7 @@ script.addEventListener('load', function () {
         const topicName = el.innerText
         el.remove()
         const headers = {'content-type': 'application/json', authorization}
-        return fetch(`network/persons/${node.id}/topics/${topicName}`, {method: 'DELETE', headers})
+        return fetch(`network/nodes/${node.id}/topics/${topicName}`, {method: 'DELETE', headers})
           .then(result => result.json())
           .then(result => {
             network.removeLinks(result.links2delete)
@@ -198,7 +199,7 @@ script.addEventListener('load', function () {
         el.append(del)
         tagView.insertBefore(el, newTag)
         const headers = {'content-type': 'application/json', authorization}
-        return fetch(`network/persons/${node.id}/topics/${value}`, {method: 'PUT', headers})
+        return fetch(`network/nodes/${node.id}/topics/${value}`, {method: 'PUT', headers})
           .then(result => result.json())
           .then(result => {
             result.nodes2create.forEach(n => network.addNode(n))
@@ -282,13 +283,14 @@ script.addEventListener('load', function () {
 
   function prepareNode(node) {
     const getTopicInfoAsLink = links => ({...links, info: []})
+    const fontSize = node.type === 'topic' ? Math.log((node.links.persons || node.links.topics || []).length + 1) : 1
 
     return Object.assign({}, node, {
       visible: node.type === what || node.open || node.id === detailsNode,
       shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
       className: node.type,
       links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
-      fontSize: node.type === 'topic' ? Math.log(node.links.persons.length + 1) : 1
+      fontSize
     })
   }
 

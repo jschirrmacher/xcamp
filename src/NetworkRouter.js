@@ -9,12 +9,13 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     Model,
+    store,
     readModels
   } = dependencies
 
   function getSessionList() {
     const sessions = readModels.session.getAll().map(session => {
-      const person = readModels.person.getById(session.person.id)
+      const person = readModels.network.getById(session.person.id)
       session.image = Model.Network.getImageURL(person.id, person.image)
       session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
       return session
@@ -43,6 +44,60 @@ module.exports = (dependencies) => {
     return result
   }
 
+  function canEdit(user, uid) {
+    if (!user) {
+      return false
+    } else if (user.isAdmin) {
+      return true
+    } else if (user.type === 'customer') {
+      return !uid || user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
+    } else if (user.type === 'ticket') {
+      return uid === user.participant[0].uid
+    } else {
+      return uid === user.uid
+    }
+  }
+
+  async function assignTopic(txn, node, topicName, user) {
+    if (!canEdit(user, node.id)) {
+      throw 'Changing this node is not allowed!'
+    }
+    const links2create = []
+    const links2delete = []
+    const nodes2create = []
+    node.link = node.links || {}
+    node.link.topics = node.links.topics || []
+    const name = topicName.trim()
+    const topic = readModels.topic.getByName(name) || await createTopic(name)
+    if (!node.links.topics.includes(topic.id)) {
+      // node.links.topics.push(topic)
+      links2create.push({source: {id: node.id}, target: {id: topic.id, ...topic}})
+      store.add({type: 'topic-linked', nodeId: node.id, topicId: topic.id})
+    }
+    return {links2create, links2delete, nodes2create, node}
+
+    async function createTopic(name) {
+      const result = await Model.Topic.upsert(txn, {}, {name}, user)
+      nodes2create.push(result.node)
+      return result.node
+    }
+  }
+
+  async function removeTopic(txn, node, topicName, user) {
+    if (!canEdit(user, node.id)) {
+      throw 'Changing this node is not allowed!'
+    }
+    const links2delete = []
+    const topic = readModels.topic.getByName(topicName)
+    node.links.topics = node.links.topics || []
+    if (node.links.topics.includes(topic.id)) {
+      links2delete.push({source: {id: node.id}, target: {id: topic.id}})
+      node.links.topics = node.links.topics.filter(t => t !== topic.id)
+      store.add({type: 'topic-unlinked', nodeId: node.id, topicId: topic.id})
+    }
+    return {links2delete, node}
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
@@ -59,8 +114,9 @@ module.exports = (dependencies) => {
   router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => updatePerson(req.txn, req.params.uid, req.body, req.user), {commit: true}))
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
-  router.put('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.assignTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
-  router.delete('/persons/:uid/topics/:name', auth.requireJWT(), makeHandler(req => Model.Person.removeTopic(req.txn, req.params.uid, req.params.name, req.user), {commit: true}))
+
+  router.put('/nodes/:uid/topics/:name', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params.name, req.user), {commit: true}))
+  router.delete('/nodes/:uid/topics/:name', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params.name, req.user), {commit: true}))
 
   router.get('/sessions', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
   return router

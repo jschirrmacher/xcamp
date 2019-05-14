@@ -24,22 +24,21 @@ module.exports = (dgraphClient, dgraph, QueryFunction, store) => {
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
-    const newValues = [{type: 'topic'}]
+    const newValues = []
     fields.forEach(key => {
       const obj = {}
       obj[key] = newData[key]
       newValues.push(obj)
     })
-    const newObject = Object.assign(topic, ...newValues)
+    const newObject = Object.assign(topic, ...newValues, {type: 'topic'})
     mu.setSetJson(newObject)
 
     const assigned = await txn.mutate(mu)
-    if (!topic.uid) {
-      topic.uid = assigned.getUidsMap().get('blank-0')
-    }
-    topic = await get(txn, topic.uid)
-    store.add({type: 'topic-updated', topic})
-    return {links2create: [], links2delete: [], nodes2create: [], node: topic}
+    const type = topic.uid ? 'topic-updated' : 'topic-created'
+    topic.uid = topic.uid || assigned.getUidsMap().get('blank-0')
+    const node = await get(txn, topic.uid)
+    store.add({type, topic: Object.assign({id: topic.uid}, ...newValues)})
+    return {links2create: [], links2delete: [], nodes2create: [], node}
   }
 
   return {get, find, upsert, updateById}

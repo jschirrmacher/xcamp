@@ -12,7 +12,7 @@ module.exports = function ({models}) {
         case 'customer-created':
           assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
           assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-          const email = models.person.getById(event.customer.personId).email
+          const email = models.network.getById(event.customer.personId).email
           assert(!users.byEMail[email], `Referenced user ${email} already exists`)
           addUser({
             id: event.customer.id,
@@ -45,12 +45,12 @@ module.exports = function ({models}) {
             id: event.ticket.id,
             type: 'ticket',
             access_code: event.ticket.access_code,
-            email: models.person.getById(event.ticket.personId).email
+            email: models.network.getById(event.ticket.personId).email
           })
           break
 
         case 'participant-set':
-          users.byId[event.ticketId].email = models.person.getById(event.personId).email
+          users.byId[event.ticketId].email = models.network.getById(event.personId).email
           break
 
       }

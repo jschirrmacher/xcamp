@@ -22,8 +22,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     }
   `)
 
-  const topicQuery = QueryFunction('Topic', 'uid name')
-
   async function get(txn, uid) {
     const person = await query.one(txn, `func: uid(${uid})`)
     person.id = person.uid
@@ -32,7 +30,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return person
   }
 
-  function canAdmin(user, uid) {
+  function canEdit(user, uid) {
     if (!user) {
       return false
     } else if (user.isAdmin) {
@@ -64,7 +62,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
   }
 
   async function upsert(txn, person, newData, user) {
-    if (!canAdmin(user, person.uid)) {
+    if (!canEdit(user, person.uid)) {
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
@@ -134,58 +132,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  async function assignTopic(txn, personId, topicName, user) {
-    if (!canAdmin(user, personId)) {
-      throw 'Changing this node is not allowed!'
-    }
-    const links2create = []
-    const links2delete = []
-    const nodes2create = []
-    topicName = topicName.trim()
-    const topicNameLower = topicName.toLowerCase()
-    const person = await get(txn, personId)
-    if (!person.topics.some(t => !t.name.toLowerCase().localeCompare(topicNameLower))) {
-      const allTopics = await topicQuery.all(txn, 'func: eq(type, "topic")', '', false)
-      const topic = allTopics.find(t => !t.name.toLowerCase().localeCompare(topicNameLower))
-      const mu = new dgraph.Mutation()
-      if (topic) {
-        topic.id = topic.uid
-        person.topics.push(topic)
-        links2create.push({source: {id: personId}, target: {id: topic.id, ...topic}})
-        mu.setSetNquads(`<${personId}> <topics> <${topic.id}> .`)
-        store.add({type: 'person-topic-linked', personId, topicid: topic.id})
-      } else {
-        const result = await Model.Topic.upsert(txn, {}, {name: topicName}, user)
-        store.add({type: 'topic-created', topic: result.node})
-        person.topics.push(result.node)
-        nodes2create.push(result.node)
-        links2create.push({source: {id: personId}, target: {id: result.node.uid, ...result.node}})
-        mu.setSetNquads(`<${personId}> <topics> <${result.node.id}> .`)
-        store.add({type: 'person-topic-linked', personId, topicId: result.node.id})
-      }
-      await txn.mutate(mu)
-    }
-    return {links2create, links2delete, nodes2create, node: person}
-  }
-
-  async function removeTopic(txn, personId, topicName, user) {
-    if (!canAdmin(user, personId)) {
-      throw 'Changing this node is not allowed!'
-    }
-    const person = await get(txn, personId)
-    const topicIndex = person.topics.findIndex(t => !t.name.toLowerCase().localeCompare(topicName.toLowerCase()))
-    const links2delete = []
-    if (topicIndex >= 0) {
-      const topic = person.topics[topicIndex]
-      const mu = new dgraph.Mutation()
-      mu.setDelNquads(`<${person.uid}> <topics> <${topic.uid}> .`)
-      await txn.mutate(mu)
-      links2delete.push({source: {id: personId}, target: {id: topic.uid}})
-      person.topics = person.topics.filter(t => t.uid !== topic.uid)
-      store.add({type: 'person-topic-unlinked', personId, topicId: topic.uid})
-    }
-    return {links2delete, node: person}
-  }
-
-  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate, assignTopic, removeTopic}
+  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate}
 }
