@@ -70,15 +70,14 @@ module.exports = (dependencies) => {
     const name = topicName.trim()
     const topic = readModels.topic.getByName(name) || await createTopic(name)
     if (!node.links.topics.includes(topic.id)) {
-      // node.links.topics.push(topic)
       links2create.push({source: {id: node.id}, target: {id: topic.id, ...topic}})
       store.add({type: 'topic-linked', nodeId: node.id, topicId: topic.id})
     }
-    return {links2create, links2delete, nodes2create, node}
+    return {links2create, links2delete, nodes2create, node, topic}
 
     async function createTopic(name) {
       const result = await Model.Topic.upsert(txn, {}, {name}, user)
-      nodes2create.push(result.node)
+      nodes2create.push({type: 'topic', ...result.node})
       return result.node
     }
   }
@@ -115,8 +114,8 @@ module.exports = (dependencies) => {
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
   router.get('/persons/:uid/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
 
-  router.put('/nodes/:uid/topics/:name', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params.name, req.user), {commit: true}))
-  router.delete('/nodes/:uid/topics/:name', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params.name, req.user), {commit: true}))
+  router.put('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
+  router.delete('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
 
   router.get('/sessions', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
   return router

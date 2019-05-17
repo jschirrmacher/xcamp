@@ -202,14 +202,21 @@ script.addEventListener('load', function () {
         return fetch(`network/nodes/${node.id}/topics/${value}`, {method: 'PUT', headers})
           .then(result => result.json())
           .then(result => {
-            result.nodes2create.forEach(n => network.addNode(n))
+            result.nodes2create.forEach(n => network.addNode(prepareNode(n)))
             result.links2create.forEach(l => {
               const node = network.getNode(l.target.id)
               node.visible = true
+              network.updateNode(node)
               network.diagram.add([node], [])
-              network.update(node)
             })
             network.addLinks(result.links2create)
+            network.nodes.some(n => {
+              if (node.id === n.id) {
+                n.links.topics.push(result.topic.id)
+                network.updateNode(n)
+                return true
+              }
+            })
             network.update()
           })
           .catch(console.error)
@@ -283,11 +290,12 @@ script.addEventListener('load', function () {
 
   function prepareNode(node) {
     const getTopicInfoAsLink = links => ({...links, info: []})
-    const fontSize = node.type === 'topic' ? Math.log((node.links.persons || node.links.topics || []).length + 1) : 1
+    const fontSize = node.type === 'topic' && node.links ? Math.log((node.links.persons || node.links.topics || []).length + 1) : 1
 
     return Object.assign({}, node, {
       visible: node.type === what || node.open || node.id === detailsNode,
-      shape: node.shape || (node.type === 'person' ? 'circle' : undefined),
+      shape: 'circle',
+      radius: node.radius || fontSize * 50,
       className: node.type,
       links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
       fontSize
@@ -338,9 +346,17 @@ script.addEventListener('load', function () {
     domSelector: '#root',
     maxLevel: 3,
     collide: function (collide) {
-      return collide.radius(d => (d.radius * 2 || d.width || 100) * 1.1)
+      return collide.radius(d => (d.radius || d.width / 2 || 50) * 1.7)
+    },
+    velocityDecay: 0.9,
+    forceX: function (force) {
+      return force.strength(0.0001)
+    },
+    forceY: function (force) {
+      return force.strength(0.0001)
     },
     nodeRenderer,
+    useMarkers: true,
     handlers: {
       prepare(data) {
         data.nodes = data.nodes.map(prepareNode)

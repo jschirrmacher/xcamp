@@ -336,10 +336,6 @@ body.dialogOpen #root {
   tspan {
     fill: #337ab7;
   }
-
-  .text-bg {
-    fill: #eeeeee;
-  }
 }
 
 .person, .root {
@@ -604,5 +600,16 @@ label[for="image-upload"] {
   .node-info-column,
   .button-column {
     display: none;
+  }
+}
+
+.node.topic {
+  circle {
+    fill: #ffee80;
+    stroke: none;
+  }
+
+  .text-bg {
+    fill: none;
   }
 }

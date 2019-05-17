@@ -224,8 +224,6 @@ body.dialogOpen #root {
 
 .topic:hover .title tspan {
   fill: #337ab7; }
-.topic:hover .title .text-bg {
-  fill: #eeeeee; }
 
 .person .reflinks, .root .reflinks {
   transform: translate(100px, -30px); }
@@ -481,5 +479,11 @@ label[for="image-upload"] {
 .details .detailForm.person.talk-is-open.talk-is-open .node-info-column,
 .details .detailForm.person.talk-is-open.talk-is-open .button-column {
   display: none; }
+
+.node.topic circle {
+  fill: #ffee80;
+  stroke: none; }
+.node.topic .text-bg {
+  fill: none; }
 
 /*# sourceMappingURL=netvis.css.map */
