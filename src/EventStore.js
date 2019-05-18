@@ -40,15 +40,19 @@ class EventStore {
     this.eventsFileName = path.join(basePath, `events-${versionNo}.json`)
     if (eventsVersionNo < versionNo) {
       this.logger.info(`Migrating data from ${eventsVersionNo} to ${versionNo}`)
-      this.changeStream = fs.createWriteStream(this.eventsFileName)
       this.ready = this
         .migrate(basePath, eventsVersionNo, migrations)
         .then(() => fs.writeFileSync(versionFile, JSON.stringify({versionNo})))
         .then(() => this.logger.info('Migration successful'))
+        .then(() => this.openChangeStream())
     } else {
-      this.changeStream = fs.createWriteStream(this.eventsFileName, {flags: 'a'})
+      this.openChangeStream()
       this.ready = Promise.resolve()
     }
+  }
+
+  openChangeStream() {
+    this.changeStream = fs.createWriteStream(this.eventsFileName, {flags: 'a'})
   }
 
   migrate(basePath, fromVersion, migrations) {
@@ -63,7 +67,7 @@ class EventStore {
 
       migrations.reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
         .pipe(new JsonStringify())
-        .pipe(this.changeStream)
+        .pipe(fs.createWriteStream(this.eventsFileName))
     })
   }
 
