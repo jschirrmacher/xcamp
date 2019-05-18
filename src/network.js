@@ -73,7 +73,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
 
   function getImageURL(id) {
     const person = readModels.network.getById(id)
-    if (person.image) {
+    if (person && person.image) {
       if (person.image.match(/^\w+\/\w+:.*$/)) {
         return 'network/persons/' + id + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
       } else {
