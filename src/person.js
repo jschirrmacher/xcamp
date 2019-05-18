@@ -92,7 +92,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     store.add({type, person: Object.assign({id}, ...newValues)})
     const currentTalk = readModels.session.getByUserId(id)
     if (newObject.talkReady && !currentTalk) {
-      store.add({type: 'talk-published', person: {iduid, name: newObject.name}, talk: person.talk})
+      store.add({type: 'talk-published', person: {id, name: newObject.name}, talk: person.talk})
     } else if (!newObject.talkReady && currentTalk) {
       store.add({type: 'talk-withdrawn', person: {id, name: newObject.name}})
     }
