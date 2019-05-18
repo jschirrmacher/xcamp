@@ -290,10 +290,10 @@ script.addEventListener('load', function () {
 
   function prepareNode(node) {
     const getTopicInfoAsLink = links => ({...links, info: []})
-    const fontSize = node.type === 'topic' && node.links ? Math.log((node.links.persons || node.links.topics || []).length + 1) : 1
+    const fontSize = node.type === 'topic' && node.links ? ((Math.log((node.links.persons || []).length + 3) + 1) / 2) : 1
 
     return Object.assign({}, node, {
-      visible: node.type === what || node.open || node.id === detailsNode,
+      visible: (node.type === what && (node.type !== 'topic' || node.links.persons.length > 1)) || node.open || node.id === detailsNode,
       shape: 'circle',
       radius: node.radius || fontSize * 50,
       className: node.type,
@@ -353,10 +353,10 @@ script.addEventListener('load', function () {
       return manyBody.strength(500)
     },
     forceX: function (force) {
-      return force.strength(0.05)
+      return force.strength(0.02)
     },
     forceY: function (force) {
-      return force.strength(0.05)
+      return force.strength(0.02)
     },
     nodeRenderer,
     useMarkers: true,
