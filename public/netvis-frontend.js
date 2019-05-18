@@ -348,12 +348,15 @@ script.addEventListener('load', function () {
     collide: function (collide) {
       return collide.radius(d => (d.radius || d.width / 2 || 50) * 1.7)
     },
-    velocityDecay: 0.9,
+    velocityDecay: 0.8,
+    charge: function (manyBody) {
+      return manyBody.strength(500)
+    },
     forceX: function (force) {
-      return force.strength(0.0001)
+      return force.strength(0.05)
     },
     forceY: function (force) {
-      return force.strength(0.0001)
+      return force.strength(0.05)
     },
     nodeRenderer,
     useMarkers: true,
