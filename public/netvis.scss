@@ -42,7 +42,7 @@ svg {
 
     &.open > circle,
     &.open > rect {
-      stroke: #f00;
+      stroke: #ff696c;
       stroke-width: 2px;
     }
 
@@ -89,9 +89,16 @@ svg {
       }
     }
 
-    &:hover .reflinks {
-      opacity: 1;
-      transition-delay: 0.3s;
+    &:hover {
+      circle {
+        stroke: #ff696c;
+        stroke-width: 2px;
+      }
+
+      .reflinks {
+        opacity: 1;
+        transition-delay: 0.3s;
+      }
     }
 
     &.withBg .title {

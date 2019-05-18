@@ -33,7 +33,7 @@ svg .node {
   stroke: #666;
   stroke-width: 0.5px; }
   svg .node.open > circle, svg .node.open > rect {
-    stroke: #f00;
+    stroke: #ff696c;
     stroke-width: 2px; }
   svg .node .title {
     transition: 0.5s; }
@@ -62,6 +62,9 @@ svg .node {
       ry: 0; }
     svg .node .reflinks g:hover .text-bg {
       fill: #cccccc; }
+  svg .node:hover circle {
+    stroke: #ff696c;
+    stroke-width: 2px; }
   svg .node:hover .reflinks {
     opacity: 1;
     transition-delay: 0.3s; }
