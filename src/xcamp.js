@@ -50,7 +50,7 @@ const QueryFunction = require('./QueryFunction')
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config, readModels})
-const auth = require('./auth')({app, Model, dgraphClient, dgraph, readModels, store, config})
+const auth = require('./auth')({app, Model, dgraphClient, readModels, store, config})
 const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, store, config, readModels})
 
 const msg = "{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}"

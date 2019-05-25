@@ -7,6 +7,7 @@ module.exports = (dependencies) => {
     mailSender,
     Model,
     store,
+    readModels,
     config
   } = dependencies
 
@@ -15,9 +16,9 @@ module.exports = (dependencies) => {
   }
 
   async function getAccountInfoPage(txn, accessCode) {
-    const user = await Model.User.findByAccessCode(txn, accessCode)
-    const customer = user.type === 'customer' ? await Model.Customer.get(txn, user.uid) : null
-    let invoice = customer ? await Model.Invoice.getNewest(txn, customer.uid) : null
+    const user = readModels.user.getByAccessCode(accessCode)
+    const customer = user.type === 'customer' ? user : null
+    let invoice = customer ? await Model.Invoice.getNewest(txn, customer.id) : null
     let tickets
     if (user.type === 'ticket') {
       const ticket = await Model.Ticket.get(txn, user.uid)

@@ -1,7 +1,6 @@
 module.exports = ({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config, readModels}) => {
   const Model = {}
 
-  Model.User = require('./user')(dgraphClient, QueryFunction, store)
   Model.Root = require('./root')(dgraphClient, dgraph, QueryFunction, store)
   Model.Topic = require('./topic')(dgraphClient, dgraph, QueryFunction, store)
   Model.Person = require('./person')(dgraphClient, dgraph, QueryFunction, Model, store, readModels)

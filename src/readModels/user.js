@@ -14,7 +14,7 @@ module.exports = function ({models}) {
           assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
           const email = models.network.getById(event.customer.personId).email
           assert(!users.byEMail[email], `Referenced user ${email} already exists`)
-          addUser({
+          setUser({
             id: event.customer.id,
             type: 'customer',
             access_code: event.customer.access_code,
@@ -24,24 +24,24 @@ module.exports = function ({models}) {
 
         case 'password-changed':
           assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          users.byId[event.userId].password = event.passwordHash
+          setUser(Object.assign(users.byId[event.userId], {password: event.passwordHash}))
           break
 
         case 'set-mail-hash':
           assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          users.byId[event.userId].hash = event.hash
+          setUser(Object.assign(users.byId[event.userId], {hash: event.hash}))
           break
 
         case 'invoice-created':
           if (event.invoice.ticketType === 'orga') {
             assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
-            users.byId[event.invoice.customerId].isAdmin = true
+            setUser(Object.assign(users.byId[event.invoice.customerId], {isAdmin: true}))
             adminIsDefined = true
           }
           break
 
         case 'ticket-created':
-          addUser({
+          setUser({
             id: event.ticket.id,
             type: 'ticket',
             access_code: event.ticket.access_code,
@@ -50,7 +50,7 @@ module.exports = function ({models}) {
           break
 
         case 'participant-set':
-          users.byId[event.ticketId].email = models.network.getById(event.personId).email
+          setUser(Object.assign(users.byId[event.ticketId], {email: models.network.getById(event.personId).email}))
           break
 
       }
@@ -87,7 +87,7 @@ module.exports = function ({models}) {
     adminIsDefined
   }
 
-  function addUser(user) {
+  function setUser(user) {
     users.byId[user.id] = user
     users.byAccessCode[user.access_code] = user
     users.byEMail[user.email] = user
