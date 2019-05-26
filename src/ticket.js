@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, config) => {
+module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, readModels, config) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -25,21 +25,14 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     }))
   }
 
-  async function assertCoupon(txn, code) {
-    if (!code) {
-      throw 'Reduced tickets require a coupon code'
+  function assertCoupon(code, type) {
+    const coupon = readModels.coupon.getByAccessCode(code)
+    if (!coupon) {
+      throw 'Reduced tickets require a valid coupon code'
     }
-    const result = await txn.query(`{ coupons(func: eq(type, "coupon")) @filter(eq(access_code, "${code}")) { uid }}`)
-    const coupons = result.getJson().coupons
-    if (!coupons.length) {
-      throw 'Reduced tickets are available only with a valid coupon code'
+    if (coupon.category !== type) {
+      throw `Ticket category doesn't match coupon code`
     }
-
-    const mu = new dgraph.Mutation()
-    mu.setDelNquads(`<${coupons[0].uid}> * * .`)
-    await txn.mutate(mu)
-
-    store.add({type: 'coupon-invalidated', code})
   }
 
   async function buy(data) {
@@ -51,8 +44,8 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
 
     const txn = dgraphClient.newTxn()
     try {
-      if (data.type === 'reduced') {
-        await assertCoupon(txn, data.code)
+      if (data.code) {
+        assertCoupon(data.code, data.type)
       }
       const customer = await Model.Customer.create(txn, data)
       const tickets = await create(txn, customer.person[0], +data.ticketCount)
@@ -62,6 +55,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       await mailChimp.addTags(customer.person[0].email, [config.eventName])
 
       txn.commit()
+      store.add({type: 'coupon-invalidated', code: data.code})
 
       let url
       if (invoice.payment === 'invoice') {
@@ -138,12 +132,12 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     return result
   }
 
-  async function createCoupon(txn, user) {
+  async function createCoupon(txn, user, category = 'reduced') {
     const mu = new dgraph.Mutation()
     const access_code = rack()
-    mu.setSetJson({type: 'coupon', access_code})
+    mu.setSetJson({type: 'coupon', access_code, category})
     const assigned = await txn.mutate(mu)
-    store.add({type: 'coupon-created', access_code, generated_by: user.uid})
+    store.add({type: 'coupon-created', access_code, category, generated_by: user.uid})
     const link = config.baseUrl + 'tickets?code=' + access_code
     return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
   }

@@ -8,14 +8,20 @@ module.exports = (dependencies) => {
     mailChimp,
     Model,
     store,
+    readModels,
     config
   } = dependencies
 
   async function getTicketPage(code, type, isAdmin) {
+    const coupon = code && readModels.coupon.getByAccessCode(code)
+    if (code && !coupon) {
+      throw 'Invalid coupon code'
+    }
     const template = type === 'reduced' ? 'apply-to-reduced-ticket' : 'buy-ticket'
     const templateName = config.ticketSaleStarted || isAdmin ? template : 'no-tickets-yet'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
-    const data = {code, eventName: config.eventName, categories}
+    const ticketType = code ? coupon.category : ''
+    const data = {code, eventName: config.eventName, categories, ticketType}
     return templateGenerator.generate(templateName, data)
   }
 

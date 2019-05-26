@@ -13,14 +13,18 @@
 
   "ticketSaleStarted": true,
   "ticketCategories": {
-    "private": 95,
+    "earlybird": 100,
+    "private": 125,
+    "lastminute": 175,
     "corporate": 250,
     "reduced": 29.41
   },
   "paypal": {
     "useSandbox": true,
     "buttons": {
+      "earlybird": "xxx",
       "private": "xxx",
+      "lastminute": "xxx",
       "corporate": "xxx",
       "reduced": "xxx"
     }
