@@ -89,9 +89,7 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
       if (!user.password) {
         done(null, user)
       } else {
-        bcrypt.compare(password, user.password, async (err, isValid) => {
-          done(err, isValid ? await getActualUserObject(user) : false)
-        })
+        done('password is set so you cannot login without a hash code', false)
       }
     } catch (error) {
       done(error, false)

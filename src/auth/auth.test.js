@@ -14,7 +14,7 @@ const dgraphClient = {
   }
 }
 const users = [
-  {id: 4711, email: 'test@example.com', password: '$2a$10$5cblct/kPaZQ5uh9jNKIVu8.oGiOPDPGB4iZRdNp0E1miYl6jTqXm'},
+  {id: 4711, email: 'test@example.com', access_code: 'test-access-1', password: '$2a$10$5cblct/kPaZQ5uh9jNKIVu8.oGiOPDPGB4iZRdNp0E1miYl6jTqXm'},
   {id: 4712, email: 'test2@example.com'},
   {id: 4713, email: 'test3@example.com', access_code: 'test-access', hash: 'test-hash'}
 ]
@@ -167,7 +167,7 @@ describe('auth', () => {
   })
 
   describe('requireCodeOrAuth', () => {
-    it('should authenticate with access code', done => {
+    it('should authenticate with access code if password is not set', done => {
       const middleware = auth.requireCodeOrAuth()
       const req = {
         body: {email: 'test3@example.com'},
@@ -181,6 +181,18 @@ describe('auth', () => {
         req.user.id.should.equal(4713)
         done()
       })
+    })
+
+    it('should not authenticate with access code if password is set', done => {
+      const middleware = auth.requireCodeOrAuth()
+      const req = {
+        body: {email: 'test3@example.com'},
+        params: {accessCode: 'test-access-1', hash: 'test-hash'},
+        headers: {}
+      }
+      const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
+      middleware(req, res, () => should().fail())
+      done()
     })
 
     it('should authenticate with JWT token', done => {
