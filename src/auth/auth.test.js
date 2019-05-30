@@ -126,10 +126,23 @@ describe('auth', () => {
     })
   })
 
-  it('should authenticate with JWT', done => {
+  it('should authenticate with JWT in header', done => {
     const middleware = auth.requireJWT()
     const authorization = jwt.sign({sub: 4712}, config.authSecret, {expiresIn: '24h'})
     const req = {body: {email: 'test3@example.com'}, headers: {authorization}}
+    const res = makeExpectedResult()
+    middleware(req, res, err => {
+      should(err).be.undefined()
+      req.user.should.have.property('id')
+      req.user.id.should.equal(4712)
+      done()
+    })
+  })
+
+  it('should authenticate with JWT in cookie', done => {
+    const middleware = auth.requireJWT()
+    const token = jwt.sign({sub: 4712}, config.authSecret, {expiresIn: '24h'})
+    const req = {body: {email: 'test3@example.com'}, cookies: {token}}
     const res = makeExpectedResult()
     middleware(req, res, err => {
       should(err).be.undefined()
