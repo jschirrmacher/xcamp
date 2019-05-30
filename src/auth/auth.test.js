@@ -49,8 +49,6 @@ const config = {
 
 const auth = require('.')({app, Model, dgraphClient, readModels, store, config})
 
-const emptyFunc = () => {}
-
 function expect(expected) {
   if (typeof expected === 'function') {
     return expected
@@ -69,13 +67,14 @@ function checkCookie(name, value) {
 
 function makeExpectedResult(expectedValues = {}) {
   return res = {
-    status: wrap(expectedValues.status ? expect(expectedValues.status) : emptyFunc, 'status'),
-    json: wrap(expectedValues.json ? expect(expectedValues.json) : emptyFunc, 'json'),
-    cookie: wrap(expectedValues.cookie ? expect(expectedValues.cookie) : emptyFunc, 'cookie'),
+    status: wrap(expectedValues, 'status'),
+    json: wrap(expectedValues, 'json'),
+    cookie: wrap(expectedValues, 'cookie'),
     called: {status: false, json: false, cookie: false}
   }
 
-  function wrap(func, name) {
+  function wrap(expectedValues, name) {
+    const func = expectedValues[name] ? expect(expectedValues[name]) : () => {}
     return (...args) => {
       res.called[name] = true
       func(...args)
