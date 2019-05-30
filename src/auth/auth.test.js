@@ -151,4 +151,17 @@ describe('auth', () => {
       done()
     })
   })
+
+  it('should clear the cookie if logged out', done => {
+    let cookieIsCleared = false
+    auth.logout({
+      cookie(name, value) {
+        name.should.equal('token')
+        should(value).be.undefined()
+        cookieIsCleared = true
+      }
+    })
+    cookieIsCleared.should.be.true()
+    done()
+  })
 })
