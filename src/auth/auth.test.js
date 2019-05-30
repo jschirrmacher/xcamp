@@ -42,7 +42,14 @@ const readModels = {
     }
   }
 }
-const store = {}
+
+const storedData = []
+const store = {
+  add(entry) {
+    storedData.push(entry)
+  }
+}
+
 const config = {
   authSecret: 'secret-key'
 }
@@ -163,5 +170,17 @@ describe('auth', () => {
     })
     cookieIsCleared.should.be.true()
     done()
+  })
+
+  it('should change the password', async () => {
+    storedData.length = 0
+    const user = readModels.user.getById(4713)
+    const result = await auth.setPassword({txn: true}, user.access_code, 'new-password')
+    result.should.deepEqual({message: 'Passwort ist geändert'})
+    storedData.length.should.equal(1)
+    storedData[0].should.have.properties(['type', 'userId', 'passwordHash'])
+    storedData[0].type.should.equal('password-changed')
+    storedData[0].userId.should.equal(4713)
+    storedData[0].passwordHash.should.startWith('$2a$10$')
   })
 })

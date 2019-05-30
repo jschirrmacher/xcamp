@@ -31,20 +31,9 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
 
   async function setPassword(txn, accessCode, password) {
     const user = readModels.user.getByAccessCode(accessCode)
-    return new Promise((fulfil, reject) => {
-      bcrypt.hash(password, 10, (error, passwordHash) => {
-        try {
-          if (error) {
-            reject(error)
-          } else {
-            store.add({type: 'password-changed', userId: user.id, passwordHash})
-            fulfil({message: 'Passwort ist geändert'})
-          }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
+    const passwordHash = await bcrypt.hash(password, 10)
+    store.add({type: 'password-changed', userId: user.id, passwordHash})
+    return {message: 'Passwort ist geändert'}
   }
 
   async function getActualUserObject(user) {
