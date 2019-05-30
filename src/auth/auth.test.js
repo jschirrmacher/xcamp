@@ -50,29 +50,34 @@ const config = {
 const auth = require('.')({app, Model, dgraphClient, readModels, store, config})
 
 const emptyFunc = () => {}
-const expect = expected => data => data.should.deepEqual(expected)
 
-function expectValidCookie() {
-  return (name, value) => {
-    name.should.equal('token')
-    jwt.verify(value, config.authSecret, (err, decoded) => {
-      should(err).be.null()
-      decoded.should.have.properties(['iat', 'exp'])
-    })
+function expect(expected) {
+  if (typeof expected === 'function') {
+    return expected
+  } else {
+    return data => data.should.deepEqual(expected)
   }
 }
 
-function makeExpectedResult({status = 200, json = emptyFunc, cookie = emptyFunc}) {
+function checkCookie(name, value) {
+  name.should.equal('token')
+  jwt.verify(value, config.authSecret, (err, decoded) => {
+    should(err).be.null()
+    decoded.should.have.properties(['iat', 'exp'])
+  })
+}
+
+function makeExpectedResult(expectedValues = {}) {
   return res = {
-    status: wrap(status, 'status'),
-    json: wrap(json, 'json'),
-    cookie: wrap(cookie, 'cookie'),
+    status: wrap(expectedValues.status ? expect(expectedValues.status) : emptyFunc, 'status'),
+    json: wrap(expectedValues.json ? expect(expectedValues.json) : emptyFunc, 'json'),
+    cookie: wrap(expectedValues.cookie ? expect(expectedValues.cookie) : emptyFunc, 'cookie'),
     called: {status: false, json: false, cookie: false}
   }
 
-  function wrap(func, called) {
+  function wrap(func, name) {
     return (...args) => {
-      res.called[called] = true
+      res.called[name] = true
       func(...args)
       return res
     }
@@ -83,7 +88,7 @@ describe('auth', () => {
   it('should authenticate with e-mail and password', done => {
     const middleware = auth.requireLogin()
     const req = {body: {email: 'test@example.com', password: 'test-pwd'}}
-    const res = makeExpectedResult({status: expect(200)})
+    const res = makeExpectedResult()
     middleware(req, res, err => {
       should(err).be.undefined()
       req.user.should.have.property('id')
@@ -95,7 +100,7 @@ describe('auth', () => {
   it('should generate a JWT if authenticated with e-mail and password', done => {
     const middleware = auth.requireLogin()
     const req = {body: {email: 'test@example.com', password: 'test-pwd'}}
-    const res = makeExpectedResult({cookie: expectValidCookie()})
+    const res = makeExpectedResult({cookie: checkCookie})
     middleware(req, res, err => {
       res.called.cookie.should.be.true()
       done()
@@ -105,10 +110,7 @@ describe('auth', () => {
   it('should not authenticate with e-mail and wrong password', done => {
     const middleware = auth.requireLogin()
     const req = {body: {email: 'test@example.com', password: 'wrong-pwd'}}
-    const res = makeExpectedResult({
-      status: expect(401),
-      json: expect({error: 'Not authenticated'})
-    })
+    const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
     middleware(req, res, () => should().fail())
     done()
   })
@@ -116,7 +118,7 @@ describe('auth', () => {
   it('should authenticate with access code and hash', done => {
     const middleware = auth.requireCodeAndHash()
     const req = {body: {email: 'test3@example.com'}, params: {accessCode: 'test-access', hash: 'test-hash'}}
-    const res = makeExpectedResult({status: expect(200)})
+    const res = makeExpectedResult()
     middleware(req, res, err => {
       should(err).be.undefined()
       req.user.should.have.property('id')
@@ -129,7 +131,7 @@ describe('auth', () => {
     const middleware = auth.requireJWT()
     const authorization = jwt.sign({sub: 4712}, config.authSecret, {expiresIn: '24h'})
     const req = {body: {email: 'test3@example.com'}, headers: {authorization}}
-    const res = makeExpectedResult({status: expect(200)})
+    const res = makeExpectedResult()
     middleware(req, res, err => {
       should(err).be.undefined()
       req.user.should.have.property('id')
