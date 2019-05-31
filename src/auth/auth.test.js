@@ -40,7 +40,8 @@ const readModels = {
         return user
       }
       throw `No user found with this id`
-    }
+    },
+    adminIsDefined: true
   }
 }
 
@@ -204,6 +205,42 @@ describe('auth', () => {
         should(err).be.undefined()
         req.user.should.have.property('id')
         req.user.id.should.equal(4712)
+        done()
+      })
+    })
+  })
+
+  describe('requireAdmin', () => {
+    it('should require a user to be admin', done => {
+      readModels.user.adminIsDefined = true
+      const middleware = auth.requireAdmin()
+      const req = {user: {id: 4711}}
+      const res = makeExpectedResult({status: 403, message: 'Not allowed'})
+      middleware(req, res, err => {
+        err.should.deepEqual({status: 403, message: 'Not allowed'})
+        done()
+      })
+    })
+
+    it('should allow access for admins', done => {
+      readModels.user.adminIsDefined = true
+      const middleware = auth.requireAdmin()
+      const req = {user: {id: 4712, isAdmin: true}}
+      const res = makeExpectedResult()
+      middleware(req, res, err => {
+        should(err).be.undefined()
+        done()
+      })
+    })
+
+    it('should allow access if no admin is defined', done => {
+      readModels.user.adminIsDefined = false
+      const middleware = auth.requireAdmin()
+      const req = {user: {id: 4711}}
+      const res = makeExpectedResult()
+      middleware(req, res, err => {
+        should(err).be.undefined()
+        readModels.user.adminIsDefined = true
         done()
       })
     })
