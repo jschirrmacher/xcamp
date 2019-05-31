@@ -1,13 +1,10 @@
-module.exports = ({express, auth, makeHandler, templateGenerator, Model, config}) => {
+module.exports = ({express, auth, makeHandler, templateGenerator, readModels, config}) => {
   function getUserInfo(user) {
-    const person = user && (user.person && user.person[0] || user.participant && user.participant[0])
-    const profileImage = user && Model.Network.getImageURL(person.uid, person.image)
-
     return {
       loggedIn: !!user,
       hasPasswordSet: user && !!user.password,
       access_code: user && user.access_code,
-      profileImage
+      profileImage: user && readModels.network.getById(user.id).image
     }
   }
 
