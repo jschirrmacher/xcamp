@@ -52,17 +52,6 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
     }
   }
 
-  passport.use(new LocalStrategy(async (username, password, done) => {
-    try {
-      const user = readModels.user.getByAccessCode(username)
-      bcrypt.compare(password, user.password, async (err, isValid) => {
-        done(err, isValid ? await getActualUserObject(user) : false)
-      })
-    } catch (error) {
-      done(error, false)
-    }
-  }))
-
   passport.use(new LoginStrategy(async (email, username, password, done) => {
     try {
       const user = email ? readModels.user.getByEMail(email) : readModels.user.getByAccessCode(username)
