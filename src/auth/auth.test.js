@@ -128,7 +128,7 @@ describe('auth', () => {
   describe('requireCodeAndHash', () => {
     it('should authenticate with access code and hash', done => {
       const middleware = auth.requireCodeAndHash()
-      const req = {body: {email: 'test3@example.com'}, params: {accessCode: 'test-access', hash: 'test-hash'}}
+      const req = {params: {accessCode: 'test-access', hash: 'test-hash'}}
       const res = makeExpectedResult()
       middleware(req, res, err => {
         should(err).be.undefined()
@@ -136,6 +136,38 @@ describe('auth', () => {
         req.user.id.should.equal(4713)
         done()
       })
+    })
+
+    it('should not authenticate without access code', done => {
+      const middleware = auth.requireCodeAndHash()
+      const req = {params: {hash: 'test-hash'}}
+      const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
+      middleware(req, res, () => should().fail())
+      done()
+    })
+
+    it('should not authenticate without hash', done => {
+      const middleware = auth.requireCodeAndHash()
+      const req = {params: {accessCode: 'test-access'}}
+      const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
+      middleware(req, res, () => should().fail())
+      done()
+    })
+
+    it('should not authenticate if wrong access code is provided', done => {
+      const middleware = auth.requireCodeAndHash()
+      const req = {params: {accessCode: 'wrong-access', hash: 'test-hash'}}
+      const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
+      middleware(req, res, () => should().fail())
+      done()
+    })
+
+    it('should not authenticate if wrong hash is provided', done => {
+      const middleware = auth.requireCodeAndHash()
+      const req = {params: {accessCode: 'test-access', hash: 'wrong-hash'}}
+      const res = makeExpectedResult({status: 401, json: {error: 'Not authenticated'}})
+      middleware(req, res, () => should().fail())
+      done()
     })
   })
 
