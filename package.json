@@ -35,7 +35,7 @@
   },
   "scripts": {
     "start": "node src/xcamp.js",
-    "test": "mocha src/**/*.test.js"
+    "test": "mocha src/*.test.js src/**/*.test.js"
   },
   "devDependencies": {
     "mocha": "^6.1.4",
