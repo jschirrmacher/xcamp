@@ -29,7 +29,12 @@ const auth = {
   },
 
   signIn() {
+    log.push('auth.signIn')
     return 'test-token'
+  },
+
+  logout() {
+    log.push('auth.logout')
   }
 }
 
@@ -48,8 +53,13 @@ const readModels = {
     }
   }
 }
-const templateGenerator = {}
-const config = {}
+
+const templateGenerator = {
+  generate(page, params) {
+    return {page, params}
+  }
+}
+const config = {baseUrl: 'https://test.example.com/app'}
 
 const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
 app.use('/session', router)
@@ -97,16 +107,31 @@ describe('SessionRouter', () => {
         .expect('Content-Type', /json/)
         .then(response => {
           response.body.should.deepEqual({token: 'test-token'})
-          log.should.deepEqual(['auth.requireLogin'])
+          log.should.deepEqual(['auth.requireLogin', 'auth.signIn'])
         })
     })
   })
 
   describe('GET /session/logout', () => {
-    it('should invalidate the user\'s session')
+    it(`should invalidate the user's session`, () => {
+      return request(app)
+        .get('/session/logout')
+        .expect(302)
+        .expect('location', config.baseUrl)
+        .then(response => {
+          log.should.deepEqual(['auth.logout'])
+        })
+    })
   })
 
   describe('GET /session/:accessCode/:url', () => {
-    it('should show the login page')
+    it('should show the login page', () => {
+      return request(app)
+        .get('/session/123456/' + encodeURIComponent('/page/123'))
+        .expect(200)
+        .then(response => {
+          response.body.should.deepEqual({page: 'login-page', params: {url: '/page/123', accessCode: '123456'}})
+        })
+    })
   })
 })

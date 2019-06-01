@@ -8,11 +8,11 @@ module.exports = ({express, auth, makeHandler, templateGenerator, readModels, co
     }
   }
 
-  async function loginPage(accessCode, url) {
+  function loginPage(accessCode, url) {
     return templateGenerator.generate('login-page', {url, accessCode})
   }
 
-  async function login(req, res) {
+  function login(req, res) {
     res.json({token: auth.signIn(req, res)})
   }
 
