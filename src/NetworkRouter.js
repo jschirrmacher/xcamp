@@ -65,8 +65,8 @@ module.exports = (dependencies) => {
     const links2create = []
     const links2delete = []
     const nodes2create = []
-    node.link = node.links || {}
-    node.link.topics = node.links.topics || []
+    node.links = node.links || {}
+    node.links.topics = node.links.topics || []
     const name = topicName.trim()
     const topic = readModels.topic.getByName(name) || await createTopic(name)
     if (!node.links.topics.includes(topic.id)) {
@@ -88,6 +88,7 @@ module.exports = (dependencies) => {
     }
     const links2delete = []
     const topic = readModels.topic.getByName(topicName)
+    node.links = node.links || {}
     node.links.topics = node.links.topics || []
     if (node.links.topics.includes(topic.id)) {
       links2delete.push({source: {id: node.id}, target: {id: topic.id}})
