@@ -291,9 +291,10 @@ script.addEventListener('load', function () {
   function prepareNode(node) {
     const getTopicInfoAsLink = links => ({...links, info: []})
     const fontSize = node.type === 'topic' && node.links ? ((Math.log((node.links.persons || []).length + 3) + 1) / 3) : 1
+    const moreThan1PersonConnected = node.links && node.links.persons && node.links.persons.length > 1
 
     return Object.assign({}, node, {
-      visible: (node.type === what && (node.type !== 'topic' || node.links.persons.length > 1)) || node.open || node.id === detailsNode,
+      visible: (node.type === what && (node.type !== 'topic' || moreThan1PersonConnected)) || node.open || node.id === detailsNode,
       shape: 'circle',
       radius: node.radius || fontSize * 50,
       className: node.type,
