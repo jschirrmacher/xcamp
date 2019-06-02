@@ -136,9 +136,8 @@ module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
     invoice.created = new Date(invoice.created).toISOString()
     store.add({type: 'invoice-created', invoice})
 
-    tickets.forEach((t, num) => {
-      const id = assigned.getUidsMap().get(`blank-${num + 1}`)
-      store.add({type: 'ticket-created', ticket: {id, access_code: t.access_code, personId: t.participant.uid, invoiceId}})
+    tickets.forEach(t => {
+      store.add({type: 'ticket-created', ticket: {id: t.id, access_code: t.access_code, personId: t.participant.uid, invoiceId}})
     })
 
     return result
