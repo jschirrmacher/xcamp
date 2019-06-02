@@ -8,7 +8,7 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
+module.exports = ({app, readModels, store, config}) => {
   const secretOrKey = config.authSecret
 
   function getLoginURL(req) {
@@ -16,7 +16,7 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
   }
 
   function signIn(req, res) {
-    const token = jwt.sign({sub: req.user.uid}, config.authSecret, {expiresIn: '24h'})
+    const token = jwt.sign({sub: req.user.id}, config.authSecret, {expiresIn: '24h'})
     res.cookie('token', token)
     return token
   }
@@ -29,34 +29,18 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
     return (req.cookies && req.cookies.token) || req.headers.authorization
   }
 
-  async function setPassword(txn, accessCode, password) {
+  async function setPassword(accessCode, password) {
     const user = readModels.user.getByAccessCode(accessCode)
     const passwordHash = await bcrypt.hash(password, 10)
     store.add({type: 'password-changed', userId: user.id, passwordHash})
     return {message: 'Passwort ist geändert'}
   }
 
-  async function getActualUserObject(user) {
-    const txn = dgraphClient.newTxn()
-    try {
-      if (user.type === 'customer') {
-        return Model.Customer.get(txn, user.id)
-      } else if (user.type === 'ticket') {
-        return Model.Ticket.get(txn, user.id)
-      }
-      return user
-    } catch (error) {
-      done(error, false)
-    } finally {
-      txn.discard()
-    }
-  }
-
   passport.use(new LoginStrategy(async (email, username, password, done) => {
     try {
       const user = email ? readModels.user.getByEMail(email) : readModels.user.getByAccessCode(username)
       bcrypt.compare(password, user.password, async (err, isValid) => {
-        done(err, isValid ? await getActualUserObject(user) : false)
+        done(err, isValid ? user : false)
       })
     } catch (error) {
       done(error, false)
@@ -66,7 +50,7 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
   passport.use(new JwtStrategy({jwtFromRequest, secretOrKey}, async (payload, done) => {
     try {
       const user = readModels.user.getById(payload.sub)
-      done(null, user ? await getActualUserObject(user) : false)
+      done(null, user)
     } catch (error) {
       done(error, false)
     }
@@ -89,7 +73,7 @@ module.exports = ({app, Model, dgraphClient, readModels, store, config}) => {
     try {
       const user = readModels.user.getByAccessCode(accessCode)
       if (user && user.hash && user.hash === hash) {
-        done(null, await getActualUserObject(user))
+        done(null, user)
       } else {
         done('invalid credentials', false)
       }

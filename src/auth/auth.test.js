@@ -294,7 +294,7 @@ describe('auth', () => {
   it('should change the password', async () => {
     storedData.length = 0
     const user = readModels.user.getById(4713)
-    const result = await auth.setPassword({txn: true}, user.access_code, 'new-password')
+    const result = await auth.setPassword(user.access_code, 'new-password')
     result.should.deepEqual({message: 'Passwort ist geändert'})
     storedData.length.should.equal(1)
     storedData[0].should.have.properties(['type', 'userId', 'passwordHash'])

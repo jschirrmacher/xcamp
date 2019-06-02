@@ -49,22 +49,22 @@ module.exports = (dependencies) => {
   }
 
   async function sendPassword(txn, accessCode) {
-    const method = accessCode.match(/^.*@.*\.\w+$/) ? 'findByEMail' : 'findByAccessCode'
-    const customer = await Model.Customer[method](txn, accessCode)
-    if (customer) {
-      const hash = await mailSender.sendHashMail(txn, 'sendPassword-mail', customer, 'accounts/' + customer.access_code + '/password/reset')
-      store.add({type: 'set-mail-hash', userId: customer.uid, hash})
+    const method = accessCode.match(/^.*@.*\.\w+$/) ? 'getByEMail' : 'getByAccessCode'
+    const user = await readModels.user[method](accessCode)
+    if (user) {
+      const hash = await mailSender.sendHashMail(txn, 'sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
+      store.add({type: 'set-mail-hash', userId: user.uid, hash})
     }
-    return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (customer ? 'sent' : 'failed')}
+    return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (user ? 'sent' : 'failed')}
   }
 
   async function resetPassword(accessCode) {
     return templateGenerator.generate('password-reset-form', {accessCode})
   }
 
-  async function setPassword(txn, user, password) {
-    const result = await auth.setPassword(txn, user.access_code, password)
-    result.userId = Model.Network.getNodeId(user)
+  async function setPassword(user, password) {
+    const result = await auth.setPassword(user.access_code, password)
+    result.userId = user.id
     return result
   }
 
@@ -82,7 +82,7 @@ module.exports = (dependencies) => {
   router.get('/:accessCode/password', makeHandler(req => sendPassword(req.txn, req.params.accessCode), {commit: true}))
   router.get('/password/sent', makeHandler(req => templateGenerator.generate('password-sent'), {type: 'send'}))
   router.get('/password/failed', makeHandler(req => templateGenerator.generate('password-failed'), {type: 'send'}))
-  router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.txn, req.user, req.body.password), {commit: true}))
+  router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.user, req.body.password)))
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.txn, req.params.accessCode), {type: 'send', txn: true}))

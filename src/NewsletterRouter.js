@@ -28,10 +28,14 @@ module.exports = (dependencies) => {
     try {
       const subject = 'XCamp Newsletter - Bitte bestätigen!'
       const action = 'newsletter/approve/' + customer.access_code
-      await mailSender.sendHashMail(txn, 'newsletter-approval-mail', customer, action, subject)
+      const user = {
+        id: customer.uid,
+        firstName: customer.person[0].firstName,
+        email: customer.person[0].email
+      }
+      await mailSender.sendHashMail(txn, 'newsletter-approval-mail', user, action, subject)
       store.add({type: 'newsletter-subscription', customer})
-      const firstName = customer.person[0].firstName
-      return templateGenerator.generate('register-success', {firstName})
+      return templateGenerator.generate('register-success', {firstName: user.firstName})
     } catch (e) {
       return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
     }

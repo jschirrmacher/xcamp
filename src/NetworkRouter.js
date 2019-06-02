@@ -16,7 +16,7 @@ module.exports = (dependencies) => {
   function getSessionList() {
     const sessions = readModels.session.getAll().map(session => {
       const person = readModels.network.getById(session.person.id)
-      session.image = Model.Network.getImageURL(person.id, person.image)
+      session.image = Model.Network.getImageURL(person)
       session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
       return session
     })
@@ -44,17 +44,13 @@ module.exports = (dependencies) => {
     return result
   }
 
-  function canEdit(user, uid) {
+  function canEdit(user, nodeId) {
     if (!user) {
       return false
     } else if (user.isAdmin) {
       return true
-    } else if (user.type === 'customer') {
-      return !uid || user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
-    } else if (user.type === 'ticket') {
-      return uid === user.participant[0].uid
     } else {
-      return uid === user.uid
+      return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== false
     }
   }
 

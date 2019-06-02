@@ -68,14 +68,13 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   async function getGraph(user = null) {
     const nodes = readModels.network.getAll()
       .map(node => getPublicViewOfNode({...node}, user))
-    return {nodes, myNode: getNodeId(user)}
+    return {nodes, myNode: user && user.personId}
   }
 
-  function getImageURL(id) {
-    const person = readModels.network.getById(id)
+  function getImageURL(person) {
     if (person && person.image) {
       if (person.image.match(/^\w+\/\w+:.*$/)) {
-        return 'network/persons/' + id + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
+        return 'network/persons/' + person.id + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
       } else {
         return person.image
       }
@@ -84,19 +83,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   function setAccountData(node, user) {
-    if (user.type === 'customer') {
-      const tickets = user.invoices[0].tickets
-      if (user.invoices[0].invoiceNo) {
-        node.accountPath = tickets.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
-      }
-      const ticket = tickets.find(ticket => ticket.participant[0].uid === node.id)
-      if (ticket) {
-        node.access_code = ticket.access_code
-      }
-    } else {
-      node.accountPath = 'accounts/my/invoices/current'
-      node.access_code = user.access_code
-    }
+    node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
   }
 
   function getPublicViewOfNode(node, user) {
@@ -108,7 +95,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       fields.push('topics')
       fields.push('twitterName')
       fields.push('talk')
-      node.image = getImageURL(node.id, node.image)
+      node.image = getImageURL(node)
       node.details = 'network/persons/' + node.id
       node.name = node.firstName + ' ' + node.lastName
       if (node.editable) {
@@ -130,22 +117,13 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     if (user.isAdmin) {
       return true
     }
-    if (user.type === 'customer') {
-      return user.invoices[0].tickets.some(t => t.participant[0].uid === node.id)
-    } else {
-      return user.participant[0].uid === node.id
-    }
-  }
-
-  function getNodeId(user) {
-    return user && (user.type === 'customer' ? user.person[0].uid : user.uid)
+    return user.ticketIds.indexOf(node.id) !== false
   }
 
   return {
     rebuild,
     getGraph,
     getAllTickets,
-    getNodeId,
     getPublicViewOfNode,
     getImageURL
   }

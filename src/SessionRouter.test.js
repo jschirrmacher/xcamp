@@ -7,7 +7,8 @@ const log = []
 const testUser = {
   id: 4711,
   password: 'test-password',
-  access_code: 'test-access-code'
+  access_code: 'test-access-code',
+  personId: 4712
 }
 
 const auth = {
@@ -47,7 +48,7 @@ function makeHandler(handler) {
 const readModels = {
   network: {
     getById(id) {
-      if (id === 4711) {
+      if (id === 4712) {
         return Object.assign({image: 'http://my.profile/picture.jpg'}, testUser)
       }
     }
