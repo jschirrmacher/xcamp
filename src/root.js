@@ -20,7 +20,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, store) => {
   }
 
   async function upsert(txn, root, newData, user) {
-    if (!user) {
+    if (!user || !user.isAdmin) {
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
