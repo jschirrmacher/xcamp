@@ -53,7 +53,7 @@ module.exports = (dependencies) => {
     const user = await readModels.user[method](accessCode)
     if (user) {
       const hash = await mailSender.sendHashMail(txn, 'sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
-      store.add({type: 'set-mail-hash', userId: user.uid, hash})
+      store.add({type: 'set-mail-hash', userId: user.id, hash})
     }
     return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (user ? 'sent' : 'failed')}
   }
@@ -64,7 +64,7 @@ module.exports = (dependencies) => {
 
   async function setPassword(user, password) {
     const result = await auth.setPassword(user.access_code, password)
-    result.userId = user.id
+    result.personId = user.personId
     return result
   }
 

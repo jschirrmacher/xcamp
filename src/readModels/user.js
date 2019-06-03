@@ -6,6 +6,7 @@ module.exports = function ({models}) {
     byPersonId: {}
   }
   const persons = {}
+  const tickets = {}
   const customersByInvoiceId = {}
   let adminIsDefined = false
 
@@ -33,6 +34,7 @@ module.exports = function ({models}) {
 
         case 'person-created':
         case 'person-updated':
+          persons[event.person.id] = Object.assign(persons[event.person.id] || {}, event.person)
           const user = users.byPersonId[event.person.id]
           if (user) {
             user.firstName = event.person.firstName || user.firstName
@@ -68,23 +70,48 @@ module.exports = function ({models}) {
             event.ticket.id = 'user-' + (users.byId.length + 1)
           }
           const person = models.network.getById(event.ticket.personId)
-          setUser({
-            id: event.ticket.id,
-            personId: person.id,
-            type: 'ticket',
-            access_code: event.ticket.access_code,
-            email: person.email,
-            image: person.image,
-            ticketIds: [event.ticket.id]
-          })
+          const customer = users.byPersonId[event.ticket.personId]
+          tickets[event.ticket.id] = event.ticket
+          if (customer) {
+            users.byAccessCode[event.ticket.access_code] = customer
+            users.byId[event.ticket.id] = customer
+          } else {
+            setUser({
+              id: event.ticket.id,
+              personId: person.id,
+              type: 'ticket',
+              access_code: event.ticket.access_code,
+              email: person.email,
+              firstName: person.firstName,
+              image: person.image,
+              ticketIds: [event.ticket.id]
+            })
+          }
           users.byId[customersByInvoiceId[event.ticket.invoiceId]].ticketIds.push(event.ticket.id)
           break
         }
 
-        case 'participant-set':
-          setUser(Object.assign(users.byId[event.ticketId], {email: models.network.getById(event.personId).email}))
+        case 'participant-set': {
+          assert(event.personId, 'No personId found in event')
+          const ticketUser = users.byId[event.ticketId]
+          const person = persons[event.personId]
+          if (ticketUser.type === 'customer') {
+            const ticket = tickets[event.ticketId]
+            setUser({
+              id: event.ticketId,
+              personId: event.personId,
+              type: 'ticket',
+              access_code: ticket.access_code,
+              email: person.email,
+              firstName: person.firstName,
+              image: person.image,
+              ticketIds: [event.ticketId]
+            })
+          } else {
+            setUser(Object.assign(ticketUser, {email: person.email, firstName: person.firstName, image: person.image}))
+          }
           break
-
+        }
       }
     },
 
