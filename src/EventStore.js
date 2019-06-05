@@ -110,7 +110,11 @@ class EventStore {
     const completeEvent = {ts: new Date(), type, ...rest}
     this.changeStream.write(JSON.stringify(completeEvent) + '\n')
     this.listeners.forEach(listener => {
-      listener(completeEvent, (condition, message) => EventStore.assert(event, condition, message), 'new')
+      try {
+        listener(completeEvent, (condition, message) => EventStore.assert(event, condition, message), 'new')
+      } catch (error) {
+        self.logger.error(error)
+      }
     })
   }
 

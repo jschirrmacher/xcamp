@@ -1,21 +1,18 @@
-module.exports = ({express, auth, makeHandler, templateGenerator, Model, config}) => {
+module.exports = ({express, auth, makeHandler, templateGenerator, Model, readModels, config}) => {
   function getUserInfo(user) {
-    const person = user && (user.person && user.person[0] || user.participant && user.participant[0])
-    const profileImage = user && Model.Network.getImageURL(person.uid, person.image)
-
     return {
       loggedIn: !!user,
       hasPasswordSet: user && !!user.password,
       access_code: user && user.access_code,
-      profileImage
+      profileImage: Model.Network.getImageURL(user && readModels.network.getById(user.personId))
     }
   }
 
-  async function loginPage(accessCode, url) {
+  function loginPage(accessCode, url) {
     return templateGenerator.generate('login-page', {url, accessCode})
   }
 
-  async function login(req, res) {
+  function login(req, res) {
     res.json({token: auth.signIn(req, res)})
   }
 

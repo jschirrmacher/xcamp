@@ -301,6 +301,17 @@ table {
   height: 4em;
 }
 
+#login-form {
+  text-align: center;
+
+  label {
+    width: 320px;
+    margin: 0 auto;
+    display: block;
+    text-align: left;
+  }
+}
+
 @import "info";
 @import "menu";
 @import "footer";

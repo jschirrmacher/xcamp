@@ -6,7 +6,7 @@ document.getElementById('chgPwdForm').addEventListener('submit', function (event
   const password = document.getElementById('password').value
   fetch('accounts/password', {method: 'POST', headers, body: JSON.stringify({password})})
     .then(result => result.json())
-    .then(({message, userId}) => showMessage(message) || userId)
+    .then(({message, personId}) => showMessage(message) || personId)
     .catch(error => console.error(error) || '')
     .then(id => location.href = document.head.baseURI + '#' + id)
   return false;

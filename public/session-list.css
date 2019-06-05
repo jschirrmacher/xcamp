@@ -62,7 +62,7 @@ a, button {
 
 #main {
   background-color: #f5f5f5;
-  background-image: url(//xcamp.co/wp-content/uploads/sites/18/2017/07/bg_hero_xcamp_v01-1.png);
+  background-image: url(bg_hero_xcamp_v01-1.png);
   background-repeat: no-repeat;
   background-position: left -45px;
   padding: 30px 15px;
@@ -221,4 +221,4 @@ footer {
   text-align: center;
   line-height: 1.5em; }
 
-/*# sourceMappingURL=talk-list.css.map */
+/*# sourceMappingURL=session-list.css.map */

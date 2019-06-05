@@ -8,17 +8,15 @@ require('express-session')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-module.exports = ({app, Model, dgraphClient, dgraph, readModels, store, config}) => {
+module.exports = ({app, readModels, store, config}) => {
+  const secretOrKey = config.authSecret
+
   function getLoginURL(req) {
     return config.baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
   }
 
-  function tokenForUser(user) {
-    return jwt.sign({sub: user.uid}, config.authSecret, {expiresIn: '24h'})
-  }
-
   function signIn(req, res) {
-    const token = tokenForUser(req.user)
+    const token = jwt.sign({sub: req.user.id}, config.authSecret, {expiresIn: '24h'})
     res.cookie('token', token)
     return token
   }
@@ -27,122 +25,60 @@ module.exports = ({app, Model, dgraphClient, dgraph, readModels, store, config})
     res.cookie('token', undefined)
   }
 
-  async function setPasswordHash(customer, passwordHash, txn) {
-    const mu = new dgraph.Mutation()
-    await mu.setSetNquads(`<${customer.uid}> <password> "${passwordHash}" .`)
-    await txn.mutate(mu)
-    store.add({type: 'password-changed', userId: customer.uid, passwordHash})
+  function jwtFromRequest(req) {
+    return (req.cookies && req.cookies.token) || req.headers.authorization
   }
 
-  async function setPassword(txn, accessCode, password) {
-    const user = await Model.User.findByAccessCode(txn, accessCode)
-    return new Promise((fulfil, reject) => {
-      bcrypt.hash(password, 10, async (error, passwordHash) => {
-        try {
-          if (error) {
-            reject(error)
-          } else {
-            await setPasswordHash(user, passwordHash, txn)
-            fulfil({message: 'Passwort ist geändert'})
-          }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
+  async function setPassword(accessCode, password) {
+    const user = readModels.user.getByAccessCode(accessCode)
+    const passwordHash = await bcrypt.hash(password, 10)
+    store.add({type: 'password-changed', userId: user.id, passwordHash})
+    return {message: 'Passwort ist geändert'}
   }
-
-  async function getActualUserObject(txn, user) {
-    if (user.type === 'customer') {
-      return Model.Customer.get(txn, user.uid)
-    } else if (user.type === 'ticket') {
-      return Model.Ticket.get(txn, user.uid)
-    }
-    return user
-  }
-
-  passport.use(new LocalStrategy(
-    async (username, password, done) => {
-      const txn = dgraphClient.newTxn()
-      try {
-        const user = await Model.User.findByAccessCode(txn, username)
-        bcrypt.compare(password, user.password, async (err, isValid) => {
-          done(err, isValid ? await getActualUserObject(txn, user) : false)
-        })
-      } finally {
-        txn.discard()
-      }
-    }
-  ))
 
   passport.use(new LoginStrategy(async (email, username, password, done) => {
-    const txn = dgraphClient.newTxn()
     try {
-      let user
-      if (email) {
-        user = await Model.Customer.findByEMail(txn, email)
-      } else {
-        user = await Model.User.findByAccessCode(txn, username)
-      }
-      const hash = user.password
-      user = await getActualUserObject(txn, user)
-      bcrypt.compare(password, hash, async (err, isValid) => {
+      const user = email ? readModels.user.getByEMail(email) : readModels.user.getByAccessCode(username)
+      bcrypt.compare(password, user.password, async (err, isValid) => {
         done(err, isValid ? user : false)
       })
     } catch (error) {
       done(error, false)
-    } finally {
-      txn.discard()
     }
   }))
 
-  passport.use(new JwtStrategy({
-      jwtFromRequest: req => (req.cookies && req.cookies.token) || req.headers.authorization,
-      secretOrKey: config.authSecret
-    }, async (payload, done) => {
-      const txn = dgraphClient.newTxn()
-      try {
-        const user = await Model.User.get(txn, payload.sub)
-        done(null, user ? await getActualUserObject(txn, user) : false)
-      } catch (error) {
-        done(error, false)
-      } finally {
-        txn.discard()
-      }
+  passport.use(new JwtStrategy({jwtFromRequest, secretOrKey}, async (payload, done) => {
+    try {
+      const user = readModels.user.getById(payload.sub)
+      done(null, user)
+    } catch (error) {
+      done(error, false)
     }
-  ))
+  }))
 
   passport.use(new AccessCodeStrategy(async (accessCode, done) => {
-    const txn = dgraphClient.newTxn()
     try {
-      const user = await Model.User.findByAccessCode(txn, accessCode)
+      const user = readModels.user.getByAccessCode(accessCode)
       if (!user.password) {
         done(null, user)
       } else {
-        bcrypt.compare(password, user.password, async (err, isValid) => {
-          done(err, isValid ? await getActualUserObject(txn, user) : false)
-        })
+        done('password is set so you cannot login without a hash code', false)
       }
     } catch (error) {
       done(error, false)
-    } finally {
-      txn.discard()
     }
   }))
 
   passport.use(new CodeAndHashStrategy(async (accessCode, hash, done) => {
-    const txn = dgraphClient.newTxn()
     try {
-      const user = await Model.User.findByAccessCode(txn, accessCode)
+      const user = readModels.user.getByAccessCode(accessCode)
       if (user && user.hash && user.hash === hash) {
-        done(null, await getActualUserObject(txn, user))
+        done(null, user)
       } else {
         done('invalid credentials', false)
       }
     } catch (error) {
       done(error, false)
-    } finally {
-      txn.discard()
     }
   }))
 
@@ -180,7 +116,7 @@ module.exports = ({app, Model, dgraphClient, dgraph, readModels, store, config})
   function requireAdmin() {
     return function(req, res, next) {
       if ((!req.user || !req.user.isAdmin) && readModels.user.adminIsDefined) {
-        throw {status: 403, message: 'Not allowed'}
+        next({status: 403, message: 'Not allowed'})
       } else {
         next()
       }

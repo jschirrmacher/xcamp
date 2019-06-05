@@ -1,5 +1,8 @@
 /.idea/
 /node_modules/
+/coverage/
+/report/
+/.nyc_output/
 /profile-pictures/
 /data/
 /store/

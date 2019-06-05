@@ -2,57 +2,138 @@ module.exports = function ({models}) {
   const users = {
     byId: {},
     byEMail: {},
-    byAccessCode: {}
+    byAccessCode: {},
+    byPersonId: {}
   }
+  const persons = {}
+  const tickets = {}
+  const customersByInvoiceId = {}
   let adminIsDefined = false
+
+  function deleteUser(user) {
+    delete users.byId[user.id]
+    delete users.byEMail[user.email]
+    delete users.byAccessCode[user.access_code]
+    delete users.byPersonId[user.personId]
+  }
+
+  function deleteTicket(ticket) {
+    deleteUser(users.byId[ticket.id])
+    delete tickets[ticket.id]
+    delete users.byId[ticket.id]
+    delete users.byAccessCode[ticket.access_code]
+  }
+
+  function deleteInvoice(invoiceId) {
+    const customerId = customersByInvoiceId[invoiceId]
+    const user = users.byId[customerId]
+    user.ticketIds.forEach(ticketId => deleteTicket(tickets[ticketId]))
+    deleteUser(user)
+    delete customersByInvoiceId[invoiceId]
+  }
 
   return {
     handleEvent(event, assert) {
       switch (event.type) {
-        case 'customer-created':
+        case 'customer-created': {
           assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
           assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-          const email = models.network.getById(event.customer.personId).email
-          assert(!users.byEMail[email], `Referenced user ${email} already exists`)
-          addUser({
+          assert(event.customer.personId, `No personId found in event`)
+          const person = models.network.getById(event.customer.personId)
+          assert(!users.byEMail[person.email], `Referenced user ${person.email} already exists`)
+          setUser({
             id: event.customer.id,
+            personId: person.id,
             type: 'customer',
             access_code: event.customer.access_code,
-            email
+            email: person.email,
+            firstName: person.firstName,
+            image: 'user.png',
+            ticketIds: []
           })
+          break
+        }
+
+        case 'person-created':
+        case 'person-updated':
+          persons[event.person.id] = Object.assign(persons[event.person.id] || {}, event.person)
+          const user = users.byPersonId[event.person.id]
+          if (user) {
+            user.firstName = event.person.firstName || user.firstName
+            user.image = event.person.image || user.image
+          }
           break
 
         case 'password-changed':
           assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          users.byId[event.userId].password = event.passwordHash
+          setUser(Object.assign(users.byId[event.userId], {password: event.passwordHash}))
           break
 
         case 'set-mail-hash':
           assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          users.byId[event.userId].hash = event.hash
+          setUser(Object.assign(users.byId[event.userId], {hash: event.hash}))
           break
 
         case 'invoice-created':
           if (event.invoice.ticketType === 'orga') {
             assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
-            users.byId[event.invoice.customerId].isAdmin = true
+            setUser(Object.assign(users.byId[event.invoice.customerId], {isAdmin: true}))
             adminIsDefined = true
           }
+          customersByInvoiceId[event.invoice.id] = event.invoice.customerId
           break
 
-        case 'ticket-created':
-          addUser({
-            id: event.ticket.id,
-            type: 'ticket',
-            access_code: event.ticket.access_code,
-            email: models.network.getById(event.ticket.personId).email
-          })
+        case 'invoice-deleted':
+          deleteInvoice(event.invoiceId)
           break
 
-        case 'participant-set':
-          users.byId[event.ticketId].email = models.network.getById(event.personId).email
+        case 'ticket-created': {
+          if (!event.ticket.id) {
+            event.ticket.id = 'user-' + (Object.keys(users.byId).length + 1)
+          }
+          const person = models.network.getById(event.ticket.personId)
+          const customer = users.byPersonId[event.ticket.personId]
+          tickets[event.ticket.id] = event.ticket
+          if (customer) {
+            users.byAccessCode[event.ticket.access_code] = customer
+            users.byId[event.ticket.id] = customer
+          } else {
+            setUser({
+              id: event.ticket.id,
+              personId: person.id,
+              type: 'ticket',
+              access_code: event.ticket.access_code,
+              email: person.email,
+              firstName: person.firstName,
+              image: person.image,
+              ticketIds: [event.ticket.id]
+            })
+          }
+          users.byId[customersByInvoiceId[event.ticket.invoiceId]].ticketIds.push(event.ticket.id)
           break
+        }
 
+        case 'participant-set': {
+          assert(event.personId, 'No personId found in event')
+          const ticketUser = users.byId[event.ticketId]
+          const person = persons[event.personId]
+          if (ticketUser.type === 'customer') {
+            const ticket = tickets[event.ticketId]
+            setUser({
+              id: event.ticketId,
+              personId: event.personId,
+              type: 'ticket',
+              access_code: ticket.access_code,
+              email: person.email,
+              firstName: person.firstName,
+              image: person.image,
+              ticketIds: [event.ticketId]
+            })
+          } else {
+            setUser(Object.assign(ticketUser, {email: person.email, firstName: person.firstName, image: person.image}))
+          }
+          break
+        }
       }
     },
 
@@ -65,7 +146,7 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `User '${userId}' doesn't exist`
+      throw Error(`User '${userId}' doesn't exist`)
     },
 
     getByAccessCode(accessCode) {
@@ -73,7 +154,7 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `No user found with this access code`
+      throw Error(`No user found with this access code`)
     },
 
     getByEMail(email) {
@@ -81,15 +162,18 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `No user found with this e-mail address`
+      throw Error(`No user found with this e-mail address`)
     },
 
     adminIsDefined
   }
 
-  function addUser(user) {
+  function setUser(user) {
     users.byId[user.id] = user
+    users.byPersonId[user.personId] = user
     users.byAccessCode[user.access_code] = user
-    users.byEMail[user.email] = user
+    if (!users.byEMail[user.email] || users.byEMail[user.email].type === user.type) {
+      users.byEMail[user.email] = user
+    }
   }
 }

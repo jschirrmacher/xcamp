@@ -20,17 +20,15 @@ module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
     return url
   }
 
-  async function sendHashMail(txn, templateName, customer, action, subject = 'XCamp Passwort') {
+  async function sendHashMail(txn, templateName, user, action, subject = 'XCamp Passwort') {
     const hash = rack()
     const mu = new dgraph.Mutation()
-    await mu.setSetNquads(`<${customer.uid}> <hash> "${hash}" .`)
+    await mu.setSetNquads(`<${user.id}> <hash> "${hash}" .`)
     await txn.mutate(mu)
 
     const link = config.baseUrl + action + '/' + hash
-    const firstName = customer.person[0].firstName
-    const html = templateGenerator.generate(templateName, {link, customer, firstName})
-    const to = customer.person[0].email
-    send(to, subject, html)
+    const html = templateGenerator.generate(templateName, {link, firstName: user.firstName})
+    send(user.email, subject, html)
     return hash
   }
 

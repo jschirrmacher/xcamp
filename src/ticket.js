@@ -137,7 +137,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     const access_code = rack()
     mu.setSetJson({type: 'coupon', access_code, category})
     const assigned = await txn.mutate(mu)
-    store.add({type: 'coupon-created', access_code, category, generated_by: user.uid})
+    store.add({type: 'coupon-created', access_code, category, generated_by: user.id})
     const link = config.baseUrl + 'tickets?code=' + access_code
     return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
   }
