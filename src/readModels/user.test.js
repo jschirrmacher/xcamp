@@ -99,4 +99,20 @@ describe('readModels.user', () => {
     models.user.handleEvent({type: 'invoice-deleted', invoiceId: 4712})
     models.user.getAll().should.deepEqual([])
   })
+
+  it('should recognize password changes regardless of accessor', () => {
+    createCustomer()
+    models.user.handleEvent({type: 'password-changed', userId: 4711, passwordHash: 'hashed-password'}, assert)
+    models.user.getById(4711).password.should.equal('hashed-password')
+    models.user.getByAccessCode('customer-access-code').password.should.equal('hashed-password')
+    models.user.getByEMail('test@example.com').password.should.equal('hashed-password')
+  })
+
+  it('should recognize hash changes regardless of accessor', () => {
+    createCustomer()
+    models.user.handleEvent({type: 'set-mail-hash', userId: 4711, hash: 'new-hash'}, assert)
+    models.user.getById(4711).hash.should.equal('new-hash')
+    models.user.getByAccessCode('customer-access-code').hash.should.equal('new-hash')
+    models.user.getByEMail('test@example.com').hash.should.equal('new-hash')
+  })
 })
