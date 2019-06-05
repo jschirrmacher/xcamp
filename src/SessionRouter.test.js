@@ -55,6 +55,12 @@ const readModels = {
   }
 }
 
+const Model = {
+  Network: {
+    getImageURL: (person) => person && person.image
+  }
+}
+
 const templateGenerator = {
   generate(page, params) {
     return {page, params}
@@ -62,7 +68,7 @@ const templateGenerator = {
 }
 const config = {baseUrl: 'https://test.example.com/app'}
 
-const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
+const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, Model, readModels, config})
 app.use('/session', router)
 
 describe('SessionRouter', () => {
