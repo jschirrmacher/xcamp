@@ -146,7 +146,7 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `User '${userId}' doesn't exist`
+      throw Error(`User '${userId}' doesn't exist`)
     },
 
     getByAccessCode(accessCode) {
@@ -154,7 +154,7 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `No user found with this access code`
+      throw Error(`No user found with this access code`)
     },
 
     getByEMail(email) {
@@ -162,7 +162,7 @@ module.exports = function ({models}) {
       if (user) {
         return user
       }
-      throw `No user found with this e-mail address`
+      throw Error(`No user found with this e-mail address`)
     },
 
     adminIsDefined
