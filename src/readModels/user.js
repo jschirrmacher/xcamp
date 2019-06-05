@@ -10,6 +10,28 @@ module.exports = function ({models}) {
   const customersByInvoiceId = {}
   let adminIsDefined = false
 
+  function deleteUser(user) {
+    delete users.byId[user.id]
+    delete users.byEMail[user.email]
+    delete users.byAccessCode[user.access_code]
+    delete users.byPersonId[user.personId]
+  }
+
+  function deleteTicket(ticket) {
+    deleteUser(users.byId[ticket.id])
+    delete tickets[ticket.id]
+    delete users.byId[ticket.id]
+    delete users.byAccessCode[ticket.access_code]
+  }
+
+  function deleteInvoice(invoiceId) {
+    const customerId = customersByInvoiceId[invoiceId]
+    const user = users.byId[customerId]
+    user.ticketIds.forEach(ticketId => deleteTicket(tickets[ticketId]))
+    deleteUser(user)
+    delete customersByInvoiceId[invoiceId]
+  }
+
   return {
     handleEvent(event, assert) {
       switch (event.type) {
@@ -62,12 +84,12 @@ module.exports = function ({models}) {
           break
 
         case 'invoice-deleted':
-
+          deleteInvoice(event.invoiceId)
           break
 
         case 'ticket-created': {
           if (!event.ticket.id) {
-            event.ticket.id = 'user-' + (users.byId.length + 1)
+            event.ticket.id = 'user-' + (Object.keys(users.byId).length + 1)
           }
           const person = models.network.getById(event.ticket.personId)
           const customer = users.byPersonId[event.ticket.personId]
