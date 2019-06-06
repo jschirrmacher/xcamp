@@ -1,4 +1,5 @@
-const should = require('should')
+/*eslint-env mocha*/
+require('should')
 const request = require('supertest')
 const express = require('express')
 
@@ -12,7 +13,7 @@ const testUser = {
 }
 
 const auth = {
-  requireJWT(options) {
+  requireJWT() {
     return function (req, res, next) {
       log.push('auth.requireJWT')
       if (req.headers.authorization === 'test-token') {
@@ -22,7 +23,7 @@ const auth = {
     }
   },
 
-  requireLogin(options) {
+  requireLogin() {
     return function (req, res, next) {
       log.push('auth.requireLogin')
       next()

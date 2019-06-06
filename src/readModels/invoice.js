@@ -5,6 +5,28 @@ module.exports = function () {
 
   return {
     handleEvent(event, assert) {
+      function createCustomer(customerData) {
+        assert(customerData, 'No customer in event')
+        assert(customerData.id, 'No customer id in event')
+        assert(!customers[customerData.id], 'Customer already exists')
+        const customer = {...customerData}
+        customer.person = persons[customerData.personId]
+        delete customer.personId
+        customers[customerData.id] = customer
+      }
+
+      function createInvoice(invoiceData) {
+        assert(invoiceData, 'No invoice in event')
+        assert(invoiceData.id, 'No invoice id in event')
+        assert(!invoices[invoiceData.id], 'Invoice already exists')
+        assert(customers[invoiceData.customerId], 'Customer doesn\'t exist')
+        const invoice = {...invoiceData}
+        invoice.customer = customers[invoice.customerId]
+        delete invoice.customerId
+        invoice.tickets = []
+        invoices[invoiceData.id] = invoice
+      }
+
       switch (event.type) {
         case 'person-created':
           assert(event.person, 'No person in event')
@@ -21,13 +43,7 @@ module.exports = function () {
           break
 
         case 'customer-created':
-          assert(event.customer, 'No customer in event')
-          assert(event.customer.id, 'No customer id in event')
-          assert(!customers[event.customer.id], 'Customer already exists')
-          const customer = {...event.customer}
-          customer.person = persons[event.customer.personId]
-          delete customer.personId
-          customers[event.customer.id] = customer
+          createCustomer(event.customer)
           break
 
         case 'customer-updated':
@@ -38,15 +54,7 @@ module.exports = function () {
           break
 
         case 'invoice-created':
-          assert(event.invoice, 'No invoice in event')
-          assert(event.invoice.id, 'No invoice id in event')
-          assert(!invoices[event.invoice.id], 'Invoice already exists')
-          assert(customers[event.invoice.customerId], 'Customer doesn\'t exist')
-          const invoice = {...event.invoice}
-          invoice.customer = customers[invoice.customerId]
-          delete invoice.customerId
-          invoice.tickets = []
-          invoices[event.invoice.id] = invoice
+          createInvoice(event.invoice)
           break
 
         case 'invoice-updated':

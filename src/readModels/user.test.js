@@ -1,4 +1,5 @@
-require('should')
+/*eslint-env mocha*/
+const should = require('should')
 
 const testPerson = {
   id: 4710,

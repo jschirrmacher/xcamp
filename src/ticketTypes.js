@@ -1,6 +1,6 @@
 const config = require('../config/config')
 
-module.exports = ticketTypes = {
+module.exports = {
   orga:      {name: 'Organizer', price: 0},
   speaker:   {name: 'Speaker', price: 0},
   sponsor:   {name: 'Sponsor', price: 0},

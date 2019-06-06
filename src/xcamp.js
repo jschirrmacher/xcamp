@@ -53,7 +53,7 @@ const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, ra
 const auth = require('./auth')({app, readModels, store, config})
 const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, store, config, readModels})
 
-const msg = "{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}"
+const msg = `{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}`
 app.use(expressWinston.logger({...loggerOptions, msg}))
 app.use('/', mainRouter)
 app.use(expressWinston.errorLogger({...loggerOptions, meta: true}))

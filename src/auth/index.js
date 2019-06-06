@@ -2,7 +2,6 @@ const passport = require('passport')
 const LoginStrategy = require('./LoginStrategy')
 const AccessCodeStrategy = require('./AccessCodeStrategy')
 const CodeAndHashStrategy = require('./CodeAndHashStrategy')
-const LocalStrategy = require('passport-local').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
 require('express-session')
 const bcrypt = require('bcryptjs')
