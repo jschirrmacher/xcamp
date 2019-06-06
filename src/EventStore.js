@@ -82,7 +82,7 @@ class EventStore {
       Error.prepareStackTrace = (err, stack) => stack.map(e => e.getFileName())
       const currentfile = err.stack.shift()
       const callerFile = err.stack.find(s => s !== currentfile).split(/[\\/]/).pop()
-      Error.prepareStackTrace = originalFunc;
+      Error.prepareStackTrace = originalFunc
       throw `Read model '${callerFile}', event '${event.type}' (${event.ts}): ${message}`
     }
   }
@@ -105,6 +105,7 @@ class EventStore {
   }
 
   async add(event) {
+    const self = this
     await this.ready
     const {type, ...rest} = event
     const completeEvent = {ts: new Date(), type, ...rest}

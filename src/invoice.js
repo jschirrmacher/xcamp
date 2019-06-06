@@ -161,7 +161,7 @@ module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
       tickets {uid participant {name} checkedIn}
     }}`)
     return result.getJson().all
-    return readModels.invoice.getAll()
+    // return readModels.invoice.getAll()
   }
 
   async function deleteInvoice(txn, invoiceId) {

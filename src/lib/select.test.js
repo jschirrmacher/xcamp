@@ -1,3 +1,4 @@
+/*eslint-env mocha*/
 require('should')
 
 const select = require('./select')

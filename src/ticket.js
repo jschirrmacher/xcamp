@@ -106,7 +106,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
   async function show(accessCode) {
     const txn = dgraphClient.newTxn()
     try {
-      const ticket = await findByAccessCode(txn, accessCode)
+      await findByAccessCode(txn, accessCode)
       return {
         isRedirection: true,
         url: config.baseUrl + 'tickets/' + accessCode + '/show'
