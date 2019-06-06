@@ -5,6 +5,7 @@ module.exports = function({store}) {
 
   fs.readdirSync(__dirname)
     .map(name => name.replace('.js', ''))
+    .filter(name => !name.endsWith('.test'))
     .filter(name => name !== 'index')
     .forEach(name => models[name] = require('./' + name)({models}))
 
