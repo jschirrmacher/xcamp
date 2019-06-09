@@ -52,7 +52,9 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     let person = {}
     try {
       person = await getByEMail(txn, data.email)
-    } catch(e) {}
+    } catch(e) {
+      // if email address cannot be found, create a new user
+    }
     try {
       const result = await upsert(txn, person, data, user)
       return result.node

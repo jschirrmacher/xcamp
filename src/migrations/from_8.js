@@ -1,8 +1,8 @@
 const stream = require('stream')
 
 const toRemove = [
-  {ts: "2019-04-25T07:39:19.196Z", type: "person-topic-linked", personId: "0x186bd"},
-  {ts: "2019-05-05T14:04:27.553Z", type: "person-topic-linked", personId: "0x186bd", topicid: "0x249f1"}
+  {ts: '2019-04-25T07:39:19.196Z', type: 'person-topic-linked', personId: '0x186bd'},
+  {ts: '2019-05-05T14:04:27.553Z', type: 'person-topic-linked', personId: '0x186bd', topicid: '0x249f1'}
 ]
 
 let lastInvoiceId

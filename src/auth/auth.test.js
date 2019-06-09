@@ -76,7 +76,7 @@ function checkCookie(name, value) {
 }
 
 function makeExpectedResult(expectedValues = {}) {
-  return res = {
+  const res = {
     status: wrap(expectedValues, 'status'),
     json: wrap(expectedValues, 'json'),
     cookie: wrap(expectedValues, 'cookie'),
@@ -91,6 +91,8 @@ function makeExpectedResult(expectedValues = {}) {
       return res
     }
   }
+
+  return res
 }
 
 describe('auth', () => {
@@ -111,7 +113,7 @@ describe('auth', () => {
       const middleware = auth.requireLogin()
       const req = {body: {email: 'test@example.com', password: 'test-pwd'}}
       const res = makeExpectedResult({cookie: checkCookie})
-      middleware(req, res, err => {
+      middleware(req, res, () => {
         res.called.cookie.should.be.true()
         done()
       })

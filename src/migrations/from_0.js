@@ -9,21 +9,25 @@ module.exports = class From_0 extends stream.Transform {
   }
 
   _transform(event, encoding, callback) {
+    function handleTopicChanges(event) {
+      const type = event.type.replace('-updated', '')
+      const changed = event[type]
+      const object = objects[changed.id]
+      if (object) {
+        const delta = diff(object, changed)
+        objects[changed.id] = {...object, ...delta}
+        return {type: event.type, ts: event.ts, [type]: {id: changed.id, ...delta}}
+      } else {
+        objects[changed.id] = changed
+        return event
+      }
+    }
+
     switch (event.type) {
       case 'person-updated':
       case 'root-updated':
       case 'topic-updated':
-        const type = event.type.replace('-updated', '')
-        const changed = event[type]
-        const object = objects[changed.id]
-        if (object) {
-          const delta = diff(object, changed)
-          objects[changed.id] = {...object, ...delta}
-          this.push({type: event.type, ts: event.ts, [type]: {id: changed.id, ...delta}})
-        } else {
-          objects[changed.id] = changed
-          this.push(event)
-        }
+        this.push(handleTopicChanges(event))
         break
 
       default:

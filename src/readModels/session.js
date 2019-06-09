@@ -1,5 +1,3 @@
-const talkInfoReceiver = 'j.schirrmacher@justso.de'
-
 module.exports = function () {
   const sessions = {}
 

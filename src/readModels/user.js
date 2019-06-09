@@ -34,6 +34,15 @@ module.exports = function ({models}) {
 
   return {
     handleEvent(event, assert) {
+      function handlePersonEvents() {
+        persons[event.person.id] = Object.assign(persons[event.person.id] || {}, event.person)
+        const user = users.byPersonId[event.person.id]
+        if (user) {
+          user.firstName = event.person.firstName || user.firstName
+          user.image = event.person.image || user.image
+        }
+      }
+
       switch (event.type) {
         case 'customer-created': {
           assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
@@ -56,12 +65,7 @@ module.exports = function ({models}) {
 
         case 'person-created':
         case 'person-updated':
-          persons[event.person.id] = Object.assign(persons[event.person.id] || {}, event.person)
-          const user = users.byPersonId[event.person.id]
-          if (user) {
-            user.firstName = event.person.firstName || user.firstName
-            user.image = event.person.image || user.image
-          }
+          handlePersonEvents()
           break
 
         case 'password-changed':

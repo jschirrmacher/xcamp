@@ -1,6 +1,4 @@
 const stream = require('stream')
-const diff = require('../lib/diff')
-const topics = {}
 
 module.exports = class From_5 extends stream.Transform {
   constructor(options = {}) {
@@ -9,29 +7,29 @@ module.exports = class From_5 extends stream.Transform {
   }
 
   _transform(event, encoding, callback) {
+    function handleCustomerAdded() {
+      event.type = 'customer-created'
+      const person = event.customer.person
+      delete event.customer.person
+      event.customer.personId = person.id
+      this.push({ts: event.ts, type: 'person-created', person})
+    }
+
     switch (event.type) {
       case 'customer-added':
-        event.type = 'customer-created'
-        const person = event.customer.person
-        delete event.customer.person
-        event.customer.personId = person.id
-        this.push({ts: event.ts, type: 'person-created', person})
-        this.push(event)
+        handleCustomerAdded()
         break
 
       case 'invoice-added':
         event.type = 'invoice-created'
-        this.push(event)
         break
 
       case 'ticket-added':
         event.type = 'ticket-created'
-        this.push(event)
         break
 
-     default:
-        this.push(event)
     }
+    this.push(event)
     callback()
   }
 }
