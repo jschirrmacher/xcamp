@@ -37,7 +37,7 @@ module.exports = class From_4 extends stream.Transform {
         }
         break
 
-     default:
+      default:
         this.push(event)
     }
     callback()

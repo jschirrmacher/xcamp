@@ -16,15 +16,14 @@ module.exports = class From_10 extends stream.Transform {
           event.person.image = event.person.image.replace(/^.*\/(.*\.(\w+))$/, 'image/$2:$1')
         }
 
-        const keys = Object.keys(event.person)
-        if (keys.length === 1 && keys[0] === 'id') {
-          callback()
-          return
+        if (Object.keys(event.person).join(',') !== 'id') {
+          this.push(event)
         }
         break
 
+      default:
+        this.push(event)
     }
-    this.push(event)
     callback()
   }
 }

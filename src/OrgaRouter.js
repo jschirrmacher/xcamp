@@ -29,10 +29,10 @@ module.exports = (dependencies) => {
     const customer = await Model.Customer.create(txn, data)
     const tickets = await Model.Ticket.create(txn, customer.person[0], data.ticketCount || 1)
     await Model.Invoice.create(txn, data, customer, tickets)
-    store.add({type: 'set-mail-hash', userId: customer.uid, hash})
     const user = readModels.user.getById(customer.uid)
     const action = 'accounts/' + customer.access_code + '/password/reset'
-    return mailSender.sendHashMail(txn, 'send-free-ticket-mail', user, action)
+    const hash = mailSender.sendHashMail(txn, 'send-free-ticket-mail', user, action)
+    store.add({type: 'set-mail-hash', userId: user.id, hash})
   }
 
   async function listInvoices() {
@@ -118,11 +118,11 @@ module.exports = (dependencies) => {
   router.post('/coupon/reduced', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'reduced'), {commit: true}))
   router.post('/coupon/earlybird', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'earlybird'), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
-  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => listInvoices(), {type: 'send'}))
+  router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => listInvoices(), {type: 'send'}))
   router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, false), {commit: true}))
   router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
-  router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => checkinApp(), {type: 'send'}))
+  router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
 
   return router

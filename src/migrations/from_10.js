@@ -10,6 +10,23 @@ module.exports = class From_10 extends stream.Transform {
   }
 
   _transform(event, encoding, callback) {
+    function handleNewsletterApproval() {
+      const person = event.customer.person[0]
+      delete person.uid
+      event.personId = person.id
+      delete event.customer
+      if (!persons[event.personId]) {
+        if (storedEvent) {
+          this.push({ts: storedEvent.ts, type: 'person-created', person})
+          this.push(storedEvent)
+          storedEvent = undefined
+        } else {
+          return true
+        }
+      }
+      return false
+    }
+
     switch (event.type) {
       case 'person-created':
         persons[event.person.id] = event.person
@@ -31,19 +48,9 @@ module.exports = class From_10 extends stream.Transform {
         break
 
       case 'newsletter-approved':
-        const person = event.customer.person[0]
-        delete person.uid
-        event.personId = person.id
-        delete event.customer
-        if (!persons[event.personId]) {
-          if (storedEvent) {
-            this.push({ts: storedEvent.ts, type: 'person-created', person})
-            this.push(storedEvent)
-            storedEvent = undefined
-          } else {
-            callback()
-            return
-          }
+        if (handleNewsletterApproval.call(this)) {
+          callback()
+          return
         }
         break
     }

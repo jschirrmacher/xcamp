@@ -12,7 +12,7 @@ const countries = {
 const leadingZero = num => ('0' + num).substr(-2)
 const currency = n => (''+Math.floor(n)).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
 
-module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
+module.exports = (dgraphClient, dgraph, Model, store) => {
   function getFormattedDate(date) {
     return date ? leadingZero(date.getDate()) + '.' + leadingZero(date.getMonth()+1) + '.' + date.getFullYear() : ''
   }
@@ -154,16 +154,6 @@ module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
     await txn.mutate(mu2)
   }
 
-  async function listAll(txn) {
-    const result = await txn.query(`{ all(func: eq(type, "invoice")) {
-      uid invoiceNo created ticketType ticketPrice payment paid
-      customer {firm access_code person {firstName lastName email}}
-      tickets {uid participant {name} checkedIn}
-    }}`)
-    return result.getJson().all
-    // return readModels.invoice.getAll()
-  }
-
   async function deleteInvoice(txn, invoiceId) {
     const unique = (value, index, self) => self.indexOf(value) === index
     const invoice = await get(txn, invoiceId)
@@ -198,5 +188,5 @@ module.exports = (dgraphClient, dgraph, Model, store, readModels) => {
     }
   }
 
-  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, listAll, deleteInvoice, addTicket, paid}
+  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, deleteInvoice, addTicket, paid}
 }

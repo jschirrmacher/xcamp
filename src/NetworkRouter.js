@@ -98,7 +98,7 @@ module.exports = (dependencies) => {
   const allowAnonymous = true
 
   router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.user)))
-  router.delete('/', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Network.rebuild()))
+  router.delete('/', auth.requireJWT(), auth.requireAdmin(), makeHandler(() => Model.Network.rebuild()))
 
   router.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
 

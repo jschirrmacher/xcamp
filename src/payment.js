@@ -50,7 +50,7 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
 
   async function paypalIpn(req) {
     const admin = config['mail-recipients'].admin
-    console.log('PayPal payment received', req.body)
+    store.add({type: 'paypal-payment-received', info: req.body})
     req.body.cmd = '_notify-validate'
     const options = {
       method: 'POST',
@@ -67,13 +67,13 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
           await paymentReceived(txn, await Model.Invoice.get(txn, req.body.custom))
           txn.commit()
         } catch (error) {
-          console.error(new Date(), error)
+          mailSender.send(admin, 'Error while handling PayPal payment', JSON.stringify({date: new Date(), error}, null, 2))
         } finally {
           txn.discard()
         }
       }
     } catch (error) {
-      mailSender.send(admin, 'Invalid IPN received from PayPal', JSON.stringify(error))
+      mailSender.send(admin, 'Invalid IPN received from PayPal', JSON.stringify(error, null, 2))
     }
 
     return ''

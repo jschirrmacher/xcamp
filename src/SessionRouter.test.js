@@ -126,7 +126,7 @@ describe('SessionRouter', () => {
         .get('/session/logout')
         .expect(302)
         .expect('location', config.baseUrl)
-        .then(response => {
+        .then(() => {
           log.should.deepEqual(['auth.logout'])
         })
     })
