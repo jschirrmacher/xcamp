@@ -48,11 +48,12 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
         assertCoupon(data.code, data.type)
       }
       const customer = await Model.Customer.create(txn, data)
-      const tickets = await create(txn, customer.person[0], +data.ticketCount)
+      const person = customer.person[0]
+      const tickets = await create(txn, person, +data.ticketCount)
       const invoice = await Model.Invoice.create(txn, data, customer, tickets)
 
-      await mailChimp.addSubscriber(customer)
-      await mailChimp.addTags(customer.person[0].email, [config.eventName])
+      await mailChimp.addSubscriber(person)
+      await mailChimp.addTags(person, [config.eventName])
 
       txn.commit()
       if (data.code) {
@@ -95,8 +96,8 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       await txn.mutate(mu)
       store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
 
-      await mailChimp.addSubscriber({person: [person]})
-      await mailChimp.addTags(person.email, [config.eventName])
+      await mailChimp.addSubscriber(person)
+      await mailChimp.addTags(person, [config.eventName])
 
       const url = config.baseUrl + 'accounts/' + ticket.access_code + '/info'
       const html = templateGenerator.generate('ticket-mail', {url})
