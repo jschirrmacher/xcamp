@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "Joachim Schirrmacher <joachim.schirrmacher@gmail.com>",
   "license": "MIT",
-  "repository": "git@git.justso.de:xcamp",
+  "repository": "https://github.com/jschirrmacher/xcamp",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
