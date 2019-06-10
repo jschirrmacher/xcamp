@@ -34,11 +34,11 @@ module.exports = (dependencies) => {
   }
 
   async function applyToReduced(person) {
-    await mailChimp.addSubscriber(person)
     const html = templateGenerator.generate('application-mail', person)
     const to = config['mail-recipients']['apply-to-reduced']
-    mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)
     store.add({type: 'applied-to-reduced', person})
+    await mailChimp.addSubscriber(person)
+    mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)
     return templateGenerator.generate('applied-to-reduced')
   }
 
