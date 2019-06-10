@@ -55,7 +55,9 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       await mailChimp.addTags(customer.person[0].email, [config.eventName])
 
       txn.commit()
-      store.add({type: 'coupon-invalidated', code: data.code})
+      if (data.code) {
+        store.add({type: 'coupon-invalidated', code: data.code})
+      }
 
       let url
       if (invoice.payment === 'invoice') {
