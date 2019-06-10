@@ -44,7 +44,7 @@ module.exports = (dependencies) => {
   async function approveRegistration(txn, code) {
     try {
       const customer = await Model.Customer.findByAccessCode(txn, code)
-      await mailChimp.addSubscriber(customer)
+      await mailChimp.addSubscriber(customer.person[0])
       return templateGenerator.generate('register-approved', {person: customer.person[0]})
     } catch (e) {
       return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
