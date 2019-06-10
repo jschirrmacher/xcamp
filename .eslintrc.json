@@ -1,7 +1,8 @@
 {
     "env": {
         "es6": true,
-        "node": true
+        "node": true,
+        "cypress/globals": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
@@ -26,5 +27,8 @@
             "error",
             "never"
         ]
-    }
+    },
+    "plugins": [
+        "cypress"
+    ]
 }

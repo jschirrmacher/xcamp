@@ -35,6 +35,15 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     }
   }
 
+  async function addSubscriber(person) {
+    try {
+      await mailChimp.addSubscriber(person)
+      await mailChimp.addTags(person, [config.eventName])
+    } catch (error) {
+      throw new Error(error.content.detail)
+    }
+  }
+
   async function buy(data) {
     if (!data.tos_accepted) {
       return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
@@ -52,8 +61,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       const tickets = await create(txn, person, +data.ticketCount)
       const invoice = await Model.Invoice.create(txn, data, customer, tickets)
 
-      await mailChimp.addSubscriber(person)
-      await mailChimp.addTags(person, [config.eventName])
+      await addSubscriber(person)
 
       txn.commit()
       if (data.code) {
@@ -66,7 +74,9 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       } else {
         url = Model.Payment.exec(customer, invoice)
       }
-      return redirectTo(url, customer)
+      return redirectTo(url, readModels.user.getById(customer.uid))
+    } catch (error) {
+      return {error: '' + error}
     } finally {
       txn.discard()
     }

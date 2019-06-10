@@ -40,6 +40,9 @@
     "analysis": "plato -r -d report -x .test.js -e .eslintrc.json src"
   },
   "devDependencies": {
+    "cypress": "^3.3.1",
+    "eslint-plugin-cypress": "^2.2.1",
+    "faker": "^4.1.0",
     "mocha": "^6.1.4",
     "mock-fs": "^4.8.0",
     "nyc": "^14.1.1",
