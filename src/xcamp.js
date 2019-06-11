@@ -17,7 +17,7 @@ const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'a
 const templateGenerator = require('./TemplateGenerator')({globalData: config, subTemplates})
 const nodemailer = require('nodemailer')
 const rack = require('hat').rack(128, 36)
-const mailSender = require('./mailSender')(dgraph, nodemailer, templateGenerator, config, rack)
+const mailSender = require('./mailSender')(nodemailer, templateGenerator, config, rack)
 
 const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
 const dgraphClient = new dgraph.DgraphClient(clientStub)

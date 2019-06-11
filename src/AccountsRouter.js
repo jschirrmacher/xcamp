@@ -48,11 +48,11 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('invoice', data)
   }
 
-  async function sendPassword(txn, accessCode) {
+  async function sendPassword(accessCode) {
     const method = accessCode.match(/^.*@.*\.\w+$/) ? 'getByEMail' : 'getByAccessCode'
     const user = await readModels.user[method](accessCode)
     if (user) {
-      const hash = await mailSender.sendHashMail(txn, 'sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
+      const hash = await mailSender.sendHashMail('sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
       store.add({type: 'set-mail-hash', userId: user.id, hash})
     }
     return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (user ? 'sent' : 'failed')}
@@ -79,7 +79,7 @@ module.exports = (dependencies) => {
 
   router.get('/my', auth.requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
   router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => getAccountInfoPage(req.txn, req.params.accessCode), {txn: true, type: 'send'}))
-  router.get('/:accessCode/password', makeHandler(req => sendPassword(req.txn, req.params.accessCode), {commit: true}))
+  router.get('/:accessCode/password', makeHandler(req => sendPassword(req.params.accessCode)))
   router.get('/password/sent', makeHandler(() => templateGenerator.generate('password-sent'), {type: 'send'}))
   router.get('/password/failed', makeHandler(() => templateGenerator.generate('password-failed'), {type: 'send'}))
   router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.user, req.body.password)))

@@ -2,7 +2,7 @@
 
 const ticketTypes = require('./ticketTypes')
 
-module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
+module.exports = (nodemailer, templateGenerator, config, rack) => {
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
       transporter.sendMail({from: config['mail-sender'], to, subject, html}, (err, info) => err ? reject(err) : resolve(info))
@@ -20,12 +20,8 @@ module.exports = (dgraph, nodemailer, templateGenerator, config, rack) => {
     return url
   }
 
-  async function sendHashMail(txn, templateName, user, action, subject = 'XCamp Passwort') {
+  async function sendHashMail(templateName, user, action, subject = 'XCamp Passwort') {
     const hash = rack()
-    const mu = new dgraph.Mutation()
-    await mu.setSetNquads(`<${user.id}> <hash> "${hash}" .`)
-    await txn.mutate(mu)
-
     const link = config.baseUrl + action + '/' + hash
     const html = templateGenerator.generate(templateName, {link, firstName: user.firstName})
     send(user.email, subject, html)
