@@ -44,18 +44,8 @@ module.exports = (dependencies) => {
     return result
   }
 
-  function canEdit(user, nodeId) {
-    if (!user) {
-      return false
-    } else if (user.isAdmin) {
-      return true
-    } else {
-      return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== false
-    }
-  }
-
   async function assignTopic(txn, node, topicName, user) {
-    if (!canEdit(user, node.id)) {
+    if (!readModels.network.canEdit(user, node.id)) {
       throw 'Changing this node is not allowed!'
     }
     const links2create = []
@@ -79,7 +69,7 @@ module.exports = (dependencies) => {
   }
 
   async function removeTopic(txn, node, topicName, user) {
-    if (!canEdit(user, node.id)) {
+    if (!readModels.network.canEdit(user, node.id)) {
       throw 'Changing this node is not allowed!'
     }
     const links2delete = []

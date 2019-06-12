@@ -115,6 +115,16 @@ module.exports = function ({models}) {
 
     getById(id) {
       return nodes[id]
+    },
+
+    canEdit(user, nodeId) {
+      if (!user) {
+        return false
+      } else if (user.isAdmin) {
+        return true
+      } else {
+        return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== false
+      }
     }
   }
 }

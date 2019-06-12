@@ -30,20 +30,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return person
   }
 
-  function canEdit(user, uid) {
-    if (!user) {
-      return false
-    } else if (user.isAdmin) {
-      return true
-    } else if (user.type === 'customer') {
-      return !uid || user.invoices[0].tickets.some(ticket => ticket.participant[0].uid === uid)
-    } else if (user.type === 'ticket') {
-      return uid === user.participant[0].uid
-    } else {
-      return uid === user.uid
-    }
-  }
-
   async function getByEMail(txn, email) {
     return await query.one(txn, `func: eq(email, "${email}")`)
   }
@@ -64,7 +50,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
   }
 
   async function upsert(txn, person, newData, user) {
-    if (!canEdit(user, person.uid)) {
+    if (!readModels.network.canEdit(user, person.uid)) {
       throw 'Changing this node is not allowed!'
     }
     const mu = new dgraph.Mutation()
