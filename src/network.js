@@ -88,7 +88,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
 
   function getPublicViewOfNode(node, user) {
     const fields = ['id', 'editable', 'details', 'url', 'name', 'image', 'type', 'links', 'description']
-    if (hasAccess(user, node)) {
+    if (readModels.network.canEdit(user, node.id)) {
       node.editable = true
     }
     if (node.type === 'person') {
@@ -108,16 +108,6 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       node = select(node, fields)
     }
     return node
-  }
-
-  function hasAccess(user, node) {
-    if (!user) {
-      return false
-    }
-    if (user.isAdmin) {
-      return true
-    }
-    return user.ticketIds.indexOf(node.id) !== false
   }
 
   return {

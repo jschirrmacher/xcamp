@@ -13,7 +13,8 @@ module.exports = (dependencies) => {
     mailSender,
     Model,
     readModels,
-    store
+    store,
+    config
   } = dependencies
 
   async function showAdminPage() {
@@ -109,6 +110,20 @@ module.exports = (dependencies) => {
     }
   }
 
+  function requireDevEnv(req, res, next) {
+    if (config.isProduction) {
+      next('Cannot use this route in a production environment')
+    } else {
+      next()
+    }
+  }
+
+  function testLogin(req, res, asAdmin) {
+    req.user = readModels.user.getAll().find(u => asAdmin && u.isAdmin || !asAdmin && !u.isAdmin)
+    auth.signIn(req, res)
+    res.redirect(config.baseUrl)
+  }
+
   const router = express.Router()
   const redirect = true
   const allowAnonymous = true
@@ -124,6 +139,9 @@ module.exports = (dependencies) => {
   router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
+
+  router.get('/test/login/admin', requireDevEnv, (req, res) => testLogin(req, res, true))
+  router.get('/test/login/user', requireDevEnv, (req, res) => testLogin(req, res, false))
 
   return router
 }
