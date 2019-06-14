@@ -15,6 +15,13 @@ module.exports = function () {
           assert(event.person.id, 'No person id in event')
           delete sessions[event.person.id]
           break
+
+        case 'person-updated':
+          assert(event.person, 'No person in event')
+          if (event.person.talk && sessions[event.person.id]) {
+            sessions[event.person.id].talk = event.person.talk
+          }
+          break
       }
     },
 
