@@ -60,6 +60,7 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
     try {
       const content = await fetch(paypalUrl(), options)
       if (content !== 'VERIFIED') {
+        store.add({type: 'paypal-payment-not-verified', info: content})
         mailSender.send(admin, 'IPN not verified', JSON.stringify(req.body) + '\n\n' + content)
       } else {
         const txn = dgraphClient.newTxn()
@@ -67,12 +68,14 @@ module.exports = (dgraphClient, dgraph, Model, fetch, mailSender, store, config)
           await paymentReceived(txn, await Model.Invoice.get(txn, req.body.custom))
           txn.commit()
         } catch (error) {
+          store.add({type: 'paypal-payment-error', info: error})
           mailSender.send(admin, 'Error while handling PayPal payment', JSON.stringify({date: new Date(), error}, null, 2))
         } finally {
           txn.discard()
         }
       }
     } catch (error) {
+      store.add({type: 'paypal-payment-invalid-ipn', info: error})
       mailSender.send(admin, 'Invalid IPN received from PayPal', JSON.stringify(error, null, 2))
     }
 
