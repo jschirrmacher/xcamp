@@ -70,7 +70,7 @@ svg {
 
     .reflinks {
       opacity: 0.001;
-      transition: opacity 0.3s 1s;
+      transition: opacity 0.3s;
       cursor: pointer;
 
       text {
@@ -90,14 +90,13 @@ svg {
     }
 
     &:hover {
-      circle {
+       circle:first-of-type {
         stroke: #ff696c;
         stroke-width: 2px;
       }
 
       .reflinks {
         opacity: 1;
-        transition-delay: 0.3s;
       }
     }
 
@@ -120,6 +119,23 @@ svg {
     > rect:first-child + text tspan {
       font-weight: bold;
       fill: #666;
+    }
+
+    .cta {
+      x: 35px;
+      y: -35px;
+
+      circle {
+        r: 12px;
+        fill: #4ed9d5;
+      }
+
+      text {
+        transform: translate(0, 5px);
+        fill: black;
+        stroke: transparent;
+        text-anchor: middle
+      }
     }
   }
 }

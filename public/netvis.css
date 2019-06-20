@@ -51,7 +51,7 @@ svg .node {
     ry: 5px; }
   svg .node .reflinks {
     opacity: 0.001;
-    transition: opacity 0.3s 1s;
+    transition: opacity 0.3s;
     cursor: pointer; }
     svg .node .reflinks text {
       fill: #428bca; }
@@ -62,12 +62,11 @@ svg .node {
       ry: 0; }
     svg .node .reflinks g:hover .text-bg {
       fill: #cccccc; }
-  svg .node:hover circle {
+  svg .node:hover circle:first-of-type {
     stroke: #ff696c;
     stroke-width: 2px; }
   svg .node:hover .reflinks {
-    opacity: 1;
-    transition-delay: 0.3s; }
+    opacity: 1; }
   svg .node.withBg .title {
     transform: translate(0, 40px); }
     svg .node.withBg .title tspan {
@@ -79,6 +78,17 @@ svg .node {
   svg .node > rect:first-child + text tspan {
     font-weight: bold;
     fill: #666; }
+  svg .node .cta {
+    x: 35px;
+    y: -35px; }
+    svg .node .cta circle {
+      r: 12px;
+      fill: #4ed9d5; }
+    svg .node .cta text {
+      transform: translate(0, 5px);
+      fill: black;
+      stroke: transparent;
+      text-anchor: middle; }
 
 .command {
   display: none; }

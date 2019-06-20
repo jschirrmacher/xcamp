@@ -342,6 +342,18 @@ script.addEventListener('load', function () {
       .text(d => d.name = icons[d.type] + ' ' + texts[d.type])
       .call(d => this.wrap(d, 200, true))
   }
+  const origRenderCircle = nodeRenderer.renderCircle
+  nodeRenderer.renderCircle = function (enter) {
+    origRenderCircle.call(this, enter)
+    const g = enter
+      .filter(d => network.getNumClosedLinks(d))
+      .append('g')
+        .attr('class', 'cta')
+        .attr('transform', d => 'translate(' + ((d.radius || 50) * 0.7) + ' -' + ((d.radius || 50) * 0.7) + ')')
+    g.append('circle')
+    g.append('text').text(d => Math.min(99, network.getNumClosedLinks(d)))
+  }
+
   network = new Network({
     dataUrl: history + 'network',
     domSelector: '#root',
@@ -371,6 +383,7 @@ script.addEventListener('load', function () {
       clickOnNode(node) {
         if (node.type === 'topic') {
           network.toggleNodes(node, 'persons')
+          network.updateNodes([node, ...Object.values(node.linkedNodes).filter(n => n.visible)])
         } else {
           network.showDetails(node)
         }
@@ -381,6 +394,7 @@ script.addEventListener('load', function () {
           network.showDetails(node)
         } else {
           network.toggleNodes(node, ref)
+          network.updateNodes([node, ...Object.values(node.linkedNodes).filter(n => n.visible)])
         }
       },
 
