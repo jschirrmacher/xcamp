@@ -119,7 +119,9 @@ module.exports = (dependencies) => {
   }
 
   function testLogin(req, res, asAdmin) {
-    req.user = readModels.user.getAll().find(u => asAdmin && u.isAdmin || !asAdmin && !u.isAdmin)
+    const isPersonInNetwork = personId => readModels.network.getById(personId).type === 'person'
+    req.user = readModels.user.getAll()
+      .find(u => isPersonInNetwork(u.personId) && (asAdmin && u.isAdmin || !asAdmin && !u.isAdmin))
     auth.signIn(req, res)
     res.redirect(config.baseUrl)
   }
