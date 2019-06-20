@@ -67,6 +67,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
 
   async function getGraph(user = null) {
     const nodes = readModels.network.getAll()
+      .filter(node => ['person', 'topic', 'root'].includes(node.type))
       .map(node => getPublicViewOfNode({...node}, user))
     return {nodes, myNode: user && user.personId}
   }
@@ -87,17 +88,23 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   function getPublicViewOfNode(node, user) {
-    const fields = ['id', 'editable', 'details', 'url', 'name', 'image', 'type', 'links', 'description']
+    const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description']
     if (readModels.network.canEdit(user, node.id)) {
       node.editable = true
     }
     if (node.type === 'person') {
       fields.push('topics')
-      fields.push('twitterName')
       fields.push('talk')
-      node.image = getImageURL(node)
       node.details = 'network/persons/' + node.id
-      node.name = node.firstName + ' ' + node.lastName
+      if (user) {
+        fields.push('url')
+        fields.push('twitterName')
+        node.image = getImageURL(node)
+        node.name = node.firstName + ' ' + node.lastName
+      } else {
+        node.image = 'user.png'
+        node.name = 'Teilnehmer'
+      }
       if (node.editable) {
         fields.push('talkReady')
         fields.push('access_code')
