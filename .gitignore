@@ -8,3 +8,5 @@
 /store/
 /config/config.json
 /config/migrationData_9.json
+/cypress/screenshots
+/cypress/videos
