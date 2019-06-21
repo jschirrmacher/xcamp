@@ -38,4 +38,7 @@
     showMessage(decodeURIComponent(RegExp.$1))
     window.history.replaceState(null, null, location.pathname)
   }
+
+  document.body.classList.toggle('logged-in', true)
+  document.body.classList.toggle('logged-out', false)
 })()
