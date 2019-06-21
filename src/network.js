@@ -96,7 +96,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       fields.push('topics')
       fields.push('talk')
       node.details = 'network/persons/' + node.id
-      if (user) {
+      if (user || node.allowPublic) {
         fields.push('url')
         fields.push('twitterName')
         node.image = getImageURL(node)

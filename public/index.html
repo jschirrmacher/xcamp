@@ -125,7 +125,7 @@
                 <div class="textarea" data-name="talk" {{{editable}}}>{{talk}}</div>
                 <label>
                     <input type="checkbox" data-name="talkReady" value="checked" {{talkReady}}>
-                    Mein Text ist fertig vorbereitet und kann auf die Website übernommen werden
+                    Mein Text ist fertig vorbereitet und darf auf die Website übernommen werden
                 </label>
 
                 <button id="back-from-talk" class="button small">Zurück</button>
@@ -136,10 +136,16 @@
 
         <div class="if-editable">
             <div class="info if-person">
-                Die Daten verwenden wir ausschließlich für unsere elektronische Teilnehmerliste zur Vernetzung der
+                Die Daten verwenden wir für unsere elektronische Teilnehmerliste zur Vernetzung der
                 XCamp Teilnehmer untereinander. Durch einfache E-Mail an
                 <a class="mail2info" data-message="Bitte aus dem XCamp-Netzwerk entfernen"></a>
                 kannst du uns jederzeit Bescheid sagen, wir werden dann deine Daten löschen.
+            </div>
+            <div class="if-person">
+                <label>
+                    <input type="checkbox" data-name="allowPublic" value="checked" {{allowPublic}}>
+                    Meine Daten dürfen auch für Nicht-Teilnehmer öffentlich sichtbar werden (außer E-Mail-Adresse)
+                </label>
             </div>
         </div>
     </div>
