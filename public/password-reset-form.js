@@ -1,3 +1,6 @@
+document.body.classList.toggle('logged-in', true)
+document.body.classList.toggle('logged-out', false)
+
 document.getElementById('chgPwdForm').addEventListener('submit', function (event) {
   event.preventDefault()
   const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
@@ -6,8 +9,7 @@ document.getElementById('chgPwdForm').addEventListener('submit', function (event
   const password = document.getElementById('password').value
   fetch('accounts/password', {method: 'POST', headers, body: JSON.stringify({password})})
     .then(result => result.json())
-    .then(({message, personId}) => showMessage(message) || personId)
+    .then(({message, url}) => url ? (location.href = url) : showMessage(message))
     .catch(error => console.error(error) || '')
-    .then(id => location.href = document.head.baseURI + '#' + id)
   return false;
 })

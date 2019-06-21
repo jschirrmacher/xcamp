@@ -65,6 +65,7 @@ module.exports = (dependencies) => {
   async function setPassword(user, password) {
     const result = await auth.setPassword(user.access_code, password)
     result.personId = user.personId
+    result.url = user.ticketIds.length > 1 ? getAccountInfoURL(user) : '#' + user.personId
     return result
   }
 
