@@ -4,6 +4,8 @@ const paymentType = {
   none: 'N/A'
 }
 
+const Formatter = require('./lib/Formatter')
+
 module.exports = (dependencies) => {
   const {
     express,
@@ -56,7 +58,7 @@ module.exports = (dependencies) => {
       stats.totalsPaid += invoice.paid ? invoice.tickets.length * invoice.ticketPrice : 0
       return {
         ...invoice,
-        created: Model.Invoice.getFormattedDate(new Date(invoice.created)),
+        created: Formatter.date(new Date(invoice.created)),
         payment: invoice.paid ? paymentType[invoice.payment] : 'Offen',
         participants: invoice.tickets.filter(ticket => ticket.participant).map(ticket => {
           const participant = ticket.participant

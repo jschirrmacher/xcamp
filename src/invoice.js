@@ -2,6 +2,7 @@
 
 const ticketTypes = require('./ticketTypes')
 const select = require('./lib/select')
+const Formatter = require('./lib/Formatter')
 
 const countries = {
   de: 'Deutschland',
@@ -9,27 +10,20 @@ const countries = {
   at: 'Österreich'
 }
 
-const leadingZero = num => ('0' + num).substr(-2)
-const currency = n => (''+Math.floor(n)).replace(/(\d)(?=(\d{3})+)/g, '$1.') + ',' + leadingZero(n.toFixed(2).slice(2)) + ' €'
-
 module.exports = (dgraphClient, dgraph, Model, store) => {
-  function getFormattedDate(date) {
-    return date ? leadingZero(date.getDate()) + '.' + leadingZero(date.getMonth()+1) + '.' + date.getFullYear() : ''
-  }
-
   function getPrintableInvoiceData(invoice, baseUrl) {
     const ticketCount = invoice.tickets.length
     const netAmount = ticketCount * invoice.ticketPrice
     const vat = 0.19 * netAmount
     const created = new Date(invoice.created)
     const data = Object.assign({baseUrl}, invoice, {
-      created: getFormattedDate(created),
+      created: Formatter.date(created),
       ticketType: ticketTypes[invoice.ticketType].name,
       ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
       bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
-      netAmount: currency(netAmount),
-      vat: currency(vat),
-      totalAmount: currency(vat + netAmount),
+      netAmount: Formatter.currency(netAmount),
+      vat: Formatter.currency(vat),
+      totalAmount: Formatter.currency(vat + netAmount),
       customer: invoice.customer[0],
       address: invoice.customer[0].addresses[0],
       paid: invoice.paid
@@ -188,5 +182,5 @@ module.exports = (dgraphClient, dgraph, Model, store) => {
     }
   }
 
-  return {get, getFormattedDate, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, deleteInvoice, addTicket, paid}
+  return {get, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, deleteInvoice, addTicket, paid}
 }
