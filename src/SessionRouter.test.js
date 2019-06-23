@@ -52,12 +52,7 @@ const readModels = {
       if (id === 4712) {
         return Object.assign({image: 'http://my.profile/picture.jpg'}, testUser)
       }
-    }
-  }
-}
-
-const Model = {
-  Network: {
+    },
     getImageURL: (person) => person && person.image
   }
 }
@@ -69,7 +64,7 @@ const templateGenerator = {
 }
 const config = {baseUrl: 'https://test.example.com/app'}
 
-const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, Model, readModels, config})
+const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
 app.use('/session', router)
 
 describe('SessionRouter', () => {

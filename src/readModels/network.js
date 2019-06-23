@@ -131,6 +131,17 @@ module.exports = function ({models}) {
       } else {
         return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== -1
       }
+    },
+
+    getImageURL(person) {
+      if (person && person.image) {
+        if (person.image.match(/^\w+\/\w+:.*$/)) {
+          return 'network/persons/' + person.id + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
+        } else {
+          return person.image
+        }
+      }
+      return 'user.png'
     }
   }
 }

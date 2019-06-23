@@ -72,17 +72,6 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     return {nodes, myNode: user && user.personId}
   }
 
-  function getImageURL(person) {
-    if (person && person.image) {
-      if (person.image.match(/^\w+\/\w+:.*$/)) {
-        return 'network/persons/' + person.id + '/picture/' + encodeURIComponent(person.image.replace(/.*:/, ''))
-      } else {
-        return person.image
-      }
-    }
-    return 'user.png'
-  }
-
   function setAccountData(node, user) {
     node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
   }
@@ -99,7 +88,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       if (user || node.allowPublic) {
         fields.push('url')
         fields.push('twitterName')
-        node.image = getImageURL(node)
+        node.image = readModels.network.getImageURL(node)
         node.name = node.firstName + ' ' + node.lastName
       } else {
         node.image = 'user.png'
@@ -122,6 +111,5 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
     getGraph,
     getAllTickets,
     getPublicViewOfNode,
-    getImageURL
   }
 }
