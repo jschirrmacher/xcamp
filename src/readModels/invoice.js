@@ -98,6 +98,22 @@ module.exports = function () {
 
     getByUserId(id) {
       return invoices[id]
+    },
+
+    async getAllTickets() {
+      const tickets = []
+      this.getAll()
+        .filter(invoice => invoice.payment !== 'paypal' || invoice.paid)
+        .forEach(invoice => invoice.tickets.forEach(ticket => {
+            const person = ticket.participant
+            tickets.push({
+              firstName: person.firstName,
+              lastName: person.lastName,
+              email: person.email,
+              firm: invoice.customer.firm
+            })
+        }))
+      return tickets
     }
   }
 }

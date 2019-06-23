@@ -85,16 +85,15 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('tile-form', {colorSelect, ...data})
   }
 
-  async function exportParticipants(txn, format) {
-    const tickets = await Model.Network.getAllTickets(txn)
+  async function exportParticipants(format) {
+    const tickets = await readModels.invoice.getAllTickets()
     const content = tickets.map(ticket => {
-      const person = ticket.participant[0]
       if (format === 'excel') {
-        return `"${person.firstName}";"${person.lastName}";"${person.email}";"${ticket.firm}"`
+        return `"${ticket.firstName}";"${ticket.lastName}";"${ticket.email}";"${ticket.firm}"`
       } else if (format === 'csv') {
-        return `"${person.firstName}","${person.lastName}","${person.email}","${ticket.firm}"`
+        return `"${ticket.firstName}","${ticket.lastName}","${ticket.email}","${ticket.firm}"`
       } else {
-        return person.firstName + ' ' + person.lastName + ' &lt;' + person.email + '&gt; ' + ticket.firm
+        return ticket.firstName + ' ' + ticket.lastName + ' &lt;' + ticket.email + '&gt; ' + ticket.firm
       }
     }).join('\n')
 
@@ -134,7 +133,7 @@ module.exports = (dependencies) => {
   router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.txn, req.body), {commit: true}))
   router.post('/coupon/reduced', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'reduced'), {commit: true}))
   router.post('/coupon/earlybird', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'earlybird'), {commit: true}))
-  router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.txn, req.query.format || 'txt'), {type: 'send', txn: true}))
+  router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.query.format || 'txt'), {type: 'send'}))
   router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => listInvoices(), {type: 'send'}))
   router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, true), {commit: true}))
   router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, false), {commit: true}))

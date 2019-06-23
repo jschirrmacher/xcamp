@@ -42,7 +42,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
           rootTopics.forEach((name, num) => {
             const topicId = assigned.getUidsMap().get(`blank-${num + 1}`)
             store.add({type: 'topic-created', topic: {id: topicId, name}})
-            store.add({type: 'topic-root-linked', topicId, rootId })
+            store.add({type: 'topic-root-linked', topicId, rootId})
           })
         } finally {
           txn.discard()
@@ -50,30 +50,11 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
       })
   }
 
-  async function getAllTickets(txn) {
-    const tickets = {}
-    const data = await txn.query(`{ all(func: eq(type, "invoice"))
-     { payment paid customer {firm} tickets { participant { uid firstName lastName email}}}}`)
-    await Promise.all(data.getJson().all.map(async invoice => {
-      if (invoice.payment !== 'paypal' || invoice.paid) {
-        await Promise.all(invoice.tickets.map(async ticket => {
-          ticket.firm = (invoice.customer && invoice.customer[0].firm) || ''
-          tickets[ticket.participant[0].uid] = ticket
-        }))
-      }
-    }))
-    return Object.values(tickets)
-  }
-
   async function getGraph(user = null) {
     const nodes = readModels.network.getAll()
       .filter(node => ['person', 'topic', 'root'].includes(node.type))
       .map(node => getPublicViewOfNode({...node}, user))
     return {nodes, myNode: user && user.personId}
-  }
-
-  function setAccountData(node, user) {
-    node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
   }
 
   function getPublicViewOfNode(node, user) {
@@ -99,7 +80,7 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
         fields.push('access_code')
         fields.push('accountPath')
         fields.push('email')
-        setAccountData(node, user)
+        node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
       }
       node = select(node, fields)
     }
@@ -109,7 +90,6 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   return {
     rebuild,
     getGraph,
-    getAllTickets,
     getPublicViewOfNode,
   }
 }
