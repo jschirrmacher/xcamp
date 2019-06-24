@@ -2,39 +2,8 @@
 
 const ticketTypes = require('./ticketTypes')
 const select = require('./lib/select')
-const Formatter = require('./lib/Formatter')
-
-const countries = {
-  de: 'Deutschland',
-  ch: 'Schweiz',
-  at: 'Österreich'
-}
 
 module.exports = (dgraphClient, dgraph, Model, store) => {
-  function getPrintableInvoiceData(invoice, baseUrl) {
-    const ticketCount = invoice.tickets.length
-    const netAmount = ticketCount * invoice.ticketPrice
-    const vat = 0.19 * netAmount
-    const created = new Date(invoice.created)
-    const data = Object.assign({baseUrl}, invoice, {
-      created: Formatter.date(created),
-      ticketType: ticketTypes[invoice.ticketType].name,
-      ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
-      bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
-      netAmount: Formatter.currency(netAmount),
-      vat: Formatter.currency(vat),
-      totalAmount: Formatter.currency(vat + netAmount),
-      customer: invoice.customer[0],
-      address: invoice.customer[0].addresses[0],
-      paid: invoice.paid
-    })
-    data.customer.firstName = data.customer.person[0].firstName
-    data.customer.lastName = data.customer.person[0].lastName
-    data.address.country = countries[data.address.country]
-
-    return data
-  }
-
   async function get(txn, uid) {
     const query = `{ invoice(func: uid(${uid})) {
       uid
@@ -182,5 +151,5 @@ module.exports = (dgraphClient, dgraph, Model, store) => {
     }
   }
 
-  return {get, getPrintableInvoiceData, getNewest, getNextInvoiceNo, create, deleteInvoice, addTicket, paid}
+  return {get, getNewest, getNextInvoiceNo, create, deleteInvoice, addTicket, paid}
 }

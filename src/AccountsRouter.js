@@ -15,10 +15,19 @@ module.exports = (dependencies) => {
     return config.baseUrl + 'accounts/' + user.access_code + '/info'
   }
 
+  function getNewestInvoice(user) {
+    if (user && user.type === 'customer') {
+      const invoices = readModels.invoice.getByCustomerId(user.id)
+      if (invoices && invoices.length) {
+        return invoices[0]
+      }
+    }
+    return null
+  }
+
   async function getAccountInfoPage(txn, accessCode) {
     const user = readModels.user.getByAccessCode(accessCode)
-    const customer = user.type === 'customer' ? user : null
-    let invoice = customer ? await Model.Invoice.getNewest(txn, customer.id) : null
+    const invoice = getNewestInvoice(user)
     let tickets
     if (user.type === 'ticket') {
       const ticket = await Model.Ticket.get(txn, user.uid)
@@ -28,23 +37,22 @@ module.exports = (dependencies) => {
     } else {
       tickets = invoice.tickets
     }
-    const paid = invoice && invoice.paid
-    const password = !!user.password
-    invoice = invoice && invoice.invoiceNo ? invoice : null
     return templateGenerator.generate('account-info', {
-      invoice,
+      invoice: invoice && invoice.invoiceNo ? invoice : null,
       accessCode,
-      password,
-      paid,
+      password: !!user.password,
+      paid: invoice && invoice.paid,
       tickets,
       config
     })
   }
 
-  async function getLastInvoice(txn, accessCode) {
-    const customer = await Model.Customer.findByAccessCode(txn, accessCode)
-    const invoice = await Model.Invoice.getNewest(txn, customer.uid)
-    const data = {...Model.Invoice.getPrintableInvoiceData(invoice, config.baseUrl)}
+  async function getLastInvoice(accessCode) {
+    const invoice = getNewestInvoice(readModels.user.getByAccessCode(accessCode))
+    if (!invoice) {
+      throw 'Cannot find an invoice - maybe someone else bought yours?'
+    }
+    const data = {...readModels.invoice.getPrintableInvoiceData(invoice, config.baseUrl)}
     return templateGenerator.generate('invoice', data)
   }
 
@@ -86,7 +94,7 @@ module.exports = (dependencies) => {
   router.post('/password', auth.requireJWT(), makeHandler(req => setPassword(req.user, req.body.password)))
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
-  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.txn, req.params.accessCode), {type: 'send', txn: true}))
+  router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.params.accessCode), {type: 'send'}))
   router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => createAdditionalTicket(req.txn, req.params.accessCode), {commit: true}))
 
   return router

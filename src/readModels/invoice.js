@@ -1,7 +1,28 @@
+const ticketTypes = require('../ticketTypes')
+const Formatter = require('../lib/Formatter')
+
+const countries = {
+  de: 'Deutschland',
+  ch: 'Schweiz',
+  at: 'Österreich'
+}
+
 module.exports = function () {
   const invoices = {}
   const customers = {}
   const persons = {}
+
+  function extractTickets(tickets) {
+    return invoice => invoice.tickets.forEach(ticket => {
+      const person = ticket.participant
+      tickets.push({
+        firstName: person.firstName,
+        lastName: person.lastName,
+        email: person.email,
+        firm: invoice.customer.firm
+      })
+    })
+  }
 
   return {
     handleEvent(event, assert) {
@@ -96,23 +117,53 @@ module.exports = function () {
       return Object.values(invoices)
     },
 
-    getByUserId(id) {
+    getById(id) {
       return invoices[id]
     },
 
-    async getAllTickets() {
+    getByCustomerId(id) {
+      return Object.values(invoices)
+        .filter(invoice => invoice.customer.id === id)
+        .sort((a, b) => b.invoiceNo - a.invoiceNo)
+    },
+
+    getPrintableInvoiceData(invoice, baseUrl) {
+      const ticketCount = invoice.tickets.length
+      const netAmount = ticketCount * invoice.ticketPrice
+      const vat = 0.19 * netAmount
+      const created = new Date(invoice.created)
+      return Object.assign({baseUrl}, invoice, {
+        created: Formatter.date(created),
+        ticketType: ticketTypes[invoice.ticketType].name,
+        ticketString: ticketCount + ' Ticket' + (ticketCount === 1 ? '' : 's'),
+        bookedString: ticketCount === 1 ? 'das gebuchte Ticket' : 'die gebuchten Tickets',
+        netAmount: Formatter.currency(netAmount),
+        vat: Formatter.currency(vat),
+        totalAmount: Formatter.currency(vat + netAmount),
+        firm: invoice.customer.firm,
+        firstName: invoice.customer.person.firstName,
+        lastName: invoice.customer.person.lastName,
+        address: invoice.customer.address,
+        postcode: invoice.customer.postcode,
+        city: invoice.customer.city,
+        country: countries[invoice.customer.country],
+        paid: invoice.paid
+      })
+    },
+
+    getAllTickets() {
       const tickets = []
       this.getAll()
         .filter(invoice => invoice.payment !== 'paypal' || invoice.paid)
-        .forEach(invoice => invoice.tickets.forEach(ticket => {
-            const person = ticket.participant
-            tickets.push({
-              firstName: person.firstName,
-              lastName: person.lastName,
-              email: person.email,
-              firm: invoice.customer.firm
-            })
-        }))
+        .forEach(extractTickets(tickets))
+      return tickets
+    },
+
+    getTicketsForCustomer(id) {
+      const tickets = []
+      this.getAll()
+        .filter(invoice => invoice.customer.id === id)
+        .forEach(extractTickets(tickets))
       return tickets
     }
   }
