@@ -94,7 +94,25 @@ module.exports = function () {
         case 'ticket-created':
           assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
           invoices[event.ticket.invoiceId].tickets.push({
+            id: event.ticket.id,
+            access_code: event.ticket.access_code,
             participant: event.ticket.personId && persons[event.ticket.personId]
+          })
+          break
+
+        case 'participant-set':
+          assert(event.ticketId, 'No ticketId specified')
+          assert(event.personId, 'No personId specified')
+          const participant = persons[event.personId]
+          assert(participant, 'Referenced person not found')
+          Object.values(invoices).find(invoice => {
+            return invoice.tickets.find(ticket => {
+              const ticketFound = ticket.id === event.ticketId
+              if (ticketFound) {
+                ticket.participant = participant
+              }
+              return ticketFound
+            })
           })
           break
 
