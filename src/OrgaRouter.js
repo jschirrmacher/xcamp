@@ -120,10 +120,18 @@ module.exports = (dependencies) => {
   }
 
   function testLogin(req, res, asAdmin) {
-    const isPersonInNetwork = personId => readModels.network.getById(personId).type === 'person'
+    const isPersonInNetwork = function (personId) {
+      const person = readModels.network.getById(personId)
+      return person && person.type === 'person'
+    }
     req.user = readModels.user.getAll()
       .find(u => isPersonInNetwork(u.personId) && (asAdmin && u.isAdmin || !asAdmin && !u.isAdmin))
     auth.signIn(req, res)
+    res.redirect(config.baseUrl)
+  }
+
+  function testLogout(req, res) {
+    auth.logout(res)
     res.redirect(config.baseUrl)
   }
 
@@ -145,6 +153,7 @@ module.exports = (dependencies) => {
 
   router.get('/test/login/admin', requireDevEnv, (req, res) => testLogin(req, res, true))
   router.get('/test/login/user', requireDevEnv, (req, res) => testLogin(req, res, false))
+  router.get('/test/logout', requireDevEnv, (req, res) => testLogout(req, res))
 
   return router
 }

@@ -126,7 +126,7 @@ module.exports = function ({models}) {
     canEdit(user, nodeId) {
       if (!user) {
         return false
-      } else if (user.isAdmin) {
+      } else if (!nodeId || user.isAdmin) {
         return true
       } else {
         return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== -1

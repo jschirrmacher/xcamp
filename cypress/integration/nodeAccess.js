@@ -7,10 +7,17 @@ function loginAsUser(userType) {
 
 describe('Access to nodes', function() {
   it('should not show names when not logged in', function () {
-    cy.visit(baseUrl + '?what=person')
+    loginAsUser('user')
+    cy.get('#profile').click()
     cy.wait(2000)
-    cy.get('.person .title tspan').each($el => {
-      expect($el.text()).to.equal('Teilnehmer')
+    cy.url().then(url => {
+      const id = url.replace(/^.*#/, '')
+      cy.visit(baseUrl + 'orga/test/logout')
+      cy.wait(2000)
+      cy.visit(baseUrl + '#' + id)
+      cy.get('.person .title tspan').each($el => {
+        expect($el.text()).to.equal('Teilnehmer')
+      })
     })
   })
 

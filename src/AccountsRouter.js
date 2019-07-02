@@ -30,7 +30,7 @@ module.exports = (dependencies) => {
     const invoice = getNewestInvoice(user)
     let tickets
     if (user.type === 'ticket') {
-      const ticket = await Model.Ticket.get(txn, user.uid)
+      const ticket = await Model.Ticket.get(txn, user.id)
       ticket.participant = ticket.participant[0]
       ticket.isPersonalized = true
       tickets = [ticket]
