@@ -315,6 +315,10 @@ script.addEventListener('load', function () {
     }
   }
 
+  function getNumberOfClosedPersonLinks(node) {
+    return Object.values(node.linkedNodes).filter(d => d.type === 'person' && !d.visible).length
+  }
+
   const helpBox = document.querySelector('.help')
   document.getElementById('help').addEventListener('click', () => {
     helpBox.classList.add('open')
@@ -346,12 +350,12 @@ script.addEventListener('load', function () {
   nodeRenderer.renderCircle = function (enter) {
     origRenderCircle.call(this, enter)
     const g = enter
-      .filter(d => network.getNumClosedLinks(d))
+      .filter(d => getNumberOfClosedPersonLinks(d))
       .append('g')
         .attr('class', 'cta')
         .attr('transform', d => 'translate(' + ((d.radius || 50) * 0.7) + ' -' + ((d.radius || 50) * 0.7) + ')')
     g.append('circle')
-    g.append('text').text(d => Math.min(99, network.getNumClosedLinks(d)))
+    g.append('text').text(d => Math.min(99, getNumberOfClosedPersonLinks(d)))
   }
 
   network = new Network({
