@@ -4,6 +4,7 @@ const paymentType = {
   none: 'N/A'
 }
 
+const ticketTypes = require('./ticketTypes')
 const Formatter = require('./lib/Formatter')
 
 module.exports = (dependencies) => {
@@ -44,7 +45,7 @@ module.exports = (dependencies) => {
       totals: 0,
       totalsPaid: 0,
       tickets: {
-        orga: 0,
+        free: 0,
         corporate: 0,
         private: 0,
         reduced: 0
@@ -52,7 +53,7 @@ module.exports = (dependencies) => {
     }
 
     const invoices = (await readModels.invoice.getAll()).map(invoice => {
-      stats.tickets[invoice.ticketType] += invoice.tickets.length
+      stats.tickets[ticketTypes[invoice.ticketType].category] += invoice.tickets.length
       stats.participants += invoice.tickets.length
       stats.totals += invoice.tickets.length * invoice.ticketPrice
       stats.totalsPaid += invoice.paid ? invoice.tickets.length * invoice.ticketPrice : 0
