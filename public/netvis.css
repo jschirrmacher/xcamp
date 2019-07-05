@@ -499,4 +499,9 @@ label[for="image-upload"] {
 .node.topic .text-bg {
   fill: none; }
 
+.cta {
+  display: none; }
+  .cta.hidden_persons {
+    display: block; }
+
 /*# sourceMappingURL=netvis.css.map */
