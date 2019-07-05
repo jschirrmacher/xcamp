@@ -636,3 +636,11 @@ label[for="image-upload"] {
     fill: none;
   }
 }
+
+.cta {
+  display: none;
+
+  &.hidden_persons {
+    display: block;
+  }
+}

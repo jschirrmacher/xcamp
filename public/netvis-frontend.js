@@ -299,6 +299,7 @@ script.addEventListener('load', function () {
       radius: node.radius || fontSize * 50,
       className: node.type,
       links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
+      hiddenPersonLinks: getNumberOfHiddenPersonLinks(node),
       fontSize
     })
   }
@@ -315,8 +316,11 @@ script.addEventListener('load', function () {
     }
   }
 
-  function getNumberOfClosedPersonLinks(node) {
-    return Object.values(node.linkedNodes).filter(d => d.type === 'person' && !d.visible).length
+  function getNumberOfHiddenPersonLinks(node) {
+    if (!node.links || !node.links.persons) {
+      return 0
+    }
+    return node.links.persons.filter(l => !l.visible).length
   }
 
   const helpBox = document.querySelector('.help')
@@ -349,13 +353,22 @@ script.addEventListener('load', function () {
   const origRenderCircle = nodeRenderer.renderCircle
   nodeRenderer.renderCircle = function (enter) {
     origRenderCircle.call(this, enter)
-    const g = enter
-      .filter(d => getNumberOfClosedPersonLinks(d))
-      .append('g')
-        .attr('class', 'cta')
-        .attr('transform', d => 'translate(' + ((d.radius || 50) * 0.7) + ' -' + ((d.radius || 50) * 0.7) + ')')
+    const g = enter.append('g')
+      .attr('class', 'cta')
+      .attr('transform', d => 'translate(' + ((d.radius || 50) * 0.7) + ' -' + ((d.radius || 50) * 0.7) + ')')
     g.append('circle')
-    g.append('text').text(d => Math.min(99, getNumberOfClosedPersonLinks(d)))
+    g.append('text')
+  }
+  nodeRenderer.update = function (selector) {
+    selector.selectAll('.cta')
+      .classed('hidden_persons', d => !!d.hiddenPersonLinks)
+      .selectAll('text').text(d => Math.min(99, d.hiddenPersonLinks))
+  }
+
+  function toggleNode(node, ref) {
+    network.toggleNodes(node, ref)
+    node.hiddenPersonLinks = getNumberOfHiddenPersonLinks(node)
+    network.updateNodes([node, ...Object.values(node.linkedNodes).filter(n => n.visible)])
   }
 
   network = new Network({
@@ -386,8 +399,7 @@ script.addEventListener('load', function () {
 
       clickOnNode(node) {
         if (node.type === 'topic') {
-          network.toggleNodes(node, 'persons')
-          network.updateNodes([node, ...Object.values(node.linkedNodes).filter(n => n.visible)])
+          toggleNode(node, 'person')
         } else {
           network.showDetails(node)
         }
@@ -397,8 +409,7 @@ script.addEventListener('load', function () {
         if (ref === 'info') {
           network.showDetails(node)
         } else {
-          network.toggleNodes(node, ref)
-          network.updateNodes([node, ...Object.values(node.linkedNodes).filter(n => n.visible)])
+          toggleNode(node, ref)
         }
       },
 
