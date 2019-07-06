@@ -3,7 +3,7 @@ const stream = require('stream')
 let lastPersonEvent
 let lastApproval
 
-module.exports = class From_13 extends stream.Transform {
+module.exports = class From_15 extends stream.Transform {
   constructor(options = {}) {
     options.objectMode = true
     super(options)

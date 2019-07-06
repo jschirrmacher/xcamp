@@ -93,6 +93,7 @@ module.exports = function () {
 
         case 'ticket-created':
           assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
+          assert(event.ticket.id, 'No ticket id specified')
           invoices[event.ticket.invoiceId].tickets.push({
             id: event.ticket.id,
             access_code: event.ticket.access_code,

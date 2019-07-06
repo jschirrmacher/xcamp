@@ -91,7 +91,7 @@ module.exports = (dgraphClient, dgraph, Model, store) => {
     await muCustomer.setSetNquads(`<${customer.uid}> <invoices> <${invoiceId}> .`)
     await txn.mutate(muCustomer)
 
-    const result = get(txn, invoiceId)
+    const result = await get(txn, invoiceId)
 
     const invoice = select(invoiceData, ['invoiceNo', 'created', 'ticketType', 'ticketPrice', 'payment'])
     invoice.id = invoiceId
@@ -99,7 +99,7 @@ module.exports = (dgraphClient, dgraph, Model, store) => {
     invoice.created = new Date(invoice.created).toISOString()
     store.add({type: 'invoice-created', invoice})
 
-    tickets.forEach(t => {
+    result.tickets.forEach(t => {
       store.add({type: 'ticket-created', ticket: {id: t.id, access_code: t.access_code, personId: t.participant.uid, invoiceId}})
     })
 

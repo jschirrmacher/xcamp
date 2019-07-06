@@ -1,6 +1,6 @@
 const stream = require('stream')
 
-module.exports = class From_13 extends stream.Transform {
+module.exports = class From_14 extends stream.Transform {
   constructor(options = {}) {
     options.objectMode = true
     super(options)
