@@ -399,7 +399,7 @@ script.addEventListener('load', function () {
 
       clickOnNode(node) {
         if (node.type === 'topic') {
-          toggleNode(node, 'person')
+          toggleNode(node, 'persons')
         } else {
           network.showDetails(node)
         }

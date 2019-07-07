@@ -7,6 +7,6 @@
 /data/
 /store/
 /config/config.json
-/config/migrationData_9.json
+/config/migrationData_*.json
 /cypress/screenshots
 /cypress/videos
