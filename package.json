@@ -1,6 +1,6 @@
 {
   "name": "xcamp",
-  "version": "4.9.0",
+  "version": "4.9.1",
   "description": "XCamp ticketing and network visualization system",
   "main": "index.js",
   "author": "Joachim Schirrmacher <joachim.schirrmacher@gmail.com>",
