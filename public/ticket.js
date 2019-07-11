@@ -59,6 +59,20 @@
     firmField.style.display = 'initial'
   }
 
+  function isLoggedIn() {
+    const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+    const parts = token[2].split('.')
+    if (parts.length === 3) {
+      try {
+        const part1 = JSON.parse(atob(parts[0]))
+        const part2 = JSON.parse(atob(parts[1]))
+        return part1.typ && part1.typ === 'JWT' && part2.iat && part2.exp && part2.sub
+      } catch (e) {
+      }
+    }
+    return false
+  }
+
   form.addEventListener('submit', event => {
     if (!assertTOSAccepted()) {
       return false
@@ -84,4 +98,8 @@
     adaptDependendFields()
   }
   setSubmitButtonState()
+
+  const loggedIn = isLoggedIn()
+  document.body.classList.toggle('logged-in', loggedIn)
+  document.body.classList.toggle('logged-out', !loggedIn)
 })()
