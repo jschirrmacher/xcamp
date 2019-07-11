@@ -14,7 +14,7 @@ module.exports = (dependencies) => {
   async function getTicketPage(code, type, isAdmin) {
     const coupon = code && readModels.coupon.getByAccessCode(code)
     if (code && !coupon) {
-      throw 'Invalid coupon code'
+      return templateGenerator.generate('invalid-coupon-code')
     }
     const template = type === 'reduced' ? 'apply-to-reduced-ticket' : 'buy-ticket'
     const templateName = config.ticketSaleStarted || isAdmin ? template : 'no-tickets-yet'
