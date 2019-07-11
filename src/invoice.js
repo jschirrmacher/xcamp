@@ -100,7 +100,7 @@ module.exports = (dgraphClient, dgraph, Model, store) => {
     store.add({type: 'invoice-created', invoice})
 
     result.tickets.forEach(t => {
-      store.add({type: 'ticket-created', ticket: {id: t.id, access_code: t.access_code, personId: t.participant.uid, invoiceId}})
+      store.add({type: 'ticket-created', ticket: {id: t.uid, access_code: t.access_code, personId: t.participant.uid, invoiceId}})
     })
 
     return result
