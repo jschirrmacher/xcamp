@@ -10,13 +10,14 @@ h2 {
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
+  margin: 0 -10px;
 
   .tile {
     flex-grow:0;
     flex-shrink:0;
-    flex-basis:calc(33% - 10px);
+    flex-basis:calc(33% - 17px);
     background: $turqoise;
-    margin: 5px;
+    margin: 10px;
     padding: 20px;
 
     .image-container {
