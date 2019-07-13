@@ -81,7 +81,7 @@ script.addEventListener('load', function () {
       form.innerHTML = detailFormTemplate(Object.assign({}, data, {
         editable,
         linkTitles,
-        tags: (node.links.topics && node.links.topics.map(link => link.target.name)) || [],
+        tags: (node.links.topics && node.links.topics.map(link => ({id: link.id, name: link.target.name}))) || [],
         accessCode: userInfo.access_code,
         setText: userInfo.hasPasswordSet ? 'ändern' : 'setzen',
         change: userInfo.hasPasswordSet
@@ -126,12 +126,18 @@ script.addEventListener('load', function () {
       })
 
       const tagView = form.querySelector('.tag-view')
+      const existingTags = tagView.querySelector('#existing-tags')
       const newTag = tagView.querySelector('.new-tag')
       const profilePic = form.querySelector('.profile-picture')
 
+      const newTagContainer = tagView.querySelector('.new-tag-container')
+      existingTags.addEventListener('click', selectExistingTag)
+      newTag.addEventListener('blur', () => setTimeout(emptyTopicsList, 5000))
+      newTag.addEventListener('input', e => updateTopicsList(e.target.innerHTML))
+      emptyTopicsList()
+
       form.addEventListener('input', debounce(e => !e.target.classList.contains('new-tag') && save(), 1000))
       newTag.addEventListener('keydown', e => (e.key === ',' || e.key === 'Enter') && handleCreateTagEvent(e))
-      newTag.addEventListener('blur', handleCreateTagEvent)
       form.addEventListener('click', e => e.target.classList.contains('delete') && deleteTag(e.target.parentNode))
       select('.upload', form).forEach(el => el.addEventListener('change', fileUploadHandler))
 
@@ -167,13 +173,39 @@ script.addEventListener('load', function () {
           .catch(console.error)
       }
 
+      function emptyTopicsList() {
+        existingTags.innerHTML = ''
+      }
+
+      function updateTopicsList(search) {
+        const tags = (node.links.topics && node.links.topics.map(link => link.target.name)) || []
+        const pattern = new RegExp(search, 'i')
+        function byRelevantTopics(n) {
+          return n.type === 'topic' && Object.keys(n.linkedNodes).length && !tags.includes(n.name) && n.name.match(pattern)
+        }
+
+        const topics = network.nodes
+          .filter(byRelevantTopics)
+          .map(node => node.name)
+          .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+        existingTags.innerHTML = topics.map(topic => '<li>' + topic + '</li>').join('')
+      }
+
+      function selectExistingTag(e) {
+        newTag.innerText = e.target.innerText
+        emptyTopicsList()
+        createTag()
+      }
+
       function deleteTag(el) {
         const topicName = el.innerText
+        const linkId = parseInt(el.dataset.id)
         el.remove()
         const headers = {'content-type': 'application/json', authorization}
         return fetch(`network/nodes/${node.id}/topics/${topicName}`, {method: 'DELETE', headers})
           .then(result => result.json())
           .then(result => {
+            node.links.topics = node.links.topics.filter(l => l.id !== linkId)
             network.removeLinks(result.links2delete)
             network.update()
           })
@@ -197,7 +229,7 @@ script.addEventListener('load', function () {
         const del = document.createElement('span')
         del.className = 'delete'
         el.append(del)
-        tagView.insertBefore(el, newTag)
+        tagView.insertBefore(el, newTagContainer)
         const headers = {'content-type': 'application/json', authorization}
         return fetch(`network/nodes/${node.id}/topics/${value}`, {method: 'PUT', headers})
           .then(result => result.json())
@@ -214,6 +246,8 @@ script.addEventListener('load', function () {
               if (node.id === n.id) {
                 n.links.topics.push(result.topic.id)
                 network.updateNode(n)
+                const newLink = n.links.topics.find(l => l.target.id === result.topic.id || l.source.id === result.topic.id)
+                el.setAttribute('data-id', newLink.id)
                 return true
               }
             })

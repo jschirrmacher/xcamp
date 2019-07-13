@@ -48,6 +48,18 @@ module.exports = function () {
         invoices[invoiceData.id] = invoice
       }
 
+      function setParticipant(participant, ticketId) {
+        Object.values(invoices).find(invoice => {
+          return invoice.tickets.find(ticket => {
+            const ticketFound = ticket.id === ticketId
+            if (ticketFound) {
+              ticket.participant = participant
+            }
+            return ticketFound
+          })
+        })
+      }
+
       switch (event.type) {
         case 'person-created':
           assert(event.person, 'No person in event')
@@ -104,17 +116,8 @@ module.exports = function () {
         case 'participant-set':
           assert(event.ticketId, 'No ticketId specified')
           assert(event.personId, 'No personId specified')
-          const participant = persons[event.personId]
-          assert(participant, 'Referenced person not found')
-          Object.values(invoices).find(invoice => {
-            return invoice.tickets.find(ticket => {
-              const ticketFound = ticket.id === event.ticketId
-              if (ticketFound) {
-                ticket.participant = participant
-              }
-              return ticketFound
-            })
-          })
+          assert(persons[event.personId], 'Referenced person not found')
+          setParticipant(persons[event.personId], event.ticketId)
           break
 
         case 'payment-received':

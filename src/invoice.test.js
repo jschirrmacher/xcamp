@@ -29,8 +29,8 @@ const txn = {
           return {
             invoice: [{
               tickets: [
-                {id: 999, participant: [{uid: 42}]},
-                {id: 1000, participant: [{uid: 42}]}
+                {uid: 999, participant: [{uid: 42}]},
+                {uid: 1000, participant: [{uid: 42}]}
               ]
             }]
           }

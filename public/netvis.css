@@ -201,6 +201,29 @@ svg .node {
           top: -8px;
           right: -11px;
           cursor: pointer; }
+    .details .detailForm .new-tag-container {
+      position: relative; }
+      .details .detailForm .new-tag-container #existing-tags {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        top: 1.5em;
+        list-style: none;
+        border: 1px solid #aaa;
+        background-color: white;
+        box-shadow: rgba(128, 128, 128, 0.1) 4px 4px 4px;
+        margin: 0;
+        padding: 0;
+        max-height: 15em;
+        overflow: auto; }
+        .details .detailForm .new-tag-container #existing-tags:empty {
+          display: none; }
+        .details .detailForm .new-tag-container #existing-tags li {
+          padding: 5px;
+          cursor: pointer;
+          white-space: nowrap; }
+          .details .detailForm .new-tag-container #existing-tags li:hover {
+            background: #eeeeee; }
     .details .detailForm .new-tag {
       display: none;
       background-color: white; }

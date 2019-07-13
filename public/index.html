@@ -94,7 +94,9 @@
                 </div>
 
                 <div class="tag-view">
-                    {{#each tags}}<span class="tag">{{this}}<span class="delete"></span></span>{{/each}}<span class="tag new-tag" {{{editable}}}></span>
+                    {{#each tags}}<span class="tag" data-id="{{{this.id}}}">{{this.name}}<span class="delete"></span></span>{{/each}}<span class="new-tag-container"><span class="tag new-tag" {{{editable}}}></span>
+                        <ul id="existing-tags"></ul>
+                    </span>
                 </div>
 
                 <div class="commands">
