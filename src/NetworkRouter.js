@@ -2,6 +2,8 @@ const path = require('path')
 const multer = require('multer')
 const upload = multer({dest: path.resolve(__dirname , '..', 'profile-pictures')})
 
+const socialNetworks = ['facebook.de', 'xing.com']
+
 module.exports = (dependencies) => {
   const {
     express,
@@ -17,7 +19,13 @@ module.exports = (dependencies) => {
     const sessions = readModels.session.getAll().map(session => {
       const person = readModels.network.getById(session.person.id)
       session.image = readModels.network.getImageURL(person)
-      session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
+      // session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
+      session.url = person.url
+        .replace(/^(?!https?:\/\/)/, 'https:\/\/')
+      session.urlTitle = person.url
+        .replace(/^(https?:\/\/)?(www\.)?(facebook.de\/|xing.com\/profile\/)?/, '')
+        .replace(/\/.*$/, '')
+        .replace(/_/, ' ')
       return session
     })
     return templateGenerator.generate('session-list', {sessions})

@@ -126,6 +126,11 @@ h2 {
         border: 10px solid white; }
       .tiles .tile .image-container:hover img {
         transform: scale(1.05); }
+    .tiles .tile .url {
+      display: block;
+      color: white;
+      font-size: 18px;
+      line-height: 1.8em; }
     .tiles .tile p {
       font-size: 18px; }
 
