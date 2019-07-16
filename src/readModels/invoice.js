@@ -42,7 +42,9 @@ module.exports = function () {
         assert(!invoices[invoiceData.id], 'Invoice already exists')
         assert(customers[invoiceData.customerId], 'Customer doesn\'t exist')
         const invoice = {...invoiceData}
-        invoice.customer = customers[invoice.customerId]
+        const customer = {...customers[invoice.customerId]}
+        customer.person = {...customer.person}
+        invoice.customer = customer
         delete invoice.customerId
         invoice.tickets = []
         invoices[invoiceData.id] = invoice
@@ -72,7 +74,7 @@ module.exports = function () {
           assert(event.person, 'No person in event')
           assert(event.person.id, 'No person id in event')
           assert(persons[event.person.id], 'Person doesn\'t exist')
-          persons[event.person.id] = {...persons[event.person.id], ...event.person}
+          persons[event.person.id] = Object.assign(persons[event.person.id], event.person)
           break
 
         case 'customer-created':
@@ -83,7 +85,7 @@ module.exports = function () {
           assert(event.customer, 'No customer in event')
           assert(event.customer.id, 'No customer id in event')
           assert(customers[event.customer.id], 'Customer doesn\'t exist')
-          customers[event.customer.id] = {...customers[event.customer.id], ...event.customer}
+          customers[event.customer.id] = Object.assign(customers[event.customer.id], event.customer)
           break
 
         case 'invoice-created':
@@ -94,7 +96,7 @@ module.exports = function () {
           assert(event.invoice, 'No invoice in event')
           assert(event.invoice.id, 'No invoice id in event')
           assert(invoices[event.invoice.id], 'Invoice doesn\'t exist')
-          invoices[event.invoice.id] = {...invoices[event.invoice.id], ...event.invoice}
+          invoices[event.invoice.id] = Object.assign(invoices[event.invoice.id], event.invoice)
           break
 
         case 'invoice-deleted':
