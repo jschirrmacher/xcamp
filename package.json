@@ -1,6 +1,6 @@
 {
   "name": "xcamp",
-  "version": "4.10.0",
+  "version": "4.10.1",
   "description": "XCamp ticketing and network visualization system",
   "main": "index.js",
   "author": "Joachim Schirrmacher <joachim.schirrmacher@gmail.com>",
@@ -41,7 +41,7 @@
     "integration-test": "cypress open"
   },
   "devDependencies": {
-    "cypress": "^3.3.1",
+    "cypress": "^3.4.0",
     "eslint-plugin-cypress": "^2.2.1",
     "faker": "^4.1.0",
     "mocha": "^6.1.4",
