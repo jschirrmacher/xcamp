@@ -18,77 +18,79 @@ button {
   cursor: pointer;
   font-size: 1.3rem; }
 
-svg {
-  opacity: 0.001;
-  transition: opacity 1s 1s; }
-
+body.initialized .main-menu {
+  background: none;
+  height: 0; }
 body.initialized svg {
   opacity: 0.95; }
 
-svg .links line {
-  stroke: #aaa; }
-svg .node {
-  pointer-events: all;
-  cursor: pointer;
-  stroke: #666;
-  stroke-width: 0.5px; }
-  svg .node.open > circle, svg .node.open > rect {
-    stroke: #ff696c;
-    stroke-width: 2px; }
-  svg .node .title {
-    transition: 0.5s; }
-    svg .node .title > text {
-      transition: 0.5s 0.5s; }
-      svg .node .title > text tspan {
-        fill: #000;
-        stroke-width: 0;
-        font-weight: normal;
-        text-anchor: middle;
-        text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
-  svg .node .text-bg {
-    fill: #fcffff;
-    rx: 5px;
-    ry: 5px; }
-  svg .node .reflinks {
-    opacity: 0.001;
-    transition: opacity 0.3s;
-    cursor: pointer; }
-    svg .node .reflinks text {
-      fill: #428bca; }
-    svg .node .reflinks .text-bg {
-      fill: #eeefef;
-      stroke: #cccccc;
-      rx: 0;
-      ry: 0; }
-    svg .node .reflinks g:hover .text-bg {
-      fill: #cccccc; }
-  svg .node:hover circle:first-of-type {
-    stroke: #ff696c;
-    stroke-width: 2px; }
-  svg .node:hover .reflinks {
-    opacity: 1; }
-  svg .node.withBg .title {
-    transform: translate(0, 40px); }
-    svg .node.withBg .title tspan {
-      text-shadow: none; }
-  svg .node.withBg:hover .title {
-    transform: translateY(5em) scale(1.5); }
-  svg .node rect {
-    stroke: none; }
-  svg .node > rect:first-child + text tspan {
-    font-weight: bold;
-    fill: #666; }
-  svg .node .cta {
-    x: 35px;
-    y: -35px; }
-    svg .node .cta circle {
-      r: 12px;
-      fill: #4ed9d5; }
-    svg .node .cta text {
-      transform: translate(0, 5px);
-      fill: black;
-      stroke: transparent;
-      text-anchor: middle; }
+svg {
+  opacity: 0.001;
+  transition: opacity 1s 1s; }
+  svg .links line {
+    stroke: #aaa; }
+  svg .node {
+    pointer-events: all;
+    cursor: pointer;
+    stroke: #666;
+    stroke-width: 0.5px; }
+    svg .node.open > circle, svg .node.open > rect {
+      stroke: #ff696c;
+      stroke-width: 2px; }
+    svg .node .title {
+      transition: 0.5s; }
+      svg .node .title > text {
+        transition: 0.5s 0.5s; }
+        svg .node .title > text tspan {
+          fill: #000;
+          stroke-width: 0;
+          font-weight: normal;
+          text-anchor: middle;
+          text-shadow: 0 0 5px #fff, 0 0 5px #fff; }
+    svg .node .text-bg {
+      fill: #fcffff;
+      rx: 5px;
+      ry: 5px; }
+    svg .node .reflinks {
+      opacity: 0.001;
+      transition: opacity 0.3s;
+      cursor: pointer; }
+      svg .node .reflinks text {
+        fill: #428bca; }
+      svg .node .reflinks .text-bg {
+        fill: #eeefef;
+        stroke: #cccccc;
+        rx: 0;
+        ry: 0; }
+      svg .node .reflinks g:hover .text-bg {
+        fill: #cccccc; }
+    svg .node:hover circle:first-of-type {
+      stroke: #ff696c;
+      stroke-width: 2px; }
+    svg .node:hover .reflinks {
+      opacity: 1; }
+    svg .node.withBg .title {
+      transform: translate(0, 40px); }
+      svg .node.withBg .title tspan {
+        text-shadow: none; }
+    svg .node.withBg:hover .title {
+      transform: translateY(5em) scale(1.5); }
+    svg .node rect {
+      stroke: none; }
+    svg .node > rect:first-child + text tspan {
+      font-weight: bold;
+      fill: #666; }
+    svg .node .cta {
+      x: 35px;
+      y: -35px; }
+      svg .node .cta circle {
+        r: 12px;
+        fill: #4ed9d5; }
+      svg .node .cta text {
+        transform: translate(0, 5px);
+        fill: black;
+        stroke: transparent;
+        text-anchor: middle; }
 
 .command {
   display: none; }
@@ -288,7 +290,7 @@ body.dialogOpen #root {
       left: 1px;
       top: 1px; }
 .sidebar-buttons .other {
-  top: 70px; }
+  top: 100px; }
   .sidebar-buttons .other button {
     width: 45px;
     height: 45px;

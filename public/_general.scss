@@ -1,6 +1,7 @@
 $turqoise: #4ED9D5;
 $magenta: #ff696c;
 $yellow: #f9d400;
+$black: #343434;
 
 html, body {
   margin: 0;
@@ -79,7 +80,8 @@ a, button {
 #logo {
   position: absolute;
   left: 30px;
-  top: 40px;
+  top: 31px;
+  height: 90px;
 }
 
 #main {
@@ -97,7 +99,7 @@ a, button {
     background-color: rgba(250,250,250,0.7);
     box-shadow: rgba(0,0,0,0.1) 6px 6px 6px;
     border: 1px solid #ccc;
-    margin-top: 140px;
+    margin-top: 40px;
     padding: 1em 10px;
 
     @media (min-width: 740px) {

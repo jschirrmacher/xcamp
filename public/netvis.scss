@@ -20,16 +20,21 @@ button {
   font-size: 1.3rem;
 }
 
+body.initialized {
+  .main-menu {
+    background: none;
+    height: 0;
+  }
+
+  svg {
+    opacity: 0.95;
+  }
+}
+
 svg {
   opacity: 0.001;
   transition: opacity 1s 1s;
-}
 
-body.initialized svg {
-  opacity: 0.95;
-}
-
-svg {
   .links line {
     stroke: #aaa;
   }
@@ -438,7 +443,7 @@ body.dialogOpen #root {
   }
 
   .other {
-    top: 70px;
+    top: 100px;
 
     button {
       width: 45px;
