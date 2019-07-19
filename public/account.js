@@ -1,8 +1,7 @@
 (function () {
   'use strict'
 
-  var token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
-  var authorization = token ? token[2] : null
+  var authorization = getAuthToken()
 
   select('.ticketNo').forEach(function (el) {
     QRCode.toCanvas(el, document.head.baseURI + '/ticket/' + el.id)
@@ -39,6 +38,5 @@
     window.history.replaceState(null, null, location.pathname)
   }
 
-  document.body.classList.toggle('logged-in', true)
-  document.body.classList.toggle('logged-out', false)
+  setMenuState()
 })()

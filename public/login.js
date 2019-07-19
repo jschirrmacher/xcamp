@@ -43,4 +43,4 @@ loginForm.addEventListener('submit', function (event) {
   return false
 })
 
-document.body.classList.add('logged-out')
+setMenuState()

@@ -14,4 +14,4 @@ select('#orga-coupon-earlybird').addEventListener('click', () => {
   return false
 })
 
-document.body.classList.add('logged-in')
+setMenuState()

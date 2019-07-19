@@ -1,5 +1,5 @@
-var token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
-var authorization = token ? token[2] : null
+var authorization = getAuthToken()
+setMenuState()
 
 document.querySelectorAll('.setPayment').forEach(function (el) {
   el.onclick = function (event) {

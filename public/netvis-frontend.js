@@ -30,9 +30,7 @@ const script = document.createElement('script')
 script.addEventListener('load', function () {
   const source = document.getElementById('detailForm').innerHTML
   const detailFormTemplate = Handlebars.compile(source)
-
-  const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
-  const authorization = token ? token[2] : null
+  const authorization = getAuthToken()
 
   // Credit David Walsh (https://davidwalsh.name/javascript-debounce-function)
   function debounce(func, wait, immediate) {
@@ -452,18 +450,12 @@ script.addEventListener('load', function () {
     }
   })
 
-  fetch(history + 'session', {headers: {authorization}})
-    .then(function (response) {
-      return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
-    })
-    .then(function (data) {
-      document.body.classList.toggle('logged-in', data.loggedIn)
-      document.body.classList.toggle('logged-out', !data.loggedIn)
-      if (data.loggedIn) {
-        userInfo = data
-        profileButton.style.backgroundImage = 'url(' + data.profileImage + ')'
-      }
-    })
+  setMenuState(true).then(data => {
+    if (data.loggedIn) {
+      userInfo = data
+      profileButton.style.backgroundImage = 'url(' + data.profileImage + ')'
+    }
+  })
 })
 script.src = 'js-netvis/dist/bundle.js'
 document.body.appendChild(script)

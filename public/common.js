@@ -73,3 +73,53 @@ function setupMail2InfoLink(link, mailBody) {
 }
 
 document.querySelectorAll('.mail2info').forEach(setupMail2InfoLink)
+
+function getAuthToken() {
+  const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+  return token ? token[2] : null
+}
+
+function isJWTValid() {
+  const token = getAuthToken()
+  if (token) {
+    const parts = token.split('.')
+    if (parts.length === 3) {
+      try {
+        const part1 = JSON.parse(atob(parts[0]))
+        const part2 = JSON.parse(atob(parts[1]))
+        return part1.typ && part1.typ === 'JWT' && part2.iat && part2.exp && part2.sub
+      } catch (e) {
+      }
+    }
+  }
+  return false
+}
+
+function getSessionState() {
+  return new Promise(function (resolve, reject) {
+    const authorization = getAuthToken()
+    return fetch('session', {headers: {authorization}})
+      .then(function (response) {
+        return response.ok ? response.json() : Promise.reject('Netzwerkfehler - bitte später noch einmal versuchen.')
+      })
+      .then(resolve)
+      .catch(reject)
+  })
+}
+
+function setDocumentState(loggedIn) {
+  document.body.classList.toggle('logged-in', loggedIn)
+  document.body.classList.toggle('logged-out', !loggedIn)
+}
+
+function setMenuState(getUserData = false) {
+  if (getUserData || !isJWTValid()) {
+    return getSessionState().then(function (data) {
+      setDocumentState(data.loggedIn)
+      return data
+    })
+  } else {
+    setDocumentState(true)
+    return Promise.resolve({loggedIn: true})
+  }
+}

@@ -21,7 +21,7 @@ module.exports = ({app, readModels, store, config}) => {
   }
 
   function logout(res) {
-    res.cookie('token', undefined)
+    res.cookie('token', '')
   }
 
   function jwtFromRequest(req) {

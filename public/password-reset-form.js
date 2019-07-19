@@ -1,6 +1,3 @@
-document.body.classList.toggle('logged-in', true)
-document.body.classList.toggle('logged-out', false)
-
 document.getElementById('chgPwdForm').addEventListener('submit', function (event) {
   event.preventDefault()
   const token = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
@@ -13,3 +10,5 @@ document.getElementById('chgPwdForm').addEventListener('submit', function (event
     .catch(error => console.error(error) || '')
   return false;
 })
+
+setMenuState()
