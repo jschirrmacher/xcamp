@@ -7,6 +7,8 @@ const countries = {
   at: 'Österreich'
 }
 
+let maxInvoiceNo = 0
+
 module.exports = function () {
   const invoices = {}
   const customers = {}
@@ -48,6 +50,7 @@ module.exports = function () {
         delete invoice.customerId
         invoice.tickets = []
         invoices[invoiceData.id] = invoice
+        maxInvoiceNo = Math.max(invoice.invoiceNo, maxInvoiceNo)
       }
 
       function setParticipant(participant, ticketId) {
@@ -97,6 +100,7 @@ module.exports = function () {
           assert(event.invoice.id, 'No invoice id in event')
           assert(invoices[event.invoice.id], 'Invoice doesn\'t exist')
           invoices[event.invoice.id] = Object.assign(invoices[event.invoice.id], event.invoice)
+          maxInvoiceNo = Math.max(invoices[event.invoice.id].invoiceNo, maxInvoiceNo)
           break
 
         case 'invoice-deleted':
@@ -189,6 +193,10 @@ module.exports = function () {
         .filter(invoice => invoice.customer.id === id)
         .forEach(extractTickets(tickets))
       return tickets
+    },
+
+    getMaxInvoiceNo() {
+      return maxInvoiceNo
     }
   }
 }
