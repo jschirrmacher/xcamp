@@ -286,7 +286,7 @@ describe('auth', () => {
     auth.logout({
       cookie(name, value) {
         name.should.equal('token')
-        should(value).be.undefined()
+        should(value).equal('')
         cookieIsCleared = true
       }
     })
