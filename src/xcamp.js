@@ -45,13 +45,15 @@ const logger = winston.createLogger(loggerOptions)
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store})
-require('./actionHandlers')({store, mailSender})
 const QueryFunction = require('./QueryFunction')
+const NotificationSender = require('./NotificationSender')({mailSender, readModels, config})
+store.listen(NotificationSender.handleEvent)
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
-const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, fetch, mailSender, mailChimp, templateGenerator, config, readModels})
+const Payment = require('./PayPalAdapter')(fetch, store, config)
+const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
-const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, store, config, readModels})
+const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels})
 
 const msg = `{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}`
 app.use(expressWinston.logger({...loggerOptions, msg}))

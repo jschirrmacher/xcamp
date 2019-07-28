@@ -80,7 +80,7 @@ module.exports = (dependencies) => {
   async function createAdditionalTicket(txn, accessCode) {
     const customer = await Model.Customer.findByAccessCode(txn, accessCode)
     const tickets = await Model.Ticket.create(txn, customer.person[0], 1)
-    return Model.Invoice.addTicket(txn, customer.invoices[0], tickets[0])
+    return Model.Invoice.addTicket(customer.invoices[0], tickets[0])
   }
 
   const router = express.Router()

@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, mailChimp, rack, store, readModels, config) => {
+module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
   const query = QueryFunction('Ticket', `
     uid
     type
@@ -59,7 +59,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       const customer = await Model.Customer.create(txn, data)
       const person = customer.person[0]
       const tickets = await create(txn, person, +data.ticketCount)
-      const invoice = await Model.Invoice.create(txn, data, customer, tickets)
+      const invoice = await Model.Invoice.create(data, customer, tickets)
 
       await addSubscriber(person)
 
@@ -69,10 +69,10 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       }
 
       let url
-      if (invoice.payment === 'invoice') {
-        url = mailSender.sendTicketNotifications(customer, invoice)
+      if (invoice.payment === 'paypal') {
+        url = Payment.getPaymentURL(customer, invoice)
       } else {
-        url = Model.Payment.exec(customer, invoice)
+        url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
       }
       return redirectTo(url, readModels.user.getById(customer.uid))
     } catch (error) {

@@ -7,7 +7,7 @@ module.exports = function({store}) {
     .map(name => name.replace('.js', ''))
     .filter(name => !name.endsWith('.test'))
     .filter(name => name !== 'index')
-    .forEach(name => models[name] = require('./' + name)({models}))
+    .forEach(name => models[name] = require('./' + name)({models, store}))
 
   Object.values(models).forEach(model => store.listen(model.handleEvent))
   store.replay()

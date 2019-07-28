@@ -32,7 +32,7 @@ module.exports = (dependencies) => {
     data.payment = 'none'
     const customer = await Model.Customer.create(txn, data)
     const tickets = await Model.Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-    await Model.Invoice.create(txn, data, customer, tickets)
+    await Model.Invoice.create(data, customer, tickets)
     const user = readModels.user.getById(customer.uid)
     const action = 'accounts/' + customer.access_code + '/password/reset'
     const hash = mailSender.sendHashMail('send-free-ticket-mail', user, action)
@@ -112,6 +112,18 @@ module.exports = (dependencies) => {
     }
   }
 
+  function paid(invoiceId) {
+    store.add({type: 'payment-received', invoiceId})
+  }
+
+  function unpaid(invoiceId) {
+    store.add({type: 'payment-withdrawn', invoiceId})
+  }
+
+  function deleteInvoice(invoiceId) {
+    store.add({type: 'invoice-deleted', invoiceId})
+  }
+
   function requireDevEnv(req, res, next) {
     if (config.isProduction) {
       next('Cannot use this route in a production environment')
@@ -146,9 +158,9 @@ module.exports = (dependencies) => {
   router.post('/coupon/earlybird', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'earlybird'), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.query.format || 'txt'), {type: 'send'}))
   router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => listInvoices(), {type: 'send'}))
-  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, true), {commit: true}))
-  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.paid(req.txn, req.params.invoiceNo, false), {commit: true}))
-  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Invoice.deleteInvoice(req.txn, req.params.invoiceNo, true), {commit: true}))
+  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => paid(req.params.invoiceNo)))
+  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => unpaid(req.params.invoiceNo)))
+  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => deleteInvoice(req.params.invoiceNo)))
   router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
 

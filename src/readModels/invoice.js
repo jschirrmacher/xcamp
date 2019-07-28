@@ -8,8 +8,10 @@ const countries = {
 }
 
 let maxInvoiceNo = 0
+let lastInvoiceId = 0
+let lastTicketId = 0
 
-module.exports = function () {
+module.exports = function ({store}) {
   const invoices = {}
   const customers = {}
   const persons = {}
@@ -43,6 +45,7 @@ module.exports = function () {
         assert(invoiceData.id, 'No invoice id in event')
         assert(!invoices[invoiceData.id], 'Invoice already exists')
         assert(customers[invoiceData.customerId], 'Customer doesn\'t exist')
+        lastInvoiceId = invoiceData.id
         const invoice = {...invoiceData}
         const customer = {...customers[invoice.customerId]}
         customer.person = {...customer.person}
@@ -50,7 +53,9 @@ module.exports = function () {
         delete invoice.customerId
         invoice.tickets = []
         invoices[invoiceData.id] = invoice
-        maxInvoiceNo = Math.max(invoice.invoiceNo, maxInvoiceNo)
+        if (invoice.payment === 'invoice') {
+          store.add({type: 'invoice-updated', invoice: {id: invoiceData.id, invoiceNo: ++maxInvoiceNo}})
+        }
       }
 
       function setParticipant(participant, ticketId) {
@@ -112,6 +117,7 @@ module.exports = function () {
         case 'ticket-created':
           assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
           assert(event.ticket.id, 'No ticket id specified')
+          lastTicketId = event.ticket.id
           invoices[event.ticket.invoiceId].tickets.push({
             id: event.ticket.id,
             access_code: event.ticket.access_code,
@@ -197,6 +203,14 @@ module.exports = function () {
 
     getMaxInvoiceNo() {
       return maxInvoiceNo
+    },
+
+    getLastInvoiceId() {
+      return lastInvoiceId
+    },
+
+    getLastTicketId() {
+      return lastTicketId
     }
   }
 }

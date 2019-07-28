@@ -1,7 +1,10 @@
 require('should')
 
+const store = {
+  add() {}
+}
 const models = {
-  invoice: require('./invoice')()
+  invoice: require('./invoice')({store})
 }
 
 const testPerson1 = {id: 4710, email: 'test1@example.com', firstName: 'Tom'}
