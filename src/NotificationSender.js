@@ -25,14 +25,14 @@ module.exports = function ({mailSender, readModels, config}) {
             break
 
           case 'invoice-created':
-            if (readModels.invoice.getById(event.invoiceId).payment === 'invoice') {
-              sendTicket(event.invoiceId)
+            if (readModels.invoice.getById(event.invoice.id).payment === 'invoice') {
+              sendTicket(event.invoice.id)
             }
             break
 
           case 'payment-received':
             if (!readModels.invoice.getById(event.invoiceId).invoiceNo) {
-              sendTicket(event.invoiceId)
+              sendTicket(event.invoice.id)
             }
             break
 

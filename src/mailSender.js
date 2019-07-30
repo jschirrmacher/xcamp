@@ -11,7 +11,7 @@ module.exports = (nodemailer, templateGenerator, config, rack) => {
 
   function sendTicketNotifications(customer, invoice) {
     const url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
-    const person = customer.person[0]
+    const person = customer.person
     const ticketCount = invoice.tickets.length
     const subject = config.eventName + ' Ticketbuchung'
     const params = {customer, person, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}

@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, rack, store, readModels) => {
   const query = QueryFunction('Customer', `
     uid
     type
@@ -31,10 +31,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
   }
 
   async function create(txn, customerData) {
-    if (await findByEMail(txn, customerData.email, false)) {
-      throw {status: 409, message: 'A customer with this email address already exists'}
-    }
-
     const data = {
       type: 'customer',
       firm: customerData.firm,
@@ -46,7 +42,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         email: customerData.email,
         profession: customerData.profession
       },
-      access_code: rack(),
       addresses: {
         type: 'address',
         address: customerData.address,
@@ -55,14 +50,25 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         country: customerData.country
       }
     }
+    const customer = await findByEMail(txn, customerData.email, false)
+    if (customer) {
+      const invoice = readModels.invoice.getByCustomerId(customer.uid)
+      if (invoice.length) {
+        throw {status: 409, message: 'A customer with this email address already exists'}
+      }
+      data.uid = customer.uid
+      data.person.uid = customer.person[0].uid
+    } else {
+      data.access_code = rack()
+    }
 
     const mu = new dgraph.Mutation()
     mu.setSetJson(data)
     const assigned = await txn.mutate(mu)
-    const result = await get(txn, assigned.getUidsMap().get('blank-0'))
+    const result = await get(txn, customer ? customer.uid : assigned.getUidsMap().get('blank-0'))
 
     store.add({
-      type: 'person-created',
+      type: 'person-' + (customer ? 'updated' : 'created'),
       person: {
         id: result.person[0].uid,
         firstName: result.person[0].firstName,
@@ -71,8 +77,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         profession: customerData.profession
       }
     })
-    store.add({
-      type: 'customer-created',
+    const customerEvent = {
+      type: 'customer-' + (customer ? 'updated' : 'created'),
       customer: {
         id: result.uid,
         firm: result.firm,
@@ -80,10 +86,13 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store) => {
         postcode: data.addresses.postcode,
         city: data.addresses.city,
         country: data.addresses.country,
-        access_code: data.access_code,
         personId: result.person[0].uid,
       }
-    })
+    }
+    if (!customer) {
+      customerEvent.customer.access_code = data.access_code
+    }
+    store.add(customerEvent)
     return result
   }
 

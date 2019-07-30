@@ -47,7 +47,7 @@ const assert = () => {}
 describe('NotificationSender', () => {
   it('should send a notification after buying a corporate ticket which is paid by invoice', () => {
     sentMails.length = 0
-    sender.handleEvent({type: 'invoice-created', invoiceId: 7}, assert, 'new')
+    sender.handleEvent({type: 'invoice-created', invoice: {id: 7}}, assert, 'new')
     sentMails.should.deepEqual([{customer: {id: 99}, invoice: invoices[7]}])
   })
 

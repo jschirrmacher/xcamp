@@ -24,8 +24,12 @@ module.exports = (store, readModels) => {
 
   function addTicket(invoice, ticket) {
     ticket.id = readModels.invoice.getLastTicketId() + 1
-    ticket.invoiceId = invoice.id
-    store.add({type: 'ticket-created', ticket})
+    store.add({type: 'ticket-created', ticket: {
+      id: ticket.id,
+      access_code: ticket.access_code,
+      personId: ticket.participant.uid,
+      invoiceId: invoice.id
+    }})
   }
 
   return {create, addTicket}
