@@ -76,8 +76,6 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
         url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
       }
       return redirectTo(url, readModels.user.getById(customer.uid))
-    } catch (error) {
-      return {error: '' + error}
     } finally {
       txn.discard()
     }

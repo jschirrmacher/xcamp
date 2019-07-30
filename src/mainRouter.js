@@ -41,7 +41,10 @@ module.exports = (dependencies) => {
           res[type](result)
         }
       } catch (error) {
-        next(error)
+        if (error.status) {
+          res.status(error.status)
+        }
+        next(error.message || error)
       } finally {
         if (txn) {
           req.txn.discard()
