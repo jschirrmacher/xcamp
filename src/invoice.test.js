@@ -24,34 +24,30 @@ const invoice = require('./invoice')(store, readModels)
 
 describe('invoice.js', () => {
   describe('function create', () => {
-    it('should assign an invoice number for corporate tickets', async () => {
+    it('should assign an invoice number for corporate tickets',  () => {
       events.length = 0
-      const tickets = [{participant: {uid: 42}, access_code: '5678'}]
-      await invoice.create({type: 'corporate', payment: 'invoice'}, {uid: 7}, tickets)
+      invoice.create({type: 'corporate', payment: 'invoice'}, {uid: 7})
       events[0].type.should.equal('invoice-created')
       events[1].type.should.equal('invoice-updated')
       events[1].invoice.invoiceNo.should.equal(1)
     })
 
-    it('should not assign an invoice number when payed by PayPal', async () => {
+    it('should not assign an invoice number when payed by PayPal',  () => {
       events.length = 0
-      const tickets = [{participant: {uid: 42}, access_code: '5678'}]
-      await invoice.create({type: 'private', payment: 'paypal'}, {uid: 7}, tickets)
+      invoice.create({type: 'private', payment: 'paypal'}, {uid: 7})
       events[0].type.should.equal('invoice-created')
       events[0].invoice.invoiceNo.should.equal(0)
     })
 
-    it('should report ticket ids to event store', async () => {
+    it('should report ticket ids to event store', () => {
       events.length = 0
-      const tickets = [
-        {participant: {uid: 42}, access_code: '1234'},
-        {participant: {uid: 42}, access_code: '5678'}
-      ]
-      await invoice.create({type: 'private'}, {uid: 7}, tickets)
+      invoice.create({type: 'private', payment: 'paypal'}, {uid: 7})
+      invoice.addTicket(events[0].invoice, {})
+      invoice.addTicket(events[0].invoice, {})
       events[1].type.should.equal('ticket-created')
-      events[1].ticket.id.should.equal(3)
+      events[1].ticket.id.should.equal(1)
       events[2].type.should.equal('ticket-created')
-      events[2].ticket.id.should.equal(4)
+      events[2].ticket.id.should.equal(2)
     })
   })
 })

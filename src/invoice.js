@@ -3,7 +3,7 @@
 const ticketTypes = require('./ticketTypes')
 
 module.exports = (store, readModels) => {
-  function create(data, customer, tickets) {
+  function create(data, customer) {
     if (typeof ticketTypes[data.type] === 'undefined') {
       throw 'Unknown ticket type'
     }
@@ -15,11 +15,10 @@ module.exports = (store, readModels) => {
       customerId: customer.uid,
       ticketType: data.type,
       ticketPrice: ticketTypes[data.type].price,
-      payment: data.payment
+      payment: data.payment,
+      tickets: []
     }
     store.add({type: 'invoice-created', invoice})
-    invoice.tickets = []
-    tickets.forEach(ticket => addTicket(invoice, ticket))
     return invoice
   }
 

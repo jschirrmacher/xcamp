@@ -32,7 +32,8 @@ module.exports = (dependencies) => {
     data.payment = 'none'
     const customer = await Model.Customer.create(txn, data)
     const tickets = await Model.Ticket.create(txn, customer.person[0], data.ticketCount || 1)
-    await Model.Invoice.create(data, customer, tickets)
+    const invoice = await Model.Invoice.create(data, customer)
+    tickets.forEach(ticket => Model.Invoice.addTicket(invoice, ticket))
     const user = readModels.user.getById(customer.uid)
     const action = 'accounts/' + customer.access_code + '/password/reset'
     const hash = mailSender.sendHashMail('send-free-ticket-mail', user, action)
