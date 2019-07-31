@@ -182,6 +182,14 @@ module.exports = function ({store}) {
       })
     },
 
+    getTicketByAccessCode(code) {
+      return this.getAll()
+        .filter(invoice => invoice.payment !== 'paypal' || invoice.paid)
+        .map(invoice => invoice.tickets.find(ticket => ticket.access_code === code))
+        .filter(ticket => ticket)
+        .shift()
+    },
+
     getAllTickets() {
       const tickets = []
       this.getAll()

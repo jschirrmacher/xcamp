@@ -90,20 +90,20 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
   }
 
   async function setParticipant(txn, accessCode, data, user) {
-    const ticket = await findByAccessCode(txn, accessCode)
+    const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
     const person = await Model.Person.getOrCreate(txn, data, user, false)
 
-    if (!ticket.participant || ticket.participant[0].uid !== person.uid) {
+    if (!ticket.participant || ticket.participant.id !== person.uid) {
       if (ticket.participant) {
-        const uid = ticket.participant[0].uid
+        const uid = ticket.participant.id
         const mu = new dgraph.Mutation()
-        await mu.setDelNquads(`<${ticket.uid}> <participant> <${uid}> .`)
+        await mu.setDelNquads(`<${ticket.id}> <participant> <${uid}> .`)
         await txn.mutate(mu)
       }
       const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${ticket.uid}> <participant> <${person.uid}> .`)
+      await mu.setSetNquads(`<${ticket.id}> <participant> <${person.uid}> .`)
       await txn.mutate(mu)
-      store.add({type: 'participant-set', ticketId: ticket.uid, personId: person.uid})
+      store.add({type: 'participant-set', ticketId: ticket.id, personId: person.uid})
 
       await mailChimp.addSubscriber(person)
       await mailChimp.addTags(person, [config.eventName])

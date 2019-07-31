@@ -25,13 +25,12 @@ module.exports = (dependencies) => {
     return null
   }
 
-  async function getAccountInfoPage(txn, accessCode) {
+  async function getAccountInfoPage(accessCode) {
     const user = readModels.user.getByAccessCode(accessCode)
     const invoice = getNewestInvoice(user)
     let tickets
     if (user.type === 'ticket') {
-      const ticket = await Model.Ticket.get(txn, user.id)
-      ticket.participant = ticket.participant[0]
+      const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
       ticket.isPersonalized = true
       tickets = [ticket]
     } else {
@@ -87,7 +86,7 @@ module.exports = (dependencies) => {
   const redirect = true
 
   router.get('/my', auth.requireJWT({redirect}), (req, res) => res.redirect(getAccountInfoURL(req.user)))
-  router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => getAccountInfoPage(req.txn, req.params.accessCode), {txn: true, type: 'send'}))
+  router.get('/:accessCode/info', auth.requireCodeOrAuth({redirect}), makeHandler(req => getAccountInfoPage(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password', makeHandler(req => sendPassword(req.params.accessCode)))
   router.get('/password/sent', makeHandler(() => templateGenerator.generate('password-sent'), {type: 'send'}))
   router.get('/password/failed', makeHandler(() => templateGenerator.generate('password-failed'), {type: 'send'}))

@@ -130,6 +130,7 @@ module.exports = function ({models}) {
               access_code: ticket.access_code,
               email: person.email,
               firstName: person.firstName,
+              lastName: person.lastName,
               image: person.image,
               ticketIds: [event.ticketId]
             })

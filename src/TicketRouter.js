@@ -11,7 +11,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  async function getTicketPage(code, type, isAdmin) {
+  async function getTicketSalePage(code, type, isAdmin) {
     const coupon = code && readModels.coupon.getByAccessCode(code)
     if (code && !coupon) {
       return templateGenerator.generate('invalid-coupon-code')
@@ -24,11 +24,16 @@ module.exports = (dependencies) => {
     return templateGenerator.generate(templateName, data)
   }
 
-  async function getTicket(txn, accessCode, mode) {
-    const ticket = await Model.Ticket.findByAccessCode(txn, accessCode)
+  function getTicketFromAccessCode(accessCode) {
+    const user = readModels.user.getByAccessCode(accessCode)
+    return readModels.invoice.getTicketByAccessCode(accessCode)
+  }
+
+  async function getTicketPage(accessCode, mode) {
+    const ticket = getTicketFromAccessCode(accessCode)
     const disabled = mode === 'print' ? 'disabled' : ''
     const print = mode === 'print'
-    const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant[0]}
+    const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant}
     return templateGenerator.generate('ticket', params)
   }
 
@@ -44,13 +49,13 @@ module.exports = (dependencies) => {
   const redirect = true
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketPage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketSalePage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
   router.post('/', makeHandler(req => Model.Ticket.buy(req.body)))
   router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
   router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode)))
   router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.txn, req.params.accessCode, req.body, req.user), {commit: true}))
-  router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'show'), {type: 'send', txn: true}))
-  router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicket(req.txn, req.params.accessCode, 'print'), {type: 'send', txn: true}))
+  router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'show'), {type: 'send'}))
+  router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'print'), {type: 'send'}))
   router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))
 
   return router
