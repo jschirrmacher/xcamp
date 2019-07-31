@@ -10,7 +10,7 @@ module.exports = (store, readModels) => {
 
     const invoice = {
       id: readModels.invoice.getLastInvoiceId() + 1,
-      invoiceNo: 0,
+      invoiceNo: data.payment === 'invoice' ? readModels.invoice.getMaxInvoiceNo() + 1 : 0,
       created: new Date().toISOString(),
       customerId: customer.uid,
       ticketType: data.type,

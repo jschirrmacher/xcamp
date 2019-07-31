@@ -53,9 +53,6 @@ module.exports = function ({store}) {
         delete invoice.customerId
         invoice.tickets = []
         invoices[invoiceData.id] = invoice
-        if (invoice.payment === 'invoice') {
-          store.add({type: 'invoice-updated', invoice: {id: invoiceData.id, invoiceNo: ++maxInvoiceNo}})
-        }
       }
 
       function setParticipant(participant, ticketId) {
@@ -117,7 +114,7 @@ module.exports = function ({store}) {
         case 'ticket-created':
           assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
           assert(event.ticket.id, 'No ticket id specified')
-          lastTicketId = event.ticket.id
+          lastTicketId = +event.ticket.id
           invoices[event.ticket.invoiceId].tickets.push({
             id: event.ticket.id,
             access_code: event.ticket.access_code,
