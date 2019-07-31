@@ -114,7 +114,11 @@ module.exports = (dependencies) => {
   }
 
   function paid(invoiceId) {
+    const invoice = readModels.invoice.getById(invoiceId)
     store.add({type: 'payment-received', invoiceId})
+    if (!invoice.invoiceNo) {
+      store.add({type: 'invoice-updated', invoice: {id: invoiceId, invoiceNo: readModels.invoice.getMaxInvoiceNo() + 1}})
+    }
   }
 
   function unpaid(invoiceId) {
