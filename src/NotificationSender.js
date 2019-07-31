@@ -32,7 +32,7 @@ module.exports = function ({mailSender, readModels, config}) {
 
           case 'payment-received':
             if (!readModels.invoice.getById(event.invoiceId).invoiceNo) {
-              sendTicket(event.invoice.id)
+              sendTicket(event.invoiceId)
             }
             break
 
