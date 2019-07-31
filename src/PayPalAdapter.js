@@ -24,7 +24,7 @@ module.exports = (fetch, store, config) => {
       country: customer.country,
       email: customer.email,
       lc: 'de',
-      custom: invoice.uid
+      custom: invoice.id
     })
   }
 
