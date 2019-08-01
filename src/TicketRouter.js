@@ -25,7 +25,6 @@ module.exports = (dependencies) => {
   }
 
   function getTicketFromAccessCode(accessCode) {
-    const user = readModels.user.getByAccessCode(accessCode)
     return readModels.invoice.getTicketByAccessCode(accessCode)
   }
 

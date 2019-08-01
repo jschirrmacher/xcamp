@@ -28,8 +28,7 @@ describe('invoice.js', () => {
       events.length = 0
       invoice.create({type: 'corporate', payment: 'invoice'}, {uid: 7})
       events[0].type.should.equal('invoice-created')
-      events[1].type.should.equal('invoice-updated')
-      events[1].invoice.invoiceNo.should.equal(1)
+      events[0].invoice.invoiceNo.should.equal(readModels.invoice.getMaxInvoiceNo())
     })
 
     it('should not assign an invoice number when payed by PayPal',  () => {
