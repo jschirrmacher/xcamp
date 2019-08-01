@@ -1,5 +1,6 @@
 module.exports = function ({models}) {
   const nodes = {}
+  const persons = {}
   const ticketsByInvoiceId = {}
   const tickets = {}
 
@@ -51,7 +52,7 @@ module.exports = function ({models}) {
       assert(event.ticketId, 'ticketId not specified')
       assert(event.personId, 'personId not specified')
       assert(tickets[event.ticketId], 'Ticket not found')
-      const person = models.network.getById(event.personId)
+      const person = persons[event.personId]
       assert(person, 'Person not found')
       removePersonFromNetwork(tickets[event.ticketId])
       nodes[event.personId] = {...person, type: 'person', shape: 'circle'}
@@ -63,6 +64,7 @@ module.exports = function ({models}) {
       assert(event.person.id, 'No person id found in event')
       assert(!nodes[event.person.id], 'Person already exists')
       event.person.details = '/network/persons/' + event.person.id
+      persons[event.person.id] = event.person
       nodes[event.person.id] = event.person
     },
 
@@ -96,7 +98,7 @@ module.exports = function ({models}) {
     },
 
     handlePersonUpdatedEvent(event) {
-      // Don't use 'assert' here because not all known persons are in the network
+      persons[event.person.id] = event.person
       if (nodes[event.person.id]) {
         nodes[event.person.id] = Object.assign(nodes[event.person.id], event.person)
       }
