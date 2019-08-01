@@ -1,23 +1,9 @@
-module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
-  const query = QueryFunction('Ticket', `
-    uid
-    type
-    access_code
-    checkedIn
-    participant {
-      uid
-      firstName
-      lastName
-      email
-      image
-    }`
-  )
-
+module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
   function redirectTo(url, user) {
     return {isRedirection: true, url, user}
   }
 
-  async function create(txn, person, count) {
+  function create(person, count) {
     return Array.from({length: count}, () => ({
       type: 'ticket',
       access_code: rack(),
@@ -58,7 +44,7 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
       }
       const customer = await Model.Customer.create(txn, data)
       const person = customer.person[0]
-      const tickets = await create(txn, person, +data.ticketCount)
+      const tickets = create(txn, person, +data.ticketCount)
       const invoice = await Model.Invoice.create(data, customer)
       tickets.forEach(ticket => Model.Invoice.addTicket(invoice, ticket))
 
@@ -79,14 +65,6 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     } finally {
       txn.discard()
     }
-  }
-
-  async function get(txn, uid) {
-    return query.one(txn, `func: uid(${uid})`)
-  }
-
-  async function findByAccessCode(txn, accessCode) {
-    return query.one(txn, `func: eq(access_code, "${accessCode}")`)
   }
 
   async function setParticipant(txn, accessCode, data, user) {
@@ -154,5 +132,5 @@ module.exports = (dgraphClient, dgraph, Model, QueryFunction, mailSender, templa
     return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
   }
 
-  return {get, create, buy, setParticipant, findByAccessCode, show, checkin, createCoupon}
+  return {create, buy, setParticipant, show, checkin, createCoupon}
 }

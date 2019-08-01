@@ -31,7 +31,7 @@ module.exports = (dependencies) => {
   async function createOrgaMember(txn, data) {
     data.payment = 'none'
     const customer = await Model.Customer.create(txn, data)
-    const tickets = await Model.Ticket.create(txn, customer.person[0], data.ticketCount || 1)
+    const tickets = Model.Ticket.create(customer.person[0], data.ticketCount || 1)
     const invoice = await Model.Invoice.create(data, customer)
     tickets.forEach(ticket => Model.Invoice.addTicket(invoice, ticket))
     const user = readModels.user.getById(customer.uid)
