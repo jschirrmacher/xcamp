@@ -163,9 +163,9 @@ module.exports = (dependencies) => {
   router.post('/coupon/earlybird', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.txn, req.user, 'earlybird'), {commit: true}))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.query.format || 'txt'), {type: 'send'}))
   router.get('/invoices', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => listInvoices(), {type: 'send'}))
-  router.put('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => paid(req.params.invoiceNo)))
-  router.delete('/invoices/:invoiceNo/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => unpaid(req.params.invoiceNo)))
-  router.delete('/invoices/:invoiceNo', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => deleteInvoice(req.params.invoiceNo)))
+  router.put('/invoices/:invoiceId/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => paid(req.params.invoiceId)))
+  router.delete('/invoices/:invoiceId/paid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => unpaid(req.params.invoiceId)))
+  router.delete('/invoices/:invoiceId', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => deleteInvoice(req.params.invoiceId)))
   router.get('/checkin', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(() => checkinApp(), {type: 'send'}))
   router.get('/tiles', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => generateTile(req.query), {type: 'send'}))
 
