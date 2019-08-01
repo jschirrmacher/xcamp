@@ -53,6 +53,7 @@ module.exports = function ({store}) {
         delete invoice.customerId
         invoice.tickets = []
         invoices[invoiceData.id] = invoice
+        maxInvoiceNo = Math.max(invoices[event.invoice.id].invoiceNo, maxInvoiceNo)
       }
 
       function setParticipant(participant, ticketId) {
