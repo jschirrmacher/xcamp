@@ -50,7 +50,7 @@ const NotificationSender = require('./NotificationSender')({mailSender, readMode
 store.listen(NotificationSender.handleEvent)
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
-const Payment = require('./PayPalAdapter')(fetch, store, config)
+const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
 const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
 const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels})

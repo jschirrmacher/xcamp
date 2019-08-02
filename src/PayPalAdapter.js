@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (fetch, store, config) => {
+module.exports = (fetch, store, readModels, config) => {
   function paypalUrl() {
     return 'https://www.' + (config.isProduction ? '' : 'sandbox.') + 'paypal.com/cgi-bin/webscr'
   }
@@ -42,6 +42,7 @@ module.exports = (fetch, store, config) => {
         store.add({type: 'paypal-payment-error', subject: 'IPN not verified', info: content})
       } else {
         store.add({type: 'payment-received', invoiceId: req.body.custom})
+        store.add({type: 'invoice-updated', invoice: {id: req.body.custom, invoiceNo: readModels.invoice.getMaxInvoiceNo() + 1}})
       }
     } catch (error) {
       store.add({type: 'paypal-payment-error', subject: 'Error while handling PayPal payment', info: error})
