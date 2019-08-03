@@ -33,7 +33,7 @@ function fetch(url, options) {
   }
 }
 
-const payment = require('./PayPalAdapter')(fetch, store, config)
+const payment = require('./PayPalAdapter')(fetch, store, {}, config)
 
 describe('PayPalAdapter', () => {
   it('should use the sandbox if not in production mode', () => {
