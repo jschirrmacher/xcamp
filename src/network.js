@@ -2,54 +2,7 @@
 
 const select = require('./lib/select')
 
-module.exports = (dgraphClient, dgraph, store, readModels) => {
-  function rebuild() {
-    async function dropAll(dgraphClient) {
-      const op = new dgraph.Operation()
-      op.setDropAll(true)
-      await dgraphClient.alter(op)
-      store.deleteAll()
-    }
-
-    async function setSchema(dgraphClient) {
-      const op = new dgraph.Operation()
-      op.setSchema(`
-        type: string @index(term) .
-        access_code: string @index(exact) .
-        email: string @index(exact) .
-      `)
-      await dgraphClient.alter(op)
-    }
-
-    const rootTopics = ['Design Thinking', 'Lean Startup', 'User Experience', 'Agile']
-    return dropAll(dgraphClient)
-      .then(() => setSchema(dgraphClient))
-      .then(async () => {
-        const txn = dgraphClient.newTxn()
-        try {
-          const mu = new dgraph.Mutation()
-          const data = {
-            name: 'XCamp 2019',
-            type: 'root',
-            image: 'xcamp.png',
-            topics: rootTopics.map(name => ({type: 'topic', name}))
-          }
-          mu.setSetJson(data)
-          const assigned = await txn.mutate(mu)
-          txn.commit()
-          const rootId = assigned.getUidsMap().get('blank-0')
-          store.add({type: 'root-created', root: {id: rootId, name: data.name, image: data.image}})
-          rootTopics.forEach((name, num) => {
-            const topicId = assigned.getUidsMap().get(`blank-${num + 1}`)
-            store.add({type: 'topic-created', topic: {id: topicId, name}})
-            store.add({type: 'topic-root-linked', topicId, rootId})
-          })
-        } finally {
-          txn.discard()
-        }
-      })
-  }
-
+module.exports = (store, readModels) => {
   async function getGraph(user = null) {
     const nodes = readModels.network.getAll()
       .filter(node => ['person', 'topic', 'root'].includes(node.type))
@@ -88,7 +41,6 @@ module.exports = (dgraphClient, dgraph, store, readModels) => {
   }
 
   return {
-    rebuild,
     getGraph,
     getPublicViewOfNode,
   }
