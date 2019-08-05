@@ -44,7 +44,7 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
       }
       const customer = await Model.Customer.create(txn, data)
       const person = customer.person[0]
-      const tickets = create(txn, person, +data.ticketCount)
+      const tickets = create(person, +data.ticketCount)
       const invoice = await Model.Invoice.create(data, customer)
       tickets.forEach(ticket => Model.Invoice.addTicket(invoice, ticket))
 
