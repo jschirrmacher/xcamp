@@ -16,6 +16,8 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
+  const publicDir = path.resolve(__dirname, '..', 'public')
+
   function makeHandler(func, options = {}) {
     const {type = 'json', txn = false, commit = false} = options
     return async function (req, res, next) {
@@ -54,15 +56,15 @@ module.exports = (dependencies) => {
   }
 
   function getNetVisPage() {
-    const index = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html')).toString()
+    const index = fs.readFileSync(path.resolve(publicDir, 'index.html')).toString()
     const menu = templateGenerator.generate('menu')
     const analytics = templateGenerator.generate('analytics')
     return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
   }
 
   function getIndexPage() {
-    const sponsors = JSON.parse(fs.readFileSync('config/sponsors.json'))
-    const partners = JSON.parse(fs.readFileSync('config/partners.json'))
+    const sponsors = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'sponsors', 'sponsors.json')))
+    const partners = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'partners', 'partners.json')))
     return templateGenerator.generate('index', {sponsors, partners})
   }
 
@@ -86,7 +88,7 @@ module.exports = (dependencies) => {
   router.get('/', (req, res) => res.send(getNetVisPage()))
   router.get('/index', (req, res) => res.send(getIndexPage()))
 
-  router.use('/', express.static(path.join(__dirname, '/../public')))
+  router.use('/', express.static(publicDir))
   router.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
   router.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
 
