@@ -60,6 +60,12 @@ module.exports = (dependencies) => {
     return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
   }
 
+  function getIndexPage() {
+    const sponsors = JSON.parse(fs.readFileSync('config/sponsors.json'))
+    const partners = JSON.parse(fs.readFileSync('config/partners.json'))
+    return templateGenerator.generate('index', {sponsors, partners})
+  }
+
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -78,6 +84,8 @@ module.exports = (dependencies) => {
   const router = express.Router()
 
   router.get('/', (req, res) => res.send(getNetVisPage()))
+  router.get('/index', (req, res) => res.send(getIndexPage()))
+
   router.use('/', express.static(path.join(__dirname, '/../public')))
   router.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
   router.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))

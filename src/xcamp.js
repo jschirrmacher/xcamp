@@ -13,7 +13,7 @@ global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
 const dgraph = require('dgraph-js')
 const grpc = require('grpc')
-const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'analytics', 'public-interest', 'privacy']
+const subTemplates = ['ticketHeader', 'ticketData', 'menu', 'logo', 'footer', 'analytics', 'public-interest', 'privacy', 'head']
 const templateGenerator = require('./TemplateGenerator')({globalData: config, subTemplates})
 const nodemailer = require('nodemailer')
 const rack = require('hat').rack(128, 36)
@@ -53,7 +53,7 @@ const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fet
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
 const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
-const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels})
+const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch})
 
 const msg = `{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}`
 app.use(expressWinston.logger({...loggerOptions, msg}))
