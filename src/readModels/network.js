@@ -3,6 +3,7 @@ module.exports = function ({models}) {
   const persons = {}
   const ticketsByInvoiceId = {}
   const tickets = {}
+  let maxNodeId = 0
 
   function removePersonFromNetwork(personId) {
     if (nodes[personId] && nodes[personId].links && nodes[personId].links.topics) {
@@ -30,11 +31,12 @@ module.exports = function ({models}) {
     handleTopicLinkedEvent(event, assert) {
       assert(nodes[event.nodeId], 'Referenced node is unknown')
       assert(nodes[event.topicId], 'Referenced topic is unknown')
+      const type = nodes[event.nodeId].type + 's'
+
       nodes[event.nodeId].links = nodes[event.nodeId].links || {}
       nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics || []
       nodes[event.nodeId].links.topics.push(event.topicId)
 
-      const type = nodes[event.nodeId].type + 's'
       nodes[event.topicId].links = nodes[event.topicId].links || {}
       nodes[event.topicId].links[type] = nodes[event.topicId].links[type] || []
       nodes[event.topicId].links[type].push(event.nodeId)
@@ -42,10 +44,9 @@ module.exports = function ({models}) {
 
     handleTopicUnlinkedEvent(event, assert) {
       assert(nodes[event.nodeId], 'Referenced node is unknown')
-      assert(nodes[event.topicId], 'Referenced topic is unknown')
       const type = nodes[event.nodeId].type + 's'
-      nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics.filter(t => t !== event.topicId)
-      nodes[event.topicId].links[type] = nodes[event.topicId].links[type].filter(t => t !== event.nodeId)
+      nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics.filter(t => t !== event.nodeId)
+      nodes[event.topicId].links[type] = nodes[event.topicId].links[type].filter(t => t !== event.topicId)
     },
 
     handleParticipantSetEvent(event, assert) {
@@ -66,6 +67,7 @@ module.exports = function ({models}) {
       event.person.details = '/network/persons/' + event.person.id
       persons[event.person.id] = event.person
       nodes[event.person.id] = event.person
+      maxNodeId = Math.max(event.person.id, maxNodeId)
     },
 
     handleInvoiceDeletedEvent(event, assert) {
@@ -75,26 +77,16 @@ module.exports = function ({models}) {
       delete ticketsByInvoiceId[event.invoiceId]
     },
 
-    handleRootCreatedEvent(event, assert) {
-      assert(event.root, `No root found in event`)
-      assert(event.root.id, `No root id found in event`)
-      nodes[event.root.id] = {...event.root, type: 'root', open: true, shape: 'circle'}
+    handleNodeCreatedEvent(event, assert) {
+      assert(event.node, `No node found in event`)
+      assert(event.node.id, `No node id found in event`)
+      nodes[event.node.id] = {...event.node}
+      maxNodeId = Math.max(event.node.id, maxNodeId)
     },
 
-    handleTopicCreatedEvent(event, assert) {
-      assert(event.topic, `No topic found in event`)
-      assert(event.topic.id, `No topic id found in event`)
-      nodes[event.topic.id] = {...event.topic, type: 'topic'}
-    },
-
-    handleRootUpdatedEvent(event, assert) {
-      assert(nodes[event.root.id], `Referenced root is unknown`)
-      nodes[event.root.id] = Object.assign(nodes[event.root.id], event.root)
-    },
-
-    handleTopicUpdatedEvent(event, assert) {
-      assert(nodes[event.topic.id], `Referenced topic is unknown`)
-      nodes[event.topic.id] = Object.assign(nodes[event.topic.id], event.topic)
+    handleNodeUpdatedEvent(event, assert) {
+      assert(nodes[event.node.id], `Referenced node is unknown`)
+      nodes[event.node.id] = Object.assign(nodes[event.node.id], event.node)
     },
 
     handlePersonUpdatedEvent(event) {
@@ -144,6 +136,10 @@ module.exports = function ({models}) {
         }
       }
       return 'user.png'
+    },
+
+    getMaxId() {
+      return maxNodeId
     }
   }
 }

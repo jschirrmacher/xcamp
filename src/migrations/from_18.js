@@ -3,7 +3,7 @@ const stream = require('stream')
 let invoiceId = 0
 const mapping = {}
 
-module.exports = class From_17 extends stream.Transform {
+module.exports = class From_18 extends stream.Transform {
   constructor(options = {}) {
     options.objectMode = true
     super(options)

@@ -9,7 +9,8 @@ module.exports = (dependencies) => {
     makeHandler,
     Model,
     store,
-    readModels
+    readModels,
+    config
   } = dependencies
 
   function getPersonDetails(id, user) {
@@ -73,12 +74,32 @@ module.exports = (dependencies) => {
     return {links2delete, node}
   }
 
+  async function updateById(id, data, user) {
+    if (!user || !user.isAdmin) {
+      throw 'Changing this node is not allowed!'
+    }
+    const node = readModels.network.getById(id)
+    const newValues = []
+    fields.forEach(key => {
+      const obj = {}
+      obj[key] = data[key]
+      newValues.push(obj)
+    })
+    Object.assign(node, ...newValues)
+
+    if (!node.uid) {
+      node.uid = readModels.network.getMaxId() + 1
+    }
+    store.add({type: 'node-updated', node: {...newValues}})
+    return {links2create: [], links2delete: [], nodes2create: [], node}
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.user)))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.user, config.eventName)))
 
-  router.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Root.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+  router.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.uid, req.body, req.user)))
 
   router.get('/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
   router.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))

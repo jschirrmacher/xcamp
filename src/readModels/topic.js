@@ -7,20 +7,22 @@ module.exports = function () {
   return {
     handleEvent(event, assert) {
       switch (event.type) {
-        case 'topic-created':
-          assert(event.topic, 'No topic found in event')
-          assert(event.topic.id, 'No topic id found in event')
-          assert(event.topic.name, 'No topic name found in event')
-          assert(!topics.byId[event.topic.id], 'Topic id already exists')
-          topics.byId[event.topic.id] = event.topic
-          topics.byName[event.topic.name.toLowerCase()] = event.topic
+        case 'node-created':
+          if (event.node.type === 'topic') {
+            assert(event.node.id, 'No node id found in event')
+            assert(event.node.name, 'No node name found in event')
+            assert(!topics.byId[event.node.id], 'Node id already exists')
+            topics.byId[event.node.id] = event.node
+            topics.byName[event.node.name.toLowerCase()] = event.node
+          }
           break
 
-        case 'topic-updated':
-          assert(event.topic, 'No topic found in event')
-          assert(event.topic.id, 'No topic id found in event')
-          assert(topics.byId[event.topic.id], 'Topic doesn\'t exists')
-          topics.byId[event.topic.id] = Object.assign(topics.byId[event.topic.id], event.topic)
+        case 'node-updated':
+          assert(event.node, 'No node found in event')
+          assert(event.node.id, 'No node id found in event')
+          if (topics.byId[event.node.id]) {
+            topics.byId[event.node.id] = Object.assign(topics.byId[event.node.id], event.node)
+          }
           break
 
       }

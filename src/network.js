@@ -3,10 +3,16 @@
 const select = require('./lib/select')
 
 module.exports = (store, readModels) => {
-  async function getGraph(user = null) {
+  async function getGraph(user = null, eventName) {
     const nodes = readModels.network.getAll()
       .filter(node => ['person', 'topic', 'root'].includes(node.type))
       .map(node => getPublicViewOfNode({...node}, user))
+      .map(node => {
+        if (node.type === 'root' && node.name === eventName) {
+          node.open = true
+        }
+        return node
+      })
     return {nodes, myNode: user && user.personId}
   }
 
