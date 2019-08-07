@@ -123,3 +123,10 @@ function setMenuState(getUserData = false) {
     return Promise.resolve({loggedIn: true})
   }
 }
+
+const menuSwitches = document.querySelectorAll('.toggle-menu')
+Array.from(menuSwitches).forEach(sw => sw.addEventListener('click', e => {
+  e.preventDefault()
+  e.target.classList.toggle('opened')
+  return false
+}))

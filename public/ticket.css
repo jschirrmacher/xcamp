@@ -359,8 +359,6 @@ table {
   font-style: normal; }
 .main-menu {
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
   letter-spacing: 0;
   font-style: normal;
   z-index: 9999;
@@ -399,6 +397,7 @@ table {
         height: 90px;
         color: #343434; }
   .main-menu .sub-menu {
+    top: 70px;
     right: -30px;
     background-color: #f9d400;
     width: 180px;
@@ -415,13 +414,63 @@ table {
         display: block;
         padding: 1.3em 1em;
         text-align: left;
-        height: 57px;
-        color: #343434; }
+        height: 57px; }
         .main-menu .sub-menu li a:hover {
           background-color: #f9ea77; }
   .main-menu .menu li:hover .sub-menu {
     visibility: visible;
     opacity: 1; }
+  .main-menu .toggle-menu {
+    position: absolute;
+    top: 1.3em;
+    right: 2em;
+    font-size: 24px;
+    cursor: pointer; }
+  .main-menu .dropdown-menu .toggle-menu {
+    top: 0; }
+  @media screen and (max-width: 799px) {
+    .main-menu .menu {
+      display: none;
+      top: 140px; }
+    .main-menu .toggle-menu.opened + .menu,
+    .main-menu .toggle-menu.opened + .sub-menu {
+      display: block;
+      font-size: 18px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 999;
+      background: #f5f5f5;
+      border: none; }
+      .main-menu .toggle-menu.opened + .menu > li,
+      .main-menu .toggle-menu.opened + .sub-menu > li {
+        display: block;
+        margin-right: 0; }
+        .main-menu .toggle-menu.opened + .menu > li:hover,
+        .main-menu .toggle-menu.opened + .sub-menu > li:hover {
+          background: #dddddd;
+          color: #343434; }
+        .main-menu .toggle-menu.opened + .menu > li > a,
+        .main-menu .toggle-menu.opened + .sub-menu > li > a {
+          height: 50px;
+          padding-left: 30px;
+          color: #878787; }
+          .main-menu .toggle-menu.opened + .menu > li > a:hover,
+          .main-menu .toggle-menu.opened + .sub-menu > li > a:hover {
+            background: #dddddd; }
+    .main-menu .toggle-menu.opened + .sub-menu {
+      top: 0;
+      position: static;
+      visibility: visible;
+      opacity: 1; }
+      .main-menu .toggle-menu.opened + .sub-menu a:before {
+        content: ' - '; } }
+  @media screen and (min-width: 800px) {
+    .main-menu .menu {
+      font-size: 16px;
+      font-weight: 700; }
+    .main-menu .toggle-menu {
+      display: none !important; } }
 
 .social-networks-wrapper {
   color: #545455;
