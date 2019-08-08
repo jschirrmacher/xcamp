@@ -3,19 +3,35 @@ $magenta: #ff696c;
 $yellow: #f9d400;
 $black: #343434;
 
+@font-face {
+  font-family: 'Affogato-Bold';
+  src: url('webfont/Affogato-Bold.eot');
+  src: url('webfont/Affogato-Bold.eot?#iefix') format('embedded-opentype'),
+  url('webfont/Affogato-Bold.woff') format('woff'),
+  url('webfont/Affogato-Bold.woff2') format('woff2'),
+  url('webfont/Affogato-Bold.ttf') format('truetype'),
+  url('webfont/Affogato-Bold.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@import url('https://fonts.googleapis.com/css?family=Martel:400,700&display=swap');
+
 html, body {
   margin: 0;
   padding: 0;
   font: 15px Arial, sans-serif;
   width: 100%;
   overflow-x: hidden;
-  font-family: Martel, Arial, Helvetica, sans-serif;
+  font-family: Martel, Times, serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+h1, h2, h3 {
+  font-family: Affogato-Bold, Arial, Helvetica, sans-serif;
+}
 h2 {
   line-height: 2;
 }
@@ -86,20 +102,22 @@ a, button {
 
 #main {
   background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
-  padding: 30px 15px;
+  background-position-y: -50px;
+  padding: 50px 15px 20px;
   min-height: 100%;
 
-  @media (max-width: 739px) {
-    background-size: 215%;
+  @media (min-width: 739px) {
+    background-size: 150%;
+    padding-top: 80px;
+    background-position-y: -30px;
   }
 
   @media (min-width: 740px) {
     padding: 30px;
     background-size: 150%;
-    background-position-y: -30px;
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1100px) {
     background-size: contain;
   }
 

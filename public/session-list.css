@@ -1,13 +1,23 @@
+@import url("https://fonts.googleapis.com/css?family=Martel:400,700&display=swap");
+@font-face {
+  font-family: 'Affogato-Bold';
+  src: url("webfont/Affogato-Bold.eot");
+  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
+  font-weight: normal;
+  font-style: normal; }
 html, body {
   margin: 0;
   padding: 0;
   font: 15px Arial, sans-serif;
   width: 100%;
   overflow-x: hidden;
-  font-family: Martel, Arial, Helvetica, sans-serif; }
+  font-family: Martel, Times, serif; }
 
 * {
   box-sizing: border-box; }
+
+h1, h2, h3 {
+  font-family: Affogato-Bold, Arial, Helvetica, sans-serif; }
 
 h2 {
   line-height: 2; }
@@ -63,17 +73,19 @@ a, button {
 
 #main {
   background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
-  padding: 30px 15px;
+  background-position-y: -50px;
+  padding: 50px 15px 20px;
   min-height: 100%; }
-  @media (max-width: 739px) {
+  @media (min-width: 739px) {
     #main {
-      background-size: 215%; } }
+      background-size: 150%;
+      padding-top: 80px;
+      background-position-y: -30px; } }
   @media (min-width: 740px) {
     #main {
       padding: 30px;
-      background-size: 150%;
-      background-position-y: -30px; } }
-  @media (min-width: 1200px) {
+      background-size: 150%; } }
+  @media (min-width: 1100px) {
     #main {
       background-size: contain; } }
   #main .container {
@@ -146,8 +158,8 @@ h2 {
 
 @font-face {
   font-family: "icomoon";
-  src: url("icomoon.eot");
-  src: url("icomoon.eot?#iefix") format("embedded-opentype"), url("icomoon.woff") format("woff"), url("icomoon.ttf") format("truetype"), url("icomoon.svg#icomoon") format("svg");
+  src: url("webfont/icomoon.eot");
+  src: url("webfont/icomoon.eot?#iefix") format("embedded-opentype"), url("webfont/icomoon.woff") format("woff"), url("webfont/icomoon.ttf") format("truetype"), url("webfont/icomoon.svg#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
 .main-menu {
@@ -179,9 +191,9 @@ h2 {
       vertical-align: middle;
       margin-right: 30px;
       border-top: 3px solid transparent; }
-      .main-menu .menu > li:hover {
+      .main-menu .menu > li:hover, .main-menu .menu > li.selected {
         border-color: #ff696c; }
-        .main-menu .menu > li:hover > a {
+        .main-menu .menu > li:hover > a, .main-menu .menu > li.selected > a {
           color: #ff696c; }
       .main-menu .menu > li > a {
         display: flex;
