@@ -2,7 +2,7 @@
 
 This is part of the xcamp.co website, the ticketing system and the NetVis tool that connects XCamp Members.
 
-## Installation for changing the website contents
+## How to change the website contents
 
 Check out the source code and install dependencies, then start the development server:
 
@@ -22,7 +22,18 @@ which are used by more than one page.
 
 css files should not be modified directly. Instead, you should have a look at the corresponding .scss files. After
 making changes there, you need to run [scss](https://sass-lang.com/install) (which you then would have to install as
-well) to re-genereate the css files again. 
+well) to re-genereate the css files again.
+
+## Adding sponsors or partners
+
+The files for these can be found in /public/sponsors and /public/partners.
+If a new sponsor or partner is to be added, first get a logo in the required size and add it to the corresponding
+folders. New files need to be added to the repository by calling
+
+    git add <path to file>
+    
+Then, open the .json file which is in the folder and add an entry for the sponsor or partner, by specifying a URL
+and the name of the logo file.
 
 ### Commit and push
 
