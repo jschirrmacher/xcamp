@@ -16,9 +16,9 @@ After doing the above, open your favourite browser (hopefully *not* Edge - or ev
 the URL http://localhost:8001/index - you should see the main page of xcamp!
 
 You find all relevant css, image and js files in /public, html is generated using templates which can be found in
-/templates. If you change some of the latter, you might need to restart the development server: just press CTRL-C
-and call `npm start` again. This is only necessary, if you change headers or footers or some of the other templates
-which are used by more than one page.
+`/templates`. The templates, which are used by more than one page (e.g. menu, footer and so on) can be found in
+`/templates/sub`. If you change some of the latter, you need to restart the development server: just press CTRL-C
+and call `npm start` again.
 
 css files should not be modified directly. Instead, you should have a look at the corresponding .scss files. After
 making changes there, you need to run [scss](https://sass-lang.com/install) (which you then would have to install as
