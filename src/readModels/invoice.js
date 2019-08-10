@@ -11,7 +11,7 @@ let maxInvoiceNo = 0
 let lastInvoiceId = 0
 let lastTicketId = 0
 
-module.exports = function ({}) {
+module.exports = function () {
   const invoices = {}
   const customers = {}
   const persons = {}

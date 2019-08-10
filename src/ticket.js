@@ -93,21 +93,16 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
     return {}
   }
 
-  async function show(accessCode) {
-    const txn = dgraphClient.newTxn()
-    try {
-      await findByAccessCode(txn, accessCode)
-      return {
-        isRedirection: true,
-        url: config.baseUrl + 'tickets/' + accessCode + '/show'
-      }
-    } finally {
-      txn.discard()
+  function show(accessCode) {
+    readModels.user.findByAccessCode(accessCode)
+    return {
+      isRedirection: true,
+      url: config.baseUrl + 'tickets/' + accessCode + '/show'
     }
   }
 
   async function checkin(txn, accessCode) {
-    const ticket = await findByAccessCode(txn, accessCode)
+    const ticket = readModels.user.findByAccessCode(accessCode)
     const person = await Model.Person.get(txn, ticket.participant[0].uid)
     const result = {ok: true, uid: person.uid, name: person.name, image: person.image}
     if (!ticket.checkedIn) {
