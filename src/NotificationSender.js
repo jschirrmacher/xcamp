@@ -12,7 +12,7 @@ module.exports = function ({mailSender, readModels, config}) {
             mailSender.send(
               config['mail-recipients'].talkInfoReceiver,
               'Talk veröffentlicht',
-              `<p>${event.person.name} hat seinen/ihren Talk veröffentlicht</p>\n<p>\n${event.talk}</p>`
+              `<p>${event.person.name} hat seinen/ihren Talk freigegeben</p>\n<p>\n${event.talk}</p>\n<p><a href="{{baseUrl}}session-list">Zur Session-Seite</a></p>`
             )
             break
 
