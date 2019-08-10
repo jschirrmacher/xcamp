@@ -1,20 +1,7 @@
-$turqoise: #4ED9D5;
-$magenta: #ff696c;
-$yellow: #f9d400;
-$black: #343434;
-
-@font-face {
-  font-family: 'Affogato-Bold';
-  src: url('webfont/Affogato-Bold.eot');
-  src: url('webfont/Affogato-Bold.eot?#iefix') format('embedded-opentype'),
-  url('webfont/Affogato-Bold.woff') format('woff'),
-  url('webfont/Affogato-Bold.woff2') format('woff2'),
-  url('webfont/Affogato-Bold.ttf') format('truetype'),
-  url('webfont/Affogato-Bold.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-@import url('https://fonts.googleapis.com/css?family=Martel:400,700&display=swap');
+@import "colors-and-fonts";
+@import "menu";
+@import "footer";
+@import "button";
 
 html, body {
   margin: 0;
@@ -40,14 +27,9 @@ h3 {
   margin-top: 0.5em;
 }
 
-a, button {
+a {
   text-decoration: none;
   color: $magenta;
-  transition: color .2s linear;
-
-  &:hover {
-    color: $turqoise;
-  }
 }
 
 .container {
@@ -135,18 +117,4 @@ a, button {
       padding: 1em 3em;
     }
   }
-}
-
-.buy-button {
-  background: #f9d400;
-  padding: 13px 29px;
-  line-height: 17px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #343434;
-  border: 2px solid #343434;
-  margin-bottom: 2em;
-  display: inline-block;
 }

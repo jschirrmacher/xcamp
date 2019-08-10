@@ -1,15 +1,29 @@
-.button {
-  background: #dddddd;
-  width: 150px;
-  display: block;
-  margin: 50px auto;
-  padding: 10px;
-  text-align: center;
-  color: #800002;
-  border: 2px solid #888888;
+@import "colors-and-fonts";
+
+a, button {
   text-decoration: none;
-  font-size: 18px;
+  transition: color .2s linear;
+}
+
+.button {
+  display: inline-block;
+  font: 14px Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  line-height: 17px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 2em 0;
+  border: 2px solid $black;
+  width: auto;
+  padding: 13px 29px;
+  background: #dddddd;
+  color: $black;
   cursor: pointer;
+
+  &:hover {
+    background: $grey;
+  }
 
   &[disabled] {
     opacity: 0.3;
@@ -29,5 +43,26 @@
 
   &.wide {
     width: 250px;
+  }
+}
+
+.button.yellow {
+  background: $yellow;
+  &:hover {
+    background-color: $magenta;
+  }
+}
+
+.button.magenta {
+  background: $magenta;
+  &:hover {
+    background-color: $turqoise;
+  }
+}
+
+.button.turquoise {
+  background: $turqoise;
+  &:hover {
+    background-color: $yellow;
   }
 }

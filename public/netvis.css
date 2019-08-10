@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Martel:400,700&display=swap");
 html, body, #root {
   margin: 0;
   width: 100%;
@@ -446,18 +447,48 @@ label[for="image-upload"] {
   flex-direction: column;
   padding-left: 15px; }
 
-.button {
-  background: #dddddd;
-  width: 150px;
-  display: block;
-  margin: 50px auto;
-  padding: 10px;
-  text-align: center;
-  color: #800002;
-  border: 2px solid #888888;
+.yellow {
+  background: #f9d400; }
+
+.turquoise {
+  background: #4ED9D5; }
+
+.magenta {
+  background: #ff696c; }
+
+.white {
+  background: white; }
+
+.grey {
+  background: #efefef; }
+
+@font-face {
+  font-family: 'Affogato-Bold';
+  src: url("webfont/Affogato-Bold.eot");
+  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+a, button {
   text-decoration: none;
-  font-size: 18px;
+  transition: color .2s linear; }
+
+.button {
+  display: inline-block;
+  font: 14px Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  line-height: 17px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 2em 0;
+  border: 2px solid #343434;
+  width: auto;
+  padding: 13px 29px;
+  background: #dddddd;
+  color: #343434;
   cursor: pointer; }
+  .button:hover {
+    background: #efefef; }
   .button[disabled] {
     opacity: 0.3;
     cursor: auto; }
@@ -470,6 +501,21 @@ label[for="image-upload"] {
       display: none; }
   .button.wide {
     width: 250px; }
+
+.button.yellow {
+  background: #f9d400; }
+  .button.yellow:hover {
+    background-color: #ff696c; }
+
+.button.magenta {
+  background: #ff696c; }
+  .button.magenta:hover {
+    background-color: #4ED9D5; }
+
+.button.turquoise {
+  background: #4ED9D5; }
+  .button.turquoise:hover {
+    background-color: #f9d400; }
 
 .details .detailForm button.button.small {
   display: block;

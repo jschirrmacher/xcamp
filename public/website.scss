@@ -1,14 +1,10 @@
 @import "general";
-@import "menu";
-@import "footer";
-@import "button";
 
 #main .container.no-background {
   background: transparent;
   border: none;
   box-shadow: none;
-  color: #343434;
-  font: 18px Arial, Helvetica, sans-serif;
+  color: $black;
   line-height: 1.5em;
   max-width: 1170px;
   padding: 1em 0 0 0;
@@ -90,47 +86,13 @@ img {
   }
 }
 
-.button {
-  padding: 13px 29px;
-  line-height: 17px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #000000;
-  border: 2px solid #343434;
-  margin-bottom: 2em;
-  width: auto;
-  display: inline-block;
-}
-
 .align-bottom {
   position: absolute;
   bottom: 1em;
 }
 
 .bottom-buttons .box {
-  padding-bottom: 5em;
-}
-
-.yellow {
-  background: #f9d400;
-}
-
-.blue {
-  background: #4ed9d5;
-}
-
-.red {
-  background: #ff696c;
-}
-
-.white {
-  background: white;
-}
-
-.grey {
-  background: #e0e0e0;
+  padding-bottom: 6em;
 }
 
 h2 {
