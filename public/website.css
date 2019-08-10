@@ -328,19 +328,13 @@ a {
   height: 90px; }
 
 #main {
-  background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
-  background-position-y: -80px;
-  padding: 50px 15px 20px;
+  padding: 0 15px 20px;
   min-height: 100%; }
-  @media (min-width: 739px) {
-    #main {
-      background-size: 150%;
-      padding-top: 80px;
-      background-position-y: -30px; } }
   @media (min-width: 740px) {
     #main {
-      padding: 30px;
-      background-size: 150%; } }
+      background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
+      background-size: 150%;
+      padding: 100px 30px 0; } }
   @media (min-width: 1100px) {
     #main {
       background-size: contain; } }
@@ -356,19 +350,16 @@ a {
     @media (min-width: 740px) {
       #main .container {
         padding: 1em 3em; } }
-
-#main .container.no-background {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  color: #343434;
-  line-height: 1.5em;
-  max-width: 1170px;
-  padding: 1em 0 0 0; }
-
-p {
-  font-family: Times, serif;
-  font-size: 20px; }
+    #main .container.no-background {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #343434;
+      max-width: 1170px;
+      padding: 1em 0 0 0; }
+      @media (min-width: 740px) {
+        #main .container.no-background h1 {
+          color: white; } }
 
 .container > div {
   margin-bottom: 2em; }
@@ -416,7 +407,7 @@ img {
   padding: 35px; }
   @media (max-width: 799px) {
     .box {
-      padding: 0 15px; } }
+      padding: 15px; } }
 
 .align-bottom {
   position: absolute;
@@ -452,8 +443,17 @@ h2 {
   font-family: monospace;
   font-size: 24px; }
 
-#hero {
+#main #hero {
   color: white; }
+  @media (max-width: 739px) {
+    #main #hero {
+      background: #f5f5f5 url(bg_hero_xcamp_v01-2.jpg) no-repeat left top;
+      background-size: cover;
+      margin: 0 -15px;
+      padding: 30px 15px;
+      min-height: 400px; } }
+  #main #hero h1 {
+    margin-top: 0; }
 
 #format {
   background: white; }

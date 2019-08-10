@@ -22,7 +22,6 @@ h1, h2, h3 {
 h2 {
   line-height: 2;
 }
-
 h3 {
   margin-top: 0.5em;
 }
@@ -83,20 +82,13 @@ a {
 }
 
 #main {
-  background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
-  background-position-y: -80px;
-  padding: 50px 15px 20px;
+  padding: 0 15px 20px;
   min-height: 100%;
 
-  @media (min-width: 739px) {
-    background-size: 150%;
-    padding-top: 80px;
-    background-position-y: -30px;
-  }
-
   @media (min-width: 740px) {
-    padding: 30px;
+    background: #f5f5f5 url(bg_hero_xcamp_v01-1.jpg) no-repeat left top;
     background-size: 150%;
+    padding: 100px 30px 0;
   }
 
   @media (min-width: 1100px) {
@@ -115,6 +107,21 @@ a {
     }
     @media (min-width: 740px) {
       padding: 1em 3em;
+    }
+
+    &.no-background {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: $black;
+      max-width: 1170px;
+      padding: 1em 0 0 0;
+
+      @media (min-width: 740px) {
+        h1 {
+          color: white;
+        }
+      }
     }
   }
 }
