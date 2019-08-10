@@ -321,6 +321,13 @@ a {
   display: table;
   clear: both; }
 
+.box {
+  position: relative;
+  padding: 35px; }
+  @media (max-width: 799px) {
+    .box {
+      padding: 15px; } }
+
 #logo {
   position: absolute;
   left: 30px;
@@ -367,13 +374,14 @@ a {
     background: rgba(246, 246, 246, 0.76); }
 
 .title-inner {
-  font-size: 22px; }
+  font-size: 18px; }
   @media (min-width: 600px) {
     .title-inner {
-      max-width: 50%; } }
-  @media (max-width: 599px) {
+      max-width: 75%;
+      font-size: 22px; } }
+  @media (min-width: 1100px) {
     .title-inner {
-      font-size: 18px; } }
+      max-width: 50%; } }
 
 .three-boxes, .four-boxes {
   display: flex;
@@ -401,13 +409,6 @@ a {
     display: none; } }
 img {
   max-width: 100%; }
-
-.box {
-  position: relative;
-  padding: 35px; }
-  @media (max-width: 799px) {
-    .box {
-      padding: 15px; } }
 
 .align-bottom {
   position: absolute;

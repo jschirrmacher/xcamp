@@ -320,6 +320,13 @@ a {
   display: table;
   clear: both; }
 
+.box {
+  position: relative;
+  padding: 35px; }
+  @media (max-width: 799px) {
+    .box {
+      padding: 15px; } }
+
 #logo {
   position: absolute;
   left: 30px;
