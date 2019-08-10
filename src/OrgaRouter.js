@@ -36,7 +36,7 @@ module.exports = (dependencies) => {
     tickets.forEach(ticket => Model.Invoice.addTicket(invoice, ticket))
     const user = readModels.user.getById(customer.uid)
     const action = 'accounts/' + customer.access_code + '/password/reset'
-    const hash = mailSender.sendHashMail('send-free-ticket-mail', user, action)
+    const hash = mailSender.sendHashMail('mail/send-free-ticket-mail', user, action)
     store.add({type: 'set-mail-hash', userId: user.id, hash})
   }
 

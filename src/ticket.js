@@ -87,7 +87,7 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
       await mailChimp.addTags(person, [config.eventName])
 
       const url = config.baseUrl + 'accounts/' + ticket.access_code + '/info'
-      const html = templateGenerator.generate('ticket-mail', {url})
+      const html = templateGenerator.generate('mail/ticket-mail', {url})
       return mailSender.send(person.email, 'XCamp Ticket', html)
     }
     return {}

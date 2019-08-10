@@ -59,7 +59,7 @@ module.exports = (dependencies) => {
     const method = accessCode.match(/^.*@.*\.\w+$/) ? 'getByEMail' : 'getByAccessCode'
     const user = await readModels.user[method](accessCode)
     if (user) {
-      const hash = await mailSender.sendHashMail('sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
+      const hash = await mailSender.sendHashMail('mail/sendPassword-mail', user, 'accounts/' + user.access_code + '/password/reset')
       store.add({type: 'set-mail-hash', userId: user.id, hash})
     }
     return {isRedirection: true, url: config.baseUrl + 'accounts/password/' + (user ? 'sent' : 'failed')}

@@ -15,8 +15,8 @@ module.exports = (nodemailer, templateGenerator, config, rack) => {
     const ticketCount = invoice.tickets.length
     const subject = config.eventName + ' Ticketbuchung'
     const params = {customer, person, url, ticketCount, ticketType: ticketTypes[invoice.ticketType].name}
-    send(person.email, subject, templateGenerator.generate('invoice-mail', params))
-    send(config['mail-recipients']['ticket-sold'], subject, templateGenerator.generate('booking-mail', params))
+    send(person.email, subject, templateGenerator.generate('mail/invoice-mail', params))
+    send(config['mail-recipients']['ticket-sold'], subject, templateGenerator.generate('mail/booking-mail', params))
     return url
   }
 

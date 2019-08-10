@@ -37,7 +37,7 @@ module.exports = (dependencies) => {
   }
 
   async function applyToReduced(person) {
-    const html = templateGenerator.generate('application-mail', person)
+    const html = templateGenerator.generate('mail/application-mail', person)
     const to = config['mail-recipients']['apply-to-reduced']
     store.add({type: 'applied-to-reduced', person})
     mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)

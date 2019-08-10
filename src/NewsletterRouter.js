@@ -33,7 +33,7 @@ module.exports = (dependencies) => {
         firstName: customer.person[0].firstName,
         email: customer.person[0].email
       }
-      await mailSender.sendHashMail('newsletter-approval-mail', user, action, subject)
+      await mailSender.sendHashMail('mail/newsletter-approval-mail', user, action, subject)
       store.add({type: 'newsletter-subscription', personId: customer.person[0].uid})
       return templateGenerator.generate('register-success', {firstName: user.firstName})
     } catch (e) {
