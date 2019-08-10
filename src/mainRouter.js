@@ -56,7 +56,7 @@ module.exports = (dependencies) => {
   }
 
   function getNetVisPage() {
-    const index = fs.readFileSync(path.resolve(publicDir, 'index.html')).toString()
+    const index = fs.readFileSync(path.resolve(publicDir, 'network.html')).toString()
     const menu = templateGenerator.generate('menu')
     const analytics = templateGenerator.generate('analytics')
     return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
