@@ -68,6 +68,22 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('index', {sponsors, partners})
   }
 
+  function getSessionList() {
+    const sessions = readModels.session.getAll().map(session => {
+      const person = readModels.network.getById(session.person.id)
+      session.image = readModels.network.getImageURL(person)
+      // session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
+      session.url = person.url
+        .replace(/^(?!https?:\/\/)/, 'https:\/\/')
+      session.urlTitle = person.url
+        .replace(/^(https?:\/\/)?(www\.)?(facebook.de\/|xing.com\/profile\/)?/, '')
+        .replace(/\/.*$/, '')
+        .replace(/_/, ' ')
+      return session
+    })
+    return templateGenerator.generate('session-list', {sessions})
+  }
+
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -79,7 +95,7 @@ module.exports = (dependencies) => {
   const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
   const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
   const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
-  const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, templateGenerator, Model, store, readModels})
+  const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels})
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
 
@@ -87,6 +103,7 @@ module.exports = (dependencies) => {
 
   router.get('/', (req, res) => res.send(getNetVisPage()))
   router.get('/index', (req, res) => res.send(getIndexPage()))
+  router.get('/session-list', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
 
   router.use('/', express.static(publicDir))
   router.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))

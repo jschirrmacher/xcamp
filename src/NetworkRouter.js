@@ -7,27 +7,10 @@ module.exports = (dependencies) => {
     express,
     auth,
     makeHandler,
-    templateGenerator,
     Model,
     store,
     readModels
   } = dependencies
-
-  function getSessionList() {
-    const sessions = readModels.session.getAll().map(session => {
-      const person = readModels.network.getById(session.person.id)
-      session.image = readModels.network.getImageURL(person)
-      // session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
-      session.url = person.url
-        .replace(/^(?!https?:\/\/)/, 'https:\/\/')
-      session.urlTitle = person.url
-        .replace(/^(https?:\/\/)?(www\.)?(facebook.de\/|xing.com\/profile\/)?/, '')
-        .replace(/\/.*$/, '')
-        .replace(/_/, ' ')
-      return session
-    })
-    return templateGenerator.generate('session-list', {sessions})
-  }
 
   function getPersonDetails(id, user) {
     const node = {...readModels.network.getById(id)}
@@ -109,6 +92,5 @@ module.exports = (dependencies) => {
   router.put('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
   router.delete('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
 
-  router.get('/sessions', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
   return router
 }
