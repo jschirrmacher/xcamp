@@ -15,14 +15,19 @@ Naturally, you need to install [git](https://git-scm.com/downloads) and [node](h
 After doing the above, open your favourite browser (hopefully *not* Edge - or even Internet Explorer!) and open
 the URL http://localhost:8001/index - you should see the main page of xcamp!
 
-You find all relevant css, image and js files in /public, html is generated using templates which can be found in
-`/templates`. The templates, which are used by more than one page (e.g. menu, footer and so on) can be found in
-`/templates/sub`. If you change some of the latter, you need to restart the development server: just press CTRL-C
+You find all relevant css, image and js files in `/public`.
+
+Html is generated using templates which can be found in `/templates` folder. You find all generated pages here directly,
+html mail templates are in the subfolder `/templates/mail`.
+
+Templates, which are used by more than one page (e.g. menu, footer and so on) can be found in
+`/templates/sub`. If you change some of these, you need to restart the development server: just press CTRL-C
 and call `npm start` again.
 
 css files should not be modified directly. Instead, you should have a look at the corresponding .scss files. After
-making changes there, you need to run [scss](https://sass-lang.com/install) (which you then would have to install as
-well) to re-genereate the css files again.
+making changes there, you need to run `npm run scss` to re-genereate the css files again. It is also possible to run
+`npx sass --watch public:public` prior to modifying anything - this looks out for changing files in the `public` folder
+and re-generates the corresponding css file immediately. But you would need a second terminal to run `npm start` then.
 
 ## Adding sponsors or partners
 

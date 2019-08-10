@@ -35,19 +35,21 @@
   },
   "scripts": {
     "start": "node src/xcamp.js",
+    "scss": "sass --update public:public",
     "test": "mocha src/*.test.js src/**/*.test.js",
     "eslint": "eslint src",
     "analysis": "plato -r -d report -x .test.js -e .eslintrc.json src",
     "integration-test": "cypress open"
   },
   "devDependencies": {
-    "cypress": "^3.4.0",
+    "cypress": "^3.4.1",
     "eslint-plugin-cypress": "^2.2.1",
     "faker": "^4.1.0",
     "mocha": "^6.1.4",
     "mock-fs": "^4.8.0",
     "nyc": "^14.1.1",
     "plato": "^1.7.0",
+    "sass": "^1.22.9",
     "should": "^13.2.3",
     "supertest": "^4.0.2"
   }
