@@ -52,6 +52,9 @@ module.exports = function ({}) {
         invoice.customer = customer
         delete invoice.customerId
         invoice.tickets = []
+        if (invoice.payment === 'none') {
+          invoice.paid = true
+        }
         invoices[invoiceData.id] = invoice
         maxInvoiceNo = Math.max(invoices[event.invoice.id].invoiceNo, maxInvoiceNo)
       }
