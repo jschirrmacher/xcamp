@@ -10,7 +10,7 @@ let maxInvoiceNo = 0
 let lastInvoiceId = 0
 let lastTicketId = 0
 
-module.exports = function (config) {
+module.exports = function ({models, store, config}) {
   const invoices = {}
   const customers = {}
   const persons = {}
