@@ -1,8 +1,8 @@
 'use strict'
 
-const ticketTypes = require('./ticketTypes')
+module.exports = (store, readModels, config) => {
+  const ticketTypes = require('./ticketTypes')(config)
 
-module.exports = (store, readModels) => {
   function create(data, customer) {
     if (typeof ticketTypes[data.type] === 'undefined') {
       throw 'Unknown ticket type'

@@ -1,4 +1,3 @@
-const ticketTypes = require('../ticketTypes')
 const Formatter = require('../lib/Formatter')
 
 const countries = {
@@ -11,10 +10,11 @@ let maxInvoiceNo = 0
 let lastInvoiceId = 0
 let lastTicketId = 0
 
-module.exports = function () {
+module.exports = function (config) {
   const invoices = {}
   const customers = {}
   const persons = {}
+  const ticketTypes = require('../ticketTypes')(config)
 
   function extractTickets(tickets) {
     return invoice => invoice.tickets.forEach(ticket => {

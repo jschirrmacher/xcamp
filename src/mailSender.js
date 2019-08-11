@@ -1,8 +1,8 @@
 'use strict'
 
-const ticketTypes = require('./ticketTypes')
-
 module.exports = (nodemailer, templateGenerator, config, rack) => {
+  const ticketTypes = require('./ticketTypes')(config)
+
   function send(to, subject, html) {
     return new Promise((resolve, reject) => {
       transporter.sendMail({from: config['mail-sender'], to, subject, html}, (err, info) => err ? reject(err) : resolve(info))

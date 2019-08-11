@@ -4,10 +4,8 @@ const port = process.env.PORT || 8001
 const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 
 const path = require('path')
-const config = require(path.resolve(__dirname, '..', 'config', 'config.json'))
-config.baseUrl = process.env.BASEURL
-config.isProduction = isProduction
-config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
+const fs = require('fs')
+const config = readConfigFile()
 
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
@@ -43,7 +41,7 @@ const logger = winston.createLogger(loggerOptions)
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
-const readModels = require('./readModels')({store})
+const readModels = require('./readModels')({store, config})
 const QueryFunction = require('./QueryFunction')
 const NotificationSender = require('./NotificationSender')({mailSender, readModels, config})
 store.listen(NotificationSender.handleEvent)
@@ -72,3 +70,18 @@ process.on('SIGTERM', () => {
     process.exit(0)
   })
 })
+
+function readConfigFile() {
+  let config
+  const configFile = path.resolve(__dirname, '..', 'config', 'config.json')
+  if (!fs.existsSync(configFile)) {
+    console.warn('Using sample configuration - make sure you have an own before going producive')
+    config = require(path.resolve(__dirname, '..', 'config', 'config-sample.json'))
+  } else {
+    config = require(configFile)
+  }
+  config.baseUrl = process.env.BASEURL
+  config.isProduction = isProduction
+  config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
+  return config
+}
