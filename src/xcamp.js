@@ -7,7 +7,7 @@ const path = require('path')
 const config = require(path.resolve(__dirname, '..', 'config', 'config.json'))
 config.baseUrl = process.env.BASEURL
 config.isProduction = isProduction
-config.authSecret = process.env.AUTH_SECRET
+config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
 
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
