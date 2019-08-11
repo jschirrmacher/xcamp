@@ -10,3 +10,4 @@
 /config/migrationData_*.json
 /cypress/screenshots
 /cypress/videos
+*.map
