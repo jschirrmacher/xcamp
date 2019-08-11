@@ -594,19 +594,20 @@ a, button {
 
 .button {
   display: inline-block;
-  font: 14px Arial, Helvetica, sans-serif;
-  font-weight: 700;
-  line-height: 17px;
-  letter-spacing: 1px;
+  font-family: "Affogato-Bold", sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.125rem;
   text-transform: uppercase;
   text-align: center;
   margin: 2em 0;
-  border: 2px solid #343434;
-  width: auto;
-  padding: 13px 29px;
+  padding: 1rem 1.5rem;
   background: #dddddd;
   color: #343434;
   cursor: pointer;
+  text-shadow: none;
+  border-radius: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
 }
 .button:hover {
   background: #efefef;
@@ -624,29 +625,67 @@ a, button {
 .button.small.saveTicket {
   display: none;
 }
+.button.big {
+  font-size: 1.25rem !important;
+}
 .button.wide {
   width: 250px;
 }
 
-.button.yellow {
+.button--light {
+  background: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.button--light strong {
+  font-size: 1.2rem;
+}
+
+.yellow {
   background: #f9d400;
+  opacity: 0.9;
 }
-.button.yellow:hover {
-  background-color: #ff696c;
+.yellow .button--light {
+  color: #ff8800;
+  border: 2px solid #f9be00;
+}
+.yellow .button--light:hover {
+  border-color: #f9be00;
+  box-shadow: 0 0 10px #f9be00;
+  background: white;
 }
 
-.button.magenta {
+.magenta {
   background: #ff696c;
+  opacity: 0.9;
 }
-.button.magenta:hover {
-  background-color: #4ED9D5;
+.magenta .button--light {
+  color: #ff696c;
+  border: 2px solid #ff5053;
+}
+.magenta .button--light:hover {
+  border-color: #ff1d21;
+  box-shadow: 0 0 10px #ff1d21;
+  background: white;
+  color: #ff363a;
 }
 
-.button.turquoise {
+.turquoise {
   background: #4ED9D5;
+  opacity: 0.9;
 }
-.button.turquoise:hover {
-  background-color: #f9d400;
+.turquoise .button--light {
+  color: #4ED9D5;
+  border: 2px solid #39d4d0;
+}
+.turquoise .button--light:hover {
+  border-color: #27b4b0;
+  box-shadow: 0 0 10px #16c4bf;
+  background: white;
+  color: #13e1db;
 }
 
 .details .detailForm button.button.small {
