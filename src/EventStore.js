@@ -30,6 +30,9 @@ class EventStore {
   constructor({basePath, logger}) {
     this.logger = logger
     this.listeners = []
+    if (!fs.existsSync(basePath)) {
+      fs.mkdirSync(basePath)
+    }
     const versionFile = path.resolve(basePath, 'version.json')
     const eventsVersionNo = !exists(versionFile) ? 0 : JSON.parse(fs.readFileSync(versionFile).toString()).versionNo
     const migrationsDir = path.resolve(__dirname, 'migrations')
@@ -60,6 +63,9 @@ class EventStore {
       const fileExt = fromVersion <= 3 ? 'yaml' : 'json'
       const oldVersionExt = fromVersion < 12 ? '' : '-' + fromVersion
       const oldEventsFile = path.join(basePath, `events${oldVersionExt}.${fileExt}`)
+      if (!fs.existsSync(oldEventsFile)) {
+        resolve()
+      }
       const readStream = fromVersion <= 3
         ? es.readArray(YAML.parse(fs.readFileSync(oldEventsFile).toString()))
         : fs.createReadStream(oldEventsFile).pipe(es.split()).pipe(es.parse())

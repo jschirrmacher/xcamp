@@ -6,7 +6,7 @@ This is part of the xcamp.co website, the ticketing system and the NetVis tool t
 
 Check out the source code and install dependencies, then start the development server:
 
-    git checkout https://github.com/jschirrmacher/xcamp.git
+    git clone https://github.com/jschirrmacher/xcamp.git
     npm install
     npm start
     
