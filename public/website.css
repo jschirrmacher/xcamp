@@ -681,6 +681,13 @@ h3 {
   margin: 0;
   line-height: 0;
 }
+#sponsors ul:first-of-type > li:last-child img {
+  opacity: 0.5;
+  transition: all 0.5s;
+}
+#sponsors ul > li:last-child:hover img {
+  opacity: 1;
+}
 #sponsors li {
   margin: 0 1rem 1rem 0;
   max-width: 45%;
