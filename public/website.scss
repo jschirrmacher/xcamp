@@ -15,10 +15,15 @@
   justify-content: space-between;
 }
 
+.three-boxes > div,
+.four-boxes > div {
+margin-bottom: 1rem;
+}
 
-@media (min-width: 800px) {
+@media (min-width: 950px) {
   .three-boxes > div {
     width: calc(33% - 10px);
+    border-radius: 3px;
 
     &.two-cols {
       width: calc(66% - 10px);
@@ -26,7 +31,7 @@
   }
   .four-boxes > div {
     width: calc(25% - 10px);
-    margin-bottom: 10px;
+    margin-bottom: 1rem;
   }
 
   .only-mobile {
@@ -35,13 +40,6 @@
 }
 
 @media (max-width: 799px) {
-  .three-boxes, .four-boxes {
-    > div {
-      margin-bottom: 1em;
-      width: 100%;
-    }
-  }
-
   #newest-blog-entries .three-boxes > div:not(:first-child) {
     display: none;
   }
@@ -52,12 +50,13 @@ img {
 }
 
 .align-bottom {
-  position: absolute;
-  bottom: 1em;
+  margin-bottom: 0; // reset
 }
 
 .bottom-buttons .box {
-  padding-bottom: 6em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 h2 {
@@ -139,6 +138,11 @@ h2 {
     @media (max-width: 799px) {
       padding: 0;
     }
+  }
+
+  // make latest blog entries more consistent
+  .three-boxes > div {
+    background: white;
   }
 
   .img {
