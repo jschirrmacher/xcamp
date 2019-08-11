@@ -138,9 +138,23 @@ h3 {
         line-height: 0;
     }
 
+    // Work around to set off the "your logo here" button
+    // (should not happen in CSS)
+    ul:first-of-type > li:last-child img {
+      opacity: 0.5;
+      transition: all .5s;
+    }
+
+    ul > li:last-child:hover img{
+      opacity: 1;
+    }
+
+
     li {
       margin: 0 1rem 1rem 0;
       max-width: 45%;
+
+
 
       @media (max-width: 639px) {
         // take out margin on every second item
