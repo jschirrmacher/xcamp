@@ -168,23 +168,29 @@
         <div id="sponsors" class="grey">
             <h2>Sponsoren</h2>
 
-            <div class="four-boxes">
+            <ul>
                 {{#sponsors}}
-                    <div>
-                        <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
-                    </div>
+                <li>
+                    <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
+                </li>
                 {{/sponsors}}
-            </div>
+            </ul>
+
+<!--             <div class="four-boxes">
+                {{#sponsors}}
+                    <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
+                {{/sponsors}}
+            </div> -->
 
             <h2>Netzwerkpartner</h2>
 
-            <div class="four-boxes">
+            <ul>
                 {{#partners}}
-                    <div>
-                        <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
-                    </div>
+                <li>
+                    <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
+                </li>
                 {{/partners}}
-            </div>
+            </ul>
         </div>
 
         <div id="location" class="three-boxes">

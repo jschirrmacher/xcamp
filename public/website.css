@@ -662,17 +662,44 @@ h3 {
   margin: 0 auto;
 }
 
-#sponsors .four-boxes {
-  justify-content: space-around;
-  padding-bottom: 2em;
+#sponsors {
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  flex-flow: column;
 }
-@media (max-width: 799px) {
-  #sponsors .four-boxes > div {
-    width: auto;
+#sponsors h2 {
+  text-align: center;
+}
+#sponsors ul {
+  list-style-type: none;
+  display: flex;
+  flex-flow: row;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+}
+#sponsors li {
+  margin: 0 1rem 1rem 0;
+  max-width: 45%;
+}
+@media (max-width: 639px) {
+  #sponsors li:nth-child(2n+2) {
+    margin-right: 0;
   }
-  #sponsors .four-boxes > div img {
-    width: 320px;
+}
+@media (min-width: 640px) {
+  #sponsors li {
+    max-width: 30%;
   }
+}
+#sponsors img {
+  width: 100%;
+  border: 2px solid rgba(0, 0, 0, 0.025);
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.025);
 }
 
 /*# sourceMappingURL=website.css.map */
