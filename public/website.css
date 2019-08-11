@@ -644,11 +644,6 @@ h3 {
 #newest-blog-entries .box {
   padding: 0 25px;
 }
-@media (max-width: 799px) {
-  #newest-blog-entries .box {
-    padding: 0;
-  }
-}
 #newest-blog-entries .three-boxes > div {
   background: white;
 }
