@@ -36,15 +36,15 @@ class EventStore {
     const versionFile = path.resolve(basePath, 'version.json')
     const eventsVersionNo = !exists(versionFile) ? 0 : JSON.parse(fs.readFileSync(versionFile).toString()).versionNo
     const migrationsDir = path.resolve(__dirname, 'migrations')
-    const migrations = fs.readdirSync(migrationsDir)
+    const migrationFiles = fs.readdirSync(migrationsDir)
       .filter(name => parseInt(name.replace('from_', '')) >= eventsVersionNo)
-      .map(migration => require(path.resolve(migrationsDir, migration)))
-    const versionNo = eventsVersionNo + migrations.length
+      .map(name => path.resolve(migrationsDir, name))
+    const versionNo = eventsVersionNo + migrationFiles.length
     this.eventsFileName = path.join(basePath, `events-${versionNo}.json`)
     if (eventsVersionNo < versionNo) {
       this.logger.info(`Migrating data from ${eventsVersionNo} to ${versionNo}`)
       this.ready = this
-        .migrate(basePath, eventsVersionNo, migrations)
+        .migrate(basePath, eventsVersionNo, migrationFiles)
         .then(() => fs.writeFileSync(versionFile, JSON.stringify({versionNo})))
         .then(() => this.logger.info('Migration successful'))
         .then(() => this.openChangeStream())
@@ -58,22 +58,26 @@ class EventStore {
     this.changeStream = fs.createWriteStream(this.eventsFileName, {flags: 'a'})
   }
 
-  migrate(basePath, fromVersion, migrations) {
+  migrate(basePath, fromVersion, migrationFiles) {
     return new Promise(resolve => {
       const fileExt = fromVersion <= 3 ? 'yaml' : 'json'
       const oldVersionExt = fromVersion < 12 ? '' : '-' + fromVersion
       const oldEventsFile = path.join(basePath, `events${oldVersionExt}.${fileExt}`)
       if (!fs.existsSync(oldEventsFile)) {
         resolve()
-      }
-      const readStream = fromVersion <= 3
-        ? es.readArray(YAML.parse(fs.readFileSync(oldEventsFile).toString()))
-        : fs.createReadStream(oldEventsFile).pipe(es.split()).pipe(es.parse())
-      readStream.on('end', resolve)
+      } else {
+        const readStream = fromVersion <= 3
+          ? es.readArray(YAML.parse(fs.readFileSync(oldEventsFile).toString()))
+          : fs.createReadStream(oldEventsFile).pipe(es.split()).pipe(es.parse())
+        readStream.on('end', resolve)
 
-      migrations.reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
-        .pipe(new JsonStringify())
-        .pipe(fs.createWriteStream(this.eventsFileName))
+        migrationFiles
+          .map(migration => require(migration))
+          .reduce((stream, migrator) => stream.pipe(new migrator()), readStream)
+          .pipe(new JsonStringify())
+          .pipe(
+            fs.createWriteStream(this.eventsFileName))
+      }
     })
   }
 
