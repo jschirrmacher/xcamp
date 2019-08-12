@@ -523,7 +523,7 @@ a {
     padding-top: 8vw;
   }
 }
-#main .container .no-background {
+#main .container.no-background {
   border: none;
   box-shadow: none;
   color: #343434;
@@ -531,7 +531,7 @@ a {
   padding: 1em 0 0 0;
 }
 @media (min-width: 740px) {
-  #main .container .no-background h1 {
+  #main .container.no-background h1 {
     color: white;
   }
 }
