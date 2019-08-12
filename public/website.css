@@ -593,6 +593,11 @@ a {
     display: none;
   }
 }
+@media (min-width: 1400px) {
+  #newest-blog-entries {
+    margin-top: 10vw;
+  }
+}
 img {
   max-width: 100%;
 }

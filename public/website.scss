@@ -45,6 +45,15 @@ margin-bottom: 1rem;
   }
 }
 
+// Set margin according to scaling header background image
+@media (min-width: 1400px) {
+  #newest-blog-entries {
+    margin-top: 10vw;
+  }
+}
+
+
+
 img {
   max-width: 100%;
 }
