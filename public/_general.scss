@@ -108,7 +108,7 @@ a {
 #main {
   padding: 0 15px 20px;
   background: #f5f5f5 url(/assets/img/hero-x_web_xcamp_320.jpg) no-repeat left top;
-  background-size: contain;
+  background-size: 125%;
 
   /* Small Screens Retina */
   @media (min-resolution: 150dpi) {
@@ -116,7 +116,7 @@ a {
   }
 
   /* Medium Screens */
-  @media (min-width: 320px) {
+  @media (min-width: 420px) {
     padding: 0 30px 0;
     background-image: url(/assets/img/hero-x_web_xcamp_822.jpg)
   }
