@@ -530,10 +530,9 @@ a {
   max-width: 1170px;
   padding: 1em 0 0 0;
 }
-@media (min-width: 740px) {
-  #main .container.no-background h1 {
-    color: white;
-  }
+#main .container.no-background h1 {
+  color: white;
+  margin-top: 8vw;
 }
 
 .title-inner {
