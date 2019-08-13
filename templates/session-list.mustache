@@ -15,7 +15,7 @@
         <div class="container no-background">
             <h1>Sessions auf dem {{eventName}}</h1>
             <a class="button yellow with-arrow" target="_self" href="tickets">
-                Jetzt Ticket kaufen
+                Ticket kaufen & Session einreichen
             </a>
             <ul class="tiles">
                 {{#sessions}}
@@ -29,9 +29,57 @@
                 {{/sessions}}
             </ul>
 
+            <ul class="tiles">
+                <li class="tiles__item box--alert">
+                <div class="tiles__body">
+                <h2>Call for Sessions</h2>
+                <h3>Einsendeschluss ist der 15. August 2019</h3>
+                <p>
+                    Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Möchtest Du Erfahrungen über
+                    Innovationsmethoden teilen; Ratschläge, unterschiedliche Meinungen oder Perspektiven zu einem eigenen
+                    Vorhaben hören?
+                </p>
+                <p>
+                    Dann melde Dich gern vorab eine Session an.
+                </p>
+
+                <details>
+                <summary role="button" aria-expanded="false" aria-controls="details">
+                    Weiterlesen…
+                </summary>
+                <div aria-hidden="true" id="details">
+                    <p>Zur Auswahl stet das gesamte Spektrum von
+                        Formaten, die für 45 Minuten geeignet sind:
+                    </p>
+                    <ul>
+                        <li>Kurzvortrag + Diskussion</li>
+                        <li>Hands-on Workshop</li>
+                        <li>Brainstorming</li>
+                        <li>Fishbowl</li>
+                        <li>Mind-Mapping</li>
+                        <li>Pecha Cucha</li>
+                        <li>Für weitere Formate sind wir offen</li>
+                    </ul>
+                    <p>
+                        Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
+                        Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
+                        angekündigt und mit Deinem Bild veröffentlicht.
+                    </p>
+                    <p>
+                        Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
+                        Netvis-Konferenztool.
+                    </p>
+                </div>
+                </details>
+
+                <a class="button yellow" target="_self" href="tickets">
+                    Ticket kaufen & Session einreichen
+                </a>
+            </div>
+            </li>
+
             <!-- START TEMPORARY -->
             <!-- ------------------------------------ -->
-            <ul class="tiles">
                 <li class="tiles__item">
                     <img class="tiles__img" src="user.png">
                     <div class="tiles__body">
@@ -125,48 +173,11 @@
                         <p>Strategisch Visualisieren – Beim agilen Vorgehen spielt Visualisierung eine wichtige Rolle. Doch worin unterscheiden sich Visualisierungsformen, warum ist das so und wie können wir sie sinnvoll einsetzen?</p>
                     </div>
                 </li>
+                <!-- ------------------------------------ -->
+                <!-- END TEMPORARY -->
             </ul>
-            <!-- ------------------------------------ -->
-            <!-- END TEMPORARY -->
 
             <div class="box white">
-                <a href=".">
-                    <img src="Netvis2-1200x528.jpg">
-                </a>
-                <a class="button turquoise with-arrow" target="_self" href=".">
-                    Hier vernetzen!
-                </a>
-                <h2>Call for Sessions</h2>
-                <p>
-                    Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Möchtest Du Erfahrungen über
-                    Innovationsmethoden teilen; Ratschläge, unterschiedliche Meinungen oder Perspektiven zu einem eigenen
-                    Vorhaben hören? Dann melde Dich gern vorab eine Session an. Zur Auswahl stet das gesamte Spektrum von
-                    Formaten, die für 45 Minuten geeignet sind:
-                </p>
-                <ul>
-                    <li>Kurzvortrag + Diskussion,</li>
-                    <li>Hands-on Workshop,</li>
-                    <li>Brainstorming,</li>
-                    <li>Fishbowl,</li>
-                    <li>Mind-Mapping</li>
-                    <li>Pecha Cucha.</li>
-                    <li>Für weitere Formate sind wir offen.</li>
-                </ul>
-                <p>
-                    Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
-                    Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
-                    angekündigt und mit Deinem Bild veröffentlicht.
-                </p>
-                <p>
-                    Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
-                    Netvis-Konferenztool.
-                </p>
-                <p>
-                    <b>Einsendeschluss ist der 15. August 2019</b>
-                </p>
-                <a class="button yellow with-arrow" target="_self" href="tickets">
-                    Ticket kaufen und Session einrichten
-                </a>
                 <h2>Agenda</h2>
                 <div class="panel-body toggle-content fusion-clearfix">
                     <h3 id="BarcampCheckliste-Freitag,30.10.2015">Freitag, 13.09.2019</h3>
@@ -185,6 +196,16 @@
                     <p>19:00 – Gute Heimreise</p>
                 </div>
             </div>
+
+            <figure>
+                <a class="button turquoise with-arrow" target="_self" href=".">
+                    <img src="Netvis2-1200x528.jpg">
+                    <figcaption>
+                        Hier vernetzen!
+                    </figcaption>
+                </a>
+            </figure>
+
         </div>
     </div>
     {{> footer}}
