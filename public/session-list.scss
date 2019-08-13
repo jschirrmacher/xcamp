@@ -1,59 +1,127 @@
 @import "general";
 
-h2 {
-  line-height: 1;
-  margin-top: 0.5em;
-}
 
 .tiles {
-  position: relative;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  margin: 0 -10px;
+    margin: 0; // List reset
+    padding: 0; // list reset
+    list-style-type: none; // list reset
+    margin-bottom: 3rem;
 
-  .tile {
-    flex-grow:0;
-    flex-shrink:0;
-    flex-basis:calc(33% - 17px);
-    background: $turqoise;
-    margin: 10px;
+    // 2 columns on medium
+    @media (min-width: 640px) {
+        columns: 2;
+        column-gap: 2rem;
+    }
+
+    // 3 columns on large
+    @media (min-width: 950px) {
+        columns: 3;
+        column-gap: 2rem;
+    }
+}
+
+.tiles__item {
+    display: flex;
+    align-items: flex-start;
     padding: 20px;
+    background: rgba(78, 217, 213, .9);
+    margin-bottom: 1rem;
+    border-radius: 3px;
+    break-inside: avoid; // only wrap the whole block
 
-    .image-container {
-      position: relative;
-      background: white;
-      display: inline-block;
-
-      img {
-        width: 210px;
-        transition: transform 1s;
-        padding: 10px;
-      }
-
-      .frame {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border: 10px solid white;
-      }
-
-      &:hover img {
-        transform: scale(1.05);
-      }
+    // every first item turqoise
+    &:nth-child(3n+1) {
+        background: transparentize($turqoise, .2);
     }
 
-    .url {
-      display: block;
-      color: white;
-      font-size: 18px;
-      line-height: 1.8em;
+    // every second item magenta
+    &:nth-child(3n+2) {
+        background: transparentize($magenta, .2);
     }
 
-    p {
-      font-size: 18px;
+    // every thirs item yellow
+    &:nth-child(3n+3) {
+        background: transparentize($yellow, .2);
     }
-  }
+
+    @media (min-width: 420px) {
+        margin-bottom: 1.9rem;
+    }
+
+    @media (min-width: 640px) {
+
+        display: block; // Reset flexbox
+        text-align: center;
+
+        // every first item turqoise
+        &:nth-child(2n+1) {
+            background: transparentize($turqoise, .2);
+        }
+
+        // every second item magenta
+        &:nth-child(2n+2) {
+            background: transparentize($magenta, .2);
+        }
+
+        // every thirs item yellow
+        &:nth-child(2n+3) {
+            background: transparentize($yellow, .2);
+        }
+    }
+
+
+    @media (min-width: 950px) {
+
+        // every first item turqoise
+        &:nth-child(3n+1) {
+            background: transparentize($turqoise, .2);
+        }
+
+        // every second item magenta
+        &:nth-child(3n+2) {
+            background: transparentize($magenta, .2);
+        }
+
+        // every thirs item yellow
+        &:nth-child(3n+3) {
+            background: transparentize($yellow, .2);
+        }
+    }
+}
+
+.tiles__img {
+    display: none; // don´t display on smallest screen
+
+    @media (min-width: 500px) {
+        display: inline;
+        flex: 1 0 100px;
+        order: 1; // display image right-aligned
+        margin: .45rem 0 2rem 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        flex: 1 0 180px;
+        order: 0; // Reset
+        margin: 2rem 0;
+    }
+}
+
+.tiles__body {
+    flex: 2 1 auto;
+    font-size: .9rem; // Smaller font on small screens
+    margin-right: 1rem;
+
+    @media (min-width: 640px) {
+        font-size: initial; // Reset
+    }
+}
+
+.tiles__headline {
+    margin-top: 0; // Reset
+    line-height: initial; // Reset
+}
+
+.url {
+    display: block;
+    color: $black;
 }
