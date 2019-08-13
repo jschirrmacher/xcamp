@@ -36,12 +36,12 @@
 
     // every second item magenta
     &:nth-child(3n+2) {
-        background: transparentize($magenta, .2);
+        background: transparentize($magenta, .05);
     }
 
     // every thirs item yellow
     &:nth-child(3n+3) {
-        background: transparentize($yellow, .2);
+        background: transparentize($yellow, .05);
     }
 
     @media (min-width: 420px) {
@@ -55,17 +55,17 @@
 
         // every first item turqoise
         &:nth-child(2n+1) {
-            background: transparentize($turqoise, .2);
+            background: transparentize($turqoise, .05);
         }
 
         // every second item magenta
         &:nth-child(2n+2) {
-            background: transparentize($magenta, .2);
+            background: transparentize($magenta, .05);
         }
 
         // every thirs item yellow
         &:nth-child(2n+3) {
-            background: transparentize($yellow, .2);
+            background: transparentize($yellow, .05);
         }
     }
 
@@ -74,17 +74,17 @@
 
         // every first item turqoise
         &:nth-child(3n+1) {
-            background: transparentize($turqoise, .2);
+            background: transparentize($turqoise, .05);
         }
 
         // every second item magenta
         &:nth-child(3n+2) {
-            background: transparentize($magenta, .2);
+            background: transparentize($magenta, .05);
         }
 
         // every thirs item yellow
         &:nth-child(3n+3) {
-            background: transparentize($yellow, .2);
+            background: transparentize($yellow, .05);
         }
     }
 }

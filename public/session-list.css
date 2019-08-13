@@ -583,10 +583,10 @@ a {
   background: rgba(78, 217, 213, 0.8);
 }
 .tiles__item:nth-child(3n+2) {
-  background: rgba(255, 105, 108, 0.8);
+  background: rgba(255, 105, 108, 0.95);
 }
 .tiles__item:nth-child(3n+3) {
-  background: rgba(249, 212, 0, 0.8);
+  background: rgba(249, 212, 0, 0.95);
 }
 @media (min-width: 420px) {
   .tiles__item {
@@ -599,24 +599,24 @@ a {
     text-align: center;
   }
   .tiles__item:nth-child(2n+1) {
-    background: rgba(78, 217, 213, 0.8);
+    background: rgba(78, 217, 213, 0.95);
   }
   .tiles__item:nth-child(2n+2) {
-    background: rgba(255, 105, 108, 0.8);
+    background: rgba(255, 105, 108, 0.95);
   }
   .tiles__item:nth-child(2n+3) {
-    background: rgba(249, 212, 0, 0.8);
+    background: rgba(249, 212, 0, 0.95);
   }
 }
 @media (min-width: 950px) {
   .tiles__item:nth-child(3n+1) {
-    background: rgba(78, 217, 213, 0.8);
+    background: rgba(78, 217, 213, 0.95);
   }
   .tiles__item:nth-child(3n+2) {
-    background: rgba(255, 105, 108, 0.8);
+    background: rgba(255, 105, 108, 0.95);
   }
   .tiles__item:nth-child(3n+3) {
-    background: rgba(249, 212, 0, 0.8);
+    background: rgba(249, 212, 0, 0.95);
   }
 }
 
