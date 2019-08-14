@@ -1,17 +1,21 @@
-fetch('http://xcamp.autentity.net/wp-json/wp/v2/posts?per_page=3&categories=28')
+const baseUrl = 'http://xcamp.autentity.net/wp-json/wp/v2'
+fetch(baseUrl + '/posts?per_page=3&categories=28')
   .then(response => response.json())
   .then(blogData => {
     const ids = blogData.map(entry => entry.featured_media)
-    return fetch('http://xcamp.autentity.net/wp-json/wp/v2/media?include=' + ids.join(','))
+    return fetch(baseUrl + '/media?include=' + ids.join(','))
       .then(response => response.json())
-      .then(media => {
-        blogData.forEach((entry, index) => entry.img = prepareLink(media[index].guid.rendered))
-        return blogData
-      })
+      .then(mediaList => blogData.map(entry => resolveMedia(entry, mediaList)))
   })
   .then(blogData => blogData.map(prepareBlogEntryData))
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
   .then(blog => document.querySelector('#newest-blog-entries .three-boxes').innerHTML = blog)
+
+function resolveMedia(entry, mediaList) {
+  const media = mediaList.find(e => e.id === entry.featured_media)
+  entry.img = prepareLink(media.guid.rendered)
+  return entry
+}
 
 function prepareLink(url) {
   return url.replace('autentity.net', 'co').replace(/^http:/, 'https:')

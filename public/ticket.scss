@@ -73,11 +73,25 @@ button {
   border: 1px solid #ccc;
   padding: 15px;
   background: white;
+  position: relative;
+  overflow: hidden;
 
   &:after {
     content: ' ';
     display: table;
     clear: both;
+  }
+
+  .unpaid {
+    background: red;
+    display: inline-block;
+    padding: 15px 60px;
+    color: white;
+    position: absolute;
+    top: 60px;
+    right: -70px;
+    transform: rotate(45deg);
+    font-size: 18px;
   }
 
   .logo {

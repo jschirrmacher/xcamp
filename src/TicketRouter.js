@@ -32,7 +32,7 @@ module.exports = (dependencies) => {
     const ticket = getTicketFromAccessCode(accessCode)
     const disabled = mode === 'print' ? 'disabled' : ''
     const print = mode === 'print'
-    const params = {mode, print, disabled, access_code: accessCode, participant: ticket.participant}
+    const params = {mode, print, disabled, access_code: accessCode, participant: ticket && ticket.participant}
     return templateGenerator.generate('ticket', params)
   }
 

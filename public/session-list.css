@@ -413,6 +413,9 @@ a {
   display: table;
   clear: both;
 }
+.container.semi-transparent {
+  background-color: rgba(250, 250, 250, 0.7);
+}
 
 .col-4, .col-6, .col-8 {
   display: inline-block;
@@ -522,6 +525,9 @@ a {
   #main .container {
     padding-top: 8vw;
   }
+}
+#main .container.semi-transparent {
+  padding-top: 1em;
 }
 #main .container.no-background {
   border: none;
