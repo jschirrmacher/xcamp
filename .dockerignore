@@ -1,0 +1,9 @@
+/.idea/
+/.nyc_output/
+/coverage/
+/cypress/
+/data/
+/node_modules/
+/profile-pictures/
+/report/
+/store/
