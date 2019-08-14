@@ -1,5 +1,4 @@
 <html lang="de">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -7,209 +6,103 @@
     <base href="{{baseUrl}}">
     <link rel="stylesheet" href="session-list.css">
 </head>
-
 <body>
-    {{> menu}}
-    {{> logo}}
-    <div id="main">
-        <div class="container no-background">
-            <h1>Sessions auf dem {{eventName}}</h1>
-            <a class="button yellow with-arrow" target="_self" href="tickets">
-                Ticket kaufen & Session einreichen
+{{> menu}}
+{{> logo}}
+<div id="main">
+    <div class="container semi-transparent">
+        <h1>Sessions auf dem {{eventName}}</h1>
+
+        <a class="button yellow with-arrow" target="_self" href="tickets">
+            Jetzt Ticket kaufen
+        </a>
+
+        <div class="tiles">
+            {{#sessions}}
+                <div class="tile">
+                    <h2>{{person.name}}</h2>
+                    <div class="image-container">
+                        <img src="{{{image}}}">
+                        <div class="frame"></div>
+                    </div>
+                    <a href="{{{url}}}" target="_blank" rel="nofollow" class="url">{{urlTitle}}</a>
+                    <p>{{talk}}</p>
+                </div>
+            {{/sessions}}
+        </div>
+
+        <div class="box white">
+            <a href=".">
+                <img src="Netvis2-1200x528.jpg">
             </a>
-            <ul class="tiles">
-                {{#sessions}}
-                <li class="tiles__item">
-                    <img class="tiles__img" src="{{{imsage}}}" alt="">
-                    <div class="tiles__body">
-                        <h2><a href="{{{url}}}" target="_blank" rel="nofollow" class="url" title="{{urlTitle}}">{{person.name}}</a></h2>
-                        <p>{{talk}}</p>
-                    </div>
-                </li>
-                {{/sessions}}
+            <a class="button turquoise with-arrow" target="_self" href=".">
+                Hier vernetzen!
+            </a>
+
+            <h2>Call for Sessions</h2>
+
+            <p>
+                Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Möchtest Du Erfahrungen über
+                Innovationsmethoden teilen; Ratschläge, unterschiedliche Meinungen oder Perspektiven zu einem eigenen
+                Vorhaben hören? Dann melde Dich gern vorab eine Session an. Zur Auswahl stet das gesamte Spektrum von
+                Formaten, die für 45 Minuten geeignet sind:
+            </p>
+
+            <ul>
+                <li>Kurzvortrag + Diskussion,</li>
+                <li>Hands-on Workshop,</li>
+                <li>Brainstorming,</li>
+                <li>Fishbowl,</li>
+                <li>Mind-Mapping</li>
+                <li>Pecha Cucha.</li>
+                <li>Für weitere Formate sind wir offen.</li>
             </ul>
 
-            <ul class="tiles">
-                <li class="tiles__item box--alert">
-                <div class="tiles__body">
-                <h2>Call for Sessions</h2>
-                <p>
-                    Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Hast Du ein Thema?
-                </p>
-                <p>
-                    Melde bis <strong>15. August 2019</strong> vorab eine Session an.
-                </p>
+            <p>
+                Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
+                Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
+                angekündigt und mit Deinem Bild veröffentlicht.
+            </p>
 
-                <details>
-                <summary role="button" aria-expanded="false" aria-controls="details">
-                    Weiterlesen…
-                </summary>
-                <div aria-hidden="true" id="details">
-                    <p>Zur Auswahl stet das gesamte Spektrum von
-                        Formaten, die für 45 Minuten geeignet sind:
-                    </p>
-                    <ul>
-                        <li>Kurzvortrag + Diskussion</li>
-                        <li>Hands-on Workshop</li>
-                        <li>Brainstorming</li>
-                        <li>Fishbowl</li>
-                        <li>Mind-Mapping</li>
-                        <li>Pecha Cucha</li>
-                        <li>Für weitere Formate sind wir offen</li>
-                    </ul>
-                    <p>
-                        Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
-                        Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
-                        angekündigt und mit Deinem Bild veröffentlicht.
-                    </p>
-                    <p>
-                        Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
-                        Netvis-Konferenztool.
-                    </p>
-                </div>
-                </details>
+            <p>
+                Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
+                Netvis-Konferenztool.
+            </p>
 
-                <a class="button yellow" target="_self" href="tickets">
-                    Ticket kaufen
-                    <br>
-                    und Session einreichen
-                </a>
-            </div>
-            </li>
+            <p>
+                <b>Einsendeschluss ist der 15. August 2019</b>
+            </p>
 
-            <!-- START TEMPORARY -->
-            <!-- ------------------------------------ -->
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.xing.com/profile/Joachim_Schirrmacher" target="_blank" rel="nofollow" class="url">Joachim Schirrmacher</a></h2>
-                        <p>Wie arbeiten agile Teams so miteinander zusammen, dass ein funktionierendes Netzwerk zur Leistungserbringung Richtung Kunde zustande kommt? Ideen dazu möchte ich gern mit euch beim diesjährigen XCamp teilen.</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline">Katrin Rabow</h2>
-                        <p>(Wo) Brauchen Introvertierte und Extrovertierte unterschiedliche Settings im agilen Team und wie bekommen wir das gemeinsam hin?</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://" target="_blank" rel="nofollow" class="url">Christian Thiel</a></h2>
-                        <p>Blochchain-Querbeet:
-                            Kurzvorträge zu verschiedenen Themen:
-                            + Vergleich Hardware-Wallet-Lösungen von 5 Anbietern
-                            + Elektronische und optische Hardware-Wallets
-                            + Was sind Beercoins? Beercoins können verschickt, gehandelt oder zum
-                            Kauf neues Bieres genutzt werden.
-                            +
-                        </p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://jtbd.de" target="_blank" rel="nofollow" class="url">Eckhart Böhme</a></h2>
-                        <p>Lernt in diesem
-                            Mini-Workshop, wie ihr Interviews einsetzt, um Eure Produktentwicklung
-                            konsequent an Kunden-„Jobs“ auszurichten. Zum Beginn gibt es eine kurze
-                            Einführung in die Interview-Technik und das Interview-Werkzeug. Danach werden
-                            wir mit einer Auswahl an Jobs to be done-Fragen eine Interview-Situation üben
-                            und die Auswertungsmethode kennen lernen.&nbsp;</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.gudrun-traumann.com" target="_blank" rel="nofollow" class="url">Gudrun Traumann</a></h2>
-                        <p>Resilienz in der digitalen Arbeitswelt. Was brauchen wir, um erfolgreich und zufrieden in einer sich schnell veränderten Arbeitswelt zu bleiben? Was können Sie tun, damit Sie Sinn und Motivation in Ihrem Job finden. Zusammen erarbeiten wir 10 Resilienz-Hacks für Ihren Erfolg.</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.mediaman.com&nbsp;" target="_blank" rel="nofollow" class="url">Juliette Dillenburg</a></h2>
-                        <p>Design&nbsp;Thinking&nbsp;&amp; Sprint &amp; System&nbsp;
-                            Unsere Session greift diverse Design&nbsp;Thinking&nbsp;Ansätze in einem&nbsp;Workshopformat&nbsp;auf und erläutert gleichzeitig die Design Sprint Methode anhand eines echten Beispiels aus unserem Unternehmen.&nbsp;</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.facebook.de/resultsrockstars" target="_blank" rel="nofollow" class="url">Daniel Graffe</a></h2>
-                        <p>"Resultate statt Aktivitäten" – Daniel Graffe in dieser Session wird gemeinsam erarbeitet, wie du deine Produktivität verdoppeln kannst und abends deutlich zufriedener mit deiner Arbeit bist. Es werden Schwachstellen in deiner Tagesplanung identifiziert. Das Problem im Zeitmanagement ist, dass man versucht Minuten zu sparen, aber Jahre verschwendet.</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.autentity.de" target="_blank" rel="nofollow" class="url">Jens Bothmer</a></h2>
-                        <p>Bereit für die Digitale Transformation? Wie steht es um uns als Mensch? Sind wir willens und fähig, schnell auf die Transformation zu reagieren? Oder gibt es andere Einflüsse, von denen wir abhängig sind. Erlebe fünf Experimente, die Dir für den Kulturwandel die Augen öffnen.</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="http://www. the-creative-change-lab.com" target="_blank" rel="nofollow" class="url">Matthias Renner</a></h2>
-                        <p>Versucht Ihr in Eurem Unternehmen innovativ zu sein? Aber irgendetwas blockiert? Lasst uns diese Blockaden mit LEGO® SERIOUS PLAY® in einer Intro Session lösen!</p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.diary.digital" target="_blank" rel="nofollow" class="url">Susanne Busshart</a></h2>
-                        <p>FreiRaum -&nbsp;Culture Change für glückliche Mitarbeiter und effiziente Unternehmen&nbsp;&nbsp;
-                            Mein Herzensthema sind "Räume nach innen und außen".&nbsp;What´s new? Warum Wände Kommunikation killen? Was ist der "crazy shit" im smart office? Was sollte man zu innovativen Raumkonzepten wissen? Wir wirkt agiles Arbeiten auf Raum? Mindset als spannender Innenraum.&nbsp; Dazu bringe ich brandneue&nbsp;Beispiele mit und zeige Euch gerne meine neuste Lieblingsmethode: Dreamdive.&nbsp; &nbsp;
-                            Ich freue mich auf Dich!
-                        </p>
-                    </div>
-                </li>
-                <li class="tiles__item">
-                    <img class="tiles__img" src="user.png">
-                    <div class="tiles__body">
-                        <h2 class="tiles__headline"><a href="https://www.kommprofil.com" target="_blank" rel="nofollow" class="url">Ole Kleffmann</a></h2>
-                        <p>Strategisch Visualisieren – Beim agilen Vorgehen spielt Visualisierung eine wichtige Rolle. Doch worin unterscheiden sich Visualisierungsformen, warum ist das so und wie können wir sie sinnvoll einsetzen?</p>
-                    </div>
-                </li>
-                <!-- ------------------------------------ -->
-                <!-- END TEMPORARY -->
-            </ul>
+            <a class="button yellow with-arrow" target="_self" href="tickets">
+                Ticket kaufen und Session einrichten
+            </a>
 
-            <div class="box white">
-                <h2>Agenda</h2>
-                <div class="panel-body toggle-content fusion-clearfix">
-                    <h3 id="BarcampCheckliste-Freitag,30.10.2015">Freitag, 13.09.2019</h3>
-                    <p>08:00 – Eintreffen, Check-in und Self-Service Frühstück</p>
-                    <p>09:00 – Begrüßung</p>
-                    <p>09:40 – Keynote</p>
-                    <p>10:30 – Session-Planung</p>
-                    <p>11:45 – 1. Session Runde</p>
-                    <p>12:30 – Mittagspause &amp; Networking</p>
-                    <p>13:30 – 2 . Session Runde</p>
-                    <p>14:30 – 3. Session Runde</p>
-                    <p>15:30 – Kaffeepause</p>
-                    <p>16:00– 4 .Session Runde</p>
-                    <p>17:00 – 5. Session Runde</p>
-                    <p>18:00 – Closing und anschliessendes Networking</p>
-                    <p>19:00 – Gute Heimreise</p>
-                </div>
-                <div>
-                    <a target="_self" href=".">
-                        <img src="Netvis2-1200x528.jpg" style="max-width: 100%">
-                    </a>
-                    <a class="button turquoise with-arrow" target="_self" href=".">
-                        Jetzt vernetzen
-                    </a>
-                </div>
+            <h2>Agenda</h2>
+
+            <div class="panel-body toggle-content fusion-clearfix">
+                <h3 id="BarcampCheckliste-Freitag,30.10.2015">Freitag, 13.09.2019</h3>
+                <p>08:00 – Eintreffen, Check-in und Self-Service Frühstück</p>
+                <p>09:00 – Begrüßung</p>
+                <p>09:40 – Keynote</p>
+                <p>10:30 – Session-Planung</p>
+                <p>11:45 – 1. Session Runde</p>
+                <p>12:30 – Mittagspause &amp; Networking</p>
+                <p>13:30 – 2 . Session Runde</p>
+                <p>14:30 – 3. Session Runde</p>
+                <p>15:30 – Kaffeepause</p>
+                <p>16:00– 4 .Session Runde</p>
+                <p>17:00 – 5. Session Runde</p>
+                <p>18:00 – Closing und anschliessendes Networking</p>
+                <p>19:00 – Gute Heimreise</p>
             </div>
         </div>
     </div>
-    {{> footer}}
-    <script src="common.js"></script>
-    <script>
-    setMenuState()
-    </script>
-</body>
+</div>
+{{> footer}}
 
+<script src="common.js"></script>
+<script>
+    setMenuState()
+</script>
+</body>
 </html>
