@@ -2,3 +2,6 @@
 <img class="logo" src="xcamp-large.png">
 <h2>XCamp Ticket</h2>
 <p class="location">{{config.eventDate}} {{config.eventTime}} {{config.eventLocation}}</p>
+{{^paid}}
+    <div class="unpaid">Zahlung steht noch aus!</div>
+{{/paid}}
