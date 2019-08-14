@@ -3,6 +3,16 @@ const isProduction = nodeenv === 'production'
 const port = process.env.PORT || 8001
 const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 
+const winston = require('winston')
+const loggerOptions = {
+  level: process.env.LOGLEVEL || 'info',
+  transports: [new winston.transports.Console()],
+  format: winston.format.simple(),
+  meta: false,
+  colorize: false,
+}
+const logger = winston.createLogger(loggerOptions)
+
 const path = require('path')
 const fs = require('fs')
 const config = readConfigFile()
@@ -28,16 +38,7 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-const winston = require('winston')
 const expressWinston = require('express-winston')
-const loggerOptions = {
-  level: process.env.LOGLEVEL || 'info',
-  transports: [new winston.transports.Console()],
-  format: winston.format.simple(),
-  meta: false,
-  colorize: false,
-}
-const logger = winston.createLogger(loggerOptions)
 
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
@@ -75,12 +76,12 @@ function readConfigFile() {
   let config
   const configFile = path.resolve(__dirname, '..', 'config', 'config.json')
   if (!fs.existsSync(configFile)) {
-    console.warn('Using sample configuration - make sure you have an own before going producive')
+    logger.warn('Using sample configuration - make sure you have an own before going producive')
     config = require(path.resolve(__dirname, '..', 'config', 'config-sample.json'))
   } else {
     config = require(configFile)
   }
-  config.baseUrl = process.env.BASEURL
+  config.baseUrl = process.env.BASEURL || '/'
   config.isProduction = isProduction
   config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
   return config
