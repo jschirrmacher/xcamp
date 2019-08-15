@@ -130,12 +130,11 @@
   padding: 2rem;
   & > div {
     text-align: left;
-    background:
-      linear-gradient(135deg, rgba(0,0,0,1) 1%, rgba(0,0,0,.15) 3%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 100%),
-      rgba(255,255,255,1);
+    background: linear-gradient(135deg, rgba(0,0,0,.6) 2%, rgba(0, 0, 0, 0.15) 3%, rgba(255, 255, 255, .15) 4%, white 100%), white;
     padding: .25rem 2rem;
     margin: 0;
     clip-path: polygon(20px 0, 0 20px, 0 100%, 100% 100%, 100% 0);
+    -webkit-clip-path: polygon(20px 0, 0 20px, 0 100%, 100% 100%, 100% 0);
 }
   background-color: #f9d400;
   background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ff696c' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
