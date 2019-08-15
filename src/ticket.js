@@ -69,8 +69,8 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
 
   async function setParticipant(txn, accessCode, data, user) {
     const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
-    const person = await Model.Person.getOrCreate(txn, data, user, false)
-
+    const person = readModels.person.getByEMail(data.email) || await Model.Person.upsert(txn, {}, data, user)
+    person.uid = person.uid || person.id
     if (!ticket.participant || ticket.participant.id !== person.uid) {
       if (ticket.participant) {
         const uid = ticket.participant.id

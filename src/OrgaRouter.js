@@ -19,7 +19,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  const ticketTypes = require('./ticketTypes')
+  const ticketTypes = require('./ticketTypes')(config)
 
   async function showAdminPage() {
     return templateGenerator.generate('administration')

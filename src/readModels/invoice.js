@@ -13,7 +13,7 @@ let lastTicketId = 0
 module.exports = function ({models, store, config}) {
   const invoices = {}
   const customers = {}
-  const persons = {}
+  const tickets = {}
   const ticketTypes = require('../ticketTypes')(config)
 
   function extractTickets(tickets) {
@@ -35,7 +35,7 @@ module.exports = function ({models, store, config}) {
         assert(customerData.id, 'No customer id in event')
         assert(!customers[customerData.id], 'Customer already exists')
         const customer = {...customerData}
-        customer.person = persons[customerData.personId]
+        customer.person = models.person.getById(customerData.personId)
         delete customer.personId
         customers[customerData.id] = customer
       }
@@ -72,20 +72,6 @@ module.exports = function ({models, store, config}) {
       }
 
       switch (event.type) {
-        case 'person-created':
-          assert(event.person, 'No person in event')
-          assert(event.person.id, 'No person id in event')
-          assert(!persons[event.person.id], 'Person already exists')
-          persons[event.person.id] = event.person
-          break
-
-        case 'person-updated':
-          assert(event.person, 'No person in event')
-          assert(event.person.id, 'No person id in event')
-          assert(persons[event.person.id], 'Person doesn\'t exist')
-          persons[event.person.id] = Object.assign(persons[event.person.id], event.person)
-          break
-
         case 'customer-created':
           createCustomer(event.customer)
           break
@@ -118,19 +104,23 @@ module.exports = function ({models, store, config}) {
         case 'ticket-created':
           assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
           assert(event.ticket.id, 'No ticket id specified')
-          lastTicketId = +event.ticket.id
-          invoices[event.ticket.invoiceId].tickets.push({
+          assert(!tickets[event.ticket.id], 'Ticket already exist')
+          lastTicketId = Math.max(lastTicketId, event.ticket.id)
+          const ticket = {
             id: event.ticket.id,
             access_code: event.ticket.access_code,
-            participant: event.ticket.personId && persons[event.ticket.personId]
-          })
+            participant: event.ticket.personId && models.person.getById(event.ticket.personId)
+          }
+          tickets[event.ticket.id] = ticket
+          invoices[event.ticket.invoiceId].tickets.push(ticket)
           break
 
         case 'participant-set':
           assert(event.ticketId, 'No ticketId specified')
           assert(event.personId, 'No personId specified')
-          assert(persons[event.personId], 'Referenced person not found')
-          setParticipant(persons[event.personId], event.ticketId)
+          const person = models.person.getById(event.personId)
+          assert(person, 'Referenced person not found')
+          setParticipant(person, event.ticketId)
           break
 
         case 'payment-received':
