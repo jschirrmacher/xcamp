@@ -76,12 +76,6 @@ module.exports = (dependencies) => {
     return result
   }
 
-  async function createAdditionalTicket(txn, accessCode) {
-    const customer = await Model.Customer.findByAccessCode(txn, accessCode)
-    const tickets = Model.Ticket.create(customer.person[0], 1)
-    return Model.Invoice.addTicket(customer.invoices[0], tickets[0])
-  }
-
   const router = express.Router()
   const redirect = true
 
@@ -94,7 +88,6 @@ module.exports = (dependencies) => {
   router.get('/:accessCode/password/reset', auth.requireJWT({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/password/reset/:hash', auth.requireCodeAndHash({redirect}), makeHandler(req => resetPassword(req.params.accessCode), {type: 'send'}))
   router.get('/:accessCode/invoices/current', auth.requireCodeOrAuth({redirect}), makeHandler(req => getLastInvoice(req.params.accessCode), {type: 'send'}))
-  router.post('/:accessCode/tickets', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => createAdditionalTicket(req.txn, req.params.accessCode), {commit: true}))
 
   return router
 }
