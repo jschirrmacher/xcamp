@@ -1,6 +1,5 @@
 @import "general";
 
-
 .tiles {
     margin: 0; // List reset
     padding: 0; // list reset
@@ -136,10 +135,72 @@
     padding: .25rem 2rem;
     margin: 0;
     clip-path: polygon(20px 0, 0 20px, 0 100%, 100% 100%, 100% 0);
-}
+    }
   background-color: #f9d400;
   background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ff696c' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
-
-  // background-color: rgba(255, 105, 108, 0.8);
-  // background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='rgba(249, 212, 0, 0.5)' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
 }
+
+
+.agenda {
+    list-style-type: none; // Reset
+    margin: 0 0 5rem 0; // Reset
+    padding: 0; // Reset
+    display: grid;
+    font-family: sans-serif;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(2, minmax(100px,1fr));
+    font-size: .85rem;
+
+    @media (min-width: 640px) {
+        grid-gap: 2rem 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        font-size: 1rem;
+    }
+}
+
+.agenda__item {
+    padding: 1rem 2rem .75rem 1rem;
+    border-radius: .25rem;
+
+    @media (min-width: 550px) {
+        padding: 1rem 3rem 1rem 1.5rem;
+        border-radius: .5rem;
+        clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+        -webkit-clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+    }
+
+    // every first item turqoise
+    &:nth-child(3n+1) {
+        background: $turqoise;
+        background: linear-gradient(135deg, $turqoise 20%, saturate(darken($turqoise,15%),10%) 90%);
+    }
+
+    // every second item magenta
+    &:nth-child(3n+2) {
+        background: $magenta;
+        background: linear-gradient(155deg, $magenta 20%, saturate(darken($magenta,5%),5%) 100%);
+    }
+
+    // every thirs item yellow
+    &:nth-child(3n+3) {
+        background: $yellow;
+        background: linear-gradient(155deg, saturate(lighten($yellow,5%),15%) 20%, $yellow 100%);
+    }
+}
+
+.agenda__descr {
+    margin-top: 1rem;
+
+}
+
+.agenda__time {
+    color: white;
+    font-size: 1.5rem;
+    border-bottom: .35rem solid rgba(255,255,255,.5);
+    font-family: Affogato-Bold, Arial, Helvetica, sans-serif;
+
+    @media (min-width: 640px) {
+        font-size: 2rem;
+    }
+}
+
