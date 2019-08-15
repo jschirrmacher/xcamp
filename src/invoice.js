@@ -22,9 +22,9 @@ module.exports = (store, readModels, config) => {
     return invoice
   }
 
-  function addTicket(invoice, ticket) {
+  async function addTicket(invoice, ticket) {
     ticket.id = readModels.invoice.getLastTicketId() + 1
-    store.add({type: 'ticket-created', ticket: {
+    await store.add({type: 'ticket-created', ticket: {
       id: ticket.id,
       access_code: ticket.access_code,
       personId: ticket.participant.uid,

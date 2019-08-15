@@ -38,11 +38,11 @@ describe('invoice.js', () => {
       events[0].invoice.invoiceNo.should.equal(0)
     })
 
-    it('should report ticket ids to event store', () => {
+    it('should report ticket ids to event store', async () => {
       events.length = 0
       invoice.create({type: 'private', payment: 'paypal'}, {uid: 7})
-      invoice.addTicket(events[0].invoice, {participant: {uid: 77}})
-      invoice.addTicket(events[0].invoice, {participant: {uid: 88}})
+      await invoice.addTicket(events[0].invoice, {participant: {uid: 77}})
+      await invoice.addTicket(events[0].invoice, {participant: {uid: 88}})
       events[1].type.should.equal('ticket-created')
       events[1].ticket.id.should.equal(1)
       events[2].type.should.equal('ticket-created')
