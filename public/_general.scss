@@ -164,10 +164,9 @@ a {
       max-width: 1170px;
       padding: 1em 0 0 0;
 
-      @media (min-width: 740px) {
-        h1 {
-          color: white;
-        }
+      h1 {
+        color: white;
+        margin-top: 8vw; // increase top margin according to window width.
       }
     }
   }

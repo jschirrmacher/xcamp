@@ -1,59 +1,145 @@
 @import "general";
 
-h2 {
-  line-height: 1;
-  margin-top: 0.5em;
-}
 
 .tiles {
-  position: relative;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  margin: 0 -10px;
+    margin: 0; // List reset
+    padding: 0; // list reset
+    list-style-type: none; // list reset
+    margin-bottom: 3rem;
 
-  .tile {
-    flex-grow:0;
-    flex-shrink:0;
-    flex-basis:calc(33% - 17px);
-    background: $turqoise;
-    margin: 10px;
+    // 2 columns on medium
+    @media (min-width: 640px) {
+        columns: 2;
+        column-gap: 2rem;
+    }
+
+    // 3 columns on large
+    @media (min-width: 950px) {
+        columns: 3;
+        column-gap: 2rem;
+    }
+}
+
+.tiles__item {
+    display: flex;
+    align-items: flex-start;
     padding: 20px;
+    background: rgba(78, 217, 213, .9);
+    margin-bottom: 1rem;
+    border-radius: 3px;
+    break-inside: avoid; // only wrap the whole block
 
-    .image-container {
-      position: relative;
-      background: white;
-      display: inline-block;
-
-      img {
-        width: 210px;
-        transition: transform 1s;
-        padding: 10px;
-      }
-
-      .frame {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border: 10px solid white;
-      }
-
-      &:hover img {
-        transform: scale(1.05);
-      }
+    // every first item turqoise
+    &:nth-child(3n+1) {
+        background: transparentize($turqoise, .2);
     }
 
-    .url {
-      display: block;
-      color: white;
-      font-size: 18px;
-      line-height: 1.8em;
+    // every second item magenta
+    &:nth-child(3n+2) {
+        background: transparentize($magenta, .05);
     }
 
-    p {
-      font-size: 18px;
+    // every thirs item yellow
+    &:nth-child(3n+3) {
+        background: transparentize($yellow, .05);
     }
-  }
+
+    @media (min-width: 420px) {
+        margin-bottom: 1.9rem;
+    }
+
+    @media (min-width: 640px) {
+
+        display: block; // Reset flexbox
+        text-align: center;
+
+        // every first item turqoise
+        &:nth-child(2n+1) {
+            background: transparentize($turqoise, .05);
+        }
+
+        // every second item magenta
+        &:nth-child(2n+2) {
+            background: transparentize($magenta, .05);
+        }
+
+        // every thirs item yellow
+        &:nth-child(2n+3) {
+            background: transparentize($yellow, .05);
+        }
+    }
+
+
+    @media (min-width: 950px) {
+
+        // every first item turqoise
+        &:nth-child(3n+1) {
+            background: transparentize($turqoise, .05);
+        }
+
+        // every second item magenta
+        &:nth-child(3n+2) {
+            background: transparentize($magenta, .05);
+        }
+
+        // every thirs item yellow
+        &:nth-child(3n+3) {
+            background: transparentize($yellow, .05);
+        }
+    }
+}
+
+.tiles__img {
+    display: none; // don´t display on smallest screen
+
+    @media (min-width: 500px) {
+        display: inline;
+        flex: 1 0 100px;
+        order: 1; // display image right-aligned
+        margin: .45rem 0 2rem 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        flex: 1 0 180px;
+        order: 0; // Reset
+        margin: 2rem 0;
+    }
+}
+
+.tiles__body {
+    flex: 2 1 auto;
+    font-size: .9rem; // Smaller font on small screens
+    margin-right: 1rem;
+
+    @media (min-width: 640px) {
+        font-size: initial; // Reset
+    }
+}
+
+.tiles__headline {
+    margin-top: 0; // Reset
+    line-height: initial; // Reset
+}
+
+.url {
+    display: block;
+    color: $black;
+}
+
+.tiles__item.box--alert {
+  padding: 2rem;
+  & > div {
+    text-align: left;
+    background:
+      linear-gradient(135deg, rgba(0,0,0,1) 1%, rgba(0,0,0,.15) 3%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 100%),
+      rgba(255,255,255,1);
+    padding: .25rem 2rem;
+    margin: 0;
+    clip-path: polygon(20px 0, 0 20px, 0 100%, 100% 100%, 100% 0);
+}
+  background-color: #f9d400;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ff696c' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+
+  // background-color: rgba(255, 105, 108, 0.8);
+  // background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='rgba(249, 212, 0, 0.5)' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
 }

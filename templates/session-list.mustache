@@ -1,4 +1,5 @@
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -6,103 +7,111 @@
     <base href="{{baseUrl}}">
     <link rel="stylesheet" href="session-list.css">
 </head>
+
 <body>
-{{> menu}}
-{{> logo}}
-<div id="main">
-    <div class="container semi-transparent">
-        <h1>Sessions auf dem {{eventName}}</h1>
-
-        <a class="button yellow with-arrow" target="_self" href="tickets">
-            Jetzt Ticket kaufen
-        </a>
-
-        <div class="tiles">
-            {{#sessions}}
-                <div class="tile">
-                    <h2>{{person.name}}</h2>
-                    <div class="image-container">
-                        <img src="{{{image}}}">
-                        <div class="frame"></div>
+    {{> menu}}
+    {{> logo}}
+    <div id="main">
+        <div class="container no-background">
+            <h1>Sessions auf dem {{eventName}}</h1>
+            <a class="button yellow with-arrow" target="_self" href="tickets">
+                Ticket kaufen & Session einreichen
+            </a>
+            <ul class="tiles">
+                {{#sessions}}
+                <li class="tiles__item">
+                    <img class="tiles__img" src="{{{image}}}" alt="">
+                    <div class="tiles__body">
+                        <h2><a href="{{{url}}}" target="_blank" rel="nofollow" class="url" title="{{urlTitle}}">{{person.name}}</a></h2>
+                        <p>{{talk}}</p>
                     </div>
-                    <a href="{{{url}}}" target="_blank" rel="nofollow" class="url">{{urlTitle}}</a>
-                    <p>{{talk}}</p>
-                </div>
-            {{/sessions}}
-        </div>
-
-        <div class="box white">
-            <a href=".">
-                <img src="Netvis2-1200x528.jpg">
-            </a>
-            <a class="button turquoise with-arrow" target="_self" href=".">
-                Hier vernetzen!
-            </a>
-
-            <h2>Call for Sessions</h2>
-
-            <p>
-                Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Möchtest Du Erfahrungen über
-                Innovationsmethoden teilen; Ratschläge, unterschiedliche Meinungen oder Perspektiven zu einem eigenen
-                Vorhaben hören? Dann melde Dich gern vorab eine Session an. Zur Auswahl stet das gesamte Spektrum von
-                Formaten, die für 45 Minuten geeignet sind:
-            </p>
-
-            <ul>
-                <li>Kurzvortrag + Diskussion,</li>
-                <li>Hands-on Workshop,</li>
-                <li>Brainstorming,</li>
-                <li>Fishbowl,</li>
-                <li>Mind-Mapping</li>
-                <li>Pecha Cucha.</li>
-                <li>Für weitere Formate sind wir offen.</li>
+                </li>
+                {{/sessions}}
             </ul>
 
-            <p>
-                Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
-                Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
-                angekündigt und mit Deinem Bild veröffentlicht.
-            </p>
+            <ul class="tiles">
+                <li class="tiles__item box--alert">
+                <div class="tiles__body">
+                <h2>Call for Sessions</h2>
+                <p>
+                    Das XCamp lebt von vielseitigen Themenbeiträgen der Teilnehmer. Hast Du ein Thema?
+                </p>
+                <p>
+                    Melde bis <strong>15. August 2019</strong> vorab eine Session an.
+                </p>
 
-            <p>
-                Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
-                Netvis-Konferenztool.
-            </p>
+                <details>
+                <summary role="button" aria-expanded="false" aria-controls="details">
+                    Weiterlesen…
+                </summary>
+                <div aria-hidden="true" id="details">
+                    <p>Zur Auswahl stet das gesamte Spektrum von
+                        Formaten, die für 45 Minuten geeignet sind:
+                    </p>
+                    <ul>
+                        <li>Kurzvortrag + Diskussion</li>
+                        <li>Hands-on Workshop</li>
+                        <li>Brainstorming</li>
+                        <li>Fishbowl</li>
+                        <li>Mind-Mapping</li>
+                        <li>Pecha Cucha</li>
+                        <li>Für weitere Formate sind wir offen</li>
+                    </ul>
+                    <p>
+                        Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
+                        Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
+                        angekündigt und mit Deinem Bild veröffentlicht.
+                    </p>
+                    <p>
+                        Zur Session-Anmeldung sende uns einfach Deine Session-Anmeldung nach dem Ticketkauf in unserem
+                        Netvis-Konferenztool.
+                    </p>
+                </div>
+                </details>
 
-            <p>
-                <b>Einsendeschluss ist der 15. August 2019</b>
-            </p>
+                <a class="button yellow" target="_self" href="tickets">
+                    Ticket kaufen
+                    <br>
+                    und Session einreichen
+                </a>
+            </div>
+            </li>
+            </ul>
 
-            <a class="button yellow with-arrow" target="_self" href="tickets">
-                Ticket kaufen und Session einrichten
-            </a>
-
-            <h2>Agenda</h2>
-
-            <div class="panel-body toggle-content fusion-clearfix">
-                <h3 id="BarcampCheckliste-Freitag,30.10.2015">Freitag, 13.09.2019</h3>
-                <p>08:00 – Eintreffen, Check-in und Self-Service Frühstück</p>
-                <p>09:00 – Begrüßung</p>
-                <p>09:40 – Keynote</p>
-                <p>10:30 – Session-Planung</p>
-                <p>11:45 – 1. Session Runde</p>
-                <p>12:30 – Mittagspause &amp; Networking</p>
-                <p>13:30 – 2 . Session Runde</p>
-                <p>14:30 – 3. Session Runde</p>
-                <p>15:30 – Kaffeepause</p>
-                <p>16:00– 4 .Session Runde</p>
-                <p>17:00 – 5. Session Runde</p>
-                <p>18:00 – Closing und anschliessendes Networking</p>
-                <p>19:00 – Gute Heimreise</p>
+            <div class="box white">
+                <h2>Agenda</h2>
+                <div class="panel-body toggle-content fusion-clearfix">
+                    <h3 id="BarcampCheckliste-Freitag,30.10.2015">Freitag, 13.09.2019</h3>
+                    <p>08:00 – Eintreffen, Check-in und Self-Service Frühstück</p>
+                    <p>09:00 – Begrüßung</p>
+                    <p>09:40 – Keynote</p>
+                    <p>10:30 – Session-Planung</p>
+                    <p>11:45 – 1. Session Runde</p>
+                    <p>12:30 – Mittagspause &amp; Networking</p>
+                    <p>13:30 – 2 . Session Runde</p>
+                    <p>14:30 – 3. Session Runde</p>
+                    <p>15:30 – Kaffeepause</p>
+                    <p>16:00– 4 .Session Runde</p>
+                    <p>17:00 – 5. Session Runde</p>
+                    <p>18:00 – Closing und anschliessendes Networking</p>
+                    <p>19:00 – Gute Heimreise</p>
+                </div>
+                <div>
+                    <a target="_self" href=".">
+                        <img src="Netvis2-1200x528.jpg" style="max-width: 100%">
+                    </a>
+                    <a class="button turquoise with-arrow" target="_self" href=".">
+                        Jetzt vernetzen
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{{> footer}}
-
-<script src="common.js"></script>
-<script>
+    {{> footer}}
+    <script src="common.js"></script>
+    <script>
     setMenuState()
-</script>
+    </script>
 </body>
+
 </html>
