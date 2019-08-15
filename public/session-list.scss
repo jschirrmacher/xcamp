@@ -93,6 +93,8 @@
     display: none; // don´t display on smallest screen
 
     @media (min-width: 500px) {
+        border: 10px solid rgba(255,255,255,.1);
+        border-radius: .25rem;
         display: inline;
         flex: 1 0 100px;
         order: 1; // display image right-aligned
