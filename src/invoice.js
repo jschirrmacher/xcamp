@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (store, readModels, config) => {
+module.exports = (store, readModels, config, rack) => {
   const ticketTypes = require('./ticketTypes')(config)
 
   function create(data, customer) {
@@ -8,29 +8,31 @@ module.exports = (store, readModels, config) => {
       throw 'Unknown ticket type'
     }
 
+    const id = readModels.invoice.getLastInvoiceId() + 1
+    let ticketId = readModels.invoice.getLastTicketId() + 1
+
     const invoice = {
-      id: readModels.invoice.getLastInvoiceId() + 1,
+      id,
       invoiceNo: data.payment === 'invoice' ? readModels.invoice.getMaxInvoiceNo() + 1 : 0,
       created: new Date().toISOString(),
       customerId: customer.uid,
       ticketType: data.type,
       ticketPrice: ticketTypes[data.type].price,
       payment: data.payment,
+      ticketCount: data.ticketCount,
       tickets: []
     }
     store.add({type: 'invoice-created', invoice})
+    Array.from({length: data.ticketCount}, async () => {
+      await store.add({type: 'ticket-created', ticket: {
+        id: ticketId++,
+        access_code: rack(),
+        personId: customer.person[0].uid,
+        invoiceId: id
+      }})
+    })
     return invoice
   }
 
-  async function addTicket(invoice, ticket) {
-    ticket.id = readModels.invoice.getLastTicketId() + 1
-    await store.add({type: 'ticket-created', ticket: {
-      id: ticket.id,
-      access_code: ticket.access_code,
-      personId: ticket.participant.uid,
-      invoiceId: invoice.id
-    }})
-  }
-
-  return {create, addTicket}
+  return {create}
 }

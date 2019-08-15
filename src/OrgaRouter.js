@@ -31,10 +31,9 @@ module.exports = (dependencies) => {
 
   async function createOrgaMember(txn, data) {
     data.payment = 'none'
+    data.ticketCount = data.ticketCount || 1
     const customer = await Model.Customer.create(txn, data)
-    const tickets = Model.Ticket.create(customer.person[0], data.ticketCount || 1)
-    const invoice = await Model.Invoice.create(data, customer)
-    tickets.forEach(async ticket => await Model.Invoice.addTicket(invoice, ticket))
+    await Model.Invoice.create(data, customer)
     const user = readModels.user.getById(customer.uid)
     const action = 'accounts/' + customer.access_code + '/password/reset'
     const hash = mailSender.sendHashMail('mail/send-free-ticket-mail', user, action)

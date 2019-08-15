@@ -42,11 +42,10 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
       if (data.code) {
         assertCoupon(data.code, data.type)
       }
+      data.ticketCount = +data.ticketCount
       const customer = await Model.Customer.create(txn, data)
       const person = customer.person[0]
-      const tickets = create(person, +data.ticketCount)
       const invoice = await Model.Invoice.create(data, customer)
-      tickets.forEach(async ticket => await Model.Invoice.addTicket(invoice, ticket))
 
       await addSubscriber(person)
 
