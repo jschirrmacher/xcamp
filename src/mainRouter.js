@@ -27,8 +27,8 @@ module.exports = (dependencies) => {
   }
 
   function getIndexPage() {
-    const sponsors = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'sponsors', 'sponsors.json')))
-    const partners = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'partners', 'partners.json')))
+    const sponsors = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/sponsors', 'sponsors.json')))
+    const partners = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/partners', 'partners.json')))
     return templateGenerator.generate('index', {sponsors, partners})
   }
 

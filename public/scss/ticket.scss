@@ -1,4 +1,5 @@
-@import "general";
+@import "partials/general";
+@import "partials/info";
 
 .form-group {
   margin-bottom: 5px;
@@ -325,5 +326,3 @@ table {
     text-align: left;
   }
 }
-
-@import "info";

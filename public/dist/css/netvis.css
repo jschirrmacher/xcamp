@@ -1,5 +1,190 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Martel:400,700&display=swap");
+.info {
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 1em 0;
+  font-size: 13px;
+  clear: both;
+}
+.info:before {
+  content: "i";
+  background: dodgerblue;
+  color: white;
+  font: bold 28px "Times New Roman", serif;
+  line-height: 1.1em;
+  text-align: center;
+  display: inline-block;
+  float: left;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 18px;
+}
+.alert .alert-content {
+  position: relative;
+  margin: 20% auto;
+  background: yellow;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-width: 480px;
+  padding: 20px;
+}
+.alert .alert-content.type-error {
+  background-color: #ff696c;
+}
+.alert .alert-content .close {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer;
+}
+.alert .alert-content .close:after {
+  display: block;
+  content: "x";
+  color: #333333;
+}
+
+.yellow {
+  background: #f9d400;
+}
+
+.turquoise {
+  background: #4ED9D5;
+}
+
+.magenta {
+  background: #ff696c;
+}
+
+.white {
+  background: white;
+}
+
+.grey {
+  background: #efefef;
+}
+
+@font-face {
+  font-family: "Affogato-Bold";
+  src: url("font/Affogato-Bold.eot");
+  src: url("font/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("font/Affogato-Bold.woff") format("woff"), url("font/Affogato-Bold.woff2") format("woff2"), url("font/Affogato-Bold.ttf") format("truetype"), url("font/Affogato-Bold.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+a, button {
+  text-decoration: none;
+  transition: color 0.2s linear;
+}
+
+.button {
+  display: inline-block;
+  font-family: "Affogato-Bold", sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.125rem;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 2em 0;
+  padding: 1rem 1.5rem;
+  background: #dddddd;
+  color: #343434;
+  cursor: pointer;
+  text-shadow: none;
+  border-radius: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+.button:hover {
+  background: #efefef;
+}
+.button[disabled] {
+  opacity: 0.3;
+  cursor: auto;
+}
+.button.small {
+  display: inline-block;
+  font-size: 14px;
+  width: auto;
+  margin: 10px 2em 5px 0;
+}
+.button.small.saveTicket {
+  display: none;
+}
+.button.big {
+  font-size: 1.25rem !important;
+}
+.button.wide {
+  width: 250px;
+}
+
+.button--light {
+  background: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.button--light strong {
+  font-size: 1.2rem;
+}
+
+.yellow {
+  background: #f9d400;
+  opacity: 0.9;
+}
+.yellow .button--light {
+  color: #ff8800;
+  border: 2px solid #f9be00;
+}
+.yellow .button--light:hover {
+  border-color: #f9be00;
+  box-shadow: 0 0 10px #f9be00;
+  background: white;
+}
+
+.magenta {
+  background: #ff696c;
+  opacity: 0.9;
+}
+.magenta .button--light {
+  color: #ff696c;
+  border: 2px solid #ff5053;
+}
+.magenta .button--light:hover {
+  border-color: #ff1d21;
+  box-shadow: 0 0 10px #ff1d21;
+  background: white;
+  color: #ff363a;
+}
+
+.turquoise {
+  background: #4ED9D5;
+  opacity: 0.9;
+}
+.turquoise .button--light {
+  color: #4ED9D5;
+  border: 2px solid #39d4d0;
+}
+.turquoise .button--light:hover {
+  border-color: #27b4b0;
+  box-shadow: 0 0 10px #16c4bf;
+  background: white;
+  color: #13e1db;
+}
+
 html, body, #root {
   margin: 0;
   width: 100%;
@@ -11,7 +196,7 @@ html, body, #root {
 }
 
 body {
-  background: url("bg_hero_xcamp_v01-1.jpg");
+  background: url("assets/bg_hero_xcamp_v01-1.jpg");
   background-size: cover;
 }
 
@@ -476,63 +661,6 @@ body.dialogOpen #root {
   border-radius: 4px;
 }
 
-.info {
-  background: #f7f7f7;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 1em 0;
-  font-size: 13px;
-  clear: both;
-}
-.info:before {
-  content: "i";
-  background: dodgerblue;
-  color: white;
-  font: bold 28px "Times New Roman", serif;
-  line-height: 1.1em;
-  text-align: center;
-  display: inline-block;
-  float: left;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.alert {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  font-size: 18px;
-}
-.alert .alert-content {
-  position: relative;
-  margin: 20% auto;
-  background: yellow;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  max-width: 480px;
-  padding: 20px;
-}
-.alert .alert-content.type-error {
-  background-color: #ff696c;
-}
-.alert .alert-content .close {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  cursor: pointer;
-}
-.alert .alert-content .close:after {
-  display: block;
-  content: "x";
-  color: #333333;
-}
-
 label[for=image-upload] {
   position: absolute;
   left: 20px;
@@ -558,134 +686,6 @@ label[for=image-upload] {
 .button-column {
   flex-direction: column;
   padding-left: 15px;
-}
-
-.yellow {
-  background: #f9d400;
-}
-
-.turquoise {
-  background: #4ED9D5;
-}
-
-.magenta {
-  background: #ff696c;
-}
-
-.white {
-  background: white;
-}
-
-.grey {
-  background: #efefef;
-}
-
-@font-face {
-  font-family: "Affogato-Bold";
-  src: url("webfont/Affogato-Bold.eot");
-  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
-  font-weight: normal;
-  font-style: normal;
-}
-a, button {
-  text-decoration: none;
-  transition: color 0.2s linear;
-}
-
-.button {
-  display: inline-block;
-  font-family: "Affogato-Bold", sans-serif;
-  font-size: 1rem;
-  line-height: 1;
-  letter-spacing: 0.125rem;
-  text-transform: uppercase;
-  text-align: center;
-  margin: 2em 0;
-  padding: 1rem 1.5rem;
-  background: #dddddd;
-  color: #343434;
-  cursor: pointer;
-  text-shadow: none;
-  border-radius: 4px;
-  border: 2px solid rgba(0, 0, 0, 0.15);
-}
-.button:hover {
-  background: #efefef;
-}
-.button[disabled] {
-  opacity: 0.3;
-  cursor: auto;
-}
-.button.small {
-  display: inline-block;
-  font-size: 14px;
-  width: auto;
-  margin: 10px 2em 5px 0;
-}
-.button.small.saveTicket {
-  display: none;
-}
-.button.big {
-  font-size: 1.25rem !important;
-}
-.button.wide {
-  width: 250px;
-}
-
-.button--light {
-  background: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: normal;
-  font-size: 1rem;
-  line-height: 1.25;
-}
-.button--light strong {
-  font-size: 1.2rem;
-}
-
-.yellow {
-  background: #f9d400;
-  opacity: 0.9;
-}
-.yellow .button--light {
-  color: #ff8800;
-  border: 2px solid #f9be00;
-}
-.yellow .button--light:hover {
-  border-color: #f9be00;
-  box-shadow: 0 0 10px #f9be00;
-  background: white;
-}
-
-.magenta {
-  background: #ff696c;
-  opacity: 0.9;
-}
-.magenta .button--light {
-  color: #ff696c;
-  border: 2px solid #ff5053;
-}
-.magenta .button--light:hover {
-  border-color: #ff1d21;
-  box-shadow: 0 0 10px #ff1d21;
-  background: white;
-  color: #ff363a;
-}
-
-.turquoise {
-  background: #4ED9D5;
-  opacity: 0.9;
-}
-.turquoise .button--light {
-  color: #4ED9D5;
-  border: 2px solid #39d4d0;
-}
-.turquoise .button--light:hover {
-  border-color: #27b4b0;
-  box-shadow: 0 0 10px #16c4bf;
-  background: white;
-  color: #13e1db;
 }
 
 .details .detailForm button.button.small {
