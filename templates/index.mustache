@@ -5,7 +5,7 @@
     <title>2019 XCamp - Barcamp-Plus für digitale Innovation und agile Produktentwicklung</title>
     <base href="{{baseUrl}}">
     {{> head}}
-    <link rel="stylesheet" href="website.css">
+    <link rel="stylesheet" href="dist/css/website.css">
 </head>
 <body data-code="{{accessCode}}">
 {{> menu}}
@@ -173,7 +173,7 @@
             <ul>
                 {{#sponsors}}
                 <li>
-                    <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
+                    <a href="{{{url}}}" target="_blank"><img src="assets/sponsors/{{img}}"></a>
                 </li>
                 {{/sponsors}}
             </ul>
@@ -189,7 +189,7 @@
             <ul>
                 {{#partners}}
                 <li>
-                    <a href="{{{url}}}" target="_blank"><img src="{{img}}"></a>
+                    <a href="{{{url}}}" target="_blank"><img src="assets/partners/{{img}}"></a>
                 </li>
                 {{/partners}}
             </ul>

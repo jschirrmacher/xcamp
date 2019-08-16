@@ -1,3 +1,6 @@
+@import "partials/info";
+@import "partials/button";
+
 html, body, #root {
   margin: 0;
   width: 100%;
@@ -9,7 +12,7 @@ html, body, #root {
 }
 
 body {
-  background: url("bg_hero_xcamp_v01-1.jpg");
+  background: url("assets/bg_hero_xcamp_v01-1.jpg");
   background-size: cover;
 }
 
@@ -566,8 +569,6 @@ body.dialogOpen #root {
   }
 }
 
-@import "info";
-
 label[for="image-upload"] {
   position: absolute;
   left: 20px;
@@ -594,8 +595,6 @@ label[for="image-upload"] {
   flex-direction: column;
   padding-left: 15px;
 }
-
-@import "button";
 
 .details .detailForm button.button.small {
   display: block;

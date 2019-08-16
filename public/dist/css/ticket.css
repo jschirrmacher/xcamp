@@ -24,8 +24,8 @@
 
 @font-face {
   font-family: "Affogato-Bold";
-  src: url("webfont/Affogato-Bold.eot");
-  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
+  src: url("font/Affogato-Bold.eot");
+  src: url("font/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("font/Affogato-Bold.woff") format("woff"), url("font/Affogato-Bold.woff2") format("woff2"), url("font/Affogato-Bold.ttf") format("truetype"), url("font/Affogato-Bold.svg") format("svg");
   font-weight: normal;
   font-style: normal;
 }
@@ -51,15 +51,15 @@
 
 @font-face {
   font-family: "Affogato-Bold";
-  src: url("webfont/Affogato-Bold.eot");
-  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
+  src: url("font/Affogato-Bold.eot");
+  src: url("font/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("font/Affogato-Bold.woff") format("woff"), url("font/Affogato-Bold.woff2") format("woff2"), url("font/Affogato-Bold.ttf") format("truetype"), url("font/Affogato-Bold.svg") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "icomoon";
-  src: url("webfont/icomoon.eot");
-  src: url("webfont/icomoon.eot?#iefix") format("embedded-opentype"), url("webfont/icomoon.woff") format("woff"), url("webfont/icomoon.ttf") format("truetype"), url("webfont/icomoon.svg#icomoon") format("svg");
+  src: url("assets/font/icomoon.eot");
+  src: url("assets/font/icomoon.eot?#iefix") format("embedded-opentype"), url("assets/font/icomoon.woff") format("woff"), url("assets/font/icomoon.ttf") format("truetype"), url("assets/font/icomoon.svg#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
 }
@@ -266,8 +266,8 @@ footer {
 
 @font-face {
   font-family: "Affogato-Bold";
-  src: url("webfont/Affogato-Bold.eot");
-  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
+  src: url("font/Affogato-Bold.eot");
+  src: url("font/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("font/Affogato-Bold.woff") format("woff"), url("font/Affogato-Bold.woff2") format("woff2"), url("font/Affogato-Bold.ttf") format("truetype"), url("font/Affogato-Bold.svg") format("svg");
   font-weight: normal;
   font-style: normal;
 }
@@ -557,6 +557,63 @@ a {
   }
 }
 
+.info {
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 1em 0;
+  font-size: 13px;
+  clear: both;
+}
+.info:before {
+  content: "i";
+  background: dodgerblue;
+  color: white;
+  font: bold 28px "Times New Roman", serif;
+  line-height: 1.1em;
+  text-align: center;
+  display: inline-block;
+  float: left;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 18px;
+}
+.alert .alert-content {
+  position: relative;
+  margin: 20% auto;
+  background: yellow;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-width: 480px;
+  padding: 20px;
+}
+.alert .alert-content.type-error {
+  background-color: #ff696c;
+}
+.alert .alert-content .close {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer;
+}
+.alert .alert-content .close:after {
+  display: block;
+  content: "x";
+  color: #333333;
+}
+
 .form-group {
   margin-bottom: 5px;
   float: left;
@@ -842,63 +899,6 @@ table td.numeric {
   margin: 0 auto;
   display: block;
   text-align: left;
-}
-
-.info {
-  background: #f7f7f7;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 1em 0;
-  font-size: 13px;
-  clear: both;
-}
-.info:before {
-  content: "i";
-  background: dodgerblue;
-  color: white;
-  font: bold 28px "Times New Roman", serif;
-  line-height: 1.1em;
-  text-align: center;
-  display: inline-block;
-  float: left;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.alert {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  font-size: 18px;
-}
-.alert .alert-content {
-  position: relative;
-  margin: 20% auto;
-  background: yellow;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  max-width: 480px;
-  padding: 20px;
-}
-.alert .alert-content.type-error {
-  background-color: #ff696c;
-}
-.alert .alert-content .close {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  cursor: pointer;
-}
-.alert .alert-content .close:after {
-  display: block;
-  content: "x";
-  color: #333333;
 }
 
 /*# sourceMappingURL=ticket.css.map */
