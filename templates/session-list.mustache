@@ -18,19 +18,7 @@
                 Ticket kaufen & Session einreichen
             </a>
             <ul class="tiles">
-                {{#sessions}}
-                <li class="tiles__item">
-                    <img class="tiles__img" src="{{{image}}}" alt="">
-                    <div class="tiles__body">
-                        <h2><a href="{{{url}}}" target="_blank" rel="nofollow" class="url" title="{{urlTitle}}">{{person.name}}</a></h2>
-                        <p>{{talk}}</p>
-                    </div>
-                </li>
-                {{/sessions}}
-            </ul>
-
-            <ul class="tiles">
-                <li class="tiles__item box--alert">
+                    <li class="tiles__item box--alert">
                 <div class="tiles__body">
                 <h2>Call for Sessions</h2>
                 <p>
@@ -58,8 +46,7 @@
                         <li>Für weitere Formate sind wir offen</li>
                     </ul>
                     <p>
-                        Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag bereits vor dem allgemeinen
-                        Sessionaufruf am 25. August einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
+                        Mit einer frühzeitigen Anmeldung erhältst Du die Chance, einen Beitrag vorab einzureichen. Bei Eignung wird Deine Session auf der Xcamp Webseite
                         angekündigt und mit Deinem Bild veröffentlicht.
                     </p>
                     <p>
@@ -76,6 +63,15 @@
                 </a>
             </div>
             </li>
+                {{#sessions}}
+                <li class="tiles__item">
+                    <img class="tiles__img" src="{{{image}}}" alt="">
+                    <div class="tiles__body">
+                        <h2><a href="{{{url}}}" target="_blank" rel="nofollow" class="url" title="{{urlTitle}}">{{person.name}}</a></h2>
+                        <p>{{talk}}</p>
+                    </div>
+                </li>
+                {{/sessions}}
             </ul>
 
             <div class="box white">
