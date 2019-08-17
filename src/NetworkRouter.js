@@ -87,7 +87,7 @@ module.exports = (dependencies) => {
   router.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.uid, req.user)))
   router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => updatePerson(req.txn, req.params.uid, req.body, req.user), {commit: true}))
   router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
-  router.get('/persons/:uid/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.txn, req.params.uid), {type: 'send', txn: true}))
+  router.get('/persons/:uid/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.params.uid), {type: 'send'}))
 
   router.put('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
   router.delete('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))

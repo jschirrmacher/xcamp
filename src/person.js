@@ -110,8 +110,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return await upsert(txn, person, {...person, image: file.mimetype + ':' + file.originalname}, user)
   }
 
-  async function getProfilePicture(txn, id) {
-    const person = await get(txn, id)
+  function getProfilePicture(id) {
+    const person = readModels.network.getById(id)
     const [mimeType, name] = person.image.split(':', 1)
     let fileName = getPicturePath(id)
     if (!fs.existsSync(fileName)) {
