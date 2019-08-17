@@ -1,11 +1,11 @@
 <div>
     <img src="{{baseUrl}}xcamp-large.png" style="float: left; height: 100px; margin-right: 20px;"/>
-    <h1>Bestätigung zur Newsletter-Anmeldung</h1>
+    <h1>Bestätigung zur {{eventName}} Newsletter-Anmeldung</h1>
 </div>
 
 <p>Hallo {{firstName}}!</p>
 
-<p>Du hast dich angemeldet, um Informationen zum <a href="{{{baseUrl}}}">XCamp</a> zu erhalten!</p>
+<p>Du hast dich angemeldet, um Informationen zum <a href="{{{baseUrl}}}">{{eventName}}</a> zu erhalten!</p>
 
 <p>Bestätige das bitte durch Klicken auf den folgenden Link:</p>
 <a href="{{{link}}}">{{link}}</a>
@@ -14,5 +14,7 @@
 
 <p>
     Viele Grüße<br>
-    Das XCamp Orga-Team
+    Das {{eventName}} Orga-Team
 </p>
+
+{{> mailFooter}}

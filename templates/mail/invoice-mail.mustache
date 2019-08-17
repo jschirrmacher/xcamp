@@ -1,13 +1,13 @@
 <div>
     <img src="{{baseUrl}}xcamp-large.png" style="float: left; height: 100px; margin-right: 20px;"/>
-    <h1>Ticketbestellung XCamp</h1>
+    <h1>Ticketbestellung {{eventName}}</h1>
 </div>
 
-<p>Liebe(r) XCamp Teilnehmer(in)!</p>
+<p>Liebe(r) {{eventName}} Teilnehmer(in)!</p>
 
 <p>Vielen Dank! Die Ticketbestellung für das XCamp ist bei uns eingeganen.</p>
 
-<p>Die Rechnung und die Tickets <a class="button" href="{{{url}}}">findest du in deinem XCamp-Account</a>.</p>
+<p>Die Rechnung und die Tickets <a class="button" href="{{{url}}}">findest du in deinem {{eventName}}-Account</a>.</p>
 
 <p>
     Bitte auf jeden Fall jeweils im Ticket den Namen und die E-Mail-Adresse des Teilnehmers eintragen. Wir brauchen
@@ -15,34 +15,17 @@
     die Namensschilder vorzubereiten und für die Teilnehmerliste.
 </p>
 <p>
-    Wir würden die Teilnehmer auch auf künftige XCamps hinweisen, sie können dem jedoch jederzeit durch eine formlose
+    Wir würden die Teilnehmer auch auf künftige {{eventName}}s hinweisen, sie können dem jedoch jederzeit durch eine formlose
     Antwort auf unsere Mail widersprechen. In diesem Fall entfernen wir sie/ihn selbstversändlich umgehend aus unserem
     Verteiler.
 </p>
 <p>
-    Teilnehmer/innen können jederzeit vor dem Event im XCamp-Account geändert und damit das Ticket übertragen werden.
+    Teilnehmer/innen können jederzeit vor dem Event im {{eventName}}-Account geändert und damit das Ticket übertragen werden.
     Eine Rückgabe des Tickets ist hingegen leider nicht möglich.
 </p>
 
 <p>Wir freuen uns auf einen spannenden Tag!</p>
 
-<p>Das XCamp Team</p>
+<p>Das {{eventName}} Team</p>
 
-<footer style="border-top: 1px solid #bbb;
-               color: #888;
-               font-size: 80%;
-               padding-top: 1em;
-               width: 100%;">
-    Justso GmbH, Praunheimer Landstraße 95, 60488 Frankfurt am Main<br/>
-    Geschäftsführerin: Dr. Christiane Gerigk<br/>
-    Registergericht: Amtsgericht Frankfurt am Main, Registernummer: HRB 96356<br/>
-    USt.-IdNr. DE288767862 | StNr. 045/236/95300
-
-    <p class="disclaimer">
-        Du erhältst diese E-Mail, weil du Tickets für das XCamp erworben hast. Wir speichern diese Daten, um
-        dir die erworbenen Tickets und die dazu gehörige Rechnung zu senden und dir Zugriff auf diese auch zu einem
-        späteren Zeitpunkt zu ermöglichen. Wir werden dich auch über künftig statt findende XCamp Termine auf dem
-        Laufenden halten, wenn du dem nicht durch formlose Antwort auf eine unserer E-Mails widersprichst. In diesem
-        Fall entfernen wir dich selbstversändlich umgehend aus unserem Verteiler.
-    </p>
-</footer>
+{{> mailFooter}}

@@ -1,31 +1,16 @@
 <div>
     <img src="{{baseUrl}}xcamp-large.png" style="float: left; height: 100px; margin-right: 20px;">
-    <h1>XCamp Ticket</h1>
+    <h1>{{eventName}} Ticket</h1>
 </div>
 
-<p>Liebe(r) XCamp Teilnehmer(in)!</p>
+<p>Liebe(r) {{eventName}} Teilnehmer(in)!</p>
 
-<p><a href="{{{url}}}">Hier ist das Ticket für das XCamp</a></p>
+<p><a href="{{{url}}}">Hier ist das Ticket für das {{eventName}}</a></p>
 
 <p>Bitte diese E-Mail oder das Ticket ausgedruckt zum Event mitbringen.</p>
 
-<p>Wir freuen uns auf einen spannenden Tag mit euch!</p>
+<p>Wir freuen uns auf einen spannenden Tag mit dir!</p>
 
-<p>Das XCamp Team</p>
+<p>Das {{eventName}} Team</p>
 
-<footer style="border-top: 1px solid #bbb;
-               color: #888;
-               font-size: 80%;
-               padding-top: 1em;
-               width: 100%;">
-    Justso GmbH, Praunheimer Landstraße 95, 60488 Frankfurt am Main<br/>
-    Geschäftsführerin: Dr. Christiane Gerigk<br/>
-    Registergericht: Amtsgericht Frankfurt am Main, Registernummer: HRB 96356<br/>
-    USt.-IdNr. DE288767862 | StNr. 045/236/95300
-
-    <p class="disclaimer">
-        Du erhältst diese E-Mail, weil du ein Ticket für das XCamp gebucht hast oder weil eines für dich
-        gebucht wurde. Wir werden dich auch weiterhin mit Ihformationen zu dem Event oder künftigen XCamp Events
-        versorgen, wenn du dem nicht widersprichst. Dazu genügt eine formlose E-Mail-Antwort auf diese E-Mail.
-    </p>
-</footer>
+{{> mailFooter}}
