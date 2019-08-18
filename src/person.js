@@ -111,8 +111,8 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
   }
 
   function getProfilePicture(id) {
-    const person = readModels.network.getById(id)
-    const [mimeType, name] = person.image.split(':', 1)
+    const person = readModels.person.getById(id)
+    const [mimeType, name] = person.image.split(':')
     let fileName = getPicturePath(id)
     if (!fs.existsSync(fileName)) {
       fileName = path.join(__dirname, '../public/user.png')
