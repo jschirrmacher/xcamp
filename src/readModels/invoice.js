@@ -10,7 +10,7 @@ let maxInvoiceNo = 0
 let lastInvoiceId = 0
 let lastTicketId = 0
 
-module.exports = function ({models, store, config}) {
+module.exports = function ({models, config}) {
   const invoices = {}
   const customers = {}
   const tickets = {}
@@ -59,16 +59,31 @@ module.exports = function ({models, store, config}) {
         maxInvoiceNo = Math.max(invoices[event.invoice.id].invoiceNo, maxInvoiceNo)
       }
 
-      function setParticipant(participant, ticketId) {
+      function setParticipant(participantId, ticketId) {
+        const person = models.person.getById(participantId)
+        assert(person, 'Referenced person not found')
+
         Object.values(invoices).find(invoice => {
           return invoice.tickets.find(ticket => {
             const ticketFound = ticket.id === ticketId
             if (ticketFound) {
-              ticket.participant = participant
+              ticket.participant = person
             }
             return ticketFound
           })
         })
+      }
+
+      function createTicket(ticket) {
+        assert(invoices[ticket.invoiceId], 'Invoice doesn\'t exist')
+        assert(ticket.id, 'No ticket id specified')
+        assert(!tickets[ticket.id], 'Ticket already exist')
+        lastTicketId = Math.max(lastTicketId, ticket.id)
+        if (ticket.personId) {
+          ticket.participant = models.person.getById(ticket.personId)
+        }
+        tickets[ticket.id] = ticket
+        invoices[ticket.invoiceId].tickets.push(ticket)
       }
 
       switch (event.type) {
@@ -102,25 +117,13 @@ module.exports = function ({models, store, config}) {
           break
 
         case 'ticket-created':
-          assert(invoices[event.ticket.invoiceId], 'Invoice doesn\'t exist')
-          assert(event.ticket.id, 'No ticket id specified')
-          assert(!tickets[event.ticket.id], 'Ticket already exist')
-          lastTicketId = Math.max(lastTicketId, event.ticket.id)
-          const ticket = {
-            id: event.ticket.id,
-            access_code: event.ticket.access_code,
-            participant: event.ticket.personId && models.person.getById(event.ticket.personId)
-          }
-          tickets[event.ticket.id] = ticket
-          invoices[event.ticket.invoiceId].tickets.push(ticket)
+          createTicket(event.ticket)
           break
 
         case 'participant-set':
           assert(event.ticketId, 'No ticketId specified')
           assert(event.personId, 'No personId specified')
-          const person = models.person.getById(event.personId)
-          assert(person, 'Referenced person not found')
-          setParticipant(person, event.ticketId)
+          setParticipant(event.personId, event.ticketId)
           break
 
         case 'payment-received':

@@ -5,7 +5,6 @@ module.exports = (dependencies) => {
     makeHandler,
     templateGenerator,
     mailSender,
-    Model,
     store,
     readModels,
     config

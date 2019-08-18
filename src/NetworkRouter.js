@@ -75,6 +75,8 @@ module.exports = (dependencies) => {
   }
 
   async function updateById(id, data, user) {
+    const fields = ['name', 'description', 'url']
+
     if (!user || !user.isAdmin) {
       throw 'Changing this node is not allowed!'
     }

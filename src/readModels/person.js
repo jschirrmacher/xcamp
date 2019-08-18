@@ -1,4 +1,4 @@
-module.exports = function ({models, store, config}) {
+module.exports = function () {
   const persons = {
     byId: {},
     byEMail: {}

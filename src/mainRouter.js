@@ -93,7 +93,7 @@ module.exports = (dependencies) => {
 
   const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
   const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
-  const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
+  const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, store, readModels, config})
   const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
   const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels, config})
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
