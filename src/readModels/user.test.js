@@ -11,14 +11,14 @@ const testInvoice = {id: 4712, customerId: 4711, ticketType: 'normal'}
 const testTicket1 = {personId: 4710, invoiceId: 4712, access_code: 'ticket-access-code-1'}
 const testTicket2 = {personId: 4710, invoiceId: 4712, access_code: 'ticket-access-code-2'}
 
-const models = {
-  network: {
-    getById(id) {
-      if (id === 4710) {
-        return testPerson
-      }
-      throw 'Not found'
+const models = {}
+models.person = require('./person')()
+models.network = {
+  getById(id) {
+    if (id === 4710) {
+      return testPerson
     }
+    throw 'Not found'
   }
 }
 models.user = require('./user')({models})
@@ -37,7 +37,9 @@ const expectedCustomerUser = {
 }
 
 function createCustomer() {
-  models.user.handleEvent({type: 'person-created', person: testPerson}, assert)
+  const personCreatedEvent = {type: 'person-created', person: testPerson}
+  models.person.handleEvent(personCreatedEvent, assert)
+  models.user.handleEvent(personCreatedEvent, assert)
   models.user.handleEvent({type: 'customer-created', customer: testCustomer}, assert)
 }
 

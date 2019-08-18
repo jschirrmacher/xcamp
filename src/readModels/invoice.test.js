@@ -1,11 +1,9 @@
 require('should')
 
-const store = {
-  add() {}
-}
-const models = {
-  invoice: require('./invoice')({store})
-}
+const config = {ticketCategories: {corporate: 300}}
+const models = {}
+models.person = require('./person')()
+models.invoice = require('./invoice')({models, config})
 
 const testPerson1 = {id: 4710, email: 'test1@example.com', firstName: 'Tom'}
 const testCustomer1 = {id: 4711, personId: 4710}

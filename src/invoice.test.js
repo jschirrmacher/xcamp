@@ -16,11 +16,12 @@ const store = {
 
   replay() {}
 }
+const config = {ticketCategories: {corporate: 300}}
 const readModels = {
-  invoice: require('./readModels/invoice')({store})
+  invoice: require('./readModels/invoice')({store, config})
 }
 store.listen(readModels.invoice.handleEvent)
-const invoice = require('./invoice')(store, readModels)
+const invoice = require('./invoice')(store, readModels, config, Math.random)
 
 describe('invoice.js', () => {
   describe('function create', () => {
@@ -40,9 +41,8 @@ describe('invoice.js', () => {
 
     it('should report ticket ids to event store', async () => {
       events.length = 0
-      invoice.create({type: 'private', payment: 'paypal'}, {uid: 7})
-      await invoice.addTicket(events[0].invoice, {participant: {uid: 77}})
-      await invoice.addTicket(events[0].invoice, {participant: {uid: 88}})
+      const customer = {uid: 7, person: [{id: 1}]}
+      invoice.create({type: 'private', payment: 'paypal', ticketCount: 2}, customer)
       events[1].type.should.equal('ticket-created')
       events[1].ticket.id.should.equal(1)
       events[2].type.should.equal('ticket-created')
