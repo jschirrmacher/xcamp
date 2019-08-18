@@ -19,18 +19,18 @@ module.exports = (dependencies) => {
       const linkedNode = readModels.network.getById(id)
       return {id, name: linkedNode.name}
     })
-    return Model.Network.getPublicViewOfNode(node, user)
+    return readModels.network.getPublicViewOfNode(node, user)
   }
 
   async function uploadProfilePicture(txn, id, file, user) {
     const result = await Model.Person.uploadProfilePicture(txn, id, file, user)
-    result.node = Model.Network.getPublicViewOfNode(result.node, user)
+    result.node = readModels.network.getPublicViewOfNode(result.node, user)
     return result
   }
 
   async function updatePerson(txn, id, body, user) {
     const result = await Model.Person.updateById(txn, id, body, user)
-    result.node = Model.Network.getPublicViewOfNode(result.node, user)
+    result.node = readModels.network.getPublicViewOfNode(result.node, user)
     return result
   }
 
@@ -97,7 +97,7 @@ module.exports = (dependencies) => {
   const router = express.Router()
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => Model.Network.getGraph(req.user, config.eventName)))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => readModels.network.getGraph(req.user, config.eventName)))
 
   router.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.uid, req.body, req.user)))
 

@@ -1,3 +1,5 @@
+const select = require('../lib/select')
+
 module.exports = function ({models}) {
   const nodes = {}
   const ticketsByInvoiceId = {}
@@ -8,8 +10,6 @@ module.exports = function ({models}) {
     nodes[person.id] = {
       ...person,
       type: 'person',
-      shape: 'circle',
-      details: '/network/persons/' + person.id,
       links: (nodes[person.id] && nodes[person.id].links) || {}
     }
   }
@@ -115,6 +115,50 @@ module.exports = function ({models}) {
 
     getById(id) {
       return nodes[id]
+    },
+
+    async getGraph(user = null, eventName) {
+      const nodes = models.network.getAll()
+        .filter(node => ['person', 'topic', 'root'].includes(node.type))
+        .map(node => models.network.getPublicViewOfNode({...node}, user))
+        .map(node => {
+          if (node.type === 'root' && node.name === eventName) {
+            node.open = true
+          }
+          return node
+        })
+      return {nodes, myNode: user && user.personId}
+    },
+
+    getPublicViewOfNode(node, user) {
+      const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description']
+      node.shape = 'circle'
+      if (models.network.canEdit(user, node.id)) {
+        node.editable = true
+      }
+      if (node.type === 'person') {
+        fields.push('topics')
+        fields.push('talk')
+        node.details = 'network/persons/' + node.id
+        if (user || node.allowPublic) {
+          fields.push('url')
+          fields.push('twitterName')
+          node.image = models.network.getImageURL(node)
+          node.name = node.firstName + ' ' + node.lastName
+        } else {
+          node.image = 'user.png'
+          node.name = 'Teilnehmer'
+        }
+        if (node.editable) {
+          fields.push('talkReady')
+          fields.push('access_code')
+          fields.push('accountPath')
+          fields.push('email')
+          node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
+        }
+        node = select(node, fields)
+      }
+      return node
     },
 
     canEdit(user, nodeId) {
