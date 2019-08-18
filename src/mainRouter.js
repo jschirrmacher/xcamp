@@ -70,7 +70,7 @@ module.exports = (dependencies) => {
 
   function getSessionList() {
     const sessions = readModels.session.getAll().map(session => {
-      const person = readModels.network.getById(session.person.id)
+      const person = readModels.person.getById(session.person.id)
       session.image = readModels.network.getImageURL(person)
       // session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
       session.url = person.url

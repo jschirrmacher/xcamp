@@ -1,9 +1,18 @@
 module.exports = function ({models}) {
   const nodes = {}
-  const persons = {}
   const ticketsByInvoiceId = {}
   const tickets = {}
   let maxNodeId = 0
+
+  function makeNodeFromPerson(person) {
+    nodes[person.id] = {
+      ...person,
+      type: 'person',
+      shape: 'circle',
+      details: '/network/persons/' + person.id,
+      links: (nodes[person.id] && nodes[person.id].links) || {}
+    }
+  }
 
   function removePersonFromNetwork(personId) {
     if (nodes[personId] && nodes[personId].links && nodes[personId].links.topics) {
@@ -20,9 +29,9 @@ module.exports = function ({models}) {
     handleTicketCreatedEvent(event, assert) {
       assert(event.ticket, `No ticket found in event`)
       assert(event.ticket.personId, `No person id found in event`)
-      const person = models.network.getById(event.ticket.personId)
+      const person = models.person.getById(event.ticket.personId)
       assert(person, `Person in event not found`)
-      nodes[event.ticket.personId] = {...person, type: 'person', shape: 'circle'}
+      makeNodeFromPerson(person)
       ticketsByInvoiceId[event.ticket.invoiceId] = ticketsByInvoiceId[event.ticket.invoiceId] || []
       ticketsByInvoiceId[event.ticket.invoiceId].push(event.ticket.personId)
       tickets[event.ticket.id] = event.ticket.personId
@@ -53,21 +62,11 @@ module.exports = function ({models}) {
       assert(event.ticketId, 'ticketId not specified')
       assert(event.personId, 'personId not specified')
       assert(tickets[event.ticketId], 'Ticket not found')
-      const person = persons[event.personId]
+      const person = models.person.getById(event.personId)
       assert(person, 'Person not found')
       removePersonFromNetwork(tickets[event.ticketId])
-      nodes[event.personId] = {...person, type: 'person', shape: 'circle'}
+      makeNodeFromPerson(person)
       tickets[event.ticketId] = event.personId
-    },
-
-    handlePersonCreatedEvent(event, assert) {
-      assert(event.person, 'No person found in event')
-      assert(event.person.id, 'No person id found in event')
-      assert(!nodes[event.person.id], 'Person already exists')
-      event.person.details = '/network/persons/' + event.person.id
-      persons[event.person.id] = event.person
-      nodes[event.person.id] = event.person
-      maxNodeId = Math.max(event.person.id, maxNodeId)
     },
 
     handleInvoiceDeletedEvent(event, assert) {
@@ -90,9 +89,8 @@ module.exports = function ({models}) {
     },
 
     handlePersonUpdatedEvent(event) {
-      persons[event.person.id] = event.person
       if (nodes[event.person.id]) {
-        nodes[event.person.id] = Object.assign(nodes[event.person.id], event.person)
+        makeNodeFromPerson(models.person.getById(event.person.id))
       }
     }
   }
@@ -102,6 +100,8 @@ module.exports = function ({models}) {
   }
 
   return {
+    dependencies: ['person'],
+
     handleEvent(event, assert) {
       const method = 'handle' + camelize(event.type) + 'Event'
       if (handlers[method]) {

@@ -48,7 +48,7 @@ module.exports = function ({models}) {
           assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
           assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
           assert(event.customer.personId, `No personId found in event`)
-          const person = models.network.getById(event.customer.personId)
+          const person = models.person.getById(event.customer.personId)
           assert(!users.byEMail[person.email], `Referenced user ${person.email} already exists`)
           setUser({
             id: event.customer.id,
@@ -95,7 +95,7 @@ module.exports = function ({models}) {
           if (!event.ticket.id) {
             event.ticket.id = 'user-' + (Object.keys(users.byId).length + 1)
           }
-          const person = models.network.getById(event.ticket.personId)
+          const person = models.person.getById(event.ticket.personId)
           const customer = users.byPersonId[event.ticket.personId]
           tickets[event.ticket.id] = event.ticket
           if (customer) {
