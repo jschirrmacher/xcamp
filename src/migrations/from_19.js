@@ -49,6 +49,15 @@ module.exports = class From_19 extends stream.Transform {
         replaceId(event, 'nodeId')
         break
 
+      case 'person-updated':
+        if (event.person.image) {
+          const image = event.person.image.split(':')
+          if (image.length === 3) {
+            event.person.image = image[0] + ':' + image[2]
+          }
+        }
+        break
+
     }
     this.push(event)
     callback()
