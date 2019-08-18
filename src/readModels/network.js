@@ -153,6 +153,7 @@ module.exports = function ({models}) {
         }
         if (node.editable) {
           fields.push('talkReady')
+          fields.push('allowPublic')
           fields.push('access_code')
           fields.push('accountPath')
           fields.push('email')
