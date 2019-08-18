@@ -44,18 +44,20 @@ module.exports = function ({models}) {
 
       nodes[event.nodeId].links = nodes[event.nodeId].links || {}
       nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics || []
+      assert(!nodes[event.nodeId].links.topics.find(t => t.id === event.topicId))
       nodes[event.nodeId].links.topics.push(event.topicId)
 
       nodes[event.topicId].links = nodes[event.topicId].links || {}
       nodes[event.topicId].links[type] = nodes[event.topicId].links[type] || []
+      assert(!nodes[event.topicId].links[type].find(n => n.id === event.nodeId))
       nodes[event.topicId].links[type].push(event.nodeId)
     },
 
     handleTopicUnlinkedEvent(event, assert) {
       assert(nodes[event.nodeId], 'Referenced node is unknown')
       const type = nodes[event.nodeId].type + 's'
-      nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics.filter(t => t !== event.nodeId)
-      nodes[event.topicId].links[type] = nodes[event.topicId].links[type].filter(t => t !== event.topicId)
+      nodes[event.nodeId].links.topics = nodes[event.nodeId].links.topics.filter(t => t !== event.topicId)
+      nodes[event.topicId].links[type] = nodes[event.topicId].links[type].filter(t => t !== event.nodeId)
     },
 
     handleParticipantSetEvent(event, assert) {
