@@ -1,14 +1,6 @@
-module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
+module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
   function redirectTo(url, user) {
     return {isRedirection: true, url, user}
-  }
-
-  function create(person, count) {
-    return Array.from({length: count}, () => ({
-      type: 'ticket',
-      access_code: rack(),
-      participant: {uid: person.uid}
-    }))
   }
 
   function assertCoupon(code, type) {
@@ -71,15 +63,6 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
     const person = readModels.person.getByEMail(data.email) || await Model.Person.upsert(txn, {}, data, user)
     person.uid = person.uid || person.id
     if (!ticket.participant || ticket.participant.id !== person.uid) {
-      if (ticket.participant) {
-        const uid = ticket.participant.id
-        const mu = new dgraph.Mutation()
-        await mu.setDelNquads(`<${ticket.id}> <participant> <${uid}> .`)
-        await txn.mutate(mu)
-      }
-      const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${ticket.id}> <participant> <${person.uid}> .`)
-      await txn.mutate(mu)
       store.add({type: 'participant-set', ticketId: ticket.id, personId: person.uid})
 
       await mailChimp.addSubscriber(person)
@@ -100,14 +83,11 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
     }
   }
 
-  async function checkin(txn, accessCode) {
+  async function checkin(accessCode) {
     const ticket = readModels.user.findByAccessCode(accessCode)
-    const person = await Model.Person.get(txn, ticket.participant[0].uid)
+    const person = readModels.person.getById(ticket.participant[0].uid)
     const result = {ok: true, uid: person.uid, name: person.name, image: person.image}
     if (!ticket.checkedIn) {
-      const mu = new dgraph.Mutation()
-      await mu.setSetNquads(`<${ticket.uid}> <checkedIn> "1" .`)
-      await txn.mutate(mu)
       store.add({type: 'checkin', ticketId: ticket.uid})
     } else {
       result.ok = false
@@ -116,15 +96,12 @@ module.exports = (dgraphClient, dgraph, Model, mailSender, templateGenerator, Pa
     return result
   }
 
-  async function createCoupon(txn, user, category = 'reduced') {
-    const mu = new dgraph.Mutation()
+  function createCoupon(user, category = 'reduced') {
     const access_code = rack()
-    mu.setSetJson({type: 'coupon', access_code, category})
-    const assigned = await txn.mutate(mu)
     store.add({type: 'coupon-created', access_code, category, generated_by: user.id})
     const link = config.baseUrl + 'tickets?code=' + access_code
-    return {type: 'coupon', uid: assigned.getUidsMap().get('blank-0'), link}
+    return {type: 'coupon', link}
   }
 
-  return {create, buy, setParticipant, show, checkin, createCoupon}
+  return {buy, setParticipant, show, checkin, createCoupon}
 }

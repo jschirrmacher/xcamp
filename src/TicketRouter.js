@@ -55,7 +55,7 @@ module.exports = (dependencies) => {
   router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.txn, req.params.accessCode, req.body, req.user), {commit: true}))
   router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'show'), {type: 'send'}))
   router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'print'), {type: 'send'}))
-  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.txn, req.params.accessCode), {commit: true}))
+  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.params.accessCode)))
 
   return router
 }
