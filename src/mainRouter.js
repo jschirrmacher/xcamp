@@ -36,7 +36,7 @@ module.exports = (dependencies) => {
           res.contentType(result.mimeType)
           if (result.disposition) {
             const name = result.name ? '; filename="' + result.name + '"' : ''
-            res.header('Content-Disposition', result.disposition + name)
+            res.header('Content-Disposition', result.disposition + encodeURIComponent(name))
           }
           res.send(result.content)
         } else {
