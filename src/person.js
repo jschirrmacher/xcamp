@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels) => {
+module.exports = (dgraphClient, dgraph, QueryFunction, store, readModels) => {
   const query = QueryFunction('Person', `
     uid
     type
@@ -32,21 +32,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
 
   async function getByEMail(txn, email) {
     return await query.one(txn, `func: eq(email, "${email}")`)
-  }
-
-  async function getOrCreate(txn, data, user) {
-    let person = {}
-    try {
-      person = await getByEMail(txn, data.email)
-    } catch(e) {
-      // if email address cannot be found, create a new user
-    }
-    try {
-      const result = await upsert(txn, person, data, user)
-      return result.node
-    } catch (e) {
-      return person   // person exists but user don't have write access, so just return the person
-    }
   }
 
   async function upsert(txn, person, newData, user) {
@@ -120,5 +105,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction, Model, store, readModels)
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture, getOrCreate}
+  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture}
 }
