@@ -628,6 +628,7 @@ a {
 
 .tiles__img {
   display: none;
+  max-width: 25vw;
 }
 @media (min-width: 500px) {
   .tiles__img {
