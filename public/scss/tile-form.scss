@@ -1,26 +1,12 @@
-@font-face {
-  font-family: 'Affogato-Bold';
-  src: url('webfont/Affogato-Bold.eot');
-  src: url('webfont/Affogato-Bold.eot?#iefix') format('embedded-opentype'),
-  url('webfont/Affogato-Bold.woff') format('woff'),
-  url('webfont/Affogato-Bold.woff2') format('woff2'),
-  url('webfont/Affogato-Bold.ttf') format('truetype'),
-  url('webfont/Affogato-Bold.svg') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
+@import "partials/general";
+@import "partials/typography";
+@import "partials/colors";
 
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.yellow {color: #F9D400;}
-.turquoise {color: #4ED9D5;}
-.red {color: #FF696C;}
-.smoke {color: #F5F5F5;}
-.tuatara {color: #343434;}
+.yellow {color: $yellow;}
+.turquoise {color: $turqoise;}
+.red {color: $magenta;}
+.smoke {color: $grey;}
+.tuatara {color: $black;}
 
 .tile {
   width: 480px;
@@ -30,16 +16,11 @@ html, body {
   box-sizing: border-box;
   box-shadow: 0 0 7px #eee;
 
-  &.yellow {background-color: #F9D400;}
-  &.turquoise {background-color: #4ED9D5;}
-  &.red {background-color: #FF696C;}
-  &.smoke {background-color: #F5F5F5;}
-  &.tuatara {background-color: #343434;}
-
-  h1 {
-    font: 28px Affogato-Bold, serif;
-    margin: 1em 0 0;
-  }
+  &.yellow {background-color: $yellow;}
+  &.turquoise {background-color: $turqoise;}
+  &.red {background-color: $magenta;}
+  &.smoke {background-color: $grey;}
+  &.tuatara {background-color: $black;}
 
   span {
     font: 20px Affogato-Bold, serif;
@@ -50,9 +31,9 @@ html, body {
   }
 
   .box {
-    background-color: #4ED9D5;
-    color: #343434;
-    border: 2px solid #343434;
+    background-color: $turqoise;
+    color: $black;
+    border: 2px solid $black;
     padding: 5px;
     font-size: 16px;
   }
