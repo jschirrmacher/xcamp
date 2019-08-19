@@ -1,0 +1,42 @@
+.container {
+  position: relative;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 15px;
+
+  &:after {
+    content: ' ';
+    display: table;
+    clear: both;
+  }
+}
+
+.col-4, .col-6, .col-8 {
+  display: inline-block;
+}
+
+.col-12 {
+  width: 100%;
+}
+
+.col-8 {
+  width: 66.667%;
+}
+
+.col-6 {
+  width: 50%;
+}
+
+.col-4 {
+  width: 33.333%;
+}
+
+.col-2 {
+  width: 16.667%;
+}
+
+.row:before, .row:after {
+  content: ' ';
+  display: table;
+  clear: both;
+}
