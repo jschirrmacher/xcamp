@@ -1,3 +1,5 @@
+@import "partials/typography";
+@import "partials/colors";
 @import "partials/info";
 @import "partials/button";
 
@@ -6,8 +8,8 @@ html, body, #root {
   width: 100%;
   height: 100%;
   background: radial-gradient(#ffffff, #f7f7f7);
-  font: 1rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: #222222;
+  // font: 1rem -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: $black;
   overflow: hidden;
 }
 
@@ -65,7 +67,7 @@ svg {
           stroke-width: 0;
           font-weight: normal;
           text-anchor: middle;
-          text-shadow: 0 0 5px #fff, 0 0 5px #fff;
+          // text-shadow: 0 0 5px #fff, 0 0 5px #fff;
         }
       }
     }
@@ -135,13 +137,15 @@ svg {
 
       circle {
         r: 12px;
-        fill: #4ed9d5;
+        fill: $turquoise;
+        stroke: darken($turquoise, 5%);
+        stroke-width: 1;
       }
 
       text {
         transform: translate(0, 5px);
-        fill: black;
-        stroke: transparent;
+        fill: #c7fffd;
+        // stroke: transparent;
         text-anchor: middle
       }
     }
@@ -398,7 +402,7 @@ body.dialogOpen #root {
 
 .topic:hover .title {
   tspan {
-    fill: #337ab7;
+    fill: black;
   }
 }
 
@@ -665,8 +669,9 @@ label[for="image-upload"] {
 
 .node.topic {
   circle {
-    fill: #ffee80;
-    stroke: none;
+    fill: #f9d400;
+    stroke: rgba(249, 212, 0,.25);
+    stroke-width: 1rem;
   }
 
   .text-bg {

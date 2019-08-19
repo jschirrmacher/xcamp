@@ -3,7 +3,7 @@
 @import "partials/colors";
 
 .yellow {color: $yellow;}
-.turquoise {color: $turqoise;}
+.turquoise {color: $turquoise;}
 .red {color: $magenta;}
 .smoke {color: $grey;}
 .tuatara {color: $black;}
@@ -17,7 +17,7 @@
   box-shadow: 0 0 7px #eee;
 
   &.yellow {background-color: $yellow;}
-  &.turquoise {background-color: $turqoise;}
+  &.turquoise {background-color: $turquoise;}
   &.red {background-color: $magenta;}
   &.smoke {background-color: $grey;}
   &.tuatara {background-color: $black;}
@@ -31,7 +31,7 @@
   }
 
   .box {
-    background-color: $turqoise;
+    background-color: $turquoise;
     color: $black;
     border: 2px solid $black;
     padding: 5px;

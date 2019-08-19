@@ -92,16 +92,16 @@ a, button {
 }
 
 .turquoise {
-  background: $turqoise;
+  background: $turquoise;
   opacity: .9;
   & .button--light {
-    color: $turqoise;
-    border: 2px solid darken($turqoise,5%);
+    color: $turquoise;
+    border: 2px solid darken($turquoise,5%);
     &:hover {
-      border-color: darken($turqoise,15%);
-      box-shadow: 0 0 10px darken(saturate($turqoise,15%),15%);
+      border-color: darken($turquoise,15%);
+      box-shadow: 0 0 10px darken(saturate($turquoise,15%),15%);
       background: white;
-      color: darken(saturate($turqoise,20%),10%);
+      color: darken(saturate($turquoise,20%),10%);
     }
   }
 }
