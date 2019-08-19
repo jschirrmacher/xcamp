@@ -26,9 +26,9 @@
     border-radius: 3px;
     break-inside: avoid; // only wrap the whole block
 
-    // every first item turqoise
+    // every first item turquoise
     &:nth-child(3n+1) {
-        background: transparentize($turqoise, .2);
+        background: transparentize($turquoise, .2);
     }
 
     // every second item magenta
@@ -50,9 +50,9 @@
         display: block; // Reset flexbox
         text-align: center;
 
-        // every first item turqoise
+        // every first item turquoise
         &:nth-child(2n+1) {
-            background: transparentize($turqoise, .05);
+            background: transparentize($turquoise, .05);
         }
 
         // every second item magenta
@@ -69,9 +69,9 @@
 
     @media (min-width: 950px) {
 
-        // every first item turqoise
+        // every first item turquoise
         &:nth-child(3n+1) {
-            background: transparentize($turqoise, .05);
+            background: transparentize($turquoise, .05);
         }
 
         // every second item magenta
@@ -169,10 +169,10 @@
         -webkit-clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
     }
 
-    // every first item turqoise
+    // every first item turquoise
     &:nth-child(3n+1) {
-        background: $turqoise;
-        background: linear-gradient(135deg, $turqoise 20%, saturate(darken($turqoise,15%),10%) 90%);
+        background: $turquoise;
+        background: linear-gradient(135deg, $turquoise 20%, saturate(darken($turquoise,15%),10%) 90%);
     }
 
     // every second item magenta
