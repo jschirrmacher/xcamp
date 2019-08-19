@@ -36,7 +36,7 @@
       .then(function (result) {
         console.log(result)
         characteristics.className = result.ok ? 'ok' : result.message ? 'warning' : 'error'
-        charImg.src = result.image || 'assets/unknown.png'
+        charImg.src = result.image || 'assets/img/unknown.png'
         const errorMsg = result.name + '<div style="color: red">' + (result.message || 'Unbekanntes Ticket!') + '</div>'
         charName.innerHTML = result.ok ? result.name : errorMsg
         characteristics.setAttribute('style', 'display: inline-block')
