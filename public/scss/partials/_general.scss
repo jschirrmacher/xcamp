@@ -1,82 +1,17 @@
-@import "colors-and-fonts";
-@import "menu";
-@import "footer";
-@import "button";
-
 html, body {
   margin: 0;
   padding: 0;
-  font: 15px Arial, sans-serif;
-  width: 100%;
-  overflow-x: hidden;
-  font-family: Martel, Times, serif;
+  font: 15px Martel, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
-h1, h2, h3 {
-  font-family: Affogato-Bold, Arial, Helvetica, sans-serif;
-}
-h2 {
-  line-height: 2;
-}
-h3 {
-  margin-top: 0.5em;
-}
-
-a {
-  text-decoration: none;
-  color: $magenta;
-}
-
-.container {
-  position: relative;
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 0 15px;
-
-  &:after {
-    content: ' ';
-    display: table;
-    clear: both;
-  }
 
   &.semi-transparent {
     background-color: rgba(250,250,250,0.7);
   }
-}
-
-.col-4, .col-6, .col-8 {
-  display: inline-block;
-}
-
-.col-12 {
-  width: 100%;
-}
-
-.col-8 {
-  width: 66.667%;
-}
-
-.col-6 {
-  width: 50%;
-}
-
-.col-4 {
-  width: 33.333%;
-}
-
-.col-2 {
-  width: 16.667%;
-}
-
-.row:before, .row:after {
-  content: ' ';
-  display: table;
-  clear: both;
-}
 
 .box {
   position: relative;
