@@ -57,7 +57,7 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store, readModels) 
         throw {status: 409, message: 'A customer with this email address already exists'}
       }
       data.uid = customer.uid
-      data.person.uid = customer.person[0].uid
+      data.person.id = customer.person[0].id
     } else {
       data.access_code = rack()
     }

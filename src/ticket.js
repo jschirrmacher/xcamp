@@ -58,21 +58,20 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
     }
   }
 
-  async function getOrCreatePerson(txn, data, user) {
+  async function getOrCreate(data, user) {
     const person = readModels.person.getByEMail(data.email)
     if (person) {
       return person
     }
-    const result = await Model.Person.upsert(txn, {}, data, user)
+    const result = await Model.Person.upsert({}, data, user)
     return result.node
   }
 
   async function setParticipant(txn, accessCode, data, user) {
     const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
-    const person = await getOrCreatePerson(txn, data, user)
-    person.uid = person.uid || person.id
-    if (!ticket.participant || ticket.participant.id !== person.uid) {
-      store.add({type: 'participant-set', ticketId: ticket.id, personId: person.uid})
+    const person = await getOrCreate(data, user)
+    if (!ticket.participant || ticket.participant.id !== person.id) {
+      store.add({type: 'participant-set', ticketId: ticket.id, personId: person.id})
 
       await mailChimp.addSubscriber(person)
       await mailChimp.addTags(person, [config.eventName])
@@ -95,7 +94,7 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
   async function checkin(accessCode) {
     const ticket = readModels.user.findByAccessCode(accessCode)
     const person = readModels.person.getById(ticket.participant[0].uid)
-    const result = {ok: true, uid: person.uid, name: person.name, image: person.image}
+    const result = {ok: true, uid: person.id, name: person.name, image: person.image}
     if (!ticket.checkedIn) {
       store.add({type: 'checkin', ticketId: ticket.uid})
     } else {

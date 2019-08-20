@@ -30,7 +30,7 @@ module.exports = function ({apiKey, eventListId}, tag, fetch, store) {
     }
     const email = member.email_address.toLowerCase()
     const path = `/lists/${eventListId}/members/${md5(email)}`
-    store.add({type: 'newsletter-approved', personId: person.uid || person.id})
+    store.add({type: 'newsletter-approved', personId: person.id})
     member.status = 'subscribed'
     await fetchMailchimp(path, {method: 'put', body: JSON.stringify(member)})
   }

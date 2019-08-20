@@ -1,44 +1,12 @@
 const fs = require('fs')
 const path = require('path')
+const shortid = require('shortid')
 
-module.exports = (dgraphClient, dgraph, QueryFunction, store, readModels) => {
-  const query = QueryFunction('Person', `
-    uid
-    type
-    firstName
-    lastName
-    email
-    image
-    isDark
-    description
-    url
-    twitterName
-    me
-    talk
-    talkReady
-    topics {
-      uid
-      name
-    }
-  `)
-
-  async function get(txn, uid) {
-    const person = await query.one(txn, `func: uid(${uid})`)
-    person.id = person.uid
-    person.name = person.firstName + ' ' + person.lastName
-    person.talkReady = person.talkReady ? 'checked' : null
-    return person
-  }
-
-  async function getByEMail(txn, email) {
-    return await query.one(txn, `func: eq(email, "${email}")`)
-  }
-
-  async function upsert(txn, person, newData, user) {
-    if (!readModels.network.canEdit(user, person.uid)) {
+module.exports = (store, readModels) => {
+  async function upsert(person, newData, user) {
+    if (!readModels.network.canEdit(user, person.ui)) {
       throw 'Changing this node is not allowed!'
     }
-    const mu = new dgraph.Mutation()
     const nodes2create= []
     const newValues = []
     if (newData.name && !newData.firstName && !newData.lastName) {
@@ -54,27 +22,26 @@ module.exports = (dgraphClient, dgraph, QueryFunction, store, readModels) => {
     const newObject = Object.assign({}, person, ...newValues, {type: 'person'})
     newObject.talkReady = newObject.talkReady === 'checked'
     newObject.name = newObject.firstName + ' ' + newObject.lastName
-    mu.setSetJson(newObject)
 
-    const assigned = await txn.mutate(mu)
-    const id = person.uid || assigned.getUidsMap().get('blank-0')
-    const type = person.uid ? 'person-updated' : 'person-created'
-    if (!person.uid) {
+    const id = person.ui || shortid()
+    const type = person.ui ? 'person-updated' : 'person-created'
+    if (!person.ui) {
+      newObject.id = id
       nodes2create.push(newObject)
     }
-    store.add({type, person: Object.assign({id}, ...newValues)})
+    await store.add({type, person: Object.assign({id}, ...newValues)})
     const currentTalk = readModels.session.getByUserId(id)
     if (newObject.talkReady && !currentTalk) {
       store.add({type: 'talk-published', person: {id, name: newObject.name}, talk: person.talk})
     } else if (!newObject.talkReady && currentTalk) {
       store.add({type: 'talk-withdrawn', person: {id, name: newObject.name}})
     }
-    return {links2create: [], links2delete: [], nodes2create, node: await get(txn, id)}
+    return {links2create: [], links2delete: [], nodes2create, node: newObject}
   }
 
-  async function updateById(txn, id, data, user) {
-    const person = await get(txn, id)
-    return upsert(txn, person, data, user)
+  async function updateById(id, data, user) {
+    const person = readModels.person.getById(id)
+    return upsert(person, data, user)
   }
 
   function getPicturePath(id) {
@@ -85,14 +52,14 @@ module.exports = (dgraphClient, dgraph, QueryFunction, store, readModels) => {
     return path.join(folder, id)
   }
 
-  async function uploadProfilePicture(txn, id, file, user) {
-    const person = await get(txn, id)
+  async function uploadProfilePicture(id, file, user) {
+    const person = readModels.person.getById(id)
     const fileName = getPicturePath(id)
     if (fs.existsSync(fileName)) {
       fs.unlinkSync(fileName)
     }
     fs.renameSync(file.path, fileName)
-    return await upsert(txn, person, {...person, image: file.mimetype + ':' + file.originalname}, user)
+    return await upsert(person, {...person, image: file.mimetype + ':' + file.originalname}, user)
   }
 
   function getProfilePicture(id) {
@@ -105,5 +72,5 @@ module.exports = (dgraphClient, dgraph, QueryFunction, store, readModels) => {
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  return {get, getByEMail, upsert, updateById, uploadProfilePicture, getProfilePicture}
+  return {upsert, updateById, uploadProfilePicture, getProfilePicture}
 }
