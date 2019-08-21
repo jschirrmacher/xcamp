@@ -62,6 +62,26 @@
   background: #efefef;
 }
 
+.yellow {
+  background: #f9d400;
+}
+
+.turquoise {
+  background: #4ED9D5;
+}
+
+.magenta {
+  background: #ff696c;
+}
+
+.white {
+  background: white;
+}
+
+.grey {
+  background: #efefef;
+}
+
 @font-face {
   font-family: "Affogato-Bold";
   src: url("/assets/font/Affogato-Bold.eot");
@@ -81,7 +101,7 @@ h1, h2, h3 {
 }
 
 h1 {
-  font: 1.75rem;
+  font-size: 1.75rem;
   margin: 1em 0 0;
 }
 

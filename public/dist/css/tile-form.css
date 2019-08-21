@@ -1,18 +1,236 @@
-@font-face {
-  font-family: "Affogato-Bold";
-  src: url("webfont/Affogato-Bold.eot");
-  src: url("webfont/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("webfont/Affogato-Bold.woff") format("woff"), url("webfont/Affogato-Bold.woff2") format("woff2"), url("webfont/Affogato-Bold.ttf") format("truetype"), url("webfont/Affogato-Bold.svg") format("svg");
-  font-weight: normal;
-  font-style: normal;
+@import url("https://fonts.googleapis.com/css?family=Martel:400,700&display=swap");
+.yellow {
+  background: #f9d400;
 }
+
+.turquoise {
+  background: #4ED9D5;
+}
+
+.magenta {
+  background: #ff696c;
+}
+
+.white {
+  background: white;
+}
+
+.grey {
+  background: #efefef;
+}
+
 html, body {
   margin: 0;
   padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font: 15px Martel, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.semi-transparent {
+  background-color: rgba(250, 250, 250, 0.7);
+}
+
+.box {
+  position: relative;
+  padding: 20px 25px;
+}
+@media (min-width: 799px) {
+  .box {
+    padding: 35px;
+  }
+}
+.box h3:first-child {
+  margin-top: 0;
+}
+.box p:last-child {
+  margin-bottom: 0;
+}
+
+#logo {
+  position: absolute;
+  left: 30px;
+  top: 31px;
+  height: 90px;
+}
+
+#main #hero {
+  color: white;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+#main {
+  padding: 0 15px 20px;
+  background: #f5f5f5 url("/assets/img/hero-x_web_xcamp_320.jpg") no-repeat left top;
+  background-size: 125%;
+  /* Small Screens Retina */
+  /* Medium Screens */
+  /* Medium Screens Retina */
+  /* Large Screens Retina */
+}
+@media (min-resolution: 150dpi) {
+  #main {
+    background-image: url("/assets/img/hero-x_web_xcamp_822.jpg");
+  }
+}
+@media (min-width: 420px) {
+  #main {
+    padding: 0 30px 0;
+    background-image: url("/assets/img/hero-x_web_xcamp_822.jpg");
+  }
+}
+@media (min-width: 822px) {
+  #main {
+    background-image: url("/assets/img/hero-x_web_xcamp_1156.jpg");
+    background-size: 130%;
+  }
+}
+@media (min-width: 950px) {
+  #main {
+    padding-top: 100px;
+    background-image: url("/assets/img/hero-1900.svg");
+  }
+}
+#main .container {
+  max-width: 1100px;
+  padding: 1em 10px;
+}
+#main .container .container > div {
+  margin-bottom: 2em;
+}
+@media (min-width: 740px) {
+  #main .container {
+    padding: 3.5vw 3em 1em;
+  }
+}
+@media (min-width: 950px) {
+  #main .container {
+    padding: 3vw 3em 1em;
+  }
+}
+@media (min-width: 1100px) {
+  #main .container {
+    padding-top: 8vw;
+  }
+}
+#main .container.no-background {
+  border: none;
+  box-shadow: none;
+  color: #343434;
+  max-width: 1170px;
+  padding: 1em 0 0 0;
+}
+#main .container.no-background h1 {
+  color: white;
+  margin-top: 8vw;
+}
+
+.title-inner {
+  font-size: 18px;
+}
+@media (min-width: 740px) {
+  .title-inner {
+    max-width: 75%;
+    font-size: 1.25rem;
+  }
+}
+@media (min-width: 950px) {
+  .title-inner {
+    max-width: 60%;
+    font-size: 1.5rem;
+  }
 }
 
 .yellow {
-  color: #F9D400;
+  background: #f9d400;
+}
+
+.turquoise {
+  background: #4ED9D5;
+}
+
+.magenta {
+  background: #ff696c;
+}
+
+.white {
+  background: white;
+}
+
+.grey {
+  background: #efefef;
+}
+
+@font-face {
+  font-family: "Affogato-Bold";
+  src: url("/assets/font/Affogato-Bold.eot");
+  src: url("/assets/font/Affogato-Bold.eot?#iefix") format("embedded-opentype"), url("/assets/font/Affogato-Bold.woff") format("woff"), url("/assets/font/Affogato-Bold.woff2") format("woff2"), url("/assets/font/Affogato-Bold.ttf") format("truetype"), url("/assets/font/Affogato-Bold.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "icomoon";
+  src: url("/assets/font/icomoon.eot");
+  src: url("/assets/font/icomoon.eot?#iefix") format("embedded-opentype"), url("/assets/font/icomoon.woff") format("woff"), url("/assets/font/icomoon.ttf") format("truetype"), url("/assets/font/icomoon.svg#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+h1, h2, h3 {
+  font-family: Affogato-Bold, Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 1em 0 0;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: normal;
+  line-height: 1.3;
+  margin: 2rem 0;
+}
+
+h3 {
+  font-size: 1.4rem;
+  font-weight: normal;
+  line-height: 1;
+  margin-top: 0.5em;
+}
+
+a {
+  text-decoration: none;
+  color: #ff696c;
+}
+
+img {
+  max-width: 100%;
+}
+
+.yellow {
+  background: #f9d400;
+}
+
+.turquoise {
+  background: #4ED9D5;
+}
+
+.magenta {
+  background: #ff696c;
+}
+
+.white {
+  background: white;
+}
+
+.grey {
+  background: #efefef;
+}
+
+.yellow {
+  color: #f9d400;
 }
 
 .turquoise {
@@ -20,11 +238,11 @@ html, body {
 }
 
 .red {
-  color: #FF696C;
+  color: #ff696c;
 }
 
 .smoke {
-  color: #F5F5F5;
+  color: #efefef;
 }
 
 .tuatara {
@@ -40,23 +258,19 @@ html, body {
   box-shadow: 0 0 7px #eee;
 }
 .tile.yellow {
-  background-color: #F9D400;
+  background-color: #f9d400;
 }
 .tile.turquoise {
   background-color: #4ED9D5;
 }
 .tile.red {
-  background-color: #FF696C;
+  background-color: #ff696c;
 }
 .tile.smoke {
-  background-color: #F5F5F5;
+  background-color: #efefef;
 }
 .tile.tuatara {
   background-color: #343434;
-}
-.tile h1 {
-  font: 28px Affogato-Bold, serif;
-  margin: 1em 0 0;
 }
 .tile span {
   font: 20px Affogato-Bold, serif;
