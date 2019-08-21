@@ -20,7 +20,7 @@ module.exports = (nodemailer, templateGenerator, config, rack) => {
     return url
   }
 
-  async function sendHashMail(templateName, user, action, subject = 'XCamp Passwort') {
+  function sendHashMail(templateName, user, action, subject = 'XCamp Passwort') {
     const hash = rack()
     const link = config.baseUrl + action + '/' + hash
     const html = templateGenerator.generate(templateName, {link, firstName: user.firstName})
