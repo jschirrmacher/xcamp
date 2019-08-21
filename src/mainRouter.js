@@ -73,9 +73,9 @@ module.exports = (dependencies) => {
       const person = readModels.person.getById(session.person.id)
       session.image = readModels.network.getImageURL(person)
       // session.talk = session.talk.length < 140 ? session.talk : session.talk.substring(0, 139) + '…'
-      session.url = person.url
+      session.url = person.url.trim()
         .replace(/^(?!https?:\/\/)/, 'https:\/\/')
-      session.urlTitle = person.url
+      session.urlTitle = person.url.trim()
         .replace(/^(https?:\/\/)?(www\.)?(facebook.de\/|xing.com\/profile\/)?/, '')
         .replace(/\/.*$/, '')
         .replace(/_/, ' ')
