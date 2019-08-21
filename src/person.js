@@ -4,23 +4,37 @@ const shortid = require('shortid')
 
 module.exports = (store, readModels) => {
   async function getOrCreate(data, user) {
-    const person = readModels.person.getByEMail(data.email)
-    if (person) {
-      return person
-    }
-    const result = await upsert({}, data, user)
-    return result.node
+    return readModels.person.getByEMail(data.email) || create(data)
   }
 
-  async function upsert(person, newData, user = null) {
+  function create(data) {
+    if (readModels.person.getByEMail(data.email)) {
+      throw 'A person with this email address already exist'
+    }
+    if (data.name && !data.firstName && !data.lastName) {
+      [data.firstName, data.lastName] = data.name.split(/ (.*)/)
+    }
+    data.name = data.firstName + ' ' + data.lastName
+    data.id = shortid()
+    data.access_code = rack()
+    data.talkReady = data.talkReady === 'checked'
+    store.add({type: 'person-created', person: data})
+    if (data.talkReady) {
+      store.add({type: 'talk-published', person: {id, name: data.name}, talk: data.talk})
+    }
+    return data
+  }
+
+  async function update(id, newData, user = null) {
     if (!readModels.network.canEdit(user, person.id)) {
       throw 'Changing this node is not allowed!'
     }
-    const nodes2create= []
-    const newValues = []
+    const person = readModels.person.getById(id)
     if (newData.name && !newData.firstName && !newData.lastName) {
       [newData.firstName, newData.lastName] = newData.name.split(/ (.*)/)
     }
+
+    const newValues = []
     Object.keys(newData).forEach(key => {
       if (person[key] !== newData[key]) {
         const obj = {}
@@ -28,24 +42,25 @@ module.exports = (store, readModels) => {
         newValues.push(obj)
       }
     })
-    const newObject = Object.assign({}, person, ...newValues, {type: 'person'})
+    const newObject = Object.assign({}, person, ...newValues)
     newObject.talkReady = newObject.talkReady === 'checked'
     newObject.name = newObject.firstName + ' ' + newObject.lastName
 
-    const id = person.id || shortid()
-    const type = person.id ? 'person-updated' : 'person-created'
-    if (!person.id) {
-      newObject.id = id
-      nodes2create.push(newObject)
-    }
-    await store.add({type, person: Object.assign({id}, ...newValues)})
+    await store.add({type: 'person-updated', person: Object.assign({id}, ...newValues)})
     const currentTalk = readModels.session.getByUserId(id)
     if (newObject.talkReady && !currentTalk) {
       store.add({type: 'talk-published', person: {id, name: newObject.name}, talk: person.talk})
     } else if (!newObject.talkReady && currentTalk) {
       store.add({type: 'talk-withdrawn', person: {id, name: newObject.name}})
     }
-    return {links2create: [], links2delete: [], nodes2create, node: newObject}
+    return newObject
+  }
+
+  async function upsert(person, newData, user = null) {
+    if (readModels.person.getById(id)) {
+      return update(person.id, newData, user)
+    }
+    return create(newData)
   }
 
   async function updateById(id, data, user) {
@@ -81,5 +96,5 @@ module.exports = (store, readModels) => {
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  return {getOrCreate, upsert, updateById, uploadProfilePicture, getProfilePicture}
+  return {getOrCreate, create, update, upsert, updateById, uploadProfilePicture, getProfilePicture}
 }

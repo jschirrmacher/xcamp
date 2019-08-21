@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, dgraph, QueryFunction, rack, store, readModels) => {
+module.exports = (store, readModels, rack) => {
   const query = QueryFunction('Customer', `
     uid
     type
@@ -11,10 +11,6 @@ module.exports = (dgraphClient, dgraph, QueryFunction, rack, store, readModels) 
     addresses { address postcode city country }
     invoices { uid invoiceNo tickets { uid access_code participant { uid } } }`
   )
-
-  async function get(txn, uid, rejectIfNotFound = true) {
-    return query.one(txn, `func: uid(${uid})`, '', rejectIfNotFound)
-  }
 
   async function findByAccessCode(txn, accessCode, rejectIfNotFound = true) {
     return query.one(txn, `func: eq(access_code, "${accessCode}")`, '', rejectIfNotFound)

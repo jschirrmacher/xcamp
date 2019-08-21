@@ -34,7 +34,7 @@ module.exports = (dependencies) => {
     data.ticketCount = data.ticketCount || 1
     const customer = await Model.Customer.create(txn, data)
     await Model.Invoice.create(data, customer)
-    const user = readModels.user.getById(customer.uid)
+    const user = readModels.user.getById(customer.id)
     const action = 'accounts/' + customer.access_code + '/password/reset'
     const hash = mailSender.sendHashMail('mail/send-free-ticket-mail', user, action)
     store.add({type: 'set-mail-hash', userId: user.id, hash})

@@ -15,7 +15,7 @@ module.exports = (store, readModels, config, rack) => {
       id,
       invoiceNo: data.payment === 'invoice' ? readModels.invoice.getMaxInvoiceNo() + 1 : 0,
       created: new Date().toISOString(),
-      customerId: customer.uid,
+      customerId: customer.id,
       ticketType: data.type,
       ticketPrice: ticketTypes[data.type].price,
       payment: data.payment,
@@ -27,7 +27,7 @@ module.exports = (store, readModels, config, rack) => {
       await store.add({type: 'ticket-created', ticket: {
         id: ticketId++,
         access_code: rack(),
-        personId: customer.person[0].uid,
+        personId: customer.person[0].id,
         invoiceId: id
       }})
     })

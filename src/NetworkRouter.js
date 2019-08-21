@@ -22,19 +22,19 @@ module.exports = (dependencies) => {
     return readModels.network.getPublicViewOfNode(node, user)
   }
 
-  async function uploadProfilePicture(txn, id, file, user) {
+  async function uploadProfilePicture(id, file, user) {
     const result = await Model.Person.uploadProfilePicture(id, file, user)
     result.node = readModels.network.getPublicViewOfNode(result.node, user)
     return result
   }
 
-  async function updatePerson(txn, id, body, user) {
-    const result = await Model.Person.updateById(id, body, user)
+  async function updatePerson(id, body, user) {
+    const result = await Model.Person.update(id, body, user)
     result.node = readModels.network.getPublicViewOfNode(result.node, user)
     return result
   }
 
-  async function assignTopic(txn, node, topicName, user) {
+  async function assignTopic(node, topicName, user) {
     if (!readModels.network.canEdit(user, node.id)) {
       throw 'Changing this node is not allowed!'
     }
@@ -52,13 +52,13 @@ module.exports = (dependencies) => {
     return {links2create, links2delete, nodes2create, node, topic}
 
     async function createTopic(name) {
-      const result = await Model.Topic.upsert(txn, {}, {name}, user)
+      const result = await Model.Topic.upsert({}, {name}, user)
       nodes2create.push({type: 'topic', ...result.node})
       return result.node
     }
   }
 
-  async function removeTopic(txn, node, topicName, user) {
+  async function removeTopic(node, topicName, user) {
     if (!readModels.network.canEdit(user, node.id)) {
       throw 'Changing this node is not allowed!'
     }
@@ -89,8 +89,8 @@ module.exports = (dependencies) => {
     })
     Object.assign(node, ...newValues)
 
-    if (!node.uid) {
-      node.uid = readModels.network.getMaxId() + 1
+    if (!node.id) {
+      node.id = readModels.network.getMaxId() + 1
     }
     store.add({type: 'node-updated', node: {...newValues}})
     return {links2create: [], links2delete: [], nodes2create: [], node}
@@ -101,19 +101,19 @@ module.exports = (dependencies) => {
 
   router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => readModels.network.getGraph(req.user, config.eventName)))
 
-  router.put('/roots/:uid', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.uid, req.body, req.user)))
+  router.put('/roots/:id', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 
-  router.get('/topics', makeHandler(req => Model.Topic.find(req.txn, req.query.q), {txn: true}))
-  router.put('/topics/:uid', auth.requireJWT(), makeHandler(req => Model.Topic.updateById(req.txn, req.params.uid, req.body, req.user), {commit: true}))
+  router.get('/topics', makeHandler(req => Model.Topic.find(req.query.q),))
+  router.put('/topics/:id', auth.requireJWT(), makeHandler(req => Model.Topic.update(req.params.id, req.body, req.user)))
 
   router.post('/persons', auth.requireJWT(), makeHandler(req => Model.Person.upsert({}, req.body, req.user)))
-  router.get('/persons/:uid', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.uid, req.user)))
-  router.put('/persons/:uid', auth.requireJWT(), makeHandler(req => updatePerson(req.txn, req.params.uid, req.body, req.user), {commit: true}))
-  router.put('/persons/:uid/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.txn, req.params.uid, req.file, req.user), {commit: true}))
-  router.get('/persons/:uid/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.params.uid), {type: 'send'}))
+  router.get('/persons/:id', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.id, req.user)))
+  router.put('/persons/:id', auth.requireJWT(), makeHandler(req => updatePerson(rreq.params.id, req.body, req.user)))
+  router.put('/persons/:id/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.params.id, req.file, req.user)))
+  router.get('/persons/:id/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.params.id), {type: 'send'}))
 
-  router.put('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => assignTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
-  router.delete('/nodes/:uid/topics/*', auth.requireJWT(), makeHandler(req => removeTopic(req.txn, readModels.network.getById(req.params.uid), req.params[0], req.user), {commit: true}))
+  router.put('/nodes/:id/topics/*', auth.requireJWT(), makeHandler(req => assignTopic(readModels.network.getById(req.params.id), req.params[0], req.user)))
+  router.delete('/nodes/:id/topics/*', auth.requireJWT(), makeHandler(req => removeTopic(readModels.network.getById(req.params.id), req.params[0], req.user)))
 
   return router
 }
