@@ -3,8 +3,17 @@ const path = require('path')
 const shortid = require('shortid')
 
 module.exports = (store, readModels) => {
-  async function upsert(person, newData, user) {
-    if (!readModels.network.canEdit(user, person.ui)) {
+  async function getOrCreate(data, user) {
+    const person = readModels.person.getByEMail(data.email)
+    if (person) {
+      return person
+    }
+    const result = await upsert({}, data, user)
+    return result.node
+  }
+
+  async function upsert(person, newData, user = null) {
+    if (!readModels.network.canEdit(user, person.id)) {
       throw 'Changing this node is not allowed!'
     }
     const nodes2create= []
@@ -23,9 +32,9 @@ module.exports = (store, readModels) => {
     newObject.talkReady = newObject.talkReady === 'checked'
     newObject.name = newObject.firstName + ' ' + newObject.lastName
 
-    const id = person.ui || shortid()
-    const type = person.ui ? 'person-updated' : 'person-created'
-    if (!person.ui) {
+    const id = person.id || shortid()
+    const type = person.id ? 'person-updated' : 'person-created'
+    if (!person.id) {
       newObject.id = id
       nodes2create.push(newObject)
     }
@@ -72,5 +81,5 @@ module.exports = (store, readModels) => {
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
 
-  return {upsert, updateById, uploadProfilePicture, getProfilePicture}
+  return {getOrCreate, upsert, updateById, uploadProfilePicture, getProfilePicture}
 }
