@@ -33,7 +33,7 @@
   },
   "scripts": {
     "start": "node src/xcamp.js",
-    "scss": "sass --update public:public",
+    "scss": "sass --update public/scss:public/dist/css",
     "test": "mocha src/*.test.js src/**/*.test.js",
     "eslint": "eslint src",
     "analysis": "plato -r -d report -x .test.js -e .eslintrc.json src",

@@ -26,7 +26,7 @@ and call `npm start` again.
 
 css files should not be modified directly. Instead, you should have a look at the corresponding .scss files. After
 making changes there, you need to run `npm run scss` to re-genereate the css files again. It is also possible to run
-`npx sass --watch public/scss/main.scss:public/dist/css/main.css` prior to modifying anything - this looks out for changing files in the `public` folder
+`npx sass --watch public/scss:public/dist/css` prior to modifying anything - this looks out for changing files in the `public` folder
 and re-generates the corresponding css file immediately. But you would need a second terminal to run `npm start` then.
 
 ## Adding sponsors or partners
