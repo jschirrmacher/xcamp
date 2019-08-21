@@ -52,7 +52,7 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
       } else {
         url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
       }
-      return redirectTo(url, readModels.user.getById(customer.uid))
+      return redirectTo(url, readModels.user.getById(customer.id))
     } finally {
       txn.discard()
     }
@@ -84,10 +84,10 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
 
   async function checkin(accessCode) {
     const ticket = readModels.user.findByAccessCode(accessCode)
-    const person = readModels.person.getById(ticket.participant[0].uid)
-    const result = {ok: true, uid: person.id, name: person.name, image: person.image}
+    const person = readModels.person.getById(ticket.participant[0].id)
+    const result = {ok: true, id: person.id, name: person.name, image: person.image}
     if (!ticket.checkedIn) {
-      store.add({type: 'checkin', ticketId: ticket.uid})
+      store.add({type: 'checkin', ticketId: ticket.id})
     } else {
       result.ok = false
       result.message = 'Already checked in!'

@@ -2,7 +2,7 @@ module.exports = ({dgraphClient, dgraph, QueryFunction, store, rack, mailSender,
   const Model = {}
 
   Model.Person = require('./person')(store, readModels)
-  Model.Customer = require('./customer')(dgraphClient, dgraph, QueryFunction, rack, store, readModels)
+  Model.Customer = require('./customer')(store, readModels, rack)
   Model.Invoice = require('./invoice')(store, readModels, config, rack)
   Model.Ticket = require('./ticket')(dgraphClient, Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config)
 
