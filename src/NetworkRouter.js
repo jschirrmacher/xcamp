@@ -108,7 +108,7 @@ module.exports = (dependencies) => {
 
   router.post('/persons', auth.requireJWT(), makeHandler(req => Model.Person.upsert({}, req.body, req.user)))
   router.get('/persons/:id', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.id, req.user)))
-  router.put('/persons/:id', auth.requireJWT(), makeHandler(req => updatePerson(rreq.params.id, req.body, req.user)))
+  router.put('/persons/:id', auth.requireJWT(), makeHandler(req => updatePerson(req.params.id, req.body, req.user)))
   router.put('/persons/:id/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.params.id, req.file, req.user)))
   router.get('/persons/:id/picture/*', makeHandler(req => Model.Person.getProfilePicture(req.params.id), {type: 'send'}))
 

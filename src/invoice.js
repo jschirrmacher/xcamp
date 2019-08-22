@@ -27,7 +27,7 @@ module.exports = (store, readModels, config, rack) => {
       await store.add({type: 'ticket-created', ticket: {
         id: ticketId++,
         access_code: rack(),
-        personId: customer.person[0].id,
+        personId: customer.personId,
         invoiceId: id
       }})
     })

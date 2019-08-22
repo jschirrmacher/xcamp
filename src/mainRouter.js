@@ -5,7 +5,6 @@ module.exports = (dependencies) => {
   const {
     express,
     auth,
-    dgraphClient,
     templateGenerator,
     mailSender,
     mailChimp,
@@ -19,14 +18,10 @@ module.exports = (dependencies) => {
   const publicDir = path.resolve(__dirname, '..', 'public')
 
   function makeHandler(func, options = {}) {
-    const {type = 'json', txn = false, commit = false} = options
+    const {type = 'json'} = options
     return async function (req, res, next) {
       try {
-        req.txn = txn || commit ? dgraphClient.newTxn() : undefined
         const result = await func(req)
-        if (commit) {
-          req.txn.commit()
-        }
         if (result && result.isRedirection) {
           if (result.user) {
             auth.signIn({user: result.user}, res)
@@ -47,10 +42,6 @@ module.exports = (dependencies) => {
           res.status(error.status)
         }
         next(error.message || error)
-      } finally {
-        if (txn) {
-          req.txn.discard()
-        }
       }
     }
   }
@@ -103,7 +94,7 @@ module.exports = (dependencies) => {
 
   router.get('/', (req, res) => res.send(getNetVisPage()))
   router.get('/index', (req, res) => res.send(getIndexPage()))
-  router.get('/session-list', makeHandler(req => getSessionList(req.txn), {type: 'send'}))
+  router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
 
   router.use('/', express.static(publicDir))
   router.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))

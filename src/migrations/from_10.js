@@ -12,7 +12,7 @@ module.exports = class From_10 extends stream.Transform {
   _transform(event, encoding, callback) {
     function handleNewsletterApproval() {
       const person = event.customer.person[0]
-      delete person.uid
+      delete person.id
       event.personId = person.id
       delete event.customer
       if (!persons[event.personId]) {
