@@ -58,9 +58,18 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
     }
   }
 
+  async function getOrCreatePerson(txn, data, user) {
+    const person = readModels.person.getByEMail(data.email)
+    if (person) {
+      return person
+    }
+    const result = await Model.Person.upsert(txn, {}, data, user)
+    return result.node
+  }
+
   async function setParticipant(txn, accessCode, data, user) {
     const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
-    const person = readModels.person.getByEMail(data.email) || await Model.Person.upsert(txn, {}, data, user)
+    const person = await getOrCreatePerson(txn, data, user)
     person.uid = person.uid || person.id
     if (!ticket.participant || ticket.participant.id !== person.uid) {
       store.add({type: 'participant-set', ticketId: ticket.id, personId: person.uid})
