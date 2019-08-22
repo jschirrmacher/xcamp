@@ -6,14 +6,6 @@ const app = {
   use() {}
 }
 const Model = {}
-const dgraphClient = {
-  newTxn() {
-    return {
-      discard() {
-      }
-    }
-  }
-}
 const users = [
   {id: 4711, email: 'test@example.com', access_code: 'test-access-1', password: '$2a$10$5cblct/kPaZQ5uh9jNKIVu8.oGiOPDPGB4iZRdNp0E1miYl6jTqXm'},
   {id: 4712, email: 'test2@example.com'},
@@ -57,7 +49,7 @@ const config = {
   authSecret: 'secret-key'
 }
 
-const auth = require('.')({app, Model, dgraphClient, readModels, store, config})
+const auth = require('.')({app, Model, readModels, store, config})
 
 function expect(expected) {
   if (typeof expected === 'function') {

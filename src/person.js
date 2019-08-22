@@ -2,12 +2,12 @@ const fs = require('fs')
 const path = require('path')
 const shortid = require('shortid')
 
-module.exports = (store, readModels) => {
-  async function getOrCreate(data, user) {
-    return readModels.person.getByEMail(data.email) || create(data)
+module.exports = (store, readModels, rack) => {
+  async function getOrCreate(data) {
+    return readModels.person.getByEMail(data.email) || await create(data)
   }
 
-  function create(data) {
+  async function create(data) {
     if (readModels.person.getByEMail(data.email)) {
       throw 'A person with this email address already exist'
     }
@@ -18,11 +18,11 @@ module.exports = (store, readModels) => {
     data.id = shortid()
     data.access_code = rack()
     data.talkReady = data.talkReady === 'checked'
-    store.add({type: 'person-created', person: data})
+    await store.add({type: 'person-created', person: data})
     if (data.talkReady) {
-      store.add({type: 'talk-published', person: {id, name: data.name}, talk: data.talk})
+      store.add({type: 'talk-published', person: {id: data.id, name: data.name}, talk: data.talk})
     }
-    return data
+    return readModels.person.getById(data.id)
   }
 
   async function update(id, newData, user = null) {
@@ -37,9 +37,7 @@ module.exports = (store, readModels) => {
     const newValues = []
     Object.keys(newData).forEach(key => {
       if (person[key] !== newData[key]) {
-        const obj = {}
-        obj[key] = newData[key]
-        newValues.push(obj)
+        newValues.push({[key]: newData[key]})
       }
     })
     const newObject = Object.assign({}, person, ...newValues)
@@ -57,7 +55,7 @@ module.exports = (store, readModels) => {
   }
 
   async function upsert(person, newData, user = null) {
-    if (readModels.person.getById(id)) {
+    if (readModels.person.getByEMail(person.email)) {
       return update(person.id, newData, user)
     }
     return create(newData)

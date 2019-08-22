@@ -29,10 +29,12 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('checkinApp')
   }
 
-  async function createOrgaMember(txn, data) {
+  async function createOrgaMember(data) {
     data.payment = 'none'
     data.ticketCount = data.ticketCount || 1
-    const customer = await Model.Customer.create(txn, data)
+    const person = await Model.Person.create(data)
+    data.personId = person.id
+    const customer = await Model.Customer.create(data)
     await Model.Invoice.create(data, customer)
     const user = readModels.user.getById(customer.id)
     const action = 'accounts/' + customer.access_code + '/password/reset'
@@ -158,7 +160,7 @@ module.exports = (dependencies) => {
   const allowAnonymous = true
 
   router.get('/', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(showAdminPage, {type: 'send'}))
-  router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.txn, req.body), {commit: true}))
+  router.post('/', auth.requireJWT({allowAnonymous}), auth.requireAdmin(), makeHandler(req => createOrgaMember(req.body)))
   router.post('/coupon/reduced', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.user, 'reduced')))
   router.post('/coupon/earlybird', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.createCoupon(req.user, 'earlybird')))
   router.get('/participants', auth.requireJWT({redirect}), auth.requireAdmin(), makeHandler(req => exportParticipants(req.query.format || 'txt'), {type: 'send'}))

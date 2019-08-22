@@ -1,7 +1,6 @@
 const nodeenv = process.env.NODE_ENV || 'develop'
 const isProduction = nodeenv === 'production'
 const port = process.env.PORT || 8001
-const DGRAPH_URL = process.env.DGRAPH_URL || 'localhost:9080'
 
 const winston = require('winston')
 const loggerOptions = {
@@ -19,15 +18,10 @@ const config = readConfigFile()
 
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
-const dgraph = require('dgraph-js')
-const grpc = require('grpc')
 const templateGenerator = require('./TemplateGenerator')(config)
 const nodemailer = require('nodemailer')
 const rack = require('hat').rack(128, 36)
 const mailSender = require('./mailSender')(nodemailer, templateGenerator, config, rack)
-
-const clientStub = new dgraph.DgraphClientStub(DGRAPH_URL, grpc.credentials.createInsecure())
-const dgraphClient = new dgraph.DgraphClient(clientStub)
 
 const express = require('express')
 const app = express()
@@ -43,15 +37,14 @@ const expressWinston = require('express-winston')
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store, config})
-const QueryFunction = require('./QueryFunction')
 const NotificationSender = require('./NotificationSender')({mailSender, readModels, config})
 store.listen(NotificationSender.handleEvent)
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
-const Model = require('./Model')({dgraphClient, dgraph, QueryFunction, store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
+const Model = require('./Model')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
-const mainRouter = require('./mainRouter')({express, auth, dgraphClient, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch})
+const mainRouter = require('./mainRouter')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch})
 
 const msg = `{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}`
 app.use(expressWinston.logger({...loggerOptions, msg}))

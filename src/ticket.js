@@ -1,4 +1,4 @@
-module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
+module.exports = (Model, mailSender, templateGenerator, Payment, mailChimp, rack, store, readModels, config) => {
   function redirectTo(url, user) {
     return {isRedirection: true, url, user}
   }
@@ -29,19 +29,18 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
       return Promise.reject({status: 403, message: 'Reduced tickets are available only when paying immediately'})
     }
 
-    const txn = dgraphClient.newTxn()
     try {
       if (data.code) {
         assertCoupon(data.code, data.type)
       }
+      const person = await Model.Person.getOrCreate(data)
+      data.personId = person.id
       data.ticketCount = +data.ticketCount
-      const customer = await Model.Customer.create(txn, data)
-      const person = customer.person[0]
+      const customer = await Model.Customer.create(data)
       const invoice = await Model.Invoice.create(data, customer)
 
       await addSubscriber(person)
 
-      txn.commit()
       if (data.code) {
         store.add({type: 'coupon-invalidated', code: data.code})
       }
@@ -53,12 +52,12 @@ module.exports = (dgraphClient, Model, mailSender, templateGenerator, Payment, m
         url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
       }
       return redirectTo(url, readModels.user.getById(customer.id))
-    } finally {
-      txn.discard()
+    } catch (e) {
+      return Promise.reject({status: 500, message: '' + e})
     }
   }
 
-  async function setParticipant(txn, accessCode, data, user) {
+  async function setParticipant(accessCode, data, user) {
     const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
     const person = await Model.Person.getOrCreate(data, user)
     if (!ticket.participant || ticket.participant.id !== person.id) {
