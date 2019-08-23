@@ -31,7 +31,7 @@ module.exports = (dependencies) => {
     return createFrontendInfo(await Model.Person.uploadProfilePicture(id, file, user), user)
   }
 
-  async function createPerson(data) {
+  async function createPerson(data, user) {
     return createFrontendInfo(await Model.Person.create(data), user, true)
   }
 
