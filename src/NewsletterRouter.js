@@ -24,6 +24,7 @@ module.exports = (dependencies) => {
       store.add({type: 'newsletter-subscription', personId: person.id})
       return templateGenerator.generate('register-success', person)
     } catch (e) {
+      console.error(e)
       return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
     }
   }
@@ -34,6 +35,7 @@ module.exports = (dependencies) => {
       await mailChimp.addSubscriber(person)
       return templateGenerator.generate('register-approved', {person})
     } catch (e) {
+      console.error(e)
       return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
     }
   }
