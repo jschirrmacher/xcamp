@@ -1,12 +1,13 @@
 const shortid = require('shortid')
 
-module.exports = (store, readModels) => {
+module.exports = (store, readModels, rack) => {
   return {
     async create(data) {
       if (!data.personId) {
         throw 'Missing personId field in Customer.create call'
       }
       data.id = shortid()
+      data.access_code = rack()
       await store.add({type: 'customer-created', customer: data})
       return readModels.customer.getById(data.id)
     },
