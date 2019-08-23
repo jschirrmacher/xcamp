@@ -25,7 +25,7 @@ module.exports = (store, readModels) => {
   }
 
   async function update(id, newData, user = null) {
-    if (!readModels.network.canEdit(user, person.id)) {
+    if (!readModels.network.canEdit(user, id)) {
       throw 'Changing this node is not allowed!'
     }
     const person = readModels.person.getById(id)
