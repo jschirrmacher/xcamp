@@ -22,16 +22,21 @@ module.exports = (dependencies) => {
     return readModels.network.getPublicViewOfNode(node, user)
   }
 
+  function createFrontendInfo(person, user, isNew = false) {
+    const node = readModels.network.getPublicViewOfNode(person, user)
+    return {links2create: [], links2delete: [], nodes2create: isNew ? [node] : [], node}
+  }
+
   async function uploadProfilePicture(id, file, user) {
-    const result = await Model.Person.uploadProfilePicture(id, file, user)
-    result.node = readModels.network.getPublicViewOfNode(result.node, user)
-    return result
+    return createFrontendInfo(await Model.Person.uploadProfilePicture(id, file, user), user)
+  }
+
+  async function createPerson(data) {
+    return createFrontendInfo(await Model.Person.create(data), user, true)
   }
 
   async function updatePerson(id, body, user) {
-    const result = await Model.Person.update(id, body, user)
-    result.node = readModels.network.getPublicViewOfNode(result.node, user)
-    return result
+    return createFrontendInfo(await Model.Person.update(id, body, user), user)
   }
 
   async function assignTopic(node, topicName, user) {
@@ -106,7 +111,7 @@ module.exports = (dependencies) => {
   router.get('/topics', makeHandler(req => Model.Topic.find(req.query.q),))
   router.put('/topics/:id', auth.requireJWT(), makeHandler(req => Model.Topic.update(req.params.id, req.body, req.user)))
 
-  router.post('/persons', auth.requireJWT(), makeHandler(req => Model.Person.upsert({}, req.body, req.user)))
+  router.post('/persons', auth.requireJWT(), makeHandler(req => createPerson(req.body, req.user)))
   router.get('/persons/:id', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.id, req.user)))
   router.put('/persons/:id', auth.requireJWT(), makeHandler(req => updatePerson(req.params.id, req.body, req.user)))
   router.put('/persons/:id/picture', auth.requireJWT(), upload.single('picture'), makeHandler(req => uploadProfilePicture(req.params.id, req.file, req.user)))
