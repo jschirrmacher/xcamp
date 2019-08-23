@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const makeHandler = require('./lib/makeHandler')
 
 module.exports = (dependencies) => {
   const {
@@ -16,35 +17,6 @@ module.exports = (dependencies) => {
   } = dependencies
 
   const publicDir = path.resolve(__dirname, '..', 'public')
-
-  function makeHandler(func, options = {}) {
-    const {type = 'json'} = options
-    return async function (req, res, next) {
-      try {
-        const result = await func(req)
-        if (result && result.isRedirection) {
-          if (result.user) {
-            auth.signIn({user: result.user}, res)
-          }
-          res.redirect(result.url)
-        } else if (result && result.mimeType) {
-          res.contentType(result.mimeType)
-          if (result.disposition) {
-            const name = result.name ? '; filename="' + result.name + '"' : ''
-            res.header('Content-Disposition', result.disposition + encodeURIComponent(name))
-          }
-          res.send(result.content)
-        } else {
-          res[type](result)
-        }
-      } catch (error) {
-        if (error.status) {
-          res.status(error.status)
-        }
-        next(error.message || error)
-      }
-    }
-  }
 
   function getNetVisPage() {
     const index = fs.readFileSync(path.resolve(publicDir, 'network.html')).toString()
@@ -83,7 +55,7 @@ module.exports = (dependencies) => {
   }
 
   const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
-  const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store})
+  const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, readModels})
   const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, store, readModels, config})
   const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
   const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels, config})

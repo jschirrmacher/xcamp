@@ -1,7 +1,8 @@
 module.exports = function () {
   const persons = {
     byId: {},
-    byEMail: {}
+    byEMail: {},
+    byAccessCode: {}
   }
 
   return {
@@ -15,6 +16,9 @@ module.exports = function () {
           assert(!persons.byEMail[event.person.email], 'A person with this email address already exists')
           persons.byId[event.person.id] = event.person
           persons.byEMail[event.person.email] = event.person
+          if (event.person.access_code) {
+            persons.byAccessCode[event.person.access_code] = event.person
+          }
           break
 
         case 'person-updated':
@@ -39,6 +43,10 @@ module.exports = function () {
 
     getByEMail(email) {
       return persons.byEMail[email]
+    },
+
+    getByAccessCode(code) {
+      return persons.byAccessCode[code]
     }
   }
 }
