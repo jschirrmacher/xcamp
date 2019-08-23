@@ -45,8 +45,12 @@ module.exports = function () {
       return persons.byEMail[email]
     },
 
-    getByAccessCode(code) {
-      return persons.byAccessCode[code]
+    getByAccessCode(code, throwIfNotFound = false) {
+      const person = persons.byAccessCode[code]
+      if (!person && throwIfNotFound) {
+        throw 'person not found'
+      }
+      return person
     }
   }
 }

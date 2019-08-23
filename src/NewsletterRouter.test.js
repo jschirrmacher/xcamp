@@ -1,8 +1,7 @@
 /*eslint-env mocha*/
-require('should')
+const should = require('should')
 const request = require('supertest')
 const express = require('express')
-const makeHandler = require('./lib/makeHandler')
 
 const app = express()
 const bodyParser = require('body-parser')
@@ -45,8 +44,12 @@ const store = {
 const readModels = {
   person: {
     getByAccessCode(code) {
-      return {
-        name: 'Test person'
+      if (code === 'access_code') {
+        return {
+          name: 'Test person'
+        }
+      } else {
+        throw 'Person not found'
       }
     }
   }
@@ -57,6 +60,7 @@ const mailChimp = {
   }
 }
 
+const makeHandler = require('./lib/makeHandler')(auth)
 const router = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, Model, mailSender, store, readModels, mailChimp})
 app.use('/newsletter', router)
 
@@ -80,7 +84,7 @@ describe('NewsletterRouter', () => {
     })
 
     it('should show a success page', () => {
-      this.OUT
+      return this.OUT
         .expect(200)
         .expect('Content-Type', /^text\/html/)
         .then(response => {
@@ -89,19 +93,19 @@ describe('NewsletterRouter', () => {
     })
 
     it('should send an e-mail', () => {
-      this.OUT.then(() => {
+      return this.OUT.then(() => {
         should(log.some(e => e.func === 'sendHashMail')).not.be.null()
       })
     })
 
     it('e-mail should contain an approval link', () => {
-      this.OUT.then(() => {
+      return this.OUT.then(() => {
         log.find(e => e.func === 'sendHashMail').params[1].access_code.should.equal('access_code')
       })
     })
 
     it('create a person entry', () => {
-      this.OUT.then(() => {
+      return this.OUT.then(() => {
         should(log.find(e => e.func === 'Person.getOrCreate')).not.be.null()
       })
     })
@@ -114,7 +118,7 @@ describe('NewsletterRouter', () => {
     })
 
     it('should show a success page', () => {
-      this.OUT
+      return this.OUT
         .expect(200)
         .expect('Content-Type', /^text\/html/)
         .then(response => {
@@ -123,8 +127,14 @@ describe('NewsletterRouter', () => {
     })
 
     it('should add the person to MailChimp', () => {
-      this.OUT.then(() => {
+      return this.OUT.then(() => {
         log.find(e => e.func === 'mailChimp.addSubscriber').data.should.deepEqual({name: 'Test person'})
+      })
+    })
+
+    it('should reject unknown access_codes', () => {
+      return request(app).get('/newsletter/approve/xy/hash').then(response => {
+        response.text.should.equal('register-failed')
       })
     })
   })

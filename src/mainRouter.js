@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const makeHandler = require('./lib/makeHandler')
 
 module.exports = (dependencies) => {
   const {
@@ -16,6 +15,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
+  const makeHandler = require('./lib/makeHandler')(auth)
   const publicDir = path.resolve(__dirname, '..', 'public')
 
   function getNetVisPage() {
