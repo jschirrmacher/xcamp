@@ -26,23 +26,28 @@ module.exports = (dependencies) => {
 
   async function getAccountInfoPage(accessCode) {
     const user = readModels.user.getByAccessCode(accessCode)
-    const invoice = getNewestInvoice(user)
-    let tickets
     if (user.type === 'ticket') {
       const ticket = readModels.invoice.getTicketByAccessCode(accessCode)
+      const invoice = readModels.invoice.getById(ticket.invoiceId)
       ticket.isPersonalized = true
-      tickets = [ticket]
+      ticket.paid = invoice.paid
+      return getAccountTemplate(null, [ticket])
     } else {
-      tickets = invoice.tickets
+      const invoice = getNewestInvoice(user)
+      const tickets = invoice.tickets
+      tickets.forEach(t => t.paid = invoice.paid)
+      return getAccountTemplate(invoice, tickets)
     }
-    return templateGenerator.generate('account-info', {
-      invoice: invoice && invoice.invoiceNo ? invoice : null,
-      accessCode,
-      password: !!user.password,
-      paid: invoice && invoice.paid,
-      tickets,
-      config
-    })
+
+    function getAccountTemplate(invoice, tickets) {
+      return templateGenerator.generate('account-info', {
+        invoice: invoice && invoice.invoiceNo ? invoice : null,
+        accessCode,
+        password: !!user.password,
+        tickets,
+        config
+      })
+    }
   }
 
   async function getLastInvoice(accessCode) {

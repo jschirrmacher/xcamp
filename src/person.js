@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const shortid = require('shortid')
 
-module.exports = (store, readModels, rack) => {
+module.exports = (store, readModels) => {
   async function getOrCreate(data) {
     return readModels.person.getByEMail(data.email) || await create(data)
   }
@@ -16,7 +16,6 @@ module.exports = (store, readModels, rack) => {
     }
     data.name = data.firstName + ' ' + data.lastName
     data.id = shortid()
-    data.access_code = rack()
     data.talkReady = data.talkReady === 'checked'
     await store.add({type: 'person-created', person: data})
     if (data.talkReady) {
