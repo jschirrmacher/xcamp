@@ -48,7 +48,7 @@ module.exports = function () {
     getByAccessCode(code, throwIfNotFound = false) {
       const person = persons.byAccessCode[code]
       if (!person && throwIfNotFound) {
-        throw 'person not found'
+        throw Error('person not found')
       }
       return person
     }

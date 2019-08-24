@@ -18,28 +18,18 @@ module.exports = (dependencies) => {
   }
 
   async function registerForNewsletter(data) {
-    try {
-      const person = await Model.Person.getOrCreate(data)
-      const subject = 'XCamp Newsletter - Bitte bestätigen!'
-      const action = 'newsletter/approve/' + person.access_code
-      mailSender.sendHashMail('mail/newsletter-approval-mail', person, action, subject)
-      store.add({type: 'newsletter-subscription', personId: person.id})
-      return templateGenerator.generate('register-success', person)
-    } catch (e) {
-      logger.error(e)
-      return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
-    }
+    const person = await Model.Person.getOrCreate(data)
+    const subject = 'XCamp Newsletter - Bitte bestätigen!'
+    const action = 'newsletter/approve/' + person.access_code
+    mailSender.sendHashMail('mail/newsletter-approval-mail', person, action, subject)
+    store.add({type: 'newsletter-subscription', personId: person.id})
+    return templateGenerator.generate('register-success', person)
   }
 
   async function approveRegistration(code) {
-    try {
-      const person = readModels.person.getByAccessCode(code, true)
-      await mailChimp.addSubscriber(person)
-      return templateGenerator.generate('register-approved', {person})
-    } catch (e) {
-      logger.error(e)
-      return templateGenerator.generate('register-failed', {message: e.message || e.toString()})
-    }
+    const person = readModels.person.getByAccessCode(code, true)
+    await mailChimp.addSubscriber(person)
+    return templateGenerator.generate('register-approved', person)
   }
 
   const router = express.Router()

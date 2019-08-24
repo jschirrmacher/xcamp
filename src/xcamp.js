@@ -2,15 +2,7 @@ const nodeenv = process.env.NODE_ENV || 'develop'
 const isProduction = nodeenv === 'production'
 const port = process.env.PORT || 8001
 
-const winston = require('winston')
-const loggerOptions = {
-  level: process.env.LOGLEVEL || 'info',
-  transports: [new winston.transports.Console()],
-  format: winston.format.simple(),
-  meta: false,
-  colorize: false,
-}
-const logger = winston.createLogger(loggerOptions)
+const Logger = require('./Logger')
 
 const path = require('path')
 const fs = require('fs')
@@ -32,8 +24,7 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-const expressWinston = require('express-winston')
-
+const logger = Logger.setupStandardLogger()
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store, config})
@@ -44,12 +35,9 @@ const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fet
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
 const Model = require('./Model')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
-const mainRouter = require('./mainRouter')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch})
+const mainRouter = require('./mainRouter')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch, logger})
 
-const msg = `{{(new Date()).toISOString()}} {{res.responseTime}}ms {{res.statusCode}} {{req.method}} {{req.url}} - {{req.headers['user-agent']}}`
-app.use(expressWinston.logger({...loggerOptions, msg}))
-app.use('/', mainRouter)
-app.use(expressWinston.errorLogger({...loggerOptions, meta: true}))
+Logger.attachToExpress(app, mainRouter)
 
 const server = app.listen(port, () => {
   const paymentType = config.paypal.useSandbox ? 'sandbox' : 'PayPal'

@@ -9,6 +9,9 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
 const log = []
+const logger = {
+  info: message => log.push(message)
+}
 const auth = {
   requireJWT: () => (req, res, next) => {
     log.push({func: 'auth.requireJWT', authHeader: req.headers.autorization})
@@ -20,7 +23,7 @@ const auth = {
   }
 }
 const templateGenerator = {
-  generate: template => template
+  generate: (template, params) => JSON.stringify({template, params})
 }
 const Model = {
   Person: {
@@ -60,7 +63,7 @@ const mailChimp = {
   }
 }
 
-const makeHandler = require('./lib/makeHandler')(auth)
+const makeHandler = require('./lib/makeHandler')({auth, templateGenerator, logger})
 const router = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, Model, mailSender, store, readModels, mailChimp})
 app.use('/newsletter', router)
 
@@ -72,7 +75,7 @@ describe('NewsletterRouter', () => {
         .expect(200)
         .expect('Content-Type', /^text\/html/)
         .then(response => {
-          response.text.should.equal('register-newsletter')
+          JSON.parse(response.text).template.should.equal('register-newsletter')
         })
     })
   })
@@ -88,7 +91,7 @@ describe('NewsletterRouter', () => {
         .expect(200)
         .expect('Content-Type', /^text\/html/)
         .then(response => {
-          response.text.should.equal('register-success')
+          JSON.parse(response.text).template.should.equal('register-success')
         })
     })
 
@@ -122,7 +125,7 @@ describe('NewsletterRouter', () => {
         .expect(200)
         .expect('Content-Type', /^text\/html/)
         .then(response => {
-          response.text.should.equal('register-approved')
+          JSON.parse(response.text).template.should.equal('register-approved')
         })
     })
 
@@ -134,7 +137,7 @@ describe('NewsletterRouter', () => {
 
     it('should reject unknown access_codes', () => {
       return request(app).get('/newsletter/approve/xy/hash').then(response => {
-        response.text.should.equal('register-failed')
+        JSON.parse(response.text).template.should.equal('exception-occured')
       })
     })
   })

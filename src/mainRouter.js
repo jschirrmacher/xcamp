@@ -12,10 +12,11 @@ module.exports = (dependencies) => {
     Payment,
     store,
     readModels,
-    config
+    config,
+    logger
   } = dependencies
 
-  const makeHandler = require('./lib/makeHandler')(auth)
+  const makeHandler = require('./lib/makeHandler')({auth, templateGenerator, logger})
   const publicDir = path.resolve(__dirname, '..', 'public')
 
   function getNetVisPage() {

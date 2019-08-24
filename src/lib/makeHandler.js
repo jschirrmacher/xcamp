@@ -1,4 +1,4 @@
-module.exports = auth => {
+module.exports = ({auth, templateGenerator, logger}) => {
   return function makeHandler(func, options = {}) {
     const {type = 'json'} = options
     return async function (req, res, next) {
@@ -20,10 +20,12 @@ module.exports = auth => {
           res[type](result)
         }
       } catch (error) {
-        if (error.status) {
-          res.status(error.status)
-        }
-        next(error.message || error)
+        const template = error.template || 'exception-occured'
+        const params = error.params || {message: error.message || error.toString()}
+        res
+          .status(error.status || 500)
+          .send(templateGenerator.generate(template, params))
+        next(error)
       }
     }
   }
