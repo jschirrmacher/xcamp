@@ -1,18 +1,22 @@
 [
   {
     "url": "https://digitalmediawomen.de/quartiere/rhein-main/",
-    "img": "partners/DMW-400x224.png"
+    "img": "DMW-400x224.png"
   },
   {
     "url": "https://www.ihk-hessen-innovativ.de/",
-    "img": "partners/IHK.png"
+    "img": "IHK.png"
   },
   {
     "url": "https://www.frankfurt-bm.com/medienmarken-und-zielgruppen/zielgruppen/gruenden-wachsen/",
-    "img": "partners/Gruenden_Wachsen_FAZ-1-400x224.png"
+    "img": "Gruenden_Wachsen_FAZ-1-400x224.png"
   },
   {
     "url": "https://make-rhein-main.de/",
-    "img": "partners/Make_Rhein_Main-400x224.png"
+    "img": "Make_Rhein_Main-400x224.png"
+  },
+  {
+    "url": "https://www.digitalstrategie-hessen.de",
+    "img": "dh-Logo.jpg"
   }
 ]
