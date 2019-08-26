@@ -3,6 +3,7 @@ const isProduction = nodeenv === 'production'
 const port = process.env.PORT || 8001
 
 const Logger = require('./Logger')
+const logger = Logger.setupStandardLogger()
 
 const path = require('path')
 const fs = require('fs')
@@ -24,7 +25,6 @@ app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-const logger = Logger.setupStandardLogger()
 const EventStore = require('./EventStore')
 const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store, config})
