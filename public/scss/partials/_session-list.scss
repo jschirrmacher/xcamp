@@ -118,12 +118,23 @@
 
 .tiles__headline {
     margin-top: 0; // Reset
+    margin-bottom: .5rem;
     line-height: initial; // Reset
 }
 
-.url {
-    display: block;
+.tiles__url {
+    display: inline-block;
     color: $black;
+    background: rgba(255,255,255,.3);
+    padding: .3rem .6rem;
+    border-radius: .35rem;
+    font-family: sans-serif;
+    font-size: medium;
+    transition: all .15s ease-in;
+
+    &:hover {
+        background: rgba(255,255,255,.6);
+    }
 }
 
 .tiles__item.box--alert {
