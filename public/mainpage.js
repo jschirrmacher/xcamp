@@ -13,9 +13,7 @@ fetch(baseUrl + '/posts?per_page=3&categories=28')
 
 function resolveMedia(entry, mediaList) {
   const media = mediaList.find(e => e.id === entry.featured_media)
-  if (media) {
-    entry.img = prepareLink(media.guid.rendered)
-  }
+  entry.img = prepareLink(media.guid.rendered)
   return entry
 }
 
