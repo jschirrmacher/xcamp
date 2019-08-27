@@ -18,8 +18,6 @@
 }
 
 .tiles__item {
-    display: flex;
-    align-items: flex-start;
     padding: 20px;
     background: rgba(78, 217, 213, .9);
     margin-bottom: 1rem;
@@ -42,6 +40,8 @@
     }
 
     @media (min-width: 420px) {
+        display: flex;
+        align-items: flex-start;
         margin-bottom: 1.9rem;
     }
 
@@ -87,16 +87,16 @@
 }
 
 .tiles__img {
-    display: none; // don´t display on smallest screen
+    max-width: 35vw;
+    border: 10px solid rgba(255,255,255,.1);
+    border-radius: .25rem;
 
-    @media (min-width: 500px) {
+    @media (min-width: 420px) {
         max-width: 25vw;
-        border: 10px solid rgba(255,255,255,.1);
-        border-radius: .25rem;
         display: inline;
         flex: 1 0 100px;
         order: 1; // display image right-aligned
-        margin: .45rem 0 2rem 1.5rem;
+        margin: 0 0 2rem 1.5rem;
     }
 
     @media (min-width: 640px) {
