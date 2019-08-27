@@ -693,8 +693,6 @@ body.logged-out .logged-in {
 }
 
 .tiles__item {
-  display: flex;
-  align-items: flex-start;
   padding: 20px;
   background: rgba(78, 217, 213, 0.9);
   margin-bottom: 1rem;
@@ -712,6 +710,8 @@ body.logged-out .logged-in {
 }
 @media (min-width: 420px) {
   .tiles__item {
+    display: flex;
+    align-items: flex-start;
     margin-bottom: 1.9rem;
   }
 }
@@ -743,17 +743,17 @@ body.logged-out .logged-in {
 }
 
 .tiles__img {
-  display: none;
+  max-width: 35vw;
+  border: 10px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
 }
-@media (min-width: 500px) {
+@media (min-width: 420px) {
   .tiles__img {
     max-width: 25vw;
-    border: 10px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.25rem;
     display: inline;
     flex: 1 0 100px;
     order: 1;
-    margin: 0.45rem 0 2rem 1.5rem;
+    margin: 0 0 2rem 1.5rem;
   }
 }
 @media (min-width: 640px) {
