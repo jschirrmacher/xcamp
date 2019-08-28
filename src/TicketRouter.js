@@ -28,12 +28,17 @@ module.exports = (dependencies) => {
     return readModels.invoice.getTicketByAccessCode(accessCode)
   }
 
-  async function getTicketPage(accessCode, mode) {
-    const ticket = getTicketFromAccessCode(accessCode)
-    const disabled = mode === 'print' ? 'disabled' : ''
-    const print = mode === 'print'
-    const params = {mode, print, disabled, access_code: accessCode, participant: ticket && ticket.participant}
-    return templateGenerator.generate('ticket', params)
+  async function getTicketPage(access_code, mode) {
+    const ticket = getTicketFromAccessCode(access_code)
+    const invoice = readModels.invoice.getById(ticket.invoiceId)
+    return templateGenerator.generate('ticket', {
+      mode,
+      print: mode === 'print',
+      disabled: mode === 'print' ? 'disabled' : '',
+      access_code,
+      participant: ticket && ticket.participant,
+      paid: invoice.paid
+    })
   }
 
   async function applyToReduced(person) {
