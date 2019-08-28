@@ -1,6 +1,7 @@
 const path = require('path')
 const multer = require('multer')
 const upload = multer({dest: path.resolve(__dirname , '..', 'profile-pictures')})
+const shortid = require('shortid')
 
 module.exports = (dependencies) => {
   const {
@@ -57,9 +58,9 @@ module.exports = (dependencies) => {
     return {links2create, links2delete, nodes2create, node, topic}
 
     async function createTopic(name) {
-      const result = await Model.Topic.upsert({}, {name}, user)
-      nodes2create.push({type: 'topic', ...result.node})
-      return result.node
+      const node = {id: shortid(), type: 'topic', name}
+      await store.add({type: 'node-created', node})
+      return readModels.topic.getByName(name)
     }
   }
 
@@ -108,8 +109,8 @@ module.exports = (dependencies) => {
 
   router.put('/roots/:id', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 
-  router.get('/topics', makeHandler(req => Model.Topic.find(req.query.q),))
-  router.put('/topics/:id', auth.requireJWT(), makeHandler(req => Model.Topic.update(req.params.id, req.body, req.user)))
+  router.get('/topics', makeHandler(req => readModels.topic.find(req.query.q)))
+  router.put('/topics/:id', auth.requireJWT(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 
   router.post('/persons', auth.requireJWT(), makeHandler(req => createPerson(req.body, req.user)))
   router.get('/persons/:id', auth.requireJWT({allowAnonymous}), makeHandler(req => getPersonDetails(req.params.id, req.user)))
