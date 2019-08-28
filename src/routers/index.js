@@ -16,8 +16,9 @@ module.exports = (dependencies) => {
     logger
   } = dependencies
 
-  const makeHandler = require('./lib/makeHandler')({auth, templateGenerator, logger})
-  const publicDir = path.resolve(__dirname, '..', 'public')
+  const makeHandler = require('../lib/makeHandler')({auth, templateGenerator, logger})
+  const publicDir = path.resolve(__dirname, '..', '..', 'public')
+  const nodeDir = path.resolve(__dirname, '..', '..', 'node_modules')
 
   function getNetVisPage() {
     const index = fs.readFileSync(path.resolve(publicDir, 'network.html')).toString()
@@ -70,8 +71,8 @@ module.exports = (dependencies) => {
   router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
 
   router.use('/', express.static(publicDir))
-  router.use('/js-netvis', express.static(path.join(__dirname, '/../node_modules/js-netvis')))
-  router.use('/qrcode', express.static(path.join(__dirname, '/../node_modules/qrcode/build')))
+  router.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
+  router.use('/qrcode', express.static(path.resolve(nodeDir, 'qrcode', 'build')))
 
   router.use(nocache)
 

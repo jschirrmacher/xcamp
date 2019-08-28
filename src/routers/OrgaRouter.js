@@ -4,7 +4,7 @@ const paymentType = {
   none: 'N/A'
 }
 
-const Formatter = require('./lib/Formatter')
+const Formatter = require('../lib/Formatter')
 
 module.exports = (dependencies) => {
   const {
@@ -19,7 +19,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  const ticketTypes = require('./ticketTypes')(config)
+  const ticketTypes = require('../ticketTypes')(config)
 
   async function showAdminPage() {
     return templateGenerator.generate('administration')

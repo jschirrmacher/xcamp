@@ -18,7 +18,7 @@ const store = {
 }
 const config = {ticketCategories: {corporate: 300}}
 const readModels = {
-  invoice: require('./readModels/invoice')({store, config})
+  invoice: require('../readModels/invoice')({store, config})
 }
 store.listen(readModels.invoice.handleEvent)
 const invoice = require('./invoice')(store, readModels, config, Math.random)

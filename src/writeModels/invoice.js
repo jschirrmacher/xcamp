@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = (store, readModels, config, rack) => {
-  const ticketTypes = require('./ticketTypes')(config)
+  const ticketTypes = require('../ticketTypes')(config)
 
   function create(data, customer) {
     if (typeof ticketTypes[data.type] === 'undefined') {

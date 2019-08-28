@@ -63,7 +63,7 @@ const mailChimp = {
   }
 }
 
-const makeHandler = require('./lib/makeHandler')({auth, templateGenerator, logger})
+const makeHandler = require('../lib/makeHandler')({auth, templateGenerator, logger})
 const router = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, Model, mailSender, store, readModels, mailChimp})
 app.use('/newsletter', router)
 

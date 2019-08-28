@@ -33,9 +33,9 @@ store.listen(NotificationSender.handleEvent)
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
-const Model = require('./Model')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
+const Model = require('./writeModels')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
 const auth = require('./auth')({app, readModels, store, config})
-const mainRouter = require('./mainRouter')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch, logger})
+const mainRouter = require('./routers')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch, logger})
 
 Logger.attachToExpress(app, mainRouter)
 
