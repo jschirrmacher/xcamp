@@ -44,8 +44,7 @@ module.exports = (dependencies) => {
         invoice: invoice && invoice.invoiceNo ? invoice : null,
         accessCode,
         password: !!user.password,
-        tickets,
-        config
+        tickets
       })
     }
   }
