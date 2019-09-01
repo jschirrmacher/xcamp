@@ -67,7 +67,7 @@ module.exports = (store, readModels, rack) => {
   }
 
   function getPicturePath(id) {
-    const folder = path.join(__dirname, '../profile-pictures/')
+    const folder = path.resolve(__dirname, '..', '..', 'profile-pictures')
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder)
     }
