@@ -1,5 +1,3 @@
-const logger = console
-
 module.exports = (dependencies) => {
   const {
     express,

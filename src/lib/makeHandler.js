@@ -1,4 +1,4 @@
-module.exports = ({auth, templateGenerator, logger}) => {
+module.exports = ({auth, templateGenerator}) => {
   return function makeHandler(func, options = {}) {
     const {type = 'json'} = options
     return async function (req, res, next) {

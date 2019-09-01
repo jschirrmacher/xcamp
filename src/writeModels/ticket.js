@@ -34,8 +34,8 @@ module.exports = (Model, mailSender, templateGenerator, Payment, mailChimp, rack
         assertCoupon(data.code, data.type)
       }
       const person = await Model.Person.getOrCreate(data)
-      data.personId = person.id
-      data.ticketCount = +data.ticketCount
+      data.personId = person.id // eslint-disable-line require-atomic-updates
+      data.ticketCount = +data.ticketCount // eslint-disable-line require-atomic-updates
       const customer = await Model.Customer.create(data)
       const invoice = await Model.Invoice.create(data, customer)
 

@@ -33,7 +33,7 @@ module.exports = (dependencies) => {
     data.payment = 'none'
     data.ticketCount = data.ticketCount || 1
     const person = await Model.Person.create(data)
-    data.personId = person.id
+    data.personId = person.id // eslint-disable-line require-atomic-updates
     const customer = await Model.Customer.create(data)
     await Model.Invoice.create(data, customer)
     const user = readModels.user.getById(customer.id)
