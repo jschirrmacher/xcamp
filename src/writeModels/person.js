@@ -2,9 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const shortid = require('shortid')
 
-const baseFolder = path.resolve(__dirname, '..', '..')
-
-module.exports = (store, readModels, rack) => {
+module.exports = (store, readModels, config, rack) => {
   async function getOrCreate(data) {
     return readModels.person.getByEMail(data.email) || await create(data)
   }
@@ -69,7 +67,7 @@ module.exports = (store, readModels, rack) => {
   }
 
   function getPicturePath(id) {
-    const folder = path.join(baseFolder, 'profile-pictures')
+    const folder = path.join(config.basePath, 'profile-pictures')
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder)
     }
@@ -91,7 +89,7 @@ module.exports = (store, readModels, rack) => {
     const [mimeType, name] = person.image.split(':')
     let fileName = getPicturePath(id)
     if (!fs.existsSync(fileName)) {
-      fileName = path.join(baseFolder, 'public', 'assets', 'img', 'user.png')
+      fileName = path.join(config.basePath, 'public', 'assets', 'img', 'user.png')
     }
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }

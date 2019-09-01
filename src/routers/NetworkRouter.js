@@ -1,6 +1,5 @@
 const path = require('path')
 const multer = require('multer')
-const upload = multer({dest: path.resolve(__dirname , '..', 'profile-pictures')})
 const shortid = require('shortid')
 
 module.exports = (dependencies) => {
@@ -13,6 +12,8 @@ module.exports = (dependencies) => {
     readModels,
     config
   } = dependencies
+
+  const upload = multer({dest: path.join(config.basePath, 'profile-pictures')})
 
   function getPersonDetails(id, user) {
     const node = {...readModels.network.getById(id)}

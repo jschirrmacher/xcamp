@@ -55,14 +55,16 @@ process.on('SIGTERM', () => {
 
 function readConfigFile() {
   let config
-  const configFile = path.resolve(__dirname, '..', 'config', 'config.json')
+  const basePath = path.resolve(__dirname, '..')
+  const configFile = path.join(basePath, 'config', 'config.json')
   if (!fs.existsSync(configFile)) {
     logger.warn('Using sample configuration - make sure you have an own before going producive')
-    config = require(path.resolve(__dirname, '..', 'config', 'config-sample.json'))
+    config = require(path.join(basePath, 'config', 'config-sample.json'))
   } else {
     config = require(configFile)
   }
   config.baseUrl = process.env.BASEURL || '/'
+  config.basePath = basePath
   config.isProduction = isProduction
   config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
   return config
