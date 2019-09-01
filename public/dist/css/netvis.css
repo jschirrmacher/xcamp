@@ -359,7 +359,8 @@ svg .node .cta circle {
 }
 svg .node .cta text {
   transform: translate(0, 5px);
-  fill: #c7fffd;
+  fill: white;
+  stroke: transparent;
   text-anchor: middle;
 }
 
