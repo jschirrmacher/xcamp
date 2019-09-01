@@ -182,7 +182,7 @@ module.exports = function ({models}) {
           return person.image
         }
       }
-      return '../assets/img/user.png'
+      return 'assets/img/user.png'
     },
 
     getMaxId() {
