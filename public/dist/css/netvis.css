@@ -143,6 +143,14 @@ img {
   color: #333333;
 }
 
+.error {
+  border: 2px solid red;
+  padding: 10px;
+  border-radius: 6px;
+  background: #ffaaaa;
+  font-size: 18px;
+}
+
 a, button {
   text-decoration: none;
   transition: color 0.2s linear;
