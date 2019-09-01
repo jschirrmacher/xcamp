@@ -148,7 +148,7 @@ module.exports = function ({models}) {
           node.image = models.network.getImageURL(node)
           node.name = node.firstName + ' ' + node.lastName
         } else {
-          node.image = '../assets/img/user.png'
+          node.image = 'assets/img/user.png'
           node.name = 'Teilnehmer'
         }
         if (node.editable) {
