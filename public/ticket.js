@@ -5,6 +5,7 @@
   var privateTicket = document.getElementById('type-private')
   var corporateTicket = document.getElementById('type-corporate')
   var firmField = document.getElementById('payment-firm')
+  var referenceField = document.getElementById('payment-yourReference')
   var ticketCount = document.getElementById('ticketCount')
   var tosAccepted = document.getElementById('tos-accepted')
   var submitButton = document.getElementById('submit-button')
@@ -52,11 +53,13 @@
   function isPrivate() {
     privateTicket && (privateTicket.checked = true)
     firmField.style.display = 'none'
+    referenceField.style.display = 'none'
   }
 
   function isCorporate() {
     corporateTicket && (corporateTicket.checked = true)
     firmField.style.display = 'initial'
+    referenceField.style.display = 'initial'
   }
 
   form.addEventListener('submit', event => {

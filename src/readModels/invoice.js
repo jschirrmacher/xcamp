@@ -169,6 +169,7 @@ module.exports = function ({models, config}) {
         vat: Formatter.currency(vat),
         totalAmount: Formatter.currency(vat + netAmount),
         firm: invoice.customer.firm,
+        yourReference: invoice.customer.yourReference,
         firstName: invoice.customer.person.firstName,
         lastName: invoice.customer.person.lastName,
         address: invoice.customer.address,
