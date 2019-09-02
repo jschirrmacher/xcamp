@@ -65,7 +65,9 @@
                     <img class="tiles__img" src="{{{image}}}" alt="">
                     <div class="tiles__body">
                         <h2 class="tiles__headline">{{person.name}}</h2>
-                        <h3 class="tiles__headline"><a href="{{{url}}}" target="_blank" rel="nofollow" class="tiles__url">{{urlTitle}}</a></h3>
+                        {{#urlTitle}}
+                            <h3 class="tiles__headline"><a href="{{{url}}}" target="_blank" rel="nofollow" class="tiles__url">{{urlTitle}}</a></h3>
+                        {{/urlTitle}}
                         <p>{{talk}}</p>
                     </div>
                 </li>
