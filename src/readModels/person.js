@@ -26,8 +26,14 @@ module.exports = function () {
           assert(event.person.id, 'No person id in event')
           assert(persons.byId[event.person.id], 'Person doesn\'t exist')
           persons.byId[event.person.id] = Object.assign(persons.byId[event.person.id], event.person)
-          delete(persons.byEMail[event.person.email])
-          persons.byEMail[event.person.email] = event.person
+          if (event.person.email) {
+            delete(persons.byEMail[event.person.email])
+            persons.byEMail[event.person.email] = persons.byId[event.person.id]
+          }
+          if (event.person.access_code) {
+            delete(persons.byAccessCode[event.person.access_code])
+            persons.byAccessCode[event.person.access_code] = persons.byId[event.person.id]
+          }
           break
 
       }
