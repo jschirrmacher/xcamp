@@ -21,7 +21,7 @@ module.exports = (store, readModels, config, rack) => {
       id: shortid(),
       access_code: rack()
     }
-    await store.add({type: 'person-created', person: data})
+    await store.add({type: 'person-created', person})
     return readModels.person.getById(data.id)
   }
 
