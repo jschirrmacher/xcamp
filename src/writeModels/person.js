@@ -14,14 +14,14 @@ module.exports = (store, readModels, config, rack) => {
     if (data.name && !data.firstName && !data.lastName) {
       [data.firstName, data.lastName] = data.name.split(/ (.*)/)
     }
-    data.name = data.firstName + ' ' + data.lastName
-    data.id = shortid()
-    data.access_code = rack()
-    data.talkReady = data.talkReady === 'checked'
-    await store.add({type: 'person-created', person: data})
-    if (data.talkReady) {
-      store.add({type: 'talk-published', person: {id: data.id, name: data.name}, talk: data.talk})
+    const person = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      id: shortid(),
+      access_code: rack()
     }
+    await store.add({type: 'person-created', person: data})
     return readModels.person.getById(data.id)
   }
 
