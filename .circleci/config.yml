@@ -1,0 +1,104 @@
+version: 2.1
+executors:
+  my-executor:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+
+jobs:
+  build:
+    executor: my-executor
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - config
+            - node_modules
+            - public
+            - src
+            - package.json
+            - templates
+            - Dockerfile
+            - .eslintrc.yml
+
+  test:
+    executor: my-executor
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: .
+
+      - run:
+        name: lint
+        command: |
+          npm run eslint
+          npm run test
+
+  publish:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build and push Docker image
+          command: |
+            IMAGE_NAME=jschirrmacher/xcamp:latest
+            docker build -t $IMAGE_NAME .
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push IMAGE_NAME
+
+  publish-tag:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build and push Docker image
+          command: |
+            IMAGE_NAME=jschirrmacher/xcamp
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_TAG
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push $IMAGE_NAME:$CIRCLE_TAG
+
+workflows:
+  version: 2.1
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - publish-tag:
+          requires:
+            - publish
+          filters:
+            tags:
+              only: /[0-9.]+/
