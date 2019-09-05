@@ -62,7 +62,7 @@ module.exports = (dependencies) => {
     return posts.map(entry => {
       const media = mediaList.find(e => e.id === entry.featured_media)
       return {
-        img: prepareLink(media.guid.rendered),
+        img: media && prepareLink(media.guid.rendered),
         link: prepareLink(entry.link),
         title: entry.title.rendered,
         content: entry.content.rendered,
@@ -72,18 +72,29 @@ module.exports = (dependencies) => {
 
   function prepareLink(url) {
     return url
-      .replace(/https?:\/\/xcamp.autentity.net/, config.baseUrl)
+      .replace(/https?:\/\/xcamp.autentity.net/, 'content/')
       .replace('/wp-content/uploads/sites/', 'images/')
   }
 
+  const cacheDir = path.join(__dirname, '..', '..', 'profile-pictures')
+
   async function getWPImage(reqPath, res) {
-    const localPath = path.join(__dirname, '..', '..', 'profile-pictures', reqPath)
+    const localPath = path.join(cacheDir, reqPath.replace(/\/$/, '').replace(/^\//, ''))
     if (!fs.existsSync(localPath)) {
       const response = await fetch(wpBase + '/wp-content/uploads/sites' + reqPath, {agent})
       const data = await response.blob()
       fs.mkdirSync(path.dirname(localPath), {recursive: true})
       fs.writeFileSync(localPath, await Buffer.from(await data.arrayBuffer()))
     }
+    res.sendFile(localPath)
+  }
+
+  async function getWPPage(reqPath, res) {
+    const localPath = path.join(cacheDir, reqPath.replace(/\/$/, '').replace(/^\//, '')) + '.html'
+    const response = await fetch(wpBase + reqPath.replace(/\/$/, ''), {agent})
+    const data = await response.text()
+    fs.mkdirSync(path.dirname(localPath), {recursive: true})
+    fs.writeFileSync(localPath, data.replace(/https?:\/\/xcamp.autentity.net/g, 'https://xcamp.co'))
     res.sendFile(localPath)
   }
 
@@ -108,7 +119,8 @@ module.exports = (dependencies) => {
   router.get('/index', (req, res) => res.send(getIndexPage()))
   router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
   router.get('/posts', makeHandler(get3Posts, {type: 'send'}))
-  router.get('/images/*', (req, res) => getWPImage(req.path.replace(/^\/images/, ''), res))
+  router.get('/content/images/*', (req, res) => getWPImage(req.path.replace(/^\/content\/images/, ''), res))
+  router.get('/content/*', (req, res) => getWPPage(req.path.replace(/^\/content/, ''), res))
 
   router.use('/', express.static(publicDir))
   router.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
