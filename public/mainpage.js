@@ -1,5 +1,5 @@
-const baseUrl = 'http://xcamp.autentity.net/wp-json/wp/v2'
-fetch(baseUrl + '/posts?per_page=3&categories=28')
+const baseUrl = 'https://xcamp.autentity.net/wp-json/wp/v2'
+fetch(baseUrl + '/posts?per_page=3&categories=28', {rejectUnauthorized: false})
   .then(response => response.json())
   .then(blogData => {
     const ids = blogData.map(entry => entry.featured_media)
