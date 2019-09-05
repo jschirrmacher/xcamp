@@ -62,8 +62,8 @@ jobs:
           command: |
             IMAGE_NAME=joschi64/xcamp
             docker build -t $IMAGE_NAME:latest .
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push IMAGE_NAME:latest
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push $IMAGE_NAME:latest
 
   publish-tag:
     executor: my-executor
@@ -79,7 +79,7 @@ jobs:
           command: |
             IMAGE_NAME=joschi64/xcamp
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_TAG
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $IMAGE_NAME:$CIRCLE_TAG
 
 workflows:
