@@ -1,25 +1,8 @@
-const baseUrl = 'https://xcamp.autentity.net/wp-json/wp/v2'
-fetch(baseUrl + '/posts?per_page=3&categories=28', {rejectUnauthorized: false})
+fetch('/posts')
   .then(response => response.json())
-  .then(blogData => {
-    const ids = blogData.map(entry => entry.featured_media)
-    return fetch(baseUrl + '/media?include=' + ids.join(','))
-      .then(response => response.json())
-      .then(mediaList => blogData.map(entry => resolveMedia(entry, mediaList)))
-  })
   .then(blogData => blogData.map(prepareBlogEntryData))
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
   .then(blog => document.querySelector('#newest-blog-entries .three-boxes').innerHTML = blog)
-
-function resolveMedia(entry, mediaList) {
-  const media = mediaList.find(e => e.id === entry.featured_media)
-  entry.img = prepareLink(media.guid.rendered)
-  return entry
-}
-
-function prepareLink(url) {
-  return url.replace('autentity.net', 'co').replace(/^http:/, 'https:')
-}
 
 function shorten(str) {
   if (str.length < 300) {
@@ -32,11 +15,11 @@ function shorten(str) {
 
 function prepareBlogEntryData(entry) {
   const el = document.createElement('div')
-  el.innerHTML = entry.content.rendered
+  el.innerHTML = entry.content
   return {
     img: entry.img,
-    title: entry.title.rendered,
-    link: prepareLink(entry.link),
+    title: entry.title,
+    link: entry.link,
     content: shorten(el.innerText.trim())
   }
 }

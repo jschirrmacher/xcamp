@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const https = require('https')
 
 module.exports = (dependencies) => {
   const {
@@ -49,6 +50,43 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('session-list', {sessions})
   }
 
+  const wpBase = 'https://xcamp.autentity.net'
+  const agent = new https.Agent({rejectUnauthorized: false})
+
+  async function get3Posts() {
+    const response = await fetch(wpBase + '/wp-json/wp/v2/posts?per_page=3&categories=28', {agent})
+    const posts = await response.json()
+    const ids = posts.map(entry => entry.featured_media)
+    const mediaResponse = await fetch(wpBase + '/wp-json/wp/v2/media?include=' + ids.join(','), {agent})
+    const mediaList = await mediaResponse.json()
+    return posts.map(entry => {
+      const media = mediaList.find(e => e.id === entry.featured_media)
+      return {
+        img: prepareLink(media.guid.rendered),
+        link: prepareLink(entry.link),
+        title: entry.title.rendered,
+        content: entry.content.rendered,
+      }
+    })
+  }
+
+  function prepareLink(url) {
+    return url
+      .replace(/https?:\/\/xcamp.autentity.net/, config.baseUrl)
+      .replace('/wp-content/uploads/sites/', 'images/')
+  }
+
+  async function getWPImage(reqPath, res) {
+    const localPath = path.join(__dirname, '..', '..', 'profile-pictures', reqPath)
+    if (!fs.existsSync(localPath)) {
+      const response = await fetch(wpBase + '/wp-content/uploads/sites' + reqPath, {agent})
+      const data = await response.blob()
+      fs.mkdirSync(path.dirname(localPath), {recursive: true})
+      fs.writeFileSync(localPath, await Buffer.from(await data.arrayBuffer()))
+    }
+    res.sendFile(localPath)
+  }
+
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -69,6 +107,8 @@ module.exports = (dependencies) => {
   router.get('/', (req, res) => res.send(getNetVisPage()))
   router.get('/index', (req, res) => res.send(getIndexPage()))
   router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
+  router.get('/posts', makeHandler(get3Posts, {type: 'send'}))
+  router.get('/images/*', (req, res) => getWPImage(req.path.replace(/^\/images/, ''), res))
 
   router.use('/', express.static(publicDir))
   router.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
