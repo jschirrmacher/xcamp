@@ -33,7 +33,7 @@ jobs:
             - package.json
             - templates
             - Dockerfile
-            - .eslintrc.yml
+            - .eslintrc.json
 
   test:
     executor: my-executor
