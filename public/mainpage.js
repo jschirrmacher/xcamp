@@ -1,4 +1,4 @@
-fetch('/posts')
+fetch('posts')
   .then(response => response.json())
   .then(blogData => blogData.map(prepareBlogEntryData))
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
