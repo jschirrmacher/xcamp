@@ -69,6 +69,34 @@ module.exports = (dependencies) => {
     })
   }
 
+  function prepareLink(url) {
+    return url
+      .replace(/https?:\/\/xcamp.autentity.net/, 'content/')
+      .replace('/wp-content/uploads/sites/', 'images/')
+  }
+
+  const cacheDir = path.join(__dirname, '..', '..', 'profile-pictures')
+
+  async function getWPImage(reqPath, res) {
+    const localPath = path.join(cacheDir, reqPath.replace(/\/$/, '').replace(/^\//, ''))
+    if (!fs.existsSync(localPath)) {
+      const response = await fetch(wpBase + '/wp-content/uploads/sites' + reqPath, {agent})
+      const data = await response.blob()
+      fs.mkdirSync(path.dirname(localPath), {recursive: true})
+      fs.writeFileSync(localPath, await Buffer.from(await data.arrayBuffer()))
+    }
+    res.sendFile(localPath)
+  }
+
+  async function getWPPage(reqPath, res) {
+    const localPath = path.join(cacheDir, reqPath.replace(/\/$/, '').replace(/^\//, '')) + '.html'
+    const response = await fetch(wpBase + reqPath.replace(/\/$/, ''), {agent})
+    const data = await response.text()
+    fs.mkdirSync(path.dirname(localPath), {recursive: true})
+    fs.writeFileSync(localPath, data.replace(/https?:\/\/xcamp.autentity.net/g, 'https://xcamp.co'))
+    res.sendFile(localPath)
+  }
+
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -83,6 +111,7 @@ module.exports = (dependencies) => {
   const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels, config})
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
+  const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator})
 
   const router = express.Router()
 
@@ -104,6 +133,7 @@ module.exports = (dependencies) => {
   router.use('/paypal/ipn', paypalRouter)
   router.use('/orga', orgaRouter)
   router.use('/network', networkRouter)
+  router.use('/blog', blogRouter)
 
   return router
 }
