@@ -22,7 +22,7 @@ module.exports = (store, readModels, config, rack) => {
       access_code: rack()
     }
     await store.add({type: 'person-created', person})
-    return readModels.person.getById(data.id)
+    return readModels.person.getById(person.id)
   }
 
   async function update(id, newData, user = null) {
