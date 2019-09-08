@@ -83,7 +83,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
           title: meta.title,
           content: shorten(html),
         }
-    })
+      })
   }
 
   const router = express.Router()
