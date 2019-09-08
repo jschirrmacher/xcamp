@@ -21,6 +21,17 @@
   }
 }
 
+.blog-entry {
+  img + em {
+    text-align: center;
+    display: block;
+  }
+
+  .social-networks-wrapper {
+    text-align: right;
+  }
+}
+
 .pager {
   text-align: right;
 

@@ -897,6 +897,14 @@ body.logged-out .logged-in {
   padding: 3px 0;
 }
 
+.blog-entry img + em {
+  text-align: center;
+  display: block;
+}
+.blog-entry .social-networks-wrapper {
+  text-align: right;
+}
+
 .pager {
   text-align: right;
 }
