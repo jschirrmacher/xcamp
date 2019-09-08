@@ -7,11 +7,15 @@ const converter = new showdown.Converter({metadata: true})
 const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator}) => {
+  function getArticles() {
+    return fs.readdirSync(path.join(__dirname, '..', 'blog')).filter(e => e.match(/\.md$/))
+      .sort((a, b) => b.localeCompare(a))
+  }
+
   function showAll(pageNo) {
-    const files = fs.readdirSync(path.join(__dirname, '..', 'blog')).filter(e => e.match(/\.md$/))
+    const files = getArticles()
     const startEntryNo = (pageNo - 1) / pageSize
     const pageFiles = files.slice(startEntryNo, startEntryNo + pageSize - 1)
-      .sort((a, b) => b.localeCompare(a))
     const maxPage = Math.ceil(files.length / pageSize)
     const pages = Array.from({length: maxPage}, (_, i) => ({page: i + 1}))
     const prevPage = pageNo > 1 ? pageNo - 1 : false
@@ -40,10 +44,15 @@ module.exports = ({express, makeHandler, templateGenerator}) => {
   }
 
   function showPage(name) {
-    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', name) + '.md').toString()
+    const files = getArticles()
+    const fileName = name + '.md'
+    const index = files.indexOf(fileName)
+    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName)).toString()
     const text = converter.makeHtml(md)
     const meta = converter.getMetadata()
-    return templateGenerator.generate('blog-entry', {text, ...meta})
+    const prevPage = index > 0 ? files[index - 1].replace(/\.md$/, '') : false
+    const nextPage = index < files.length - 1 ? files[index + 1].replace(/\.md$/, '') : false
+    return templateGenerator.generate('blog-entry', {text, ...meta, prevPage, nextPage})
   }
 
   function showImage(name, res) {

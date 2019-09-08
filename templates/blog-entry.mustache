@@ -14,16 +14,13 @@
 <div id="main">
     <div class="container semi-transparent">
         <div class="pager">
-            {{#prevPage}}<span>Vorherige Seite</span>{{/prevPage}}
+            {{#prevPage}}<a href="blog/{{prevPage}}">&lt; Vorherige Seite</a>{{/prevPage}}
+            {{#nextPage}}<a href="blog/{{nextPage}}">Nächste Seite &gt;</a>{{/nextPage}}
         </div>
 
         <h1>{{title}}</h1>
 
         {{&text}}
-
-        <div class="pager">
-            {{#nextPage}}<span>Nächste Seite</span>{{/nextPage}}
-        </div>
     </div>
 </div>
 
