@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const stripHtml = require("string-strip-html")
 const showdown = require('showdown')
 
 const converter = new showdown.Converter({metadata: true})
@@ -10,10 +11,11 @@ module.exports = ({express, makeHandler, templateGenerator}) => {
     const files = fs.readdirSync(path.join(__dirname, '..', 'blog')).filter(e => e.match(/\.md$/))
     const startEntryNo = (pageNo - 1) / pageSize
     const pageFiles = files.slice(startEntryNo, startEntryNo + pageSize - 1)
+      .sort((a, b) => b.localeCompare(a))
     const maxPage = Math.ceil(files.length / pageSize)
     const pages = Array.from({length: maxPage}, (_, i) => ({page: i + 1}))
-    const prevPage = pageNo > 1
-    const nextPage = pageNo < maxPage
+    const prevPage = pageNo > 1 ? pageNo - 1 : false
+    const nextPage = pageNo < maxPage ? pageNo + 1 : false
 
     const entries = pageFiles
       .map(e => {
@@ -24,7 +26,14 @@ module.exports = ({express, makeHandler, templateGenerator}) => {
         return {
           ...meta,
           link: e.replace(/\.md$/, ''),
-          text: html
+          text: stripHtml(html)
+            .split(' ')
+            .slice(0, 70)
+            .join(' ')
+            .concat('…')
+            .split('\n')
+            .map(l => `<p>${l}</p>`)
+            .join(''),
         }
       })
     return templateGenerator.generate('blog-list', {entries, pages, pageNo, prevPage, nextPage})

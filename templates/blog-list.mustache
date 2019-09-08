@@ -15,19 +15,21 @@
     <div class="container semi-transparent">
         <h1>{{eventName}} Blog</h1>
 
-        <ul>
+        <ul id="blog-list">
             {{#entries}}
                 <li><h2><a href="blog/{{{link}}}">{{title}}</a></h2>
-                    <p>{{teaser}}</p>
+                    <img src="{{{image}}}">
+                    {{&text}}
+                    <a href="blog/{{{link}}}" class="continue">[weiter lesen]</a>
                     <div class="meta">by {{author}} | {{published}}</div>
                 </li>
             {{/entries}}
         </ul>
 
         <div class="pager">
-            {{#prevPage}}<span>Vorherige Seite</span>{{/prevPage}}
-            {{#pages}}<span>{{page}}</span>{{/pages}}
-            {{#nextPage}}<span>Nächste Seite</span>{{/nextPage}}
+            {{#prevPage}}<a href="blog?page={{this}}">Vorherige Seite</a>{{/prevPage}}
+            {{#pages}}<a href="blog?page={{page}}" class="{{active}}">{{page}}</a>{{/pages}}
+            {{#nextPage}}<a href="blog?page={{this}}">Nächste Seite</a>{{/nextPage}}
         </div>
     </div>
 </div>

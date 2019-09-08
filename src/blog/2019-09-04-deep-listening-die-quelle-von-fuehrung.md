@@ -2,6 +2,8 @@
 title:     Deep Listening – die Quelle von Führung
 author:    Jens Bothmer
 published: 04.09.2019
+image:     blog/images/dog-1200x800.jpg
+tags:      XCamp2019, Sessions
 ---
 
 ![alt text](blog/images/dog-1200x800.jpg)

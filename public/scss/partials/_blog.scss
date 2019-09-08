@@ -1,0 +1,38 @@
+#blog-list {
+  list-style: none;
+
+  li img {
+    max-width: 30%;
+    float: left;
+    margin-right: 10px;
+  }
+
+  .continue {
+    text-align: right;
+    display: block;
+    position: relative;
+    top: -1em;
+  }
+
+  .meta {
+    border-top: 1px solid $black;
+    border-bottom: 1px solid $black;
+    padding: 3px 0;
+  }
+}
+
+.pager {
+  text-align: right;
+
+  a {
+    border: 1px solid #3e3e3e;
+    padding: 4px 8px;
+    color: red;
+    cursor: pointer;
+
+    &.active {
+      background-color: #3e3e3e;
+      color: white;
+    }
+  }
+}
