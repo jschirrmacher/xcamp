@@ -877,6 +877,48 @@ body.logged-out .logged-in {
   }
 }
 
+#blog-list {
+  list-style: none;
+}
+#blog-list li img {
+  max-width: 30%;
+  float: left;
+  margin-right: 10px;
+}
+#blog-list .continue {
+  text-align: right;
+  display: block;
+  position: relative;
+  top: -1em;
+}
+#blog-list .meta {
+  border-top: 1px solid #343434;
+  border-bottom: 1px solid #343434;
+  padding: 3px 0;
+}
+
+.blog-entry img + em {
+  text-align: center;
+  display: block;
+}
+.blog-entry .social-networks-wrapper {
+  text-align: right;
+}
+
+.pager {
+  text-align: right;
+}
+.pager a {
+  border: 1px solid #3e3e3e;
+  padding: 4px 8px;
+  color: red;
+  cursor: pointer;
+}
+.pager a.active {
+  background-color: #3e3e3e;
+  color: white;
+}
+
 #sponsors {
   padding: 0.5rem 1.5rem;
   display: flex;

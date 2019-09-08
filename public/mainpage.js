@@ -1,4 +1,4 @@
-fetch('posts')
+fetch('blog/lastthree')
   .then(response => response.json())
   .then(blogData => blogData.map(prepareBlogEntryData))
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
@@ -27,7 +27,7 @@ function prepareBlogEntryData(entry) {
 function generateBlogEntryView(entry) {
   return `
             <div>
-                <a href=${entry.link}>
+                <a href="blog/${entry.link}">
                     <div class="img" style="background-image: url(${entry.img})"></div>
                     <p class="box">${entry.title}</p>
                 </a>

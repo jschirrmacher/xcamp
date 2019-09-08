@@ -1,0 +1,44 @@
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>XCamp - Blog</title>
+    <base href="{{baseUrl}}">
+    <link rel="stylesheet" href="dist/css/main.css">
+</head>
+
+<body>
+{{> menu}}
+{{> logo}}
+<div id="main">
+    <div class="container semi-transparent">
+        <h1>{{eventName}} Blog</h1>
+
+        <ul id="blog-list">
+            {{#entries}}
+                <li><h2><a href="blog/{{{link}}}">{{title}}</a></h2>
+                    <img src="{{{image}}}">
+                    {{&text}}
+                    <a href="blog/{{{link}}}" class="continue">[weiter lesen]</a>
+                    <div class="meta">by {{author}} | {{published}}</div>
+                </li>
+            {{/entries}}
+        </ul>
+
+        <div class="pager">
+            {{#prevPage}}<a href="blog?page={{this}}">Vorherige Seite</a>{{/prevPage}}
+            {{#pages}}<a href="blog?page={{page}}" class="{{active}}">{{page}}</a>{{/pages}}
+            {{#nextPage}}<a href="blog?page={{this}}">Nächste Seite</a>{{/nextPage}}
+        </div>
+    </div>
+</div>
+
+{{> footer}}
+<script src="common.js"></script>
+<script>
+    setMenuState()
+</script>
+
+</body>
+</html>
