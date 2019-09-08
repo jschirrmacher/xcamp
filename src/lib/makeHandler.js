@@ -9,6 +9,8 @@ module.exports = ({auth, templateGenerator}) => {
             auth.signIn({user: result.user}, res)
           }
           res.redirect(result.url)
+        } else if (result && result.sendFile) {
+          res.sendFile(result.sendFile)
         } else if (result && result.mimeType) {
           res.contentType(result.mimeType)
           if (result.disposition) {

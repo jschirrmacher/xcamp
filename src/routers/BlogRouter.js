@@ -4,7 +4,7 @@ const stripHtml = require('string-strip-html')
 const showdown = require('showdown')
 
 const converter = new showdown.Converter({metadata: true})
-const pageSize = 10
+const pageSize = 2
 
 module.exports = ({express, makeHandler, templateGenerator, config}) => {
   function getArticles() {
@@ -14,16 +14,19 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   }
 
   function readArticle(fileName) {
-    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName)).toString()
+    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName))
+      .toString()
+      .replace(/(!\[.*?])\((.*?)\)/g, '$1(blog/$2)')
     const html = converter.makeHtml(md)
     const meta = converter.getMetadata()
+    meta.image = meta.image ? 'blog/' + meta.image : meta.image
     return {html, meta}
   }
 
-  function shorten(html) {
+  function shorten(html, size) {
     return stripHtml(html)
       .split(' ')
-      .slice(0, 70)
+      .slice(0, size)
       .join(' ')
       .concat('…')
       .split('\n')
@@ -47,7 +50,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
         return {
           ...meta,
           link: fileName.replace(/\.md$/, ''),
-          text: shorten(html),
+          text: shorten(html, 70),
         }
       })
     return templateGenerator.generate('blog-list', {entries, pages, pageNo, prevPage, nextPage})
@@ -57,19 +60,22 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
     const files = getArticles()
     const fileName = name + '.md'
     const index = files.indexOf(fileName)
-    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName)).toString()
-    const text = converter.makeHtml(md)
-    const meta = converter.getMetadata()
-    const prevPage = index > 0 ? files[index - 1].replace(/\.md$/, '') : false
-    const nextPage = index < files.length - 1 ? files[index + 1].replace(/\.md$/, '') : false
-    const selflink = config.baseUrl + '/blog/' + name
-    const facebook = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(selflink)
-    const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
-    return templateGenerator.generate('blog-entry', {text, ...meta, prevPage, nextPage, facebook, twitter})
-  }
-
-  function showImage(name, res) {
-    res.sendFile(path.resolve(__dirname, '..', 'blog', name))
+    if (index < 0) {
+      const imageFileName = path.resolve(__dirname, '..', 'blog', name)
+      if (fs.existsSync(imageFileName)) {
+        return {sendFile: imageFileName}
+      } else {
+        throw Error({message: 'File not found', status: 404})
+      }
+    } else {
+      const {html, meta} = readArticle(fileName)
+      const prevPage = index > 0 ? files[index - 1].replace(/\.md$/, '') : false
+      const nextPage = index < files.length - 1 ? files[index + 1].replace(/\.md$/, '') : false
+      const selflink = config.baseUrl + '/blog/' + name
+      const facebook = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(selflink)
+      const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
+      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, facebook, twitter})
+    }
   }
 
   function get3Posts() {
@@ -81,7 +87,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
           img: meta.image,
           link: fileName.replace(/\.md$/, ''),
           title: meta.title,
-          content: shorten(html),
+          content: shorten(html, 40),
         }
       })
   }
@@ -90,7 +96,6 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
 
   router.get('/', makeHandler(req => showAll(req.query.page || 1), {type: 'send'}))
   router.get('/lastthree', makeHandler(get3Posts, {type: 'send'}))
-  router.get('/images/:imageName', (req, res) => showImage(req.params.imageName, res))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
 
   return router

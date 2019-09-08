@@ -2,11 +2,11 @@
 title:     Deep Listening – die Quelle von Führung
 author:    Jens Bothmer
 published: 04.09.2019
-image:     blog/images/dog-1200x800.jpg
+image:     dog-1200x800.jpg
 tags:      XCamp2019, Sessions
 ---
 
-![alt text](blog/images/dog-1200x800.jpg)
+![alt text](dog-1200x800.jpg)
 
 Wann war dein letztes Gespräch, bei dem etwas Neues miteinander entstanden ist?
 
@@ -36,22 +36,14 @@ Die Quelle von zukunftsorientierter Führung liegt somit darin, die eigene Aufme
 Bianca Köllner ist [selbstständige Beraterin](https://www.conscious-change.net/deutsch/) für die gemeinsame Gestaltung von systemischem Wandel und ganzheitlichem Lernen in Organisationen und Netzwerken. Sie versteht sich dabei als Wegbereiterin für soziale Innovation und Nachhaltigkeit. Mehr Informationen unter: https://www.conscious-change.net
 
 ## Quellen
-Otto Scharmer: Essentials der Theorie U – Grundprinzipien und Anwendungen, 2019
-Otto Scharmer: Theorie U – von der Zukunft der führen, 2009
-https://www.presencing.org
-
-http://innovation-evangelists.com/fileadmin/Dateien/PDF/Artikel/New_Leadership_-_Fuehrung_in_der_Arbeitswelt_4.0.pdf
-
-https://karrierebibel.de/zuhoren-lernen/
-
-https://meditierenlernen.org/achtsam-zuhoeren/
-
-https://ich-will-meditieren.de/achtsames-zuhoeren-achtsame-kommunikation/
-
-https://www.invisionapp.com/inside-design/qualities-of-design-thinking-leaders/
-
-https://www.zeitblueten.com/news/zuhoeren-koennen/
-
-https://www.scrum-academy.de/scrum-master/wissen/was-macht-einen-agile-leader-aus/
-
-https://www.haufe.de/personal/hr-management/fuehrungsmodelle-agil-fuehren-lernen_80_212704.html
+- Otto Scharmer: Essentials der Theorie U – Grundprinzipien und Anwendungen, 2019
+- Otto Scharmer: Theorie U – von der Zukunft der führen, 2009
+- [https://www.presencing.org](https://www.presencing.org)
+- [http://innovation-evangelists.com/fileadmin/Dateien/PDF/Artikel/New_Leadership_-_Fuehrung_in_der_Arbeitswelt_4.0.pdf](http://innovation-evangelists.com/fileadmin/Dateien/PDF/Artikel/New_Leadership_-_Fuehrung_in_der_Arbeitswelt_4.0.pdf)
+- [https://karrierebibel.de/zuhoren-lernen/](https://karrierebibel.de/zuhoren-lernen/)
+- [https://meditierenlernen.org/achtsam-zuhoeren/](https://meditierenlernen.org/achtsam-zuhoeren/)
+- [https://ich-will-meditieren.de/achtsames-zuhoeren-achtsame-kommunikation/](https://ich-will-meditieren.de/achtsames-zuhoeren-achtsame-kommunikation/)
+- [https://www.invisionapp.com/inside-design/qualities-of-design-thinking-leaders/](https://www.invisionapp.com/inside-design/qualities-of-design-thinking-leaders/)
+- [https://www.zeitblueten.com/news/zuhoeren-koennen/](https://www.zeitblueten.com/news/zuhoeren-koennen/)
+- [https://www.scrum-academy.de/scrum-master/wissen/was-macht-einen-agile-leader-aus/](https://www.scrum-academy.de/scrum-master/wissen/was-macht-einen-agile-leader-aus/)
+- [https://www.haufe.de/personal/hr-management/fuehrungsmodelle-agil-fuehren-lernen_80_212704.html](https://www.haufe.de/personal/hr-management/fuehrungsmodelle-agil-fuehren-lernen_80_212704.html)
