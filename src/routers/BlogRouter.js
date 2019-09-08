@@ -4,7 +4,7 @@ const stripHtml = require('string-strip-html')
 const showdown = require('showdown')
 
 const converter = new showdown.Converter({metadata: true})
-const pageSize = 2
+const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config}) => {
   function getArticles() {
