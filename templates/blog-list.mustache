@@ -27,9 +27,9 @@
         </ul>
 
         <div class="pager">
-            {{#prevPage}}<a href="blog?page={{this}}">Vorherige Seite</a>{{/prevPage}}
+            {{#prevPage}}<a href="blog?page={{prevPage}}">Vorherige Seite</a>{{/prevPage}}
             {{#pages}}<a href="blog?page={{page}}" class="{{active}}">{{page}}</a>{{/pages}}
-            {{#nextPage}}<a href="blog?page={{this}}">Nächste Seite</a>{{/nextPage}}
+            {{#nextPage}}<a href="blog?page={{nextPage}}">Nächste Seite</a>{{/nextPage}}
         </div>
     </div>
 </div>

@@ -37,9 +37,12 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   function showAll(pageNo) {
     const files = getArticles()
     const startEntryNo = (pageNo - 1) / pageSize
-    const pageFiles = files.slice(startEntryNo, startEntryNo + pageSize - 1)
+    const pageFiles = files.slice(startEntryNo, startEntryNo + pageSize)
     const maxPage = Math.ceil(files.length / pageSize)
-    const pages = Array.from({length: maxPage}, (_, i) => ({page: i + 1}))
+    const pages = Array.from({length: maxPage}, (_, i) => ({
+      page: i + 1,
+      active: i + 1 === pageNo ? 'active' : undefined
+    }))
     const prevPage = pageNo > 1 ? pageNo - 1 : false
     const nextPage = pageNo < maxPage ? pageNo + 1 : false
 
