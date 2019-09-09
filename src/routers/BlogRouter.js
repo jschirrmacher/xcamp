@@ -14,8 +14,10 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   }
 
   function readArticle(fileName) {
+    const pageName = fileName.replace(/\.md$/, '')
     const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName))
       .toString()
+      .replace(/\((#.*)\)/g, `(blog/${pageName}$1)`)
       .replace(/(!\[.*?])\((.*?)\)/g, '$1(blog/$2)')
     const html = converter.makeHtml(md)
     const meta = converter.getMetadata()
@@ -24,7 +26,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   }
 
   function shorten(html, size) {
-    return stripHtml(html)
+    return stripHtml(html.split(/<!--\s*snip\s*-->/)[0])
       .split(' ')
       .slice(0, size)
       .join(' ')

@@ -11,6 +11,8 @@ Wir haben für dich 10 Methoden visualisiert und kurz zusammengefasst, welche di
 
 Heute präsentieren wir die letzen vier Methoden.
 
+<!--snip-->
+
 ### Teil 3:
 
 - [Ja+Und Brainstorming](#ja-und-brainstorming)
