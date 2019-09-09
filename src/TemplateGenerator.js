@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const Mustache = require('mustache')
 
-const templatesFolder = path.join(__dirname, '..', 'templates')
+const templatesFolder = path.join(__dirname, 'templates')
 const templatesSubFolder = path.join(templatesFolder, 'sub')
 
 function getTemplate(name) {

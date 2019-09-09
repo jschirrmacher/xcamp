@@ -9,7 +9,6 @@ WORKDIR /app
 ADD package*.json /app/
 ADD src /app/src
 ADD public /app/public
-ADD templates /app/templates
 RUN npm install --production
 
 EXPOSE 3000
