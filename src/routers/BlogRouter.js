@@ -3,19 +3,20 @@ const path = require('path')
 const stripHtml = require('string-strip-html')
 const showdown = require('showdown')
 
+const blogPath = path.resolve(__dirname, '..', '..', 'blog')
 const converter = new showdown.Converter({metadata: true})
 const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config}) => {
   function getArticles() {
-    return fs.readdirSync(path.join(__dirname, '..', 'blog'))
+    return fs.readdirSync(blogPath)
       .filter(e => e.match(/\.md$/))
       .sort((a, b) => b.localeCompare(a))
   }
 
   function readArticle(fileName) {
     const pageName = fileName.replace(/\.md$/, '')
-    const md = fs.readFileSync(path.join(__dirname, '..', 'blog', fileName))
+    const md = fs.readFileSync(path.join(blogPath, fileName))
       .toString()
       .replace(/\((#.*)\)/g, `(blog/${pageName}$1)`)
       .replace(/(!\[.*?])\((.*?)\)/g, '$1(blog/$2)')
@@ -66,7 +67,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
     const fileName = name + '.md'
     const index = files.indexOf(fileName)
     if (index < 0) {
-      const imageFileName = path.resolve(__dirname, '..', 'blog', name)
+      const imageFileName = path.resolve(blogPath, name)
       if (fs.existsSync(imageFileName)) {
         return {sendFile: imageFileName}
       } else {
