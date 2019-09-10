@@ -98,3 +98,20 @@ margin-bottom: 1rem;
   margin: 0 auto;
 }
 
+.sold-out {
+  overflow: hidden;
+
+  &:after {
+    content: 'Ausverkauft';
+    color: white;
+    background-color: red;
+    font-size: 24px;
+    font-family: sans-serif;
+    font-weight: normal;
+    transform: rotate(-45deg);
+    position: absolute;
+    padding: 9px 50px;
+    bottom: 40px;
+    right: -50px;
+  }
+}

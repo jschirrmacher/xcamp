@@ -30,7 +30,8 @@ module.exports = (dependencies) => {
   function getIndexPage() {
     const sponsors = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/sponsors', 'sponsors.json')))
     const partners = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/partners', 'partners.json')))
-    return templateGenerator.generate('index', {sponsors, partners})
+    const soldOut = config.ticketsSoldOut ? 'sold-out' : ''
+    return templateGenerator.generate('index', {sponsors, partners, soldOut})
   }
 
   function getSessionList() {

@@ -17,10 +17,11 @@ module.exports = (dependencies) => {
       return templateGenerator.generate('invalid-coupon-code')
     }
     const template = type === 'reduced' ? 'apply-to-reduced-ticket' : 'buy-ticket'
-    const templateName = config.ticketSaleStarted || isAdmin ? template : 'no-tickets-yet'
+    const templateName = config.ticketSaleActive || isAdmin ? template : 'no-tickets-yet'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
     const ticketType = code ? coupon.category : ''
-    const data = {code, eventName: config.eventName, categories, ticketType}
+    const message = config.ticketsSoldOut ? 'Leider ist schon alles ausverkauft' : 'Noch gibt es leider keine Tickets'
+    const data = {code, eventName: config.eventName, categories, ticketType, message}
     return templateGenerator.generate(templateName, data)
   }
 

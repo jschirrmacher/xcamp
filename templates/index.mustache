@@ -14,10 +14,9 @@
     <div id="hero" class="container no-background">
         <h1>Innovating Agile</h1>
 
-        <p class="title-inner">Am 13. September 2019 treffen auf dem XCamp die Innovationstreiber aus Unternehmen
-            und
-            Start-ups, Design
-            Thinker, Agile und Lean Startup-Experten der Metropolregion Frankfurt Rhein Main zusammen.</p>
+        <p class="title-inner">Am 13. September 2019 treffen auf dem XCamp die Innovationstreiber aus Unternehmen und
+            Start-ups, Design Thinker, Agile und Lean Startup-Experten der Metropolregion Frankfurt Rhein Main zusammen.
+        </p>
 
         <a class="button yellow big" target="_self" href="tickets">Jetzt Ticket kaufen</a>
         <a class="button turquoise big" target="_self" href=".">Jetzt vernetzen</a>
@@ -106,7 +105,7 @@
         </div>
 
         <div id="ticket-types" class="three-boxes bottom-buttons">
-            <div class="box magenta">
+            <div class="box magenta {{soldOut}}">
                 <div>
                     <h3>Selbstzahler-Ticket</h3>
 
@@ -114,13 +113,13 @@
                         Verpass nicht diese einmalige Chance!</p>
                 </div>
 
-                <a class="button button--light align-bottom" target="_self" href="tickets?type=private">
+                <a class="button button--light align-bottom" target="_self" href="tickets?type=private" {{#soldOut}}disabled="true"{{/soldOut}}>
                     <strong>148,75 €</strong>
                     <br>
                     Ticket kaufen</a>
             </div>
 
-            <div class="box turquoise">
+            <div class="box turquoise {{soldOut}}">
                 <div>
                     <h3>Unternehmensticket</h3>
 
@@ -129,14 +128,14 @@
                         möglich.</p>
                 </div>
 
-                <a class="button button--light align-bottom" target="_self" href="tickets?type=corporate">
+                <a class="button button--light align-bottom" target="_self" href="tickets?type=corporate" {{#soldOut}}disabled="true"{{/soldOut}}>
                     <strong>297,50 €</strong>
                     <br>
                     Ticket kaufen
                 </a>
             </div>
 
-            <div class="box yellow">
+            <div class="box yellow {{soldOut}}">
                 <div>
                     <h3>Vergünstigtes Ticket</h3>
 
@@ -146,7 +145,7 @@
                     </p>
                 </div>
 
-                <a class="button button--light align-bottom" target="_self" href="tickets?type=reduced">
+                <a class="button button--light align-bottom" target="_self" href="tickets?type=reduced" {{#soldOut}}disabled="true"{{/soldOut}}>
                     <strong>35,00 €</strong>
                     <br>
                     Ticket anfragen

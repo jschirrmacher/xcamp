@@ -11,7 +11,8 @@
     "eventListId": "xxx"
   },
 
-  "ticketSaleStarted": true,
+  "ticketSaleActive": true,
+  "ticketsSoldOut": false,
   "ticketCategories": {
     "earlybird": 100,
     "private": 125,
