@@ -72,6 +72,14 @@ html, body {
     background-image: url("../../assets/img/hero-1900.svg")
   }
 
+  &.no-background {
+    background: none;
+
+    .container {
+      padding-top: 0;
+    }
+  }
+
   .container {
 
     .container > div {

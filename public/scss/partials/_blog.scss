@@ -1,5 +1,6 @@
 #blog-list {
   list-style: none;
+  padding: 0;
 
   li img {
     max-width: 30%;
@@ -33,10 +34,12 @@
 }
 
 .pager {
+  border-top: 1px solid $black;
+  border-bottom: 1px solid $black;
+  padding: 3px 0;
   text-align: right;
 
   a {
-    border: 1px solid #3e3e3e;
     padding: 4px 8px;
     color: red;
     cursor: pointer;
