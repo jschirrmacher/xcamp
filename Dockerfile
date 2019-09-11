@@ -1,7 +1,6 @@
 FROM node:dubnium-alpine
 
-RUN mkdir /app
-RUN addgroup -S nodejs && adduser -S nodejs -G nodejs && chown nodejs.nodejs /app
+RUN mkdir /app && addgroup -S nodejs && adduser -S nodejs -G nodejs && chown nodejs.nodejs /app
 USER nodejs
 
 WORKDIR /app
