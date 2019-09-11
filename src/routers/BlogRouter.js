@@ -104,7 +104,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   const router = express.Router()
 
   router.get('/', makeHandler(req => showAll(req.query.page || 1), {type: 'send'}))
-  router.get('/lastthree', makeHandler(getNumPosts, {type: 'send'}))
+  router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
 
   return router
