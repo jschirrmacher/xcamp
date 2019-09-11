@@ -925,14 +925,16 @@ body.logged-out .logged-in {
   text-align: center;
   display: block;
 }
+.blog-entry .pager {
+  border-top: 1px solid #343434;
+  border-bottom: 1px solid #343434;
+  padding: 3px 0;
+}
 .blog-entry .social-networks-wrapper {
   text-align: right;
 }
 
 .pager {
-  border-top: 1px solid #343434;
-  border-bottom: 1px solid #343434;
-  padding: 3px 0;
   text-align: right;
 }
 .pager a {

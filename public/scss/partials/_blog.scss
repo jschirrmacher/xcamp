@@ -28,15 +28,18 @@
     display: block;
   }
 
+  .pager {
+    border-top: 1px solid $black;
+    border-bottom: 1px solid $black;
+    padding: 3px 0;
+  }
+
   .social-networks-wrapper {
     text-align: right;
   }
 }
 
 .pager {
-  border-top: 1px solid $black;
-  border-bottom: 1px solid $black;
-  padding: 3px 0;
   text-align: right;
 
   a {
