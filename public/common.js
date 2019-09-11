@@ -66,10 +66,10 @@ function setupMail2InfoLink(link, mailBody) {
     e.preventDefault()
     const subject = encodeURIComponent(link.dataset.message)
     const body = mailBody ? '&body=' + encodeURIComponent(mailBody) : ''
-    location.href = 'mailto:netvis@xcamp.co?subject=' + subject + body
+    location.href = 'mailto:mail@xcamp.co?subject=' + subject + body
     return false
   })
-  link.innerText = 'netvis@xcamp.co'
+  link.innerText = 'mail@xcamp.co'
 }
 
 document.querySelectorAll('.mail2info').forEach(setupMail2InfoLink)
