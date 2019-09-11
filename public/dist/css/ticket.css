@@ -933,6 +933,22 @@ body.logged-out .logged-in {
 .blog-entry .social-networks-wrapper {
   text-align: right;
 }
+@media (min-width: 800px) {
+  .blog-entry .row {
+    display: flex;
+  }
+}
+.blog-entry #otherEntries {
+  padding-left: 2em;
+}
+.blog-entry #otherEntries h3 {
+  margin-top: 1.5em;
+}
+.blog-entry #otherEntries li {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #343434;
+}
 
 .pager {
   text-align: right;

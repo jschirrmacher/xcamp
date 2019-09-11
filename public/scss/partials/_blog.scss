@@ -37,6 +37,26 @@
   .social-networks-wrapper {
     text-align: right;
   }
+
+  .row {
+    @media (min-width: 800px) {
+      display: flex;
+    }
+  }
+
+  #otherEntries {
+    padding-left: 2em;
+
+    h3 {
+      margin-top: 1.5em;
+    }
+
+    li {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid $black;
+    }
+  }
 }
 
 .pager {

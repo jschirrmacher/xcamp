@@ -80,13 +80,16 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
       const selflink = config.baseUrl + '/blog/' + name
       const facebook = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(selflink)
       const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
-      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, facebook, twitter})
+      const otherEntries = getNumPosts(5, name)
+      const hasOthers = otherEntries.length
+      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter})
     }
   }
 
-  function get3Posts() {
+  function getNumPosts(num = 3, exclude = null) {
     return getArticles()
-      .slice(0, 3)
+      .filter(fileName => fileName.replace(/\.md$/, '') !== exclude)
+      .slice(0, num)
       .map(fileName => {
         const {html, meta} = readArticle(fileName)
         return {
@@ -101,7 +104,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   const router = express.Router()
 
   router.get('/', makeHandler(req => showAll(req.query.page || 1), {type: 'send'}))
-  router.get('/lastthree', makeHandler(get3Posts, {type: 'send'}))
+  router.get('/lastthree', makeHandler(getNumPosts, {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
 
   return router
