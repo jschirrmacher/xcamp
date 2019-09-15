@@ -4,7 +4,12 @@ const stripHtml = require('string-strip-html')
 const showdown = require('showdown')
 
 const blogPath = path.resolve(__dirname, '..', '..', 'blog')
-const converter = new showdown.Converter({metadata: true})
+const converter = new showdown.Converter({
+  metadata: true,
+  parseImgDimensions: true,
+  simplifiedAutoLink: true,
+  openLinksInNewWindow: true
+})
 const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config}) => {
