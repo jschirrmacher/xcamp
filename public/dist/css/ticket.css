@@ -923,6 +923,11 @@ body.logged-out .logged-in {
   clear: both;
 }
 
+.blog-list .pager a {
+  border: 1px solid #343434;
+  margin-right: 5px;
+}
+
 .blog-entry img {
   float: left;
   margin-right: 10px;
@@ -962,10 +967,8 @@ body.logged-out .logged-in {
 }
 .pager a {
   padding: 4px 8px;
-  color: red;
+  color: #ff696c;
   cursor: pointer;
-  border: 1px solid #343434;
-  margin-right: 5px;
 }
 .pager a.active {
   background-color: #343434;

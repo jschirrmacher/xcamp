@@ -32,7 +32,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
   }
 
   function shorten(html, size) {
-    return stripHtml(html.split(/<!--\s*snip\s*-->/)[0])
+    return stripHtml(html.split(/<!--\s*snip\s*-->/)[0]).replace(/\n/g, ' ')
       .split(' ')
       .slice(0, size)
       .join(' ')
@@ -108,7 +108,7 @@ module.exports = ({express, makeHandler, templateGenerator, config}) => {
 
   const router = express.Router()
 
-  router.get('/', makeHandler(req => showAll(req.query.page || 1), {type: 'send'}))
+  router.get('/', makeHandler(req => showAll(+req.query.page || 1), {type: 'send'}))
   router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
 

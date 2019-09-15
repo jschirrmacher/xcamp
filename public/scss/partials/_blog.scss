@@ -24,6 +24,13 @@
   }
 }
 
+.blog-list {
+  .pager a {
+    border: 1px solid $black;
+    margin-right: 5px;
+  }
+}
+
 .blog-entry {
   img {
     float: left;
@@ -72,10 +79,8 @@
 
   a {
     padding: 4px 8px;
-    color: red;
+    color: $magenta;
     cursor: pointer;
-    border: 1px solid $black;
-    margin-right: 5px;
 
     &.active {
       background-color: $black;
