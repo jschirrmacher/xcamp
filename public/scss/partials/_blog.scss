@@ -6,6 +6,7 @@
     max-width: 30%;
     float: left;
     margin-right: 10px;
+    margin-bottom: 10px;
   }
 
   .continue {
@@ -19,6 +20,7 @@
     border-top: 1px solid $black;
     border-bottom: 1px solid $black;
     padding: 3px 0;
+    clear: both;
   }
 }
 

@@ -908,6 +908,7 @@ body.logged-out .logged-in {
   max-width: 30%;
   float: left;
   margin-right: 10px;
+  margin-bottom: 10px;
 }
 #blog-list .continue {
   text-align: right;
@@ -919,6 +920,7 @@ body.logged-out .logged-in {
   border-top: 1px solid #343434;
   border-bottom: 1px solid #343434;
   padding: 3px 0;
+  clear: both;
 }
 
 .blog-entry img + em {
