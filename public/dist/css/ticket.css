@@ -964,9 +964,11 @@ body.logged-out .logged-in {
   padding: 4px 8px;
   color: red;
   cursor: pointer;
+  border: 1px solid #343434;
+  margin-right: 5px;
 }
 .pager a.active {
-  background-color: #3e3e3e;
+  background-color: #343434;
   color: white;
 }
 
