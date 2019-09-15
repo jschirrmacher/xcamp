@@ -923,6 +923,11 @@ body.logged-out .logged-in {
   clear: both;
 }
 
+.blog-entry img {
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
 .blog-entry img + em {
   text-align: center;
   display: block;
