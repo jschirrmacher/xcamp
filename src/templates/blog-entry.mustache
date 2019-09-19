@@ -14,8 +14,8 @@
 <div id="main" class="no-background">
     <div class="container blog-entry">
         <div class="pager">
-            {{#prevPage}}<a href="blog/{{prevPage}}">&lt; Vorherige Seite</a>{{/prevPage}}
-            {{#nextPage}}<a href="blog/{{nextPage}}">Nächste Seite &gt;</a>{{/nextPage}}
+            {{#prevPage}}<a href="{{prevPage}}">&lt; Vorherige Seite</a>{{/prevPage}}
+            {{#nextPage}}<a href="{{nextPage}}">Nächste Seite &gt;</a>{{/nextPage}}
         </div>
 
         <div class="row">
@@ -40,7 +40,7 @@
 
                 <ul>
                     {{#otherEntries}}
-                        <li><a href="blog/{{link}}">{{title}}</a></li>
+                        <li><a href="{{link}}">{{title}}</a></li>
                     {{/otherEntries}}
                 </ul>
             </div>

@@ -19,6 +19,7 @@ module.exports = (dependencies) => {
   const makeHandler = require('../lib/makeHandler')({auth, templateGenerator, logger})
   const publicDir = path.resolve(__dirname, '..', '..', 'public')
   const nodeDir = path.resolve(__dirname, '..', '..', 'node_modules')
+  const contentReader = require('../ContentReader')({config, logger})
 
   function getNetVisPage() {
     const index = fs.readFileSync(path.resolve(publicDir, 'network.html')).toString()
@@ -64,7 +65,7 @@ module.exports = (dependencies) => {
   const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels, config})
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
-  const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, config})
+  const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, contentReader, config})
 
   const router = express.Router()
 
@@ -86,6 +87,20 @@ module.exports = (dependencies) => {
   router.use('/orga', orgaRouter)
   router.use('/network', networkRouter)
   router.use('/blog', blogRouter)
+
+  router.get('/*', (req, res, next) => {
+    const fileName = path.join(contentReader.contentPath, req.path)
+    if (fs.existsSync(fileName + '.md')) {
+      const {meta, html} = contentReader.getPageContent(path.basename(req.path), 'team')
+      const articleList = contentReader.getPages('blog')
+        .filter(article => article.meta.author === meta.title)
+      res.send(templateGenerator.generate(meta.template, {html, meta, articleList}))
+    } if (fs.existsSync(fileName)) {
+      res.sendFile(fileName)
+    } else {
+      next({status: 404, message: 'Not found'})
+    }
+  })
 
   return router
 }

@@ -1,0 +1,26 @@
+.team-member {
+  h2 {
+    font-size: 24px;
+  }
+
+  .articles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 320px);
+    grid-gap: 1em;
+    justify-content: space-between;
+    align-content: flex-start;
+  }
+
+  .card {
+    width: 320px;
+    border: 1px solid #aaaaaa;
+
+    h3 {
+      line-height: normal;
+    }
+
+    h3, p {
+      padding: 0 10px;
+    }
+  }
+}

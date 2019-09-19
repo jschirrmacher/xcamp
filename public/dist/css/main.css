@@ -242,6 +242,11 @@ html, body {
   color: white;
   margin-top: 8vw;
 }
+#main img {
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
 
 .title-inner {
   font-size: 18px;
@@ -927,6 +932,10 @@ body.logged-out .logged-in {
   border: 1px solid #343434;
   margin-right: 5px;
 }
+.blog-list h2 {
+  font-size: 24px;
+  margin-bottom: 0.5em;
+}
 
 .blog-entry img {
   float: left;
@@ -973,6 +982,27 @@ body.logged-out .logged-in {
 .pager a.active {
   background-color: #343434;
   color: white;
+}
+
+.team-member h2 {
+  font-size: 24px;
+}
+.team-member .articles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 320px);
+  grid-gap: 1em;
+  justify-content: space-between;
+  align-content: flex-start;
+}
+.team-member .card {
+  width: 320px;
+  border: 1px solid #aaaaaa;
+}
+.team-member .card h3 {
+  line-height: normal;
+}
+.team-member .card h3, .team-member .card p {
+  padding: 0 10px;
 }
 
 #sponsors {

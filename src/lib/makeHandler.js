@@ -22,12 +22,16 @@ module.exports = ({auth, templateGenerator}) => {
           res[type](result)
         }
       } catch (error) {
-        const template = error.template || 'exception-occured'
-        const params = error.params || {message: error.message || error.toString()}
-        res
-          .status(error.status || 500)
-          .send(templateGenerator.generate(template, params))
-        next(error)
+        if (error.next) {
+          next()
+        } else {
+          const template = error.template || 'exception-occured'
+          const params = error.params || {message: error.message || error.toString()}
+          res
+            .status(error.status || 500)
+            .send(templateGenerator.generate(template, params))
+          next(error)
+        }
       }
     }
   }

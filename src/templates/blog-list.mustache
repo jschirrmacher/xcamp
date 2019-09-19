@@ -17,19 +17,31 @@
 
         <ul id="blog-list">
             {{#entries}}
-                <li><h2><a href="blog/{{{link}}}">{{title}}</a></h2>
-                    <img src="{{{image}}}">
-                    {{&text}}
-                    <a href="blog/{{{link}}}" class="continue">[weiter lesen]</a>
-                    <div class="meta">by {{author}} | {{published}}</div>
+                <li>
+                    <a href="blog/{{{meta.pageName}}}">
+                        <img src="{{{meta.image}}}">
+                        <h2>{{meta.title}}</h2>
+                    </a>
+                    {{& previewText}}
+                    <a href="blog/{{{meta.pageName}}}" class="continue">[weiter lesen]</a>
+                    <div class="meta">by
+                        {{#meta.authorPage}}
+                            <a href="team/{{{meta.authorPage}}}">{{meta.author}}</a>
+                        {{/meta.authorPage}}
+                        {{^meta.authorPage}}
+                            {{meta.author}}
+                        {{/meta.authorPage}}
+
+                        | {{meta.published}}
+                    </div>
                 </li>
             {{/entries}}
         </ul>
 
         <div class="pager">
-            {{#prevPage}}<a href="blog?page={{prevPage}}">Vorherige Seite</a>{{/prevPage}}
-            {{#pages}}<a href="blog?page={{page}}" class="{{active}}">{{page}}</a>{{/pages}}
-            {{#nextPage}}<a href="blog?page={{nextPage}}">Nächste Seite</a>{{/nextPage}}
+            {{#prevPage}}<a href="blog/?page={{prevPage}}">Vorherige Seite</a>{{/prevPage}}
+            {{#pageNums}}<a href="blog/?page={{page}}" class="{{active}}">{{page}}</a>{{/pageNums}}
+            {{#nextPage}}<a href="blog/?page={{nextPage}}">Nächste Seite</a>{{/nextPage}}
         </div>
     </div>
 </div>
