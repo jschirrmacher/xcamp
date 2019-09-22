@@ -38,7 +38,7 @@ module.exports = ({logger, config}) => {
       const meta = converter.getMetadata()
       meta.image = type + '/' + meta.image
       meta.title = meta.title || pageName
-      meta.template = meta.template || 'standard-page'
+      meta.layout = meta.layout || 'standard-page'
       meta.pageName = pageName
       meta.fileName = fileName
       meta.type = type

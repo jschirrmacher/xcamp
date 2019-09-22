@@ -94,7 +94,7 @@ module.exports = (dependencies) => {
       const {meta, html} = contentReader.getPageContent(path.basename(req.path), 'team')
       const articleList = contentReader.getPages('blog')
         .filter(article => article.meta.author === meta.title)
-      res.send(templateGenerator.generate(meta.template, {html, meta, articleList}))
+      res.send(templateGenerator.generate(meta.layout, {html, meta, articleList}))
     } if (fs.existsSync(fileName)) {
       res.sendFile(fileName)
     } else {
