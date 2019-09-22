@@ -24,15 +24,16 @@ module.exports = ({logger, config}) => {
   return {
     contentPath,
 
-    getPageContent(pageName, type) {
+    getPageContent(pageName, type, folder) {
+      folder = folder || type
       const fileName = pageName + '.md'
       const id = type + '/' + pageName
       if (pages[id] && pages[id].expiry > +new Date()) {
         return pages[id].info
       }
-      const content = fs.readFileSync(path.join(contentPath, type, fileName)).toString()
-        .replace(/\((#.*)\)/g, `(${type}/${pageName}$1)`)
-        .replace(/(!\[.*?])\((.*?)\)/g, `$1(${type}/$2)`)
+      const content = fs.readFileSync(path.join(contentPath, folder, fileName)).toString()
+        .replace(/\((#.*)\)/g, `(${folder}/${pageName}$1)`)
+        .replace(/(!\[.*?])\((.*?)\)/g, `$1(${folder}/$2)`)
 
       const html = converter.makeHtml(content)
       const meta = converter.getMetadata()
@@ -52,12 +53,13 @@ module.exports = ({logger, config}) => {
       return pages[id].info
     },
 
-    getPages(type) {
-      const basePath = path.join(contentPath, type)
+    getPages(type, folder) {
+      folder = folder || type
+      const basePath = path.join(contentPath, folder)
       return fs.readdirSync(basePath)
         .filter(e => e.match(/\.md$/))
         .sort((a, b) => b.localeCompare(a))
-        .map(e => this.getPageContent(e.replace(/\.md$/, ''), type))
+        .map(e => this.getPageContent(e.replace(/\.md$/, ''), type, folder))
     },
   }
 

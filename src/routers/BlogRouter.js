@@ -5,7 +5,7 @@ const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config, contentReader}) => {
   function showAll(pageNo) {
-    const pages = contentReader.getPages('blog')
+    const pages = contentReader.getPages('blog', '_posts')
     const startEntryNo = (pageNo - 1) * pageSize
     const relevantPages = pages.slice(startEntryNo, startEntryNo + pageSize)
     const maxPage = Math.ceil(pages.length / pageSize)
@@ -17,22 +17,17 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
     const nextPage = pageNo < maxPage ? pageNo + 1 : false
 
     const entries = relevantPages
-      .map(page => contentReader.getPageContent(page.meta.pageName, 'blog'))
+      .map(page => contentReader.getPageContent(page.meta.pageName, 'blog', '_posts'))
     return templateGenerator.generate('blog-list', {entries, pageNums, pageNo, prevPage, nextPage})
   }
 
   function showPage(name) {
-    const files = contentReader.getPages('blog')
+    const files = contentReader.getPages('blog', '_posts')
     const index = files.findIndex(e => e.meta.pageName === name)
     if (index < 0) {
-      const imageFileName = path.resolve(contentReader.contentPath, 'media', name)
-      if (fs.existsSync(imageFileName)) {
-        return {sendFile: imageFileName}
-      } else {
-        throw {next: true}
-      }
+      throw {next: true}
     } else {
-      const {html, meta} = contentReader.getPageContent(name, 'blog')
+      const {html, meta} = contentReader.getPageContent(name, 'blog', '_posts')
       const prevPage = index > 0 ? 'blog/' + files[index - 1].meta.pageName : false
       const nextPage = index < files.length - 1 ? 'blog/' + files[index + 1].meta.pageName : false
       const selflink = config.baseUrl + '/blog/' + name
@@ -45,7 +40,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
   }
 
   function getNumPosts(num = 3, exclude = null) {
-    return contentReader.getPages('blog')
+    return contentReader.getPages('blog', '_posts')
       .filter(page => page.meta.pageName !== exclude)
       .slice(0, num)
       .map(page => {
@@ -63,6 +58,14 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
   router.get('/', makeHandler(req => showAll(+req.query.page || 1), {type: 'send'}))
   router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
+  router.get('/media/*', (req, res, next) => {
+    const fileName = path.resolve(contentReader.contentPath, '_posts', req.path.replace(/^\//, ''))
+    if (fs.existsSync(fileName)) {
+      res.sendFile(fileName)
+    } else {
+      next()
+    }
+  })
 
   return router
 }

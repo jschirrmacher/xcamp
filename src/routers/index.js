@@ -92,13 +92,13 @@ module.exports = (dependencies) => {
     const fileName = path.join(contentReader.contentPath, req.path)
     if (fs.existsSync(fileName + '.md')) {
       const {meta, html} = contentReader.getPageContent(path.basename(req.path), 'team')
-      const articleList = contentReader.getPages('blog')
+      const articleList = contentReader.getPages('blog', '_posts')
         .filter(article => article.meta.author === meta.title)
       res.send(templateGenerator.generate(meta.layout, {html, meta, articleList}))
-    } if (fs.existsSync(fileName)) {
+    } else if (fs.existsSync(fileName)) {
       res.sendFile(fileName)
     } else {
-      next({status: 404, message: 'Not found'})
+      res.status(404).send('Not found')
     }
   })
 
