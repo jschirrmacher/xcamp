@@ -46,6 +46,13 @@
             </div>
             {{/hasOthers}}
         </div>
+
+        {{#author}}
+        <div class="author">
+            <img src="{{image}}"><h3>Über den Autor {{name}}</h3>
+            <div>{{& html}}</div>
+        </div>
+        {{/author}}
     </div>
 </div>
 

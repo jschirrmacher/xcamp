@@ -46,9 +46,9 @@ module.exports = ({logger, config}) => {
         const authorPage = this.getPageContent(meta.authorPage, 'team')
         meta.author = authorPage.meta.title
       }
-      const previewText = shorten(html, 40)
+      const excerpt = shorten(html, 40)
       const expiry = +new Date() + 60000
-      pages[id] = {info: {meta, html, previewText}, expiry}
+      pages[id] = {info: {meta, html, excerpt}, expiry}
       return pages[id].info
     },
 

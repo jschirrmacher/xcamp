@@ -970,6 +970,13 @@ body.logged-out .logged-in {
   padding-bottom: 10px;
   border-bottom: 1px solid #343434;
 }
+.blog-entry .author {
+  border-top: 1px solid #343434;
+  padding-top: 1em;
+}
+.blog-entry .author img {
+  max-width: 200px;
+}
 
 .pager {
   text-align: right;

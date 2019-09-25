@@ -55,7 +55,7 @@
   }
 
   .social-networks-wrapper {
-    text-align: right;
+    text-align: center;
   }
 
   .row {
@@ -75,6 +75,15 @@
       padding-top: 10px;
       padding-bottom: 10px;
       border-bottom: 1px solid $black;
+    }
+  }
+
+  .author {
+    border-top: 1px solid $black;
+    padding-top: 1em;
+
+    img {
+      max-width: 200px;
     }
   }
 }

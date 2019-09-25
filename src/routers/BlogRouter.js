@@ -35,7 +35,9 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
       const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
       const otherEntries = getNumPosts(5, name)
       const hasOthers = otherEntries.length
-      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter})
+      const authorPage = meta.authorPage && contentReader.getPageContent(meta.authorPage, 'team')
+      const author = authorPage && {image: authorPage.meta.image, name: authorPage.meta.title, html: authorPage.html}
+      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author})
     }
   }
 
