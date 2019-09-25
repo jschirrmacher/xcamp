@@ -33,6 +33,7 @@ module.exports = ({logger, config}) => {
       }
       const content = fs.readFileSync(path.join(contentPath, folder, fileName)).toString()
         .replace(/\((#.*)\)/g, `(${folder}/${pageName}$1)`)
+        .replace(/(!\[.*?])\(\/?(.*?)\)/g, `$1($2)`)
 
       const html = converter.makeHtml(content)
       const meta = converter.getMetadata()
