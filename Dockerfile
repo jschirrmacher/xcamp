@@ -6,9 +6,9 @@ USER nodejs
 WORKDIR /app
 
 ADD package*.json /app/
+RUN npm install --production
 ADD src /app/src
 ADD public /app/public
-RUN npm install --production
 
 EXPOSE 3000
 CMD node src/xcamp.js
