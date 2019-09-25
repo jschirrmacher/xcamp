@@ -33,7 +33,6 @@ module.exports = ({logger, config}) => {
       }
       const content = fs.readFileSync(path.join(contentPath, folder, fileName)).toString()
         .replace(/\((#.*)\)/g, `(${folder}/${pageName}$1)`)
-        .replace(/(!\[.*?])\((.*?)\)/g, `$1(${folder}/$2)`)
 
       const html = converter.makeHtml(content)
       const meta = converter.getMetadata()
@@ -64,7 +63,7 @@ module.exports = ({logger, config}) => {
   }
 
   function shorten(html, size) {
-    return stripHtml(html.split(/<!--\s*snip\s*-->/)[0]).replace(/\n/g, ' ')
+    return stripHtml(html.split(/<!--\s*more\s*-->/)[0]).replace(/\n/g, ' ')
       .split(' ')
       .slice(0, size)
       .join(' ')

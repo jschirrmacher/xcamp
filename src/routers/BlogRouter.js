@@ -59,7 +59,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
   router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
   router.get('/media/*', (req, res, next) => {
-    const fileName = path.resolve(contentReader.contentPath, '_posts', req.path.replace(/^\//, ''))
+    const fileName = path.resolve(contentReader.contentPath, req.path.replace(/^\//, ''))
     if (fs.existsSync(fileName)) {
       res.sendFile(fileName)
     } else {
