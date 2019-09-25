@@ -1,6 +1,7 @@
 /.idea/
 /.nyc_output/
 /coverage/
+/content/
 /cypress/
 /data/
 /node_modules/
