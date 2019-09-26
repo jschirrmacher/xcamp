@@ -68,10 +68,11 @@ jobs:
             docker build -t $IMAGE_NAME:latest .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $IMAGE_NAME:latest
-            echo "Version=$(cat version)"
-            if [[ "$(cat version)" =~ "^[0-9.]+$" ]]; then
-              docker tag $IMAGE_NAME:latest $IMAGE_NAME:$(cat version)
-              docker push $IMAGE_NAME:$(cat version)
+            VERSION=$(cat version)
+            echo "Version=$VERSION"
+            if [ -n "$VERSION" ]; then
+              docker tag $IMAGE_NAME:latest $IMAGE_NAME:$VERSION
+              docker push $IMAGE_NAME:$VERSION
             fi
 
 workflows:
