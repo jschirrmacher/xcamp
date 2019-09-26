@@ -65,6 +65,9 @@ jobs:
             docker build -t $IMAGE_NAME:latest .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $IMAGE_NAME:latest
+            CIRCLE_TAG="$(git tag -l --points-at HEAD)"
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_TAG
+            docker push $IMAGE_NAME:$CIRCLE_TAG
 
 workflows:
   version: 2.1
