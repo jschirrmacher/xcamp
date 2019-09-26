@@ -88,7 +88,7 @@ module.exports = (dependencies) => {
   router.use('/network', networkRouter)
   router.use('/blog', blogRouter)
 
-  router.get('/*', (req, res, next) => {
+  router.get('/*', (req, res, next) => {  // eslint-disable-line no-unused-vars
     const fileName = path.join(contentReader.contentPath, req.path)
     if (fs.existsSync(fileName + '.md')) {
       const {meta, html} = contentReader.getPageContent(path.basename(req.path), 'team')
