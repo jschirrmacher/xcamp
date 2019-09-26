@@ -102,3 +102,46 @@
     }
   }
 }
+
+#main .slider {
+  width: 100%;
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+
+  img {
+    position: absolute;
+    height: 400px;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+  }
+
+  img:first-of-type {
+    animation-name: fadeOut;
+    animation-delay: 5s;
+    animation-duration: 1s;
+    z-index: 2;
+  }
+
+  img:nth-of-type(2) {
+    animation-name: fadeIn;
+    animation-delay: 5s;
+    animation-duration: 1s;
+    z-index: 1;
+  }
+
+  img:nth-of-type(n+2) {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1.0; }
+  to   { opacity: 0.0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.0; }
+  to   { opacity: 1.0; }
+}

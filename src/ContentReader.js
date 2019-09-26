@@ -3,11 +3,20 @@ const path = require('path')
 const showdown = require('showdown')
 const stripHtml = require('string-strip-html')
 
+const gallery = () => {
+  return [{
+    type: 'output',
+    regex: /--slider(.*?)--slider/gs,
+    replace: '<div class="slider">$1</div>'
+  }]
+}
+
 const converter = new showdown.Converter({
   metadata: true,
   parseImgDimensions: true,
   simplifiedAutoLink: true,
-  openLinksInNewWindow: true
+  openLinksInNewWindow: true,
+  extensions: [gallery]
 })
 
 module.exports = ({logger, config}) => {

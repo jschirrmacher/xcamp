@@ -130,3 +130,12 @@ Array.from(menuSwitches).forEach(sw => sw.addEventListener('click', e => {
   e.target.classList.toggle('opened')
   return false
 }))
+
+window.addEventListener('DOMContentLoaded', function(e) {
+  Array.from(document.querySelectorAll('.slider')).forEach(slider => {
+    const rotate = (e) => e.animationName === 'fadeOut' && slider.appendChild(slider.children[0])
+    Array.from(slider.childNodes).forEach(img => {
+      img.addEventListener('animationend', rotate, false)
+    })
+  })
+}, false)
