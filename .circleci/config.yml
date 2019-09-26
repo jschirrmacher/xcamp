@@ -62,15 +62,9 @@ jobs:
           name: Build and push Docker image
           command: |
             IMAGE_NAME=joschi64/xcamp
-            CIRCLE_TAG="$(git tag -l --points-at HEAD)"
-            echo "Building '$IMAGE_NAME' with tags 'latest' and '$CIRCLE_TAG'"
             docker build -t $IMAGE_NAME:latest .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $IMAGE_NAME:latest
-            if [[ "$CIRCLE_TAG" =~ "^[0-9.]+$" ]]; then
-              docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_TAG
-              docker push $IMAGE_NAME:$CIRCLE_TAG
-            fi
 
 workflows:
   version: 2.1
