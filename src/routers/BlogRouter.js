@@ -37,7 +37,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
       const hasOthers = otherEntries.length
       const authorPage = meta.authorPage && contentReader.getPageContent(meta.authorPage, 'team')
       const author = {
-        image: authorPage && authorPage.meta.image || '../assets/img/user.png',
+        image: authorPage && authorPage.meta.image || 'assets/img/user.png',
         name: authorPage && authorPage.meta.title || meta.author,
         html: authorPage && authorPage.html || ''
       }
