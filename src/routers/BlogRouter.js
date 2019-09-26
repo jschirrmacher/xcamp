@@ -36,7 +36,11 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
       const otherEntries = getNumPosts(5, name)
       const hasOthers = otherEntries.length
       const authorPage = meta.authorPage && contentReader.getPageContent(meta.authorPage, 'team')
-      const author = authorPage && {image: authorPage.meta.image, name: authorPage.meta.title, html: authorPage.html}
+      const author = {
+        image: authorPage && authorPage.meta.image || '../assets/img/user.png',
+        name: authorPage && authorPage.meta.title || meta.author,
+        html: authorPage && authorPage.html || ''
+      }
       return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author})
     }
   }

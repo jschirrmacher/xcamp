@@ -49,9 +49,12 @@
 
         {{#author}}
         <div class="author">
-            <img src="{{image}}"><h3>Über den Autor {{name}}</h3>
+            <img src="{{image}}"><h3>Autor/in: {{name}}</h3>
             <div>{{& html}}</div>
         </div>
+        {{/author}}
+        {{^author}}
+            {{author}}
         {{/author}}
     </div>
 </div>
