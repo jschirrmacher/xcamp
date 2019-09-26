@@ -48,7 +48,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
       .map(page => {
         return {
           img: page.meta.image,
-          link: 'blog/' + page.meta.pageName,
+          link: page.meta.pageName,
           title: page.meta.title,
           content: page.previewText,
         }
