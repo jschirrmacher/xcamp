@@ -18,6 +18,8 @@ jobs:
 
       - run: npm install
 
+      - run: echo "$(git tag -l --points-at HEAD)" >version
+
       - save_cache:
           paths:
             - node_modules
@@ -34,6 +36,7 @@ jobs:
             - templates
             - Dockerfile
             - .eslintrc.json
+            - version
 
   test:
     executor: my-executor
@@ -65,9 +68,10 @@ jobs:
             docker build -t $IMAGE_NAME:latest .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $IMAGE_NAME:latest
-            CIRCLE_TAG="$(git tag -l --points-at HEAD)"
-            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CIRCLE_TAG
-            docker push $IMAGE_NAME:$CIRCLE_TAG
+            if [[ "$CIRCLE_TAG" =~ "^[0-9.]+$" ]]; then
+              docker tag $IMAGE_NAME:latest $IMAGE_NAME:$(cat version)
+              docker push $IMAGE_NAME:$(cat version)
+            fi
 
 workflows:
   version: 2.1
