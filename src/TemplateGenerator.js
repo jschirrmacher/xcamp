@@ -24,7 +24,8 @@ module.exports = (config) => {
 
   return {
     generate: (templateName, data = {}) => {
-      return Mustache.render(getTemplate(templateName), {...config, ...data}, sub)
+      const selflink = config.baseUrl
+      return Mustache.render(getTemplate(templateName), {...config, selflink, ...data}, sub)
     }
   }
 }

@@ -41,7 +41,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
         name: authorPage && authorPage.meta.title || meta.author,
         html: authorPage && authorPage.html || ''
       }
-      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author})
+      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author, selflink})
     }
   }
 
