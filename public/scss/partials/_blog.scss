@@ -7,6 +7,11 @@
     float: left;
     margin-right: 10px;
     margin-bottom: 10px;
+
+    @media (max-width: 480px) {
+      max-width: none;
+      width: 100%;
+    }
   }
 
   .continue {
@@ -75,6 +80,10 @@
       padding-top: 10px;
       padding-bottom: 10px;
       border-bottom: 1px solid $black;
+
+      &:last-of-type {
+        border-bottom: none;
+      }
     }
   }
 
@@ -111,7 +120,7 @@
 
   img {
     position: absolute;
-    height: 400px;
+    max-height: 400px;
     margin: 0 auto;
     left: 0;
     right: 0;
