@@ -30,7 +30,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
       const {html, meta} = contentReader.getPageContent(name, 'blog', '_posts')
       const prevPage = index > 0 ? 'blog/' + files[index - 1].meta.pageName : false
       const nextPage = index < files.length - 1 ? 'blog/' + files[index + 1].meta.pageName : false
-      const selflink = config.baseUrl + '/blog/' + name
+      const selflink = config.baseUrl + 'blog/' + name
       const facebook = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(selflink)
       const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
       const otherEntries = getNumPosts(5, name)
