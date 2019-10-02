@@ -18,4 +18,8 @@ describe('ContentReader', () => {
     const {html} = reader.getPageContent('test-page', 'blog', '_posts')
     html.should.match(/a href="blog\/test-page#anchor"/)
   })
+
+  after(() => {
+    reader.stop()
+  })
 })

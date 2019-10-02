@@ -23,7 +23,7 @@ module.exports = ({logger, config}) => {
   const contentPath = path.join(config.basePath, 'content')
   const pages = {}
 
-  fs.watch(contentPath, {recursive: true}, (eventType, fileName) => {
+  const watcher = fs.watch(contentPath, {recursive: true}, (eventType, fileName) => {
     logger.info(`File ${eventType}: ${fileName}`)
     if (fileName) {
       delete pages[fileName]
@@ -32,6 +32,10 @@ module.exports = ({logger, config}) => {
 
   return {
     contentPath,
+
+    stop() {
+      watcher.close()
+    },
 
     getPageContent(pageName, type, folder) {
       folder = folder || type
