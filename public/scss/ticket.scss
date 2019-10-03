@@ -202,10 +202,10 @@ table {
     border-top: none;
     border-left: none;
   }
+}
 
-  td.numeric {
-    text-align: right;
-  }
+.numeric {
+  text-align: right;
 }
 
 #invoices-list {
@@ -241,6 +241,10 @@ table {
       float: right;
     }
   }
+}
+
+#statistics {
+  width: auto;
 }
 
 #main.maximize {

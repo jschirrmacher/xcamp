@@ -1308,7 +1308,8 @@ table th, table td {
   border-top: none;
   border-left: none;
 }
-table td.numeric {
+
+.numeric {
   text-align: right;
 }
 
@@ -1337,6 +1338,10 @@ table td.numeric {
 }
 #invoices-list .participant input {
   float: right;
+}
+
+#statistics {
+  width: auto;
 }
 
 #main.maximize {

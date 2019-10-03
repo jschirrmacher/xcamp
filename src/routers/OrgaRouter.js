@@ -48,15 +48,19 @@ module.exports = (dependencies) => {
       totals: 0,
       totalsPaid: 0,
       tickets: {
-        free: 0,
+        orga: 0,
+        speaker: 0,
+        sponsor: 0,
         corporate: 0,
         private: 0,
+        earlybird: 0,
+        lastminute: 0,
         reduced: 0
       }
     }
 
     const invoices = (await readModels.invoice.getAll()).map(invoice => {
-      stats.tickets[ticketTypes[invoice.ticketType].category] += invoice.tickets.length
+      stats.tickets[invoice.ticketType] += invoice.tickets.length
       stats.participants += invoice.tickets.length
       stats.totals += invoice.tickets.length * invoice.ticketPrice
       stats.totalsPaid += invoice.paid ? invoice.tickets.length * invoice.ticketPrice : 0
@@ -72,8 +76,16 @@ module.exports = (dependencies) => {
         paid: invoice.paid ? 'paid' : 'open'
       }
     })
-    stats.totals = stats.totals.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
-    stats.totalsPaid = stats.totalsPaid.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+    const currencyOptions = { style: 'currency', currency: 'EUR', currencyDisplay: 'symbol'}
+    stats.ticketTypes = Object.keys(ticketTypes).map(category => {
+      return {
+        category: ticketTypes[category].name,
+        num: stats.tickets[category],
+        amount: (ticketTypes[category].price * stats.tickets[category]).toLocaleString('de-DE', currencyOptions)
+      }
+    })
+    stats.totals = stats.totals.toLocaleString('de-DE', currencyOptions)
+    stats.totalsPaid = stats.totalsPaid.toLocaleString('de-DE', currencyOptions)
     return templateGenerator.generate('invoices-list', {
       invoices,
       stats

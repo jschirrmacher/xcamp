@@ -7,46 +7,61 @@
     <link rel="stylesheet" href="dist/css/ticket.css">
 </head>
 <body>
-<table id="invoices-list">
-    <tr>
-        <th>ReNr / Datum</th>
-        <th>Tickets</th>
-        <th>Betrag</th>
-        <th>Bezahlt</th>
-        <th>Kunde</th>
-        <th>Teilnehmer</th>
-        <th></th>
-    </tr>
-    {{#invoices}}
-    <tr class="{{paid}}" id="{{id}}">
-        <td>
-            <a href="accounts/{{customer.access_code}}/info" target="_blank">{{invoiceNo}} - {{created}}</a>
-        </td>
-        <td>{{tickets.length}} {{ticketType}}</td>
-        <td class="numeric">{{ticketPrice}} €</td>
-        <td>{{payment}}<button class="setPayment"></button></td>
-        <td>{{#customer.firm}}{{customer.firm}}<br>{{/customer.firm}}
-            <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
-        </td>
-        <td>
-            {{#participants}}<div class="participant">{{firstName}} {{lastName}}<input type="checkbox" {{checkedIn}} readonly disabled onclick="return false"></div>{{/participants}}
-        </td>
-        <td>
-            {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}
-        </td>
-    </tr>
-    {{/invoices}}
-</table>
+{{> menu}}
+{{> logo}}
+<div id="main">
+    <div class="container semi-transparent">
+        <h2>Rechnungsliste</h2>
+        <table id="invoices-list">
+            <tr>
+                <th>ReNr / Datum</th>
+                <th>Tickets</th>
+                <th>Betrag</th>
+                <th>Bezahlt</th>
+                <th>Kunde</th>
+                <th>Teilnehmer</th>
+                <th></th>
+            </tr>
+            {{#invoices}}
+            <tr class="{{paid}}" id="{{id}}">
+                <td>
+                    <a href="accounts/{{customer.access_code}}/info" target="_blank">{{invoiceNo}} - {{created}}</a>
+                </td>
+                <td>{{tickets.length}} {{ticketType}}</td>
+                <td class="numeric">{{ticketPrice}} €</td>
+                <td>{{payment}}<button class="setPayment"></button></td>
+                <td>{{#customer.firm}}{{customer.firm}}<br>{{/customer.firm}}
+                    <a href="mailto:{{customer.person.email}}">{{customer.person.firstName}} {{customer.person.lastName}}</a>
+                </td>
+                <td>
+                    {{#participants}}<div class="participant">{{firstName}} {{lastName}}<input type="checkbox" {{checkedIn}} readonly disabled onclick="return false"></div>{{/participants}}
+                </td>
+                <td>
+                    {{^invoiceNo}}<button class="delete">Löschen</button>{{/invoiceNo}}
+                </td>
+            </tr>
+            {{/invoices}}
+        </table>
 
-<p>
-    Insgesamt {{stats.participants}} Teilnehmer<br>
-    &nbsp;&nbsp;{{stats.tickets.free}} Free,<br>
-    &nbsp;&nbsp;{{stats.tickets.corporate}} Corporate,<br>
-    &nbsp;&nbsp;{{stats.tickets.private}} Individual,<br>
-    &nbsp;&nbsp;{{stats.tickets.reduced}} Reduced<br>
-    {{stats.totals}} Ticketeinnahmen,<br>
-    {{stats.totalsPaid}} davon bereits bezahlt.
-</p>
+        <h2>Teilnehmer und Einnahmen</h2>
+        <table id="statistics">
+            <tr><th>Typ</th><th>Anzahl</th><th>Nettobetrag</th></tr>
+            {{#stats.ticketTypes}}
+            <tr>
+                <th>{{category}}</th>
+                <td class="numeric">{{num}}</td>
+                <td class="numeric">{{amount}}</td>
+            </tr>
+            {{/stats.ticketTypes}}
+            <tr>
+                <th>Summen</th>
+                <th class="numeric">{{stats.participants}}</th>
+                <th class="numeric">{{stats.totals}}<br>Bezahlt: {{stats.totalsPaid}}</th>
+            </tr>
+        </table>
+    </div>
+</div>
+{{> footer}}
 <script src="common.js"></script>
 <script src="invoice-list.js"></script>
 </body>
