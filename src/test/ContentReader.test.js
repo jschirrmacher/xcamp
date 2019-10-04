@@ -50,7 +50,7 @@ describe('ContentReader', () => {
     })
 
     it('should handle images in root pages correctly', () => {
-      const {html} = reader.getPageContent('other-page')
+      const {html} = reader.getPageContent('/other-page')
       html.should.match(/<img src="team\/member.jpg" alt="member image"/)
     })
   })
