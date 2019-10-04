@@ -48,6 +48,11 @@ describe('ContentReader', () => {
       const {meta} = reader.getPageContent('blog/test-page')
       meta.image.should.equal('blog/media/image.jpg')
     })
+
+    it('should handle images in root pages correctly', () => {
+      const {html} = reader.getPageContent('other-page')
+      html.should.match(/<img src="team\/member.jpg" alt="member image"/)
+    })
   })
 
   after(() => {

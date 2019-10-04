@@ -24,3 +24,27 @@
     }
   }
 }
+
+#team-page {
+  img {
+    max-width: 240px;
+    float: none;
+  }
+
+  @media (min-width: 500px) {
+    img {
+      float: left;
+    }
+
+    hr:nth-of-type(2n - 1) + p img {
+      float: right;
+      margin: 0 0 10px 10px;
+    }
+  }
+
+  hr:before, h3:before {
+    content: ' ';
+    display: table;
+    clear: both;
+  }
+}

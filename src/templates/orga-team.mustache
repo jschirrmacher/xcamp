@@ -1,0 +1,23 @@
+<html lang="de">
+<head>
+    {{> head}}
+    <link rel="stylesheet" href="dist/css/main.css">
+</head>
+
+<body>
+{{> menu}}
+{{> logo}}
+<div id="main" class="no-background">
+    <div class="container" id="team-page">
+        {{& html}}
+    </div>
+</div>
+
+{{> footer}}
+<script src="common.js"></script>
+<script>
+    setMenuState()
+</script>
+
+</body>
+</html>

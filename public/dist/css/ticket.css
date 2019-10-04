@@ -1067,6 +1067,25 @@ body.logged-out .logged-in {
   padding: 0 10px;
 }
 
+#team-page img {
+  max-width: 240px;
+  float: none;
+}
+@media (min-width: 500px) {
+  #team-page img {
+    float: left;
+  }
+  #team-page hr:nth-of-type(2n - 1) + p img {
+    float: right;
+    margin: 0 0 10px 10px;
+  }
+}
+#team-page hr:before, #team-page h3:before {
+  content: " ";
+  display: table;
+  clear: both;
+}
+
 #sponsors {
   padding: 0.5rem 1.5rem;
   display: flex;

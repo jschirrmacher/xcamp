@@ -42,8 +42,10 @@ module.exports = ({logger, config}) => {
       if (pages[pageName] && pages[pageName].expiry > +new Date()) {
         return pages[pageName].info
       }
+      const folder = path.dirname(pageName)
+      const prefix = folder === '/' ? '' : folder + '/'
       const content = fs.readFileSync(path.join(contentPath, fileName)).toString()
-        .replace(/(!\[.*?])\((?!https?:\/\/)/g, '$1(' + path.dirname(pageName) + '/')
+        .replace(/(!\[.*?])\((?!https?:\/\/)/g, '$1(' + prefix)
       const html = converter.makeHtml(content)
         .replace(/<a href="#(.*)?".*?>/g, `<a href="${pageName}#$1">`)
       const meta = converter.getMetadata()
