@@ -37,42 +37,37 @@ module.exports = ({logger, config}) => {
       watcher.close()
     },
 
-    getPageContent(pageName, type, folder) {
-      folder = folder || type
+    getPageContent(pageName) {
       const fileName = pageName + '.md'
-      const id = type + '/' + pageName
-      if (pages[id] && pages[id].expiry > +new Date()) {
-        return pages[id].info
+      if (pages[pageName] && pages[pageName].expiry > +new Date()) {
+        return pages[pageName].info
       }
-      const content = fs.readFileSync(path.join(contentPath, folder, fileName)).toString()
-        .replace(/\((#.*)\)/g, `(${type}/${pageName}$1)`)
-        .replace(/(!\[.*?])\(\/?(.*?)\)/g, `$1($2)`)
-
+      const content = fs.readFileSync(path.join(contentPath, fileName)).toString()
+        .replace(/(!\[.*?])\((?!https?:\/\/)/g, '$1(' + path.dirname(pageName) + '/')
       const html = converter.makeHtml(content)
+        .replace(/<a href="#(.*)?".*?>/g, `<a href="${pageName}#$1">`)
       const meta = converter.getMetadata()
-      meta.image = type + '/' + meta.image
-      meta.title = meta.title || pageName
-      meta.layout = meta.layout || 'standard-page'
       meta.pageName = pageName
+      meta.title = meta.title || meta.pageName
+      meta.layout = meta.layout || 'standard-page'
+      meta.image = meta.image && (path.dirname(pageName) + '/' + meta.image)
       meta.fileName = fileName
-      meta.type = type
       if (meta.authorPage) {
-        const authorPage = this.getPageContent(meta.authorPage, 'team')
+        const authorPage = this.getPageContent('team/' + meta.authorPage)
         meta.author = authorPage.meta.title
       }
       const excerpt = shorten(html, 40)
       const expiry = +new Date() + 60000
-      pages[id] = {info: {meta, html, excerpt}, expiry}
-      return pages[id].info
+      pages[pageName] = {info: {meta, html, excerpt}, expiry}
+      return pages[pageName].info
     },
 
-    getPages(type, folder) {
-      folder = folder || type
+    getPages(folder) {
       const basePath = path.join(contentPath, folder)
       return fs.readdirSync(basePath)
         .filter(e => e.match(/\.md$/))
         .sort((a, b) => b.localeCompare(a))
-        .map(e => this.getPageContent(e.replace(/\.md$/, ''), type, folder))
+        .map(e => this.getPageContent(folder + '/' + e.replace(/\.md$/, '')))
     },
   }
 

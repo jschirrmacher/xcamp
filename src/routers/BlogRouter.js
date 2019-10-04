@@ -5,9 +5,9 @@ const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config, contentReader}) => {
   function showAll(pageNo) {
-    const pages = contentReader.getPages('blog', '_posts')
+    const pages = contentReader.getPages('blog')
     const startEntryNo = (pageNo - 1) * pageSize
-    const relevantPages = pages.slice(startEntryNo, startEntryNo + pageSize)
+    const entries = pages.slice(startEntryNo, startEntryNo + pageSize)
     const maxPage = Math.ceil(pages.length / pageSize)
     const pageNums = Array.from({length: maxPage}, (_, i) => ({
       page: i + 1,
@@ -16,37 +16,35 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
     const prevPage = pageNo > 1 ? pageNo - 1 : false
     const nextPage = pageNo < maxPage ? pageNo + 1 : false
 
-    const entries = relevantPages
-      .map(page => contentReader.getPageContent(page.meta.pageName, 'blog', '_posts'))
     return templateGenerator.generate('blog-list', {entries, pageNums, pageNo, prevPage, nextPage})
   }
 
   function showPage(name) {
-    const files = contentReader.getPages('blog', '_posts')
+    const files = contentReader.getPages('blog')
     const index = files.findIndex(e => e.meta.pageName === name)
     if (index < 0) {
       throw {next: true}
     } else {
-      const {html, meta} = contentReader.getPageContent(name, 'blog', '_posts')
-      const prevPage = index > 0 ? 'blog/' + files[index - 1].meta.pageName : false
-      const nextPage = index < files.length - 1 ? 'blog/' + files[index + 1].meta.pageName : false
-      const selflink = config.baseUrl + 'blog/' + name
+      const {html, meta} = contentReader.getPageContent(name)
+      const prevPage = index > 0 ? files[index - 1].meta.pageName : false
+      const nextPage = index < files.length - 1 ? files[index + 1].meta.pageName : false
+      const selflink = config.baseUrl + name
       const facebook = 'https://www.facebook.com/sharer.php?u=' + encodeURIComponent(selflink)
       const twitter = 'https://twitter.com/share?url=' + encodeURIComponent(selflink) + '&text=' + encodeURIComponent(meta.title)
       const otherEntries = getNumPosts(5, name)
       const hasOthers = otherEntries.length
-      const authorPage = meta.authorPage && contentReader.getPageContent(meta.authorPage, 'team')
+      const authorPage = meta.authorPage && contentReader.getPageContent('team/' + meta.authorPage)
       const author = {
         image: authorPage && authorPage.meta.image || 'assets/img/user.png',
         name: authorPage && authorPage.meta.title || meta.author,
         html: authorPage && authorPage.html || ''
       }
-      return templateGenerator.generate('blog-entry', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author, selflink})
+      return templateGenerator.generate('post', {text: html, ...meta, prevPage, nextPage, hasOthers, otherEntries, facebook, twitter, author, selflink})
     }
   }
 
   function getNumPosts(num = 3, exclude = null) {
-    return contentReader.getPages('blog', '_posts')
+    return contentReader.getPages('blog')
       .filter(page => page.meta.pageName !== exclude)
       .slice(0, num)
       .map(page => {
@@ -63,7 +61,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
 
   router.get('/', makeHandler(req => showAll(+req.query.page || 1), {type: 'send'}))
   router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
-  router.get('/:pageName', makeHandler(req => showPage(req.params.pageName), {type: 'send'}))
+  router.get('/:pageName', makeHandler(req => showPage('blog/' + req.params.pageName), {type: 'send'}))
   router.get('/media/*', (req, res, next) => {
     const fileName = path.resolve(contentReader.contentPath, req.path.replace(/^\//, ''))
     if (fs.existsSync(fileName)) {

@@ -91,8 +91,8 @@ module.exports = (dependencies) => {
   router.get('/*', (req, res, next) => {  // eslint-disable-line no-unused-vars
     const fileName = path.join(contentReader.contentPath, req.path)
     if (fs.existsSync(fileName + '.md')) {
-      const {meta, html} = contentReader.getPageContent(path.basename(req.path), 'team')
-      const articleList = contentReader.getPages('blog', '_posts')
+      const {meta, html} = contentReader.getPageContent(req.path)
+      const articleList = contentReader.getPages('blog')
         .filter(article => article.meta.author === meta.title)
       res.send(templateGenerator.generate(meta.layout, {html, meta, articleList}))
     } else if (fs.existsSync(fileName)) {

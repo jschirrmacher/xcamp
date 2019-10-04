@@ -15,12 +15,12 @@
         <ul id="blog-list">
             {{#entries}}
                 <li>
-                    <a href="blog/{{{meta.pageName}}}">
+                    <a href="{{{meta.pageName}}}">
                         <img src="{{{meta.image}}}">
                         <h2>{{meta.title}}</h2>
                     </a>
                     {{& excerpt}}
-                    <a href="blog/{{{meta.pageName}}}" class="continue">[weiter lesen]</a>
+                    <a href="{{{meta.pageName}}}" class="continue">[weiter lesen]</a>
                     <div class="meta">by
                         {{#meta.authorPage}}
                             <a href="team/{{{meta.authorPage}}}">{{meta.author}}</a>
@@ -36,9 +36,9 @@
         </ul>
 
         <div class="pager">
-            {{#prevPage}}<a href="blog/?page={{prevPage}}">Vorherige Seite</a>{{/prevPage}}
-            {{#pageNums}}<a href="blog/?page={{page}}" class="{{active}}">{{page}}</a>{{/pageNums}}
-            {{#nextPage}}<a href="blog/?page={{nextPage}}">Nächste Seite</a>{{/nextPage}}
+            {{#prevPage}}<a href="?page={{prevPage}}">Vorherige Seite</a>{{/prevPage}}
+            {{#pageNums}}<a href="?page={{page}}" class="{{active}}">{{page}}</a>{{/pageNums}}
+            {{#nextPage}}<a href="?page={{nextPage}}">Nächste Seite</a>{{/nextPage}}
         </div>
     </div>
 </div>

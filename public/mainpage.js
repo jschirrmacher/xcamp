@@ -6,7 +6,7 @@ fetch('blog/lastthree')
 function generateBlogEntryView(entry) {
   return `
             <div>
-                <a href="blog/${entry.link}">
+                <a href="${entry.link}">
                     <div class="img" style="background-image: url(${entry.img})"></div>
                     <p class="box">${entry.title}</p>
                 </a>
