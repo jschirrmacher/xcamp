@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const fetch = require('node-fetch')
 
 module.exports = (dependencies) => {
   const {
@@ -88,7 +89,7 @@ module.exports = (dependencies) => {
   router.use('/network', networkRouter)
   router.use('/blog', blogRouter)
 
-  router.get('/*', (req, res, next) => {  // eslint-disable-line no-unused-vars
+  router.get('/*', async (req, res, next) => {  // eslint-disable-line no-unused-vars
     const fileName = path.join(contentReader.contentPath, req.path)
     if (fs.existsSync(fileName + '.md')) {
       const {meta, html} = contentReader.getPageContent(req.path)
@@ -98,6 +99,17 @@ module.exports = (dependencies) => {
     } else if (fs.existsSync(fileName)) {
       res.sendFile(fileName)
     } else {
+      if (process.env.NODE_ENV === 'development') {
+        response = await fetch('https://xcamp.co' + req.path)
+        if (response.ok) {
+          const content = await response.blob()
+          const savePath = path.join(__dirname, '..', '..', 'public', req.path)
+          fs.mkdirSync(path.dirname(savePath), {recursive: true})
+          fs.writeFileSync(savePath, new Uint8Array(await content.arrayBuffer()))
+          res.sendFile(savePath)
+          return
+        }
+      }
       res.status(404).send('Not found')
     }
   })
