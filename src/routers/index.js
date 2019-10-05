@@ -100,7 +100,7 @@ module.exports = (dependencies) => {
       res.sendFile(fileName)
     } else {
       if (process.env.NODE_ENV === 'development') {
-        response = await fetch('https://xcamp.co' + req.path)
+        const response = await fetch('https://xcamp.co' + req.path)
         if (response.ok) {
           const content = await response.blob()
           const savePath = path.join(__dirname, '..', '..', 'public', req.path)
