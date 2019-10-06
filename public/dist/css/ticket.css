@@ -1070,11 +1070,20 @@ body.logged-out .logged-in {
 #team-page > ul {
   padding: 0;
 }
+@media (max-width: 499px) {
+  #team-page > ul {
+    margin: 0 -20px;
+  }
+}
 #team-page > ul > li {
   list-style: none;
   padding: 10px;
-  display: flex;
-  flex-direction: row;
+}
+@media (min-width: 500px) {
+  #team-page > ul > li {
+    display: flex;
+    flex-direction: row;
+  }
 }
 #team-page > ul > li:nth-of-type(2n - 1) {
   background: #f7f7f7;
@@ -1089,9 +1098,9 @@ body.logged-out .logged-in {
   max-width: 240px;
   margin: 0 10px 10px;
 }
-@media (min-width: 500px) {
+@media (max-width: 499px) {
   #team-page > ul > li img {
-    float: left;
+    margin-right: 100%;
   }
 }
 #team-page > ul > li h2 {
