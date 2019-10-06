@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const {Feed} = require('feed')
 
 module.exports = (dependencies) => {
   const {
@@ -52,44 +51,6 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('session-list', {sessions})
   }
 
-  function generateFeed(req, res) {
-    const feed = new Feed({
-      title: config.eventName,
-      description: config.title,
-      id: config.baseUrl,
-      link: config.baseUrl,
-      language: "de",
-      image: config.baseUrl + 'assets/img/xcamp.png',
-      favicon: config.baseUrl + "favicon.ico",
-      copyright: "XCamp",
-      author: {
-        name: "Joachim Schirrmacher",
-        email: "joachim.schirrmacher@gmail.com",
-        link: "https://github.com/jschirrmacher"
-      }
-    })
-
-    contentReader.getPages('blog').forEach(page => {
-      feed.addItem({
-        title: page.meta.title,
-        id: config.baseUrl + page.meta.pageName,
-        link: config.baseUrl + page.meta.pageName,
-        description: page.excerpt,
-        content: page.html,
-        author: {
-          name: page.meta.author,
-          link: config.baseUrl + 'team/' + page.meta.authorPage
-        },
-        date: new Date(page.meta.published),
-        image: page.meta.image
-      })
-    })
-
-    feed.addCategory(config.eventName)
-
-    res.header('content-type', 'text/xml').send(feed.rss2())
-  }
-
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -105,7 +66,7 @@ module.exports = (dependencies) => {
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
   const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, contentReader, config})
-  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader})
+  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader, nocache})
 
   const router = express.Router()
 
@@ -125,7 +86,6 @@ module.exports = (dependencies) => {
   router.use('/orga', nocache, orgaRouter)
   router.use('/network', nocache, networkRouter)
   router.use('/blog', nocache, blogRouter)
-  router.get('/feed', nocache, generateFeed)
   router.use('/', contentRouter)
 
   router.use((req, res) => res.status(404).send('Not found'))
