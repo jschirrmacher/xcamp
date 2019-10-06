@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const fetch = require('node-fetch')
+const {Feed} = require('feed')
 
 module.exports = (dependencies) => {
   const {
@@ -52,6 +52,44 @@ module.exports = (dependencies) => {
     return templateGenerator.generate('session-list', {sessions})
   }
 
+  function generateFeed(req, res) {
+    const feed = new Feed({
+      title: config.eventName,
+      description: config.title,
+      id: config.baseUrl,
+      link: config.baseUrl,
+      language: "de",
+      image: config.baseUrl + 'assets/img/xcamp.png',
+      favicon: config.baseUrl + "favicon.ico",
+      copyright: "XCamp",
+      author: {
+        name: "Joachim Schirrmacher",
+        email: "joachim.schirrmacher@gmail.com",
+        link: "https://github.com/jschirrmacher"
+      }
+    })
+
+    contentReader.getPages('blog').forEach(page => {
+      feed.addItem({
+        title: page.meta.title,
+        id: config.baseUrl + page.meta.pageName,
+        link: config.baseUrl + page.meta.pageName,
+        description: page.excerpt,
+        content: page.html,
+        author: {
+          name: page.meta.author,
+          link: config.baseUrl + 'team/' + page.meta.authorPage
+        },
+        date: new Date(page.meta.published),
+        image: page.meta.image
+      })
+    })
+
+    feed.addCategory(config.eventName)
+
+    res.header('content-type', 'text/xml').send(feed.rss2())
+  }
+
   function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
@@ -67,6 +105,7 @@ module.exports = (dependencies) => {
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
   const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, contentReader, config})
+  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader})
 
   const router = express.Router()
 
@@ -78,41 +117,18 @@ module.exports = (dependencies) => {
   router.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
   router.use('/qrcode', express.static(path.resolve(nodeDir, 'qrcode', 'build')))
 
-  router.use(nocache)
+  router.use('/session', nocache, sessionRouter)
+  router.use('/newsletter', nocache, newsletterRouter)
+  router.use('/tickets', nocache, ticketRouter)
+  router.use('/accounts', nocache, accountsRouter)
+  router.use('/paypal/ipn', nocache, paypalRouter)
+  router.use('/orga', nocache, orgaRouter)
+  router.use('/network', nocache, networkRouter)
+  router.use('/blog', nocache, blogRouter)
+  router.get('/feed', nocache, generateFeed)
+  router.use('/', contentRouter)
 
-  router.use('/session', sessionRouter)
-  router.use('/newsletter', newsletterRouter)
-  router.use('/tickets', ticketRouter)
-  router.use('/accounts', accountsRouter)
-  router.use('/paypal/ipn', paypalRouter)
-  router.use('/orga', orgaRouter)
-  router.use('/network', networkRouter)
-  router.use('/blog', blogRouter)
-
-  router.get('/*', async (req, res, next) => {  // eslint-disable-line no-unused-vars
-    const fileName = path.join(contentReader.contentPath, req.path)
-    if (fs.existsSync(fileName + '.md')) {
-      const {meta, html} = contentReader.getPageContent(req.path)
-      const articleList = contentReader.getPages('blog')
-        .filter(article => article.meta.author === meta.title)
-      res.send(templateGenerator.generate(meta.layout, {html, meta, articleList}))
-    } else if (fs.existsSync(fileName)) {
-      res.sendFile(fileName)
-    } else {
-      if (process.env.NODE_ENV === 'development') {
-        const response = await fetch('https://xcamp.co' + req.path)
-        if (response.ok) {
-          const content = await response.blob()
-          const savePath = path.join(__dirname, '..', '..', 'public', req.path)
-          fs.mkdirSync(path.dirname(savePath), {recursive: true})
-          fs.writeFileSync(savePath, new Uint8Array(await content.arrayBuffer()))
-          res.sendFile(savePath)
-          return
-        }
-      }
-      res.status(404).send('Not found')
-    }
-  })
+  router.use((req, res) => res.status(404).send('Not found'))
 
   return router
 }
