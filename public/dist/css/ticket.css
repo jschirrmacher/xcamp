@@ -1067,23 +1067,41 @@ body.logged-out .logged-in {
   padding: 0 10px;
 }
 
-#team-page img {
-  max-width: 240px;
-  float: none;
+#team-page > ul {
+  padding: 0;
 }
-@media (min-width: 500px) {
-  #team-page img {
-    float: left;
-  }
-  #team-page hr:nth-of-type(2n - 1) + p img {
-    float: right;
-    margin: 0 0 10px 10px;
-  }
+#team-page > ul > li {
+  list-style: none;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
 }
-#team-page hr:before, #team-page h3:before {
+#team-page > ul > li:nth-of-type(2n - 1) {
+  background: #f7f7f7;
+  flex-direction: row-reverse;
+}
+#team-page > ul > li:before {
   content: " ";
   display: table;
   clear: both;
+}
+#team-page > ul > li img {
+  max-width: 240px;
+  margin: 0 10px 10px;
+}
+@media (min-width: 500px) {
+  #team-page > ul > li img {
+    float: left;
+  }
+}
+#team-page > ul > li h2 {
+  margin-top: 0;
+}
+#team-page > ul > li > ul {
+  padding: 10px;
+}
+#team-page > ul > li > ul > li {
+  list-style: none;
 }
 
 #sponsors {

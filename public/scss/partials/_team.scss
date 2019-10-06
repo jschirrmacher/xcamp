@@ -26,25 +26,46 @@
 }
 
 #team-page {
-  img {
-    max-width: 240px;
-    float: none;
-  }
+  > ul {
+    padding: 0;
 
-  @media (min-width: 500px) {
-    img {
-      float: left;
+    > li {
+      list-style: none;
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+
+      &:nth-of-type(2n - 1) {
+        background: #f7f7f7;
+        flex-direction: row-reverse;
+      }
+
+      &:before {
+        content: ' ';
+        display: table;
+        clear: both;
+      }
+
+      img {
+        max-width: 240px;
+        margin: 0 10px 10px;
+
+        @media (min-width: 500px) {
+          float: left;
+        }
+      }
+
+      h2 {
+        margin-top: 0;
+      }
+
+      > ul {
+        padding: 10px;
+
+        > li {
+          list-style: none;
+        }
+      }
     }
-
-    hr:nth-of-type(2n - 1) + p img {
-      float: right;
-      margin: 0 0 10px 10px;
-    }
-  }
-
-  hr:before, h3:before {
-    content: ' ';
-    display: table;
-    clear: both;
   }
 }
