@@ -8,6 +8,10 @@ const gallery = () => {
     type: 'output',
     regex: /--slider(.*?)--slider/gs,
     replace: '<div class="slider">$1</div>'
+  }, {
+    type: 'output',
+    regex: /<li>\s*<p>=(.+?)<\/p>/gs,
+    replace: '<li class="$1">'
   }]
 }
 
