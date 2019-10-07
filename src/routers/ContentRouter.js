@@ -9,14 +9,14 @@ module.exports = ({express, templateGenerator, contentReader, config, nocache}) 
       description: config.title,
       id: config.baseUrl,
       link: config.baseUrl,
-      language: "de",
+      language: 'de',
       image: config.baseUrl + 'assets/img/xcamp.png',
-      favicon: config.baseUrl + "favicon.ico",
-      copyright: "XCamp",
+      favicon: config.baseUrl + 'favicon.ico',
+      copyright: 'XCamp',
       author: {
-        name: "Joachim Schirrmacher",
-        email: "joachim.schirrmacher@gmail.com",
-        link: "https://github.com/jschirrmacher"
+        name: 'Joachim Schirrmacher',
+        email: 'joachim.schirrmacher@gmail.com',
+        link: 'https://github.com/jschirrmacher'
       }
     })
 
