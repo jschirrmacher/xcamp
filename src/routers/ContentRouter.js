@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const {Feed} = require('feed')
 
-module.exports = ({express, templateGenerator, contentReader, nocache}) => {
+module.exports = ({express, templateGenerator, contentReader, config, nocache}) => {
   function generateFeed(req, res) {
     const feed = new Feed({
       title: config.eventName,

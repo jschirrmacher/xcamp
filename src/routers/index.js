@@ -66,7 +66,7 @@ module.exports = (dependencies) => {
   const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
   const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
   const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, contentReader, config})
-  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader, nocache})
+  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader, config, nocache})
 
   const router = express.Router()
 
