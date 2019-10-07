@@ -1,17 +1,17 @@
 fetch('blog/lastthree')
   .then(response => response.json())
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
-  .then(blog => document.querySelector('#newest-blog-entries .three-boxes').innerHTML = blog)
+  .then(blog => document.querySelector('#newest-blog-entries').innerHTML = '<ol>' + blog + '</ol>')
 
 function generateBlogEntryView(entry) {
   return `
-            <div>
-                <a href="${entry.link}">
-                    <div class="img" style="background-image: url(${entry.img})"></div>
-                    <p class="box">${entry.title}</p>
-                </a>
-                <div class="box">${entry.content}</div>
-            </div>`
+      <li>
+          <a href="${entry.link}">
+              <div class="img" style="background-image: url(${entry.img})"></div>
+              <p class="box">${entry.title}</p>
+          </a>
+          <div class="box">${entry.content}</div>
+      </li>`
 }
 
 setMenuState()

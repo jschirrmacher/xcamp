@@ -164,7 +164,6 @@ a, button {
   letter-spacing: 0.125rem;
   text-transform: uppercase;
   text-align: center;
-  margin: 2em 0;
   padding: 1rem 1.5rem;
   background: #dddddd;
   color: #343434;
@@ -172,13 +171,20 @@ a, button {
   text-shadow: none;
   border-radius: 4px;
   border: 2px solid rgba(0, 0, 0, 0.15);
+  margin: 0.5em 0;
 }
-.button:hover {
+@media (min-width: 800px) {
+  .button {
+    margin: 2em 0;
+  }
+}
+.button:hover:not([disabled]) {
   background: #efefef;
 }
 .button[disabled] {
   opacity: 0.3;
   cursor: auto;
+  user-select: none;
 }
 .button.small {
   display: inline-block;

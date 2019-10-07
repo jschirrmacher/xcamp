@@ -20,11 +20,10 @@ function getSubTemplates() {
 }
 
 module.exports = (config) => {
-  const sub = getSubTemplates()
-
   return {
     generate: (templateName, data = {}) => {
       const selflink = config.baseUrl
+      const sub = getSubTemplates()
       return Mustache.render(getTemplate(templateName), {...config, selflink, ...data}, sub)
     }
   }

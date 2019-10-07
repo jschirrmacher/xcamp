@@ -278,7 +278,6 @@ a, button {
   letter-spacing: 0.125rem;
   text-transform: uppercase;
   text-align: center;
-  margin: 2em 0;
   padding: 1rem 1.5rem;
   background: #dddddd;
   color: #343434;
@@ -286,13 +285,20 @@ a, button {
   text-shadow: none;
   border-radius: 4px;
   border: 2px solid rgba(0, 0, 0, 0.15);
+  margin: 0.5em 0;
 }
-.button:hover {
+@media (min-width: 800px) {
+  .button {
+    margin: 2em 0;
+  }
+}
+.button:hover:not([disabled]) {
   background: #efefef;
 }
 .button[disabled] {
   opacity: 0.3;
   cursor: auto;
+  user-select: none;
 }
 .button.small {
   display: inline-block;
@@ -632,18 +638,12 @@ body.logged-out .logged-in {
     display: none;
   }
 }
-@media (max-width: 799px) {
-  #newest-blog-entries .three-boxes > div:not(:first-child) {
-    display: none;
-  }
-}
-@media (min-width: 1400px) {
-  #newest-blog-entries {
-    margin-top: 10vw;
-  }
-}
 .align-bottom {
   margin-bottom: 0;
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
 }
 
 .bottom-buttons .box {
@@ -652,17 +652,126 @@ body.logged-out .logged-in {
   justify-content: space-between;
 }
 
-#format {
+#mainpage {
+  padding: 0 15px 20px;
+  background: #f5f5f5 url("../../assets/img/hero-x_web_xcamp_320.jpg") no-repeat left top;
+  background-size: 125%;
+  min-height: calc(100% - 153px - 185px);
+  /* Small Screens Retina */
+  /* Medium Screens */
+  /* Medium Screens Retina */
+  /* Large Screens Retina */
+}
+@media (min-resolution: 150dpi) {
+  #mainpage {
+    background-image: url("../../assets/img/hero-x_web_xcamp_822.jpg");
+  }
+}
+@media (min-width: 420px) {
+  #mainpage {
+    padding: 0 30px 0;
+    background-image: url("../../assets/img/hero-x_web_xcamp_822.jpg");
+  }
+}
+@media (min-width: 822px) {
+  #mainpage {
+    background-image: url("../../assets/img/hero-x_web_xcamp_1156.jpg");
+    background-size: 130%;
+  }
+}
+@media (min-width: 950px) {
+  #mainpage {
+    padding-top: 100px;
+    background-image: url("../../assets/img/hero-1900.svg");
+  }
+}
+#mainpage .container {
+  max-width: 1100px;
+  padding: 1em 10px;
+}
+@media (min-width: 740px) {
+  #mainpage .container {
+    padding: 3.5vw 3em 1em;
+  }
+}
+@media (min-width: 950px) {
+  #mainpage .container {
+    padding: 3vw 3em 1em;
+  }
+}
+@media (min-width: 1100px) {
+  #mainpage .container {
+    padding-top: 8vw;
+  }
+}
+#mainpage ul, #mainpage ol {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+@media (min-width: 799px) {
+  #mainpage ul li, #mainpage ol li {
+    width: calc(33% - 10px);
+  }
+}
+#mainpage ul {
+  padding: 0;
+}
+@media (min-width: 799px) {
+  #mainpage ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}
+#mainpage ul li {
+  border-radius: 3px;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  position: relative;
+  padding: 10px 10px 5em;
+}
+@media (min-width: 799px) {
+  #mainpage ul li {
+    padding: 35px 35px 5em;
+  }
+}
+#mainpage ol {
+  padding: 10px;
   background: white;
 }
-#format h2 {
-  padding: 1em 33px 0 33px;
-  margin: 0 0 -1em;
-}
-@media (max-width: 799px) {
-  #format h2 {
-    padding: 0.83em 15px;
+@media (min-width: 799px) {
+  #mainpage ol {
+    padding: 10px 30px;
   }
+}
+
+#innovatingagile {
+  color: white;
+  font-size: 1.75rem;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+#innovatingagile + p {
+  color: white;
+  font-size: 18px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+}
+@media (min-width: 740px) {
+  #innovatingagile + p {
+    max-width: 75%;
+    font-size: 1.25rem;
+  }
+}
+@media (min-width: 950px) {
+  #innovatingagile + p {
+    max-width: 60%;
+    font-size: 1.5rem;
+  }
+}
+
+#dasformatdesxcamp + ol {
+  background: white;
 }
 
 #cta .box {
@@ -673,20 +782,25 @@ body.logged-out .logged-in {
   padding: 0;
 }
 
-#newest-blog-entries .box {
+#newest-blog-entries ol {
+  background: transparent;
+  padding: 0;
+}
+#newest-blog-entries ol li {
+  background: white;
+  padding-bottom: 10px;
+}
+#newest-blog-entries ol li .box {
   padding: 0 25px;
 }
-#newest-blog-entries .three-boxes > div {
-  background: white;
-}
-#newest-blog-entries .img {
+#newest-blog-entries ol li .img {
   width: 100%;
   height: 240px;
   background-size: cover;
   background-position: center;
 }
 
-#impressions iframe {
+#eindrckevomxcamp + iframe {
   display: block;
   width: 640px;
   height: 360px;
@@ -709,6 +823,10 @@ body.logged-out .logged-in {
   padding: 9px 50px;
   bottom: 40px;
   right: -50px;
+}
+
+#location {
+  margin-top: 1em;
 }
 
 .tiles {
@@ -1113,47 +1231,52 @@ body.logged-out .logged-in {
   list-style: none;
 }
 
-#sponsors {
-  padding: 0.5rem 1.5rem;
+#sponsoren + ol,
+#netzwerkpartner + ol {
+  background: #efefef;
+  padding: 1.5rem;
   display: flex;
   flex-flow: column;
-}
-#sponsors h2 {
-  text-align: center;
-}
-#sponsors ul {
   list-style-type: none;
-  display: flex;
   flex-flow: row;
   flex: 1 0 auto;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 0;
   margin: 0;
   line-height: 0;
 }
-#sponsors ul:first-of-type > li:last-child img {
-  opacity: 0.5;
-  transition: all 0.5s;
+#sponsoren + ol h2,
+#netzwerkpartner + ol h2 {
+  text-align: center;
 }
-#sponsors ul > li:last-child:hover img {
-  opacity: 1;
-}
-#sponsors li {
+#sponsoren + ol li,
+#netzwerkpartner + ol li {
   margin: 0 1rem 1rem 0;
   max-width: 45%;
 }
 @media (max-width: 639px) {
-  #sponsors li:nth-child(2n+2) {
+  #sponsoren + ol li:nth-child(2n+2),
+#netzwerkpartner + ol li:nth-child(2n+2) {
     margin-right: 0;
   }
 }
 @media (min-width: 640px) {
-  #sponsors li {
+  #sponsoren + ol li,
+#netzwerkpartner + ol li {
     max-width: 30%;
   }
 }
-#sponsors img {
+#sponsoren + ol li:last-child img,
+#netzwerkpartner + ol li:last-child img {
+  opacity: 0.5;
+  transition: all 0.5s;
+}
+#sponsoren + ol li:last-child img:hover img,
+#netzwerkpartner + ol li:last-child img:hover img {
+  opacity: 1;
+}
+#sponsoren + ol img,
+#netzwerkpartner + ol img {
   width: 100%;
   border: 2px solid rgba(0, 0, 0, 0.025);
   border-radius: 5px;

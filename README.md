@@ -2,20 +2,27 @@
 
 This is part of the xcamp.co website, the ticketing system and the NetVis tool that connects XCamp Members.
 
+## Prerequisites
+
+You need to install some components first:
+
+- [git](https://git-scm.com/downloads)
+- [node](https://nodejs.org/en/)
+
 ## How to change the website contents
 
-Check out the source code and install dependencies, then start the development server:
+Check out the source code and the website content and install dependencies, then start the development server:
 
     git clone https://github.com/jschirrmacher/xcamp.git
+    cd xcamp
     npm install
+    git clone https://github.com/jschirrmacher/xcamp-content.git content
     npm start
-
-Naturally, you need to install [git](https://git-scm.com/downloads) and [node](https://nodejs.org/en/) first.
 
 After doing the above, open your favourite browser (hopefully *not* Edge - or even Internet Explorer!) and open
 the URL http://localhost:8001/index - you should see the main page of xcamp!
 
-You find all relevant css, image and js files in `/public`.
+You find all relevant css, image and js files in `/public`. The content is mostly writte with Markdown and located in `/content`.
 
 Html is generated using templates which can be found in `/templates` folder. You find all generated pages here directly,
 html mail templates are in the subfolder `/templates/mail`.
@@ -29,16 +36,6 @@ making changes there, you need to run `npm run scss` to re-genereate the css fil
 `npx sass --watch public/scss:public/dist/css` prior to modifying anything - this looks out for changing files in the `public` folder
 and re-generates the corresponding css file immediately. But you would need a second terminal to run `npm start` then.
 
-## Adding sponsors or partners
-
-The files for these can be found in /public/sponsors and /public/partners.
-If a new sponsor or partner is to be added, first get a logo in the required size and add it to the corresponding
-folders. New files need to be added to the repository by calling
-
-    git add <path to file>
-
-Then, open the .json file which is in the folder and add an entry for the sponsor or partner, by specifying a URL
-and the name of the logo file.
 
 ### Commit and push
 

@@ -28,13 +28,6 @@ module.exports = (dependencies) => {
     return index.replace('<body>', '<body>\n' + menu + '\n').replace('</body>', analytics + '\n</body>')
   }
 
-  function getIndexPage() {
-    const sponsors = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/sponsors', 'sponsors.json')))
-    const partners = JSON.parse(fs.readFileSync(path.resolve(publicDir, 'assets/partners', 'partners.json')))
-    const soldOut = config.ticketsSoldOut ? 'sold-out' : ''
-    return templateGenerator.generate('index', {sponsors, partners, soldOut})
-  }
-
   function getSessionList() {
     const sessions = readModels.session.getAll().map(session => {
       const person = readModels.person.getById(session.person.id)
@@ -71,7 +64,7 @@ module.exports = (dependencies) => {
   const router = express.Router()
 
   router.get('/', (req, res) => res.send(getNetVisPage()))
-  router.get('/index', (req, res) => res.send(getIndexPage()))
+  router.get('/index', (req, res) => res.redirect('xcamp2019'))
   router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
 
   router.use('/', express.static(publicDir))
