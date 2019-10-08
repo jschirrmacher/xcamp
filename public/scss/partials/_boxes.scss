@@ -115,10 +115,26 @@
       opacity: 0.9;
       margin-bottom: 1rem;
       position: relative;
-      padding: 10px 10px 5em;
+      padding: 10px 10px;
 
       @media (min-width: 799px) {
-        padding: 35px 35px 5em;
+        padding: 35px 35px;
+      }
+
+      &.has-bottom-buttons {
+        padding-bottom: 5em;
+      }
+
+      h3 {
+        margin: 0;
+      }
+
+      img {
+        max-width: 200px;
+      }
+
+      a:not(.button) {
+        color: white;
       }
     }
   }
@@ -133,7 +149,24 @@
   }
 }
 
-#innovatingagile {
+.frame {
+  display: inline-block;
+  border: 10px solid white;
+  overflow: hidden;
+
+  a {
+    img {
+      transition: transform .8s;
+    }
+
+    &:hover img {
+      transform: scale(1.1);
+    }
+  }
+}
+
+#innovatingagile,
+#xcamp2018innovateagilestartlean {
   color: white;
   font-size: 1.75rem;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
@@ -150,6 +183,25 @@
     @media (min-width: 950px) {
       max-width: 60%;
       font-size: 1.5rem;
+    }
+  }
+}
+
+#mainpage {
+  blockquote {
+    background: white;
+    margin: 0;
+    padding: 1px 35px;
+
+    ul {
+      display: block;
+      padding: 0 0 0 35px;
+      list-style: initial;
+
+      li {
+        padding: 0;
+        margin: 0;
+      }
     }
   }
 }

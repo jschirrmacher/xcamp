@@ -4,7 +4,7 @@ const path = require('path')
 const pageSize = 10
 
 module.exports = ({express, makeHandler, templateGenerator, config, contentReader}) => {
-  function showAll(pageNo) {
+  function showList(pageNo) {
     const pages = contentReader.getPages('blog')
     const startEntryNo = (pageNo - 1) * pageSize
     const entries = pages.slice(startEntryNo, startEntryNo + pageSize)
@@ -43,8 +43,9 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
     }
   }
 
-  function getNumPosts(num = 3, exclude = null) {
+  function getNumPosts(num = 3, exclude = null, tag = null) {
     return contentReader.getPages('blog')
+      .filter(page => !tag || page.meta.tags.split(',').map(t => t.toLowerCase()).includes(tag.toLowerCase()))
       .filter(page => page.meta.pageName !== exclude)
       .slice(0, num)
       .map(page => {
@@ -59,9 +60,9 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
 
   const router = express.Router()
 
-  router.get('/', makeHandler(req => showAll(+req.query.page || 1), {type: 'send'}))
-  router.get('/lastthree', makeHandler(() => getNumPosts(), {type: 'send'}))
+  router.get('/', makeHandler(req => showList(+req.query.page || 1), {type: 'send'}))
   router.get('/:pageName', makeHandler(req => showPage('blog/' + req.params.pageName), {type: 'send'}))
+  router.get('/articles', makeHandler(req => getNumPosts(req.query.num || 3, null, req.query.tag)))
   router.get('/media/*', (req, res, next) => {
     const fileName = path.resolve(contentReader.contentPath, req.path.replace(/^\//, ''))
     if (fs.existsSync(fileName)) {

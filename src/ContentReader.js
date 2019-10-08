@@ -12,6 +12,10 @@ const gallery = () => {
     type: 'output',
     regex: /<li>\s*<p>=(.+?)<\/p>/gs,
     replace: '<li class="$1">'
+  }, {
+    type: 'lang',
+    regex: /%\s*(\w+)\s+(.*?)%/gs,
+    replace: '<span class="$1">$2</span>'
   }]
 }
 
