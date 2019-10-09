@@ -662,39 +662,6 @@ body.logged-out .logged-in {
   justify-content: space-between;
 }
 
-#mainpage {
-  padding: 0 15px 20px;
-  background: #f5f5f5 url("../../assets/img/hero-x_web_xcamp_320.jpg") no-repeat left top;
-  background-size: 125%;
-  min-height: calc(100% - 153px - 185px);
-  /* Small Screens Retina */
-  /* Medium Screens */
-  /* Medium Screens Retina */
-  /* Large Screens Retina */
-}
-@media (min-resolution: 150dpi) {
-  #mainpage {
-    background-image: url("../../assets/img/hero-x_web_xcamp_822.jpg");
-  }
-}
-@media (min-width: 420px) {
-  #mainpage {
-    padding: 0 30px 0;
-    background-image: url("../../assets/img/hero-x_web_xcamp_822.jpg");
-  }
-}
-@media (min-width: 822px) {
-  #mainpage {
-    background-image: url("../../assets/img/hero-x_web_xcamp_1156.jpg");
-    background-size: 130%;
-  }
-}
-@media (min-width: 950px) {
-  #mainpage {
-    padding-top: 100px;
-    background-image: url("../../assets/img/hero-1900.svg");
-  }
-}
 #mainpage .container {
   max-width: 1100px;
   padding: 1em 10px;
