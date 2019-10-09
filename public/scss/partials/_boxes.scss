@@ -175,7 +175,7 @@
   }
 }
 
-h1 {
+#main:not(.no-background) h1 {
   color: white;
   font-size: 1.75rem;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
@@ -291,4 +291,8 @@ h1 {
 
 #location {
   margin-top: 1em;
+}
+
+#main #social-wall {
+  max-width: 800px;
 }

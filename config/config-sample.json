@@ -5,6 +5,11 @@
   "title": "Barcamp-Plus für digitale Innovation und agile Produktentwicklung",
   "eventLocation": "Skydeck der DB Systel, Jürgen-Ponto-Platz 1, Frankfurt",
 
+  "bankAccount": {
+    "IBAN": "<recipients IBAN no>",
+    "holder": "Justso GmbH, Frankfurt"
+  },
+
   "analyticsTrackingId": "UA-xxx-dev",
 
   "mailChimp": {

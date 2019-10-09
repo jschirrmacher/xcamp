@@ -58,6 +58,7 @@ module.exports = ({logger, config}) => {
         .replace(/<a href="#(.*)?".*?>/g, `<a href="${pageName}#$1">`)
       const meta = converter.getMetadata()
       meta.pageName = pageName
+      meta.id =path.basename(pageName)
       meta.title = meta.title || meta.pageName
       meta.layout = meta.layout || 'standard-page'
       meta.image = meta.image && (path.dirname(pageName) + '/' + meta.image)
