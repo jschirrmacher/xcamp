@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const showdown = require('showdown')
 const stripHtml = require('string-strip-html')
+const chokidar = require('chokidar')
 
 const gallery = () => {
   return [{
@@ -31,11 +32,8 @@ module.exports = ({logger, config}) => {
   const contentPath = path.join(config.basePath, 'content')
   const pages = {}
 
-  const watcher = fs.watch(contentPath, {recursive: true}, (eventType, fileName) => {
-    logger.info(`File ${eventType}: ${fileName}`)
-    if (fileName) {
-      delete pages[fileName]
-    }
+  chokidar.watch(contentPath).on('all', (event, fileName) => {
+    delete pages[fileName.replace(contentPath, '')]
   })
 
   return {
