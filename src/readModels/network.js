@@ -157,7 +157,7 @@ module.exports = function ({models}) {
           fields.push('access_code')
           fields.push('accountPath')
           fields.push('email')
-          node.accountPath = user.ticketIds.length > 1 ? 'accounts/my' : 'accounts/my/invoices/current'
+          node.accountPath = 'accounts/my'
         }
         node = select(node, fields)
       }
@@ -170,7 +170,7 @@ module.exports = function ({models}) {
       } else if (!nodeId || user.isAdmin) {
         return true
       } else {
-        return nodeId === user.personId || user.ticketIds.indexOf(nodeId) !== -1
+        return nodeId === user.id
       }
     },
 

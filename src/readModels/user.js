@@ -1,184 +1,124 @@
 module.exports = function ({models}) {
-  const users = {
-    byId: {},
-    byEMail: {},
-    byAccessCode: {},
-    byPersonId: {}
-  }
-  const persons = {}
-  const tickets = {}
-  const customersByInvoiceId = {}
+  const byAccessCode = {}
+  const users = {}
+  const personIdByInvoiceId = {}
+
   let adminIsDefined = false
-
-  function deleteUser(user) {
-    delete users.byId[user.id]
-    delete users.byEMail[user.email]
-    delete users.byAccessCode[user.access_code]
-    delete users.byPersonId[user.personId]
-  }
-
-  function deleteTicket(ticket) {
-    deleteUser(users.byId[ticket.id])
-    delete tickets[ticket.id]
-    delete users.byId[ticket.id]
-    delete users.byAccessCode[ticket.access_code]
-  }
-
-  function deleteInvoice(invoiceId) {
-    const customerId = customersByInvoiceId[invoiceId]
-    const user = users.byId[customerId]
-    user.ticketIds.forEach(ticketId => deleteTicket(tickets[ticketId]))
-    deleteUser(user)
-    delete customersByInvoiceId[invoiceId]
-  }
 
   return {
     handleEvent(event, assert) {
-      function handlePersonEvents() {
-        persons[event.person.id] = Object.assign(persons[event.person.id] || {}, event.person)
-        const user = users.byPersonId[event.person.id]
-        if (user) {
-          user.firstName = event.person.firstName || user.firstName
-          user.image = event.person.image || user.image
-        }
-      }
-
       switch (event.type) {
-        case 'customer-created': {
-          assert(!users.byId[event.customer.id], `Referenced user ${event.customer.id} already exists`)
-          assert(!users.byAccessCode[event.customer.access_code], `Access code already in use`)
-          assert(event.customer.personId, `No personId found in event`)
-          const person = models.person.getById(event.customer.personId)
-          assert(!users.byEMail[person.email], `Referenced user ${person.email} already exists`)
-          setUser({
-            id: event.customer.id,
-            personId: person.id,
-            type: 'customer',
-            access_code: event.customer.access_code,
-            email: person.email,
-            firstName: person.firstName,
-            image: 'user.png',
-            ticketIds: []
-          })
+        case 'customer-created':
+          if (event.customer.access_code) {
+            setUser(event.customer.personId, event.customer.access_code)
+          }
           break
-        }
 
         case 'person-created':
-        case 'person-updated':
-          handlePersonEvents()
+          if (event.person.access_code) {
+            setUser(event.person.id, event.person.access_code)
+          }
           break
 
         case 'password-changed':
-          assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          setUser(Object.assign(users.byId[event.userId], {password: event.passwordHash}))
+          assert(users[event.userId], `Referenced user ${event.userId} doesn't exist`)
+          setUser(event.userId, null, event.passwordHash)
           break
 
         case 'set-mail-hash':
-          assert(users.byId[event.userId], `Referenced user ${event.userId} doesn't exist`)
-          setUser(Object.assign(users.byId[event.userId], {hash: event.hash}))
+          assert(users[event.userId], `Referenced user ${event.userId} doesn't exist`)
+          setUser(event.userId, null, null, event.hash)
+          break
+
+        case 'ticket-created':
+          personIdByInvoiceId[event.ticket.invoiceId] = event.ticket.personId
+          if (event.ticket.access_code) {
+            setUser(event.ticket.personId, event.ticket.access_code)
+          }
           break
 
         case 'invoice-created':
           if (event.invoice.ticketType === 'orga') {
-            assert(users.byId[event.invoice.customerId], `Referenced user ${event.invoice.customerId} doesn't exist`)
-            setUser(Object.assign(users.byId[event.invoice.customerId], {isAdmin: true}))
+            const customer = models.customer.getById(event.invoice.customerId)
+            assert(customer, `Referenced customer ${event.invoice.customerId} doesn't exist`)
+            setUser(customer.personId, null, null, null, true)
             adminIsDefined = true
           }
-          customersByInvoiceId[event.invoice.id] = event.invoice.customerId
           break
-
-        case 'invoice-deleted':
-          deleteInvoice(event.invoiceId)
-          break
-
-        case 'ticket-created': {
-          if (!event.ticket.id) {
-            event.ticket.id = 'user-' + (Object.keys(users.byId).length + 1)
-          }
-          const person = models.person.getById(event.ticket.personId)
-          const customer = users.byPersonId[event.ticket.personId]
-          tickets[event.ticket.id] = event.ticket
-          if (customer) {
-            users.byAccessCode[event.ticket.access_code] = customer
-            users.byId[event.ticket.id] = customer
-          } else {
-            setUser({
-              id: event.ticket.id,
-              personId: person.id,
-              type: 'ticket',
-              access_code: event.ticket.access_code,
-              email: person.email,
-              firstName: person.firstName,
-              image: person.image,
-              ticketIds: [event.ticket.id]
-            })
-          }
-          users.byId[customersByInvoiceId[event.ticket.invoiceId]].ticketIds.push(event.ticket.id)
-          break
-        }
-
-        case 'participant-set': {
-          assert(event.personId, 'No personId found in event')
-          const ticketUser = users.byId[event.ticketId]
-          const person = persons[event.personId]
-          if (ticketUser.type === 'customer') {
-            const ticket = tickets[event.ticketId]
-            setUser({
-              id: event.ticketId,
-              personId: event.personId,
-              type: 'ticket',
-              access_code: ticket.access_code,
-              email: person.email,
-              firstName: person.firstName,
-              lastName: person.lastName,
-              image: person.image,
-              ticketIds: [event.ticketId]
-            })
-          } else {
-            setUser(Object.assign(ticketUser, {email: person.email, firstName: person.firstName, image: person.image}))
-          }
-          break
-        }
       }
     },
 
     getAll() {
-      return Object.values(users.byId)
+      return Object.keys(users).map(getUser)
     },
 
     getById(userId) {
-      const user = users.byId[userId]
+      const user = users[userId]
       if (user) {
-        return user
+        return getUser(userId)
       }
       throw Error(`User '${userId}' doesn't exist`)
     },
 
     getByAccessCode(accessCode) {
-      const user = users.byAccessCode[accessCode]
-      if (user) {
-        return user
+      const id = byAccessCode[accessCode]
+      if (id) {
+        const user = users[id]
+        if (user) {
+          return getUser(id)
+        }
       }
       throw Error(`No user found with this access code`)
     },
 
     getByEMail(email) {
-      const user = users.byEMail[email]
-      if (user) {
-        return user
+      const person = models.person.getByEMail(email)
+      if (person) {
+        return getUser(person.id)
       }
       throw Error(`No user found with this e-mail address`)
     },
 
-    adminIsDefined
+    adminIsDefined,
+
+    reset() {
+      function clear(obj) {
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            delete obj[key]
+          }
+        }
+      }
+      clear(byAccessCode)
+      clear(users)
+      clear(personIdByInvoiceId)
+    }
   }
 
-  function setUser(user) {
-    users.byId[user.id] = user
-    users.byPersonId[user.personId] = user
-    users.byAccessCode[user.access_code] = user
-    if (!users.byEMail[user.email] || users.byEMail[user.email].type === user.type) {
-      users.byEMail[user.email] = user
+  function setUser(id, access_code, password = null, hash = null, isAdmin = null) {
+    if (!users[id]) {
+      users[id] = {password, hash, isAdmin}
+    } else {
+      users[id].password = password || users[id].password
+      users[id].hash = hash || users[id].hash
+      users[id].isAdmin = isAdmin !== null ? isAdmin : users[id].isAdmin
+    }
+    if (access_code) {
+      users[id].access_code = access_code
+      byAccessCode[access_code] = id
+    }
+  }
+
+  function getUser(id) {
+    const person = models.person.getById(id)
+    if (person) {
+      return Object.assign({
+        id,
+        personId: person.id,
+        email: person.email,
+        firstName: person.firstName,
+        image: person.image || 'user.png'
+      }, users[id])
     }
   }
 }

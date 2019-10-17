@@ -29,6 +29,8 @@ module.exports = function ({models, config}) {
   }
 
   return {
+    dependencies: ['user'],
+
     handleEvent(event, assert) {
       function createCustomer(customerData) {
         assert(customerData, 'No customer in event')

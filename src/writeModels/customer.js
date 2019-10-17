@@ -7,7 +7,6 @@ module.exports = (store, readModels, rack) => {
         throw 'Missing personId field in Customer.create call'
       }
       data.id = shortid()
-      data.access_code = rack()
       await store.add({type: 'customer-created', customer: data})
       return readModels.customer.getById(data.id)
     },

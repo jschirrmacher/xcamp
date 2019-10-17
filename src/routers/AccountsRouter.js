@@ -15,11 +15,10 @@ module.exports = (dependencies) => {
   }
 
   function getNewestInvoice(user) {
-    if (user && user.type === 'customer') {
-      const invoices = readModels.invoice.getByCustomerId(user.id)
-      if (invoices && invoices.length) {
-        return invoices[0]
-      }
+    const customer = readModels.customer.getAll().find(c => c.personId === user.id)
+    const invoices = readModels.invoice.getByCustomerId(customer.id)
+    if (invoices && invoices.length) {
+      return invoices[0]
     }
     return null
   }
@@ -75,7 +74,7 @@ module.exports = (dependencies) => {
   async function setPassword(user, password) {
     const result = await auth.setPassword(user.access_code, password)
     result.personId = user.personId
-    result.url = user.ticketIds.length > 1 ? getAccountInfoURL(user) : '#' + user.personId
+    result.url = '#' + user.personId
     return result
   }
 

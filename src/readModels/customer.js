@@ -4,6 +4,8 @@ module.exports = function () {
   }
 
   return {
+    dependencies: ['user'],
+
     handleEvent(event, assert) {
       switch (event.type) {
         case 'customer-created':
