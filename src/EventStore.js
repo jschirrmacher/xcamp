@@ -110,6 +110,7 @@ class EventStore {
           })
         } catch (error) {
           self.logger.error(error)
+          self.logger.debug(error.stack)
         }
       }))
   }
@@ -125,6 +126,7 @@ class EventStore {
         listener(completeEvent, (condition, message) => EventStore.assert(event, condition, message), 'new')
       } catch (error) {
         self.logger.error(error)
+        self.logger.debug(error.stack)
       }
     })
   }
