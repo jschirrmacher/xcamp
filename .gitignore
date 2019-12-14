@@ -13,3 +13,4 @@
 /cypress/videos
 *.map
 .DS_Store
+/save
