@@ -28,7 +28,7 @@ const converter = new showdown.Converter({
   extensions: [gallery]
 })
 
-module.exports = ({logger, config}) => {
+module.exports = ({config}) => {
   const contentPath = path.join(config.basePath, 'content')
   const pages = {}
 

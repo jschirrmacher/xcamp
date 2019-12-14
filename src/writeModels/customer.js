@@ -1,6 +1,6 @@
 const shortid = require('shortid')
 
-module.exports = (store, readModels, rack) => {
+module.exports = (store, readModels) => {
   return {
     async create(data) {
       if (!data.personId) {

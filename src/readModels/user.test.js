@@ -8,9 +8,6 @@ const testPerson = {
   access_code: 'person-access-code'
 }
 const testCustomer = {id: '0x4711', personId: '0x4710'}
-const testInvoice = {id: '0x4712', customerId: '0x4711', ticketType: 'normal'}
-const testTicket1 = {personId: '0x4710', invoiceId: '0x4712', access_code: 'ticket-access-code-1'}
-const testTicket2 = {personId: '0x4710', invoiceId: '0x4712', access_code: 'ticket-access-code-2'}
 
 const models = {}
 models.person = require('./person')()

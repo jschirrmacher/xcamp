@@ -84,7 +84,7 @@ module.exports = function ({models}) {
     reset() {
       function clear(obj) {
         for (var key in obj) {
-          if (obj.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(obj,key)) {
             delete obj[key]
           }
         }
