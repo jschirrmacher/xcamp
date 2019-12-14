@@ -32,7 +32,7 @@ module.exports = ({logger, config}) => {
   const contentPath = path.join(config.basePath, 'content')
   const pages = {}
 
-  chokidar.watch(contentPath).on('all', (event, fileName) => {
+  const watcher = chokidar.watch(contentPath).on('all', (event, fileName) => {
     delete pages[fileName.replace(contentPath, '')]
   })
 
