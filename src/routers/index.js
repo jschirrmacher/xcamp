@@ -63,7 +63,8 @@ module.exports = (dependencies) => {
 
   const router = express.Router()
 
-  router.get('/', (req, res) => res.send(getNetVisPage()))
+  router.get('/netvis', (req, res) => res.send(getNetVisPage()))
+  router.get('/', (req, res) => res.redirect('xcamp2019'))
   router.get('/index', (req, res) => res.redirect('xcamp2019'))
   router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
 

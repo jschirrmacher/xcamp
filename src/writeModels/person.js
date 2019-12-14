@@ -89,7 +89,7 @@ module.exports = (store, readModels, config, rack) => {
     const [mimeType, name] = person.image.split(':')
     let fileName = getPicturePath(id)
     if (!fs.existsSync(fileName)) {
-      fileName = path.join(config.basePath, 'public', 'assets', 'img', 'user.png')
+      fileName = path.join(config.basePath, 'content', 'assets', 'img', 'user.png')
     }
     return {content: fs.readFileSync(fileName), mimeType, name, disposition: 'inline'}
   }
