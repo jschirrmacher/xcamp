@@ -51,38 +51,34 @@ module.exports = (dependencies) => {
     next()
   }
 
-  const sessionRouter = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
-  const newsletterRouter = require('./NewsletterRouter')({express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Model, store, readModels})
-  const accountsRouter = require('./AccountsRouter')({express, auth, makeHandler, templateGenerator, mailSender, store, readModels, config})
-  const ticketRouter = require('./TicketRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, store, readModels, config})
-  const networkRouter = require('./NetworkRouter')({express, auth, makeHandler, Model, store, readModels, config})
-  const orgaRouter = require('./OrgaRouter')({express, auth, makeHandler, templateGenerator, mailSender, Model, readModels, store, config })
-  const paypalRouter = require('./PaypalRouter')({express, makeHandler, Payment})
-  const blogRouter = require('./BlogRouter')({express, makeHandler, templateGenerator, contentReader, config})
-  const contentRouter = require('./ContentRouter')({express, templateGenerator, contentReader, config, nocache})
+  const injectedModules = {express, auth, makeHandler, templateGenerator, mailSender, mailChimp, Payment, contentReader, Model, store, readModels, config}
+  const list = fs.readdirSync(__dirname)
+    .filter(name => name.match(/Router.js$/))
+    .map(name => ({[name.replace('Router.js', '')]: require('./' + name)(injectedModules)}))
+  const routers = Object.assign({}, ...list)
+  const mainRouter = express.Router()
 
-  const router = express.Router()
+  mainRouter.get('/netvis', (req, res) => res.send(getNetVisPage()))
+  mainRouter.get('/', (req, res) => res.redirect('xcamp2020'))
+  mainRouter.get('/index', (req, res) => res.redirect('xcamp2020'))
+  mainRouter.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
 
-  router.get('/netvis', (req, res) => res.send(getNetVisPage()))
-  router.get('/', (req, res) => res.redirect('xcamp2020'))
-  router.get('/index', (req, res) => res.redirect('xcamp2020'))
-  router.get('/session-list', makeHandler(getSessionList, {type: 'send'}))
+  mainRouter.use('/', express.static(publicDir))
+  mainRouter.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
+  mainRouter.use('/qrcode', express.static(path.resolve(nodeDir, 'qrcode', 'build')))
 
-  router.use('/', express.static(publicDir))
-  router.use('/js-netvis', express.static(path.resolve(nodeDir, 'js-netvis')))
-  router.use('/qrcode', express.static(path.resolve(nodeDir, 'qrcode', 'build')))
+  mainRouter.use('/session', nocache, routers.Session)
+  mainRouter.use('/newsletter', nocache, routers.Newsletter)
+  mainRouter.use('/tickets', nocache, routers.Ticket)
+  mainRouter.use('/accounts', nocache, routers.Accounts)
+  mainRouter.use('/paypal/ipn', nocache, routers.Paypal)
+  mainRouter.use('/orga', nocache, routers.Orga)
+  mainRouter.use('/network', nocache, routers.Network)
+  mainRouter.use('/blog', nocache, routers.Blog)
+  mainRouter.use('/feed', nocache, routers.Feed)
+  mainRouter.use('/', routers.Content)
 
-  router.use('/session', nocache, sessionRouter)
-  router.use('/newsletter', nocache, newsletterRouter)
-  router.use('/tickets', nocache, ticketRouter)
-  router.use('/accounts', nocache, accountsRouter)
-  router.use('/paypal/ipn', nocache, paypalRouter)
-  router.use('/orga', nocache, orgaRouter)
-  router.use('/network', nocache, networkRouter)
-  router.use('/blog', nocache, blogRouter)
-  router.use('/', contentRouter)
+  mainRouter.use((req, res) => res.status(404).send('Not found'))
 
-  router.use((req, res) => res.status(404).send('Not found'))
-
-  return router
+  return mainRouter
 }
