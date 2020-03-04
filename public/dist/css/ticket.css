@@ -688,6 +688,9 @@ body.logged-out .logged-in {
   flex-wrap: wrap;
   justify-content: space-between;
 }
+#mainpage ul li, #mainpage ol li {
+  padding: 5px 10px;
+}
 #mainpage ul {
   padding: 0;
 }
@@ -807,7 +810,7 @@ body.logged-out .logged-in {
   border-radius: 3px;
 }
 #newest-blog-entries ol li .box {
-  padding: 0 25px;
+  padding: 0;
 }
 #newest-blog-entries ol li .img {
   width: 100%;
@@ -1302,7 +1305,6 @@ body.logged-out .logged-in {
 }
 #sponsoren + ol li:last-child img,
 #netzwerkpartner + ol li:last-child img {
-  opacity: 0.5;
   transition: all 0.5s;
 }
 #sponsoren + ol li:last-child img:hover img,
