@@ -29,7 +29,8 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/src/xcamp"
+      "program": "${workspaceFolder}/src/xcamp",
+      "outputCapture": "std",
     }
   ]
 }
