@@ -75,12 +75,6 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-
-    @media (min-width: 799px) {
-      li {
-        width: calc(33% - 10px);
-      }
-    }
   }
 
   ul {
@@ -100,15 +94,16 @@
       padding: 10px 10px;
 
       @media (min-width: 799px) {
-        padding: 35px 35px;
+        padding: 35px;
+        width: calc(33% - 10px);
       }
-
+  
       &.has-bottom-buttons {
         padding-bottom: 5em;
       }
 
       h3 {
-        margin: 0;
+        margin: 1.3em 0;
       }
 
       img {
@@ -122,11 +117,14 @@
   }
 
   ol {
-    padding: 10px;
+    padding: 0;
     background: white;
 
-    @media (min-width: 799px) {
-      padding: 10px 30px;
+    @media (min-width: 799px) {      
+      li {
+        width: calc(33.3333%);
+        padding: 35px;
+      }
     }
   }
 }
@@ -209,6 +207,8 @@
     li {
       background: white;
       padding-bottom: 10px;
+      box-shadow: 5px 5px 5px lightgrey;
+      border-radius: 3px;
 
       .box {
         padding: 0 25px;
@@ -221,6 +221,14 @@
         background-position: center;
       }
     }
+  }
+}
+
+#impressionenvomxcamp + ol {
+  padding: 10px 5px;
+
+  li {
+    padding: 5px 10px;
   }
 }
 

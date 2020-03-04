@@ -34,7 +34,6 @@
     // Work around to set off the "your logo here" button
     // (should not happen in CSS)
     &:last-child img {
-      opacity: 0.5;
       transition: all .5s;
 
       &:hover img {
