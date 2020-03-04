@@ -45,7 +45,7 @@ module.exports = ({express, makeHandler, templateGenerator, config, contentReade
 
   function getNumPosts(num = 3, exclude = null, tag = null) {
     return contentReader.getPages('blog')
-      .filter(page => !tag || page.meta.tags.split(',').map(t => t.toLowerCase()).includes(tag.toLowerCase()))
+      .filter(page => !tag || page.meta.tags.split(',').map(t => t.trim().toLowerCase()).includes(tag.toLowerCase()))
       .filter(page => page.meta.pageName !== exclude)
       .slice(0, num)
       .map(page => {
