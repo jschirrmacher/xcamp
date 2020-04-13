@@ -8,14 +8,16 @@ const texts = {
   roots: 'Events',
   topics: 'Themen',
   persons: 'Interessierte Personen',
-  info: 'Beschreibung'
+  info: 'Beschreibung',
+  chat: 'Diskutieren'
 }
 
 const icons = {
   roots: '🔥',
-  topics: '💬',
+  topics: 'ⓘ',
   persons: '👤',
-  info: '✍'
+  info: '✍',
+  chat: '💬'
 }
 
 let network
@@ -25,6 +27,8 @@ const what = location.search.match(/what=(\w*)/) ? RegExp.$1 : 'topic'
 const history = location.search.match(/year=(\d+)/) ? RegExp.$1 + '/' : ''
 let detailsNode = location.hash && location.hash.replace('#', '')
 const profileButton = document.querySelector('#profile')
+const chatPopup = document.getElementById('chat')
+const chatFrame = document.querySelector('#chat iframe')
 
 const script = document.createElement('script')
 script.addEventListener('load', function () {
@@ -109,7 +113,7 @@ script.addEventListener('load', function () {
       select('#chg-pwd-form').addEventListener('submit', () => {
         if (pwd.value !== pwd2.value) {
           showMessage('Passwörter stimmen nicht überein.')
-          return false;
+          return false
         }
         const headers = {'content-type': 'application/json', authorization}
         fetch('accounts/password', {method: 'POST', headers, body: JSON.stringify({password: pwd.value})})
@@ -120,7 +124,7 @@ script.addEventListener('load', function () {
             document.querySelector('#chgPwdForm').style.display = 'none';
             document.querySelector('#personDetails').style.display = 'block';
           })
-        return false;
+        return false
       })
 
       const tagView = form.querySelector('.tag-view')
@@ -274,10 +278,10 @@ script.addEventListener('load', function () {
               image.height = maxImageHeight
             }
 
-            const canvas = document.createElement("canvas")
+            const canvas = document.createElement('canvas')
             canvas.width = image.width
             canvas.height = image.height
-            canvas.getContext("2d").drawImage(image, 0, 0, image.width, image.height)
+            canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height)
 
             const splitted = canvas.toDataURL().split(',')
             const mime = splitted[0].replace(/data:(.*);.*/, '$1')
@@ -321,7 +325,14 @@ script.addEventListener('load', function () {
   }
 
   function prepareNode(node) {
-    const getTopicInfoAsLink = links => ({...links, info: []})
+    function getMenuLinks(node) {
+      if (node.type === 'topic') {
+        return {info: [], chat: [], ...node.links}
+      } else {
+        return {chat: [], ...node.links}
+      }
+    }
+
     const fontSize = node.type === 'topic' && node.links ? ((Math.log((node.links.persons || []).length + 3) + 1) / 3) : 1
     const moreThan1PersonConnected = node.links && node.links.persons && node.links.persons.length > 1
 
@@ -330,7 +341,7 @@ script.addEventListener('load', function () {
       shape: 'circle',
       radius: node.radius || fontSize * 50,
       className: node.type,
-      links: node.type === 'topic' ? getTopicInfoAsLink(node.links) : node.links,
+      links: getMenuLinks(node),
       hiddenPersonLinks: getNumberOfHiddenPersonLinks(node),
       fontSize
     })
@@ -362,6 +373,18 @@ script.addEventListener('load', function () {
   document.querySelector('.help .close').addEventListener('click', () => {
     helpBox.classList.remove('open')
   })
+
+  function showChat(type, name) {
+    document.querySelector('#chat .title').innerText = 'Gespräch ' + (type === 'person' ? 'mit' : 'über') + ' ' + name
+    const path = '/' + (type === 'topic' ? 'channel' : 'direct') + '/' + (name.toLowerCase().replace(/ /g, '-'))
+    chatFrame.contentWindow.postMessage({
+      externalCommand: 'go',
+      path: path
+    }, '*')
+    chatPopup.classList.add('open')
+  }
+  chatFrame.src = 'https://chat.xcamp.co/channel/allgemein?layout=embedded'
+  document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
 
   window.onpopstate = handleHash
 
@@ -440,6 +463,8 @@ script.addEventListener('load', function () {
       clickOnRefLink(node, ref) {
         if (ref === 'info') {
           network.showDetails(node)
+        } else if (ref === 'chat') {
+          showChat(node.type, node.name)
         } else {
           toggleNode(node, ref)
         }
