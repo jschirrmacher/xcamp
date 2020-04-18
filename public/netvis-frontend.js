@@ -374,17 +374,16 @@ script.addEventListener('load', function () {
     helpBox.classList.remove('open')
   })
 
-  function showChat(type, name) {
-    document.querySelector('#chat .title').innerText = 'Gespräch ' + (type === 'person' ? 'mit' : 'über') + ' ' + name
-    const path = '/' + (type === 'topic' ? 'channel' : 'direct') + '/' + (name.toLowerCase().replace(/ /g, '-'))
-    chatFrame.contentWindow.postMessage({
-      externalCommand: 'go',
-      path: path
-    }, '*')
+  function showChat(node) {
+    document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
+    chatFrame.contentWindow.postMessage({externalCommand: 'go', path: node.channel}, '*')
     chatPopup.classList.add('open')
   }
   chatFrame.src = 'https://chat.xcamp.co/channel/allgemein?layout=embedded'
   document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
+  window.addEventListener('message', function(e) {
+    console.log(e.data)
+  })
 
   window.onpopstate = handleHash
 
@@ -464,7 +463,7 @@ script.addEventListener('load', function () {
         if (ref === 'info') {
           network.showDetails(node)
         } else if (ref === 'chat') {
-          showChat(node.type, node.name)
+          showChat(node)
         } else {
           toggleNode(node, ref)
         }

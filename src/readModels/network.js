@@ -1,10 +1,13 @@
 const select = require('../lib/select')
 
-module.exports = function ({models}) {
+module.exports = function ({models, config}) {
   const nodes = {}
   const ticketsByInvoiceId = {}
   const tickets = {}
   let maxNodeId = 0
+  const rcChannels = {}
+  const rcUsers = {}
+  const rcMembers = {}
 
   function makeNodeFromPerson(person) {
     nodes[person.id] = {
@@ -23,6 +26,19 @@ module.exports = function ({models}) {
       })
     }
     delete nodes[personId]
+  }
+
+  async function getFromRC(path) {
+    const headers = {
+      'X-Auth-Token': config.chat.bot.token,
+      'X-User-Id': config.chat.bot.userId
+    }
+    const response = await fetch('https://chat.xcamp.co/api' + path, { headers })
+    const content = response.headers.get('content-type').match(/json/) ? await response.json() : await response.text()
+    if (!response.ok) {
+      return {success: false, message: response.status + ' ' + response.statusText, content}
+    }
+    return content
   }
 
   const handlers = {
@@ -120,16 +136,33 @@ module.exports = function ({models}) {
     },
 
     async getGraph(user = null, eventName) {
-      const nodes = models.network.getAll()
-        .filter(node => ['person', 'topic', 'root'].includes(node.type))
-        .map(node => models.network.getPublicViewOfNode({...node}, user))
-        .map(node => {
-          if (node.type === 'root' && node.name === eventName) {
-            node.open = true
+      const nodes = []
+
+      function addNode(id, type, name, image, channel, details = undefined, links = {}) {
+        nodes.push({id, type, name, image, channel, shape: 'circle', open: true, details, links})
+      }
+
+      try {
+        const users = await getFromRC('/v1/users.list')
+        users.users.forEach(user => {
+          if (user.active && user.roles.includes('user')) {
+            addNode(user._id, 'person', user.name, 'https://chat.xcamp.co/avatar/' + user.username, '/direct/' + user.username, undefined, {topics: []})
           }
-          return node
         })
-      return {nodes, myNode: user && user.personId}
+        const channels = await getFromRC('/v1/channels.list')
+        await Promise.all(channels.channels.map(async channel => {
+          const members = await getFromRC('/v1/channels.members?roomId=' + channel._id)
+          const persons = members.members.map(member => member._id)
+          persons.forEach(personId => {
+            nodes.some(node => node.id === personId && node.links.topics.push(channel._id))
+          })
+          addNode(channel._id, 'topic', channel.topic || channel.name, null, '/channel/' + channel.name, channel.description, {persons})
+        }))
+        return {nodes, myNode: user && user.personId}
+      } catch (error) {
+        console.log(error)
+        return {error}
+      }
     },
 
     getPublicViewOfNode(node, user) {
