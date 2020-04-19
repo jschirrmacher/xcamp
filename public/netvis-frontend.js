@@ -382,7 +382,7 @@ script.addEventListener('load', function () {
   chatFrame.src = 'https://chat.xcamp.co/channel/allgemein?layout=embedded'
   document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
   window.addEventListener('message', function(e) {
-    console.log(e.data)
+    console.log(e.data.eventName, e.data.data)
   })
 
   window.onpopstate = handleHash

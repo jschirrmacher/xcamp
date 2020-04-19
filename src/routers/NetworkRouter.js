@@ -2,6 +2,8 @@ const path = require('path')
 const multer = require('multer')
 const shortid = require('shortid')
 
+const RCSynchronizer = require('../RCSynchronizer')
+
 module.exports = (dependencies) => {
   const {
     express,
@@ -13,6 +15,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
+  const synchronizer = RCSynchronizer({ config })
   const upload = multer({dest: path.join(config.basePath, 'profile-pictures')})
 
   function getPersonDetails(id, user) {
@@ -106,7 +109,7 @@ module.exports = (dependencies) => {
   const router = express.Router()
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => readModels.network.getGraph(req.user, config.eventName)))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => synchronizer.getGraph(req.user, config.eventName)))
 
   router.put('/roots/:id', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 
