@@ -1,5 +1,6 @@
 const nodeenv = process.env.NODE_ENV || 'develop'
 const isProduction = nodeenv === 'production'
+const host = process.env.BASEURL || 'http://localhost'
 const port = process.env.PORT || 8001
 
 const Logger = require('./Logger')
@@ -41,7 +42,7 @@ Logger.attachToExpress(app, mainRouter)
 
 const server = app.listen(port, () => {
   const paymentType = config.paypal.useSandbox ? 'sandbox' : 'PayPal'
-  logger.info(`Running on port ${port} in ${nodeenv} mode with baseURL=${config.baseUrl} using ${paymentType}`)
+  logger.info(`Running on ${config.baseUrl} in ${nodeenv} mode using ${paymentType}`)
 })
 
 process.on('SIGTERM', () => {
@@ -63,7 +64,7 @@ function readConfigFile() {
   } else {
     config = require(configFile)
   }
-  config.baseUrl = process.env.BASEURL || '/'
+  config.baseUrl = host + ':' + port + '/'
   config.basePath = basePath
   config.isProduction = isProduction
   config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')
