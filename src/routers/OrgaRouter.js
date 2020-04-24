@@ -158,7 +158,7 @@ module.exports = (dependencies) => {
     }
     req.user = readModels.user.getAll()
       .find(u => isPersonInNetwork(u.personId) && (asAdmin && u.isAdmin || !asAdmin && !u.isAdmin))
-    auth.signIn(req, res)
+    res.cookie('token', auth.signIn(req.user))
     res.redirect(config.baseUrl)
   }
 

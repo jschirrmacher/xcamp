@@ -57,9 +57,10 @@
     "newline": "unix"
   },
   "chat": {
-    "bot": {
-      "token": "xxxxxx",
-      "userId": "yyyyyy"
+    "url": "https://chat.xcamp.co",
+    "oauth": {
+      "client_id": "xxx",
+      "client_secret": "yyy"
     }
   }
 }

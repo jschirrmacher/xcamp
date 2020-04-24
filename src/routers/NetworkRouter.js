@@ -15,7 +15,7 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  const synchronizer = RCSynchronizer({ config })
+  const synchronizer = RCSynchronizer({ readModels, store, config })
   const upload = multer({dest: path.join(config.basePath, 'profile-pictures')})
 
   function getPersonDetails(id, user) {
@@ -106,10 +106,14 @@ module.exports = (dependencies) => {
     return {links2create: [], links2delete: [], nodes2create: [], node}
   }
 
+  function getGraph(user) {
+    return synchronizer.getGraph(user, config.eventName)
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => synchronizer.getGraph(req.user, config.eventName)))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getGraph(req.user)))
 
   router.put('/roots/:id', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 

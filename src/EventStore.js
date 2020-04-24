@@ -97,6 +97,14 @@ class EventStore {
     }
   }
 
+  on(type, func) {
+    this.listen((event, assert) => {
+      if (event.type === type) {
+        func(event, assert)
+      }
+    })
+  }
+
   async replay() {
     await this.ready
     const self = this
@@ -129,6 +137,10 @@ class EventStore {
         self.logger.debug(error.stack)
       }
     })
+  }
+
+  emit(type, event) {
+    return this.add({type, ...event})
   }
 
   deleteAll() {

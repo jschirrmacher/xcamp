@@ -14,9 +14,8 @@ module.exports = ({app, readModels, store, config}) => {
     return config.baseUrl + 'session/' + encodeURIComponent(req.params.accessCode) + '/' + encodeURIComponent(encodeURIComponent(req.originalUrl))
   }
 
-  function signIn(req, res) {
-    const token = jwt.sign({sub: req.user.id}, config.authSecret, {expiresIn: '24h'})
-    res.cookie('token', token)
+  function signIn(user) {
+    const token = jwt.sign({sub: user.id, accessToken: user.accessToken}, config.authSecret, {expiresIn: '24h'})
     return token
   }
 
@@ -94,7 +93,7 @@ module.exports = ({app, readModels, store, config}) => {
           }
         } else if (!req.user && user) {
           req.user = user
-          signIn(req, res)
+          res.cookie('token', signIn(user))
           next()
         } else {
           next()

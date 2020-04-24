@@ -1,33 +1,27 @@
-module.exports = function () {
+const { channelAdded, channelRemoved } = require('../events')
+
+module.exports = function ({ store }) {
   const topics = {
     byId: {},
     byName: {}
   }
 
+  store.on(channelAdded, (event, assert) => {
+    assert(event.channel, 'No channel')
+    assert(event.channel.id, 'No channel id')
+    assert(!topics.byId[event.channel.id], 'Channel already exists')
+    topics.byId[event.channel.id] = event.channel
+    topics.byName[event.channel.name.toLowerCase()] = event.channel
+  })
+
+  store.on(channelRemoved, (event, assert) => {
+    assert(event.channelId, 'No channelId')
+    assert(topics.byId[event.channelId], 'Channel doesn\'t exists')
+    delete topics.byName[topics.byId[event.channelId].name]
+    delete topics.byId[event.channelId]
+  })
+
   return {
-    handleEvent(event, assert) {
-      switch (event.type) {
-        case 'node-created':
-          if (event.node.type === 'topic') {
-            assert(event.node.id, 'No node id found in event')
-            assert(event.node.name, 'No node name found in event')
-            assert(!topics.byId[event.node.id], 'Node id already exists')
-            topics.byId[event.node.id] = event.node
-            topics.byName[event.node.name.toLowerCase()] = event.node
-          }
-          break
-
-        case 'node-updated':
-          assert(event.node, 'No node found in event')
-          assert(event.node.id, 'No node id found in event')
-          if (topics.byId[event.node.id]) {
-            topics.byId[event.node.id] = Object.assign(topics.byId[event.node.id], event.node)
-          }
-          break
-
-      }
-    },
-
     getAll() {
       return Object.values(topics.byId)
     },

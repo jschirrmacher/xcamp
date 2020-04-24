@@ -19,7 +19,9 @@ module.exports = function ({store, config}) {
       if (model.dependencies) {
         model.dependencies.forEach(requireReader)
       }
-      store.listen(model.handleEvent)
+      if (model.handleEvent) {
+        store.listen(model.handleEvent)
+      }
       models[name] = model
     }
   }
