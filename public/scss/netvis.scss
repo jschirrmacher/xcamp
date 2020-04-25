@@ -670,6 +670,7 @@ button.icon.close {
   background-color: rgba(128,128,128,0.5);
   transition: opacity 0.3s;
   z-index: 9999;
+  padding: 2em 0;
 
   &.open {
     top: 0;
@@ -691,9 +692,9 @@ button.icon.close {
       padding: 15px;
     }
 
-    @media (min-width: 640px) {
-      max-width: 50%;
-      margin: 2% auto;
+    @media (min-width: 800px) {
+      max-width: 800px;
+      margin: 0 auto;
 
       h2, p {
         padding: 0 30px;
@@ -713,5 +714,6 @@ button.icon.close {
     height: 90%;
     margin: 0 auto;
     border: none;
+    flex: 1;
   }
 }
