@@ -2,8 +2,6 @@ const path = require('path')
 const multer = require('multer')
 const shortid = require('shortid')
 
-const RCSynchronizer = require('../RCSynchronizer')
-
 module.exports = (dependencies) => {
   const {
     express,
@@ -15,7 +13,6 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  const synchronizer = RCSynchronizer({ readModels, store, config })
   const upload = multer({dest: path.join(config.basePath, 'profile-pictures')})
 
   function getPersonDetails(id, user) {

@@ -1,6 +1,6 @@
-const events = require('./events')
-
 module.exports = ({ readModels, store, config }) => {
+  const events = require('./events')({ models: readModels })
+
   async function getFromRC(path) {
     const headers = {
       'X-Auth-Token': config.chat.bot.token,
@@ -14,31 +14,31 @@ module.exports = ({ readModels, store, config }) => {
     return content
   }
 
-  async function updateRCData() {
+  return async function update() {
     async function userAdded(rcUser) {
-      await store.emit(events.userAdded, { user: {
+      await store.emit(events.userAdded, {
         id: rcUser._id,
         name: rcUser.name,
         username: rcUser.username,
         email: rcUser.email
-      } })
+      })
     }
 
     async function userRemoved(user) {
-      await store.emit(events.userRemoved, { userId: user.id })
+      await store.emit(events.userRemoved, user.id)
     }
 
     async function channelAdded(rcChannel) {
-      await store.emit(events.channelAdded, { channel: {
+      await store.emit(events.channelAdded, {
         id: rcChannel._id,
         name: rcChannel.name,
         topic: rcChannel.topic,
         details: rcChannel.description
-      } })
+      })
     }
 
     async function channelRemoved(channelId) {
-      await store.emit(events.channelRemoved({ channelId }))
+      await store.emit(events.channelRemoved, channelId)
     }
 
     try {
@@ -56,12 +56,12 @@ module.exports = ({ readModels, store, config }) => {
         const memberIds = (await getFromRC('/v1/channels.members?roomId=' + channel._id)).members.map(member => member._id)
         await Promise.all(memberIds.map(async userId => {
           if (!readModels.subscriptions.subscribed(channel._id, userId)) {
-            await store.emit(events.subscriptionAdded, { channelId: channel._id, userId })
+            await store.emit(events.subscriptionAdded, channel._id, userId)
           }
         }))
         await Promise.all(readModels.subscriptions.getMembers(channel._id).map(async userId => {
           if (!memberIds.includes(userId)) {
-            await store.emit(events.subscriptionRemoved, { channelId: channel._id, userId })
+            await store.emit(events.subscriptionRemoved, channel._id, userId)
           }
         }))
       }))
@@ -69,8 +69,6 @@ module.exports = ({ readModels, store, config }) => {
       console.error(error)
     }
 
-    setTimeout(updateRCData, 5000)
+    setTimeout(update, 5000)
   }
-
-  updateRCData()
 }

@@ -1,22 +1,16 @@
-const { channelAdded, channelRemoved } = require('../events')
-
-module.exports = function ({ store }) {
+module.exports = function ({ store, models }) {
+  const { channelAdded, channelRemoved } = require('../events')({ models })
   const topics = {
     byId: {},
     byName: {}
   }
 
-  store.on(channelAdded, (event, assert) => {
-    assert(event.channel, 'No channel')
-    assert(event.channel.id, 'No channel id')
-    assert(!topics.byId[event.channel.id], 'Channel already exists')
+  store.on(channelAdded, event => {
     topics.byId[event.channel.id] = event.channel
     topics.byName[event.channel.name.toLowerCase()] = event.channel
   })
 
-  store.on(channelRemoved, (event, assert) => {
-    assert(event.channelId, 'No channelId')
-    assert(topics.byId[event.channelId], 'Channel doesn\'t exists')
+  store.on(channelRemoved, event => {
     delete topics.byName[topics.byId[event.channelId].name]
     delete topics.byId[event.channelId]
   })

@@ -31,6 +31,8 @@ const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store, config})
 const NotificationSender = require('./NotificationSender')({mailSender, readModels, config})
 store.listen(NotificationSender.handleEvent)
+const synchronizer = require('./RCSynchronizer')({ readModels, store, config })
+store.replay().then(() => synchronizer())
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
