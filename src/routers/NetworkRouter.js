@@ -131,7 +131,7 @@ module.exports = (dependencies) => {
 
     const nodes = readModels.topic.getAll().map(prepareTopic)
       .concat(readModels.user.getAll().map(prepareUser))
-    return { nodes, myNode: user }
+    return { nodes, myNode: prepareUser(user) }
   }
 
   const router = express.Router()
