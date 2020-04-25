@@ -1,16 +1,16 @@
-function assert(event, condition, message) {
-  if (!condition) {
-    const originalFunc = Error.prepareStackTrace
-    const err = new Error()
-    Error.prepareStackTrace = (err, stack) => stack.map(e => e.getFileName())
-    const currentfile = err.stack.shift()
-    const callerFile = err.stack.find(s => s !== currentfile).split(/[\\/]/).pop()
-    Error.prepareStackTrace = originalFunc
-    throw `Read model '${callerFile}', event '${event.type}': ${message}`
-  }
-}
-
 module.exports = function ({ models }) {
+  function assert(event, condition, message) {
+    if (!condition) {
+      const originalFunc = Error.prepareStackTrace
+      const err = new Error()
+      Error.prepareStackTrace = (err, stack) => stack.map(e => e.getFileName())
+      const currentfile = err.stack.shift()
+      const callerFile = err.stack.find(s => s !== currentfile).split(/[\\/]/).pop()
+      Error.prepareStackTrace = originalFunc
+      throw `Read model '${callerFile}', event '${event.type}': ${message}`
+    }
+  }
+  
   function assertEventContent(channelId, userId) {
     assert(channelId, 'No channelId')
     assert(userId, 'No userId')
