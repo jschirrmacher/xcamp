@@ -107,7 +107,31 @@ module.exports = (dependencies) => {
   }
 
   function getGraph(user) {
-    return synchronizer.getGraph(user, config.eventName)
+    function prepareUser(user) {
+      return {
+        type: 'person',
+        ...user,
+        image: config.chat.url + 'avatar/' + user.username,
+        channel: '/direct/' + user.username,
+        links: { topics: readModels.subscriptions.getSubscriptions(user.id) },
+        open: true
+      }
+    }
+  
+    function prepareTopic(channel) {
+      return {
+        id: channel.id,
+        type: 'topic',
+        channel: '/channel/' + channel.name,
+        name: channel.topic,
+        links: { persons: readModels.subscriptions.getMembers(channel.id) },
+        open: true
+      }
+    }
+
+    const nodes = readModels.topic.getAll().map(prepareTopic)
+      .concat(readModels.user.getAll().map(prepareUser))
+    return { nodes, myNode: user }
   }
 
   const router = express.Router()

@@ -31,7 +31,8 @@ module.exports = ({ readModels, store, config }) => {
     async function channelAdded(rcChannel) {
       await store.emit(events.channelAdded, { channel: {
         id: rcChannel._id,
-        name: rcChannel.topic || rcChannel.name,
+        name: rcChannel.name,
+        topic: rcChannel.topic,
         details: rcChannel.description
       } })
     }
@@ -71,34 +72,5 @@ module.exports = ({ readModels, store, config }) => {
     setTimeout(updateRCData, 5000)
   }
 
-  function prepareUser(user) {
-    return {
-      type: 'person',
-      ...user,
-      image: config.chat.url + 'avatar/' + user.username,
-      channel: config.chat.url + 'direct/' + user.username,
-      links: { topics: readModels.subscriptions.getSubscriptions(user.id) },
-      open: true
-    }
-  }
-
-  function prepareTopic(channel) {
-    return {
-      type: 'topic',
-      ...channel,
-      channel: '/channel/' + channel.name,
-      links: { persons: readModels.subscriptions.getMembers(channel.id) },
-      open: true
-    }
-  }
-
   updateRCData()
-
-  return {
-    getGraph(user) {
-      const nodes = readModels.topic.getAll().map(prepareTopic)
-        .concat(readModels.user.getAll().map(prepareUser))
-      return { nodes, myNode: user }
-    }
-  }
 }

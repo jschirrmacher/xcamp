@@ -57,7 +57,7 @@
     "newline": "unix"
   },
   "chat": {
-    "url": "https://chat.xcamp.co",
+    "url": "https://community.xcamp.co",
     "oauth": {
       "client_id": "xxx",
       "client_secret": "yyy"

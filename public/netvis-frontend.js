@@ -379,7 +379,7 @@ script.addEventListener('load', function () {
     chatFrame.contentWindow.postMessage({externalCommand: 'go', path: node.channel}, '*')
     chatPopup.classList.add('open')
   }
-  chatFrame.src = 'https://chat.xcamp.co/channel/allgemein?layout=embedded'
+  chatFrame.src = 'https://community.xcamp.co/home?layout=embedded'
   document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
   window.addEventListener('message', function(e) {
     console.log(e.data.eventName, e.data.data)
