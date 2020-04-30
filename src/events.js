@@ -37,6 +37,16 @@ module.exports = function ({ models }) {
       }
     },
 
+    userChanged: {
+      name: 'user-changed',
+      construct: user => {
+        assert(user, 'No user')
+        assert(user.id, 'No user.id')
+        assert(models.user.getById(user.id), 'Referenced user doesnt exist')
+        return { user }
+      }
+    },
+
     channelAdded: {
       name: 'channel-added',
       construct: channel => {

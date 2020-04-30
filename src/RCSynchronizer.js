@@ -41,11 +41,19 @@ module.exports = ({ readModels, store, config }) => {
       await store.emit(events.channelRemoved, channelId)
     }
 
+    async function updateUser(user) {
+      const known = readModels.user.getById(user._id)
+      if (known.details !== user.bio) {
+        await store.emit(events.userChanged, { id: user._id, details: user.bio })
+      }
+    }
+
     try {
       const users = (await getFromRC('/v1/users.list')).users.filter(user => user.active && user.roles.includes('user'))
       const knownUsers = readModels.user.getAll()
       await Promise.all(users.filter(user => !knownUsers.some(known => known.id === user._id)).map(userAdded))
       await Promise.all(knownUsers.filter(known => !users.some(user => known.id === user._id)).map(userRemoved))
+      await Promise.all(users.map(updateUser))
 
       const channels = (await getFromRC('/v1/channels.list')).channels
       const knownChannels = readModels.topic.getAll()

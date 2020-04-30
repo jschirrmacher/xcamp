@@ -1,0 +1,165 @@
+@charset "UTF-8";
+html,
+body {
+  font: 14px Helvetica, Arial, sans-serif;
+}
+
+.node {
+  position: absolute;
+}
+
+.node .details {
+  display: none;
+}
+
+.node-person {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  background: white;
+  text-align: center;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  cursor: pointer;
+}
+
+.node-person img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.node-topic .title {
+  font-size: 24px;
+  margin: 0 .5em 5em;
+  display: inline-block;
+}
+
+.node.active {
+  border: 2px solid #888888;
+  background: white;
+  border-radius: 4px;
+  width: 320px;
+  height: auto;
+  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
+  text-align: left;
+  padding: 10px;
+  border-color: #cccccc;
+}
+
+.node.active img {
+  float: left;
+  margin: 0 0.5em 0.5em 0;
+}
+
+.node.active .title {
+  font-size: 24px;
+  line-height: 1.3em;
+  top: 0.5em;
+  position: relative;
+  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
+  margin: 0 0.5em 1em;
+}
+
+.node.active .details {
+  display: inline;
+}
+
+.node.active .details:before {
+  content: "";
+  clear: both;
+  display: block;
+}
+
+.chat {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+}
+
+.node-topic .chat {
+  right: -25px;
+  top: -20px;
+}
+
+.node-topic .chat:before {
+  content: "💬";
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.popup {
+  position: absolute;
+  opacity: 0;
+  top: -100%;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(128, 128, 128, 0.5);
+  -webkit-transition: opacity 0.3s;
+  transition: opacity 0.3s;
+  z-index: 9999;
+  padding: 2em 0;
+}
+
+.popup.open {
+  top: 0;
+  bottom: 0;
+  opacity: 1;
+}
+
+.popup > div {
+  background: white;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.popup > div .close {
+  border: none;
+  float: right;
+  padding: 0.5em 1em;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.popup > div h2,
+.popup > div p {
+  padding: 15px;
+}
+
+@media (min-width: 800px) {
+  .popup > div {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .popup > div h2,
+  .popup > div p {
+    padding: 0 30px;
+  }
+}
+
+#chat > div {
+  height: 100%;
+}
+
+#chat iframe {
+  display: block;
+  width: 100%;
+  height: 90%;
+  margin: 0 auto;
+  border: none;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+/*# sourceMappingURL=newnetwork.css.map */

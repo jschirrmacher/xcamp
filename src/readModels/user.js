@@ -1,5 +1,5 @@
 module.exports = function ({ store, models }) {
-  const { userAdded, userRemoved } = require('../events')({ models })
+  const { userAdded, userRemoved, userChanged } = require('../events')({ models })
   const byEmail = {}
   const users = {}
   let adminIsDefined = false
@@ -15,6 +15,10 @@ module.exports = function ({ store, models }) {
   store.on(userRemoved, event => {
     delete(byEmail[users[event.userId].email])
     delete(users[event.userId])
+  })
+
+  store.on(userChanged, event => {
+    users[event.user.id] = {...users[event.user.id], ...event.user}
   })
 
   return {

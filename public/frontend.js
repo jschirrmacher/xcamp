@@ -1,7 +1,21 @@
 /* global d3*/
 
-const gravityStrength = 0.2
+const gravityStrength = 0.1
 const collisionRadius = 100
+
+const chatPopup = document.getElementById('chat')
+const chatFrame = document.querySelector('#chat iframe')
+
+function showChat(node) {
+  document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
+  chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')
+  chatPopup.classList.add('open')
+}
+chatFrame.src = 'https://community.xcamp.co/home?layout=embedded'
+document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
+window.addEventListener('message', function (e) {
+  console.log(e.data.eventName, e.data.data)
+})
 
 d3.json('/network', (error, graph) => {
   if (error) {
@@ -37,13 +51,21 @@ d3.json('/network', (error, graph) => {
   
   allNodes.exit().remove()
 
-  d3.select('#root').selectAll('.node-person')
-    .append('img')
+  const persons = d3.select('#root').selectAll('.node-person')
+  persons.append('img')
     .attr('src', d => d.image || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
 
   node.append('span')
     .attr('class', 'title')
     .text(d => d.name)
+
+  node.append('div')
+    .attr('class', 'details')
+    .text(d => d.details)
+
+  node.append('div')
+    .attr('class', 'chat')
+    .on('click', d => showChat(d))
 
   function ticked() {
     node.attr('style', d => {

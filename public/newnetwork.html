@@ -5,72 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp Network</title>
-    <style>
-        html,
-        body {
-            font: 14px Helvetica, Arial, sans-serif;
-        }
-
-        .node {
-            position: absolute;
-        }
-
-        .node-person {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            background: white;
-            text-align: center;
-            padding: 0;
-            box-sizing: border-box;
-            cursor: pointer;
-        }
-
-        .node-person img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-        }
-
-        .node-topic .title {
-            font-size: 24px;
-        }
-
-        .node.active {
-            border: 2px solid #888888;
-            background: white;
-            border-radius: 4px;
-            width: 320px;
-            height: auto;
-            min-height: 320px;
-            transition: all .5s;
-            text-align: left;
-            padding: 10px;
-            border-color: #cccccc;
-        }
-
-        .node.active img {
-            float: left;
-            margin: 0 .5em 0 0;
-        }
-
-        .node.active .title {
-            font-size: 24px;
-            line-height: 1.3em;
-            top: .5em;
-            position: relative;
-            transition: all .5s;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="newnetwork.css"/>
 </head>
 
 <body>
     <div id="root">
     </div>
 
+    <div id="chat" class="popup">
+        <div>
+            <div>
+                <button class="icon close" title="Schließen">×</button>
+                <h2 class="title">XCamp Gespräch</h2>
+            </div>
+    
+            <iframe></iframe>
+        </div>
+    </div>
+    
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script type="module" src="frontend.js"></script>
 
 </body>
-
 </html>
