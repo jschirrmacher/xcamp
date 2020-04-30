@@ -111,7 +111,6 @@ module.exports = (dependencies) => {
         image: config.chat.url + 'avatar/' + user.username,
         channel: '/direct/' + user.username,
         links: { topics: readModels.subscriptions.getSubscriptions(user.id) },
-        open: true
       }
     }
   
@@ -122,13 +121,12 @@ module.exports = (dependencies) => {
         channel: '/channel/' + channel.name,
         name: channel.topic,
         links: { persons: readModels.subscriptions.getMembers(channel.id) },
-        open: true
       }
     }
 
     const nodes = readModels.topic.getAll().map(prepareTopic)
       .concat(readModels.user.getAll().map(prepareUser))
-    return { nodes, myNode: prepareUser(user) }
+    return { nodes, myNode: user && prepareUser(user) }
   }
 
   const router = express.Router()
