@@ -66,6 +66,16 @@ module.exports = function ({ models }) {
       }
     },
 
+    channelChanged: {
+      name: 'channel-changed',
+      construct: channel => {
+        assert(channel, 'No channel')
+        assert(channel.id, 'No channel id')
+        assert(models.topic.getById(channel.id), 'Channel doesn\'t exists')
+        return { channel }
+      }
+    },
+
     subscriptionAdded: {
       name: 'subscription-added',
       construct: (channelId, userId) => {

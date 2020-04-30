@@ -48,6 +48,14 @@ module.exports = ({ readModels, store, config }) => {
       }
     }
 
+    async function updateChannel(channel) {
+      const currentTopic = readModels.topic.getById(channel._id)
+      const newDetails = (channel.announcement || '') + '\n' + (channel.description || '')
+      if (newDetails !== currentTopic.details) {
+        await store.emit(events.channelChanged, { id: channel._id, details: newDetails })
+      }
+    }
+
     try {
       const users = (await getFromRC('/v1/users.list')).users.filter(user => user.active && user.roles.includes('user'))
       const knownUsers = readModels.user.getAll()
@@ -59,6 +67,7 @@ module.exports = ({ readModels, store, config }) => {
       const knownChannels = readModels.topic.getAll()
       await Promise.all(channels.filter(channel => !knownChannels.some(known => known.id === channel._id)).map(channelAdded))
       await Promise.all(knownChannels.filter(known => !channels.some(channel => known.id === channel._id)).map(channelRemoved))
+      await Promise.all(channels.map(updateChannel))
 
       await Promise.all(channels.map(async channel => {
         const memberIds = (await getFromRC('/v1/channels.members?roomId=' + channel._id)).members.map(member => member._id)

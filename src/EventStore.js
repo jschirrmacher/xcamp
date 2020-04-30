@@ -103,6 +103,7 @@ class EventStore {
         func(event)
       }
     })
+    return this
   }
 
   async replay() {

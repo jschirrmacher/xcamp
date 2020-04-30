@@ -120,6 +120,7 @@ module.exports = (dependencies) => {
         type: 'topic',
         channel: '/channel/' + channel.name,
         name: channel.topic,
+        details: channel.details,
         links: { persons: readModels.subscriptions.getMembers(channel.id) },
       }
     }
