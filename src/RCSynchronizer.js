@@ -43,8 +43,14 @@ module.exports = ({ readModels, store, config }) => {
 
     async function updateUser(user) {
       const known = readModels.user.getById(user._id)
-      if (known.details !== user.bio) {
-        await store.emit(events.userChanged, { id: user._id, details: user.bio })
+      const fields = {
+        name: 'name',
+        username: 'username',
+        bio: 'details',
+      }
+      const changes = Object.keys(fields).filter(name => user[name] !== known[fields[name]]).map(name => ({[name]: user[name]}))
+      if (changes.length) {
+        await store.emit(events.userChanged, Object.assign({ id: user._id }, ...changes ))
       }
     }
 
