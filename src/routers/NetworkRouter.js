@@ -108,6 +108,7 @@ module.exports = (dependencies) => {
       return {
         type: 'person',
         ...user,
+        details: user.details || user.name + ' hat noch keine Angaben gemacht',
         image: config.chat.url + 'avatar/' + user.username,
         channel: '/direct/' + user.username,
         links: { topics: readModels.subscriptions.getSubscriptions(user.id) },
@@ -120,7 +121,7 @@ module.exports = (dependencies) => {
         type: 'topic',
         channel: '/channel/' + channel.name,
         name: channel.topic,
-        details: channel.details,
+        details: channel.details || 'Hier wurde bisher noch nichts eingetragen',
         links: { persons: readModels.subscriptions.getMembers(channel.id) },
       }
     }

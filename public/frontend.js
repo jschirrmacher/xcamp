@@ -55,8 +55,7 @@ d3.json('/network', (error, graph) => {
   persons.append('img')
     .attr('src', d => d.image || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
 
-  node.append('span')
-    .attr('class', 'title')
+  node.append('h2')
     .text(d => d.name)
 
   node.append('div')

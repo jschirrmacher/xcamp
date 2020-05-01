@@ -5,9 +5,43 @@ body {
 
 .node {
   position: absolute;
+  cursor: pointer;
 
   .details {
     display: none;
+  }
+
+  &.active {
+    border: 2px solid #888888;
+    background: white;
+    border-radius: 4px;
+    width: 320px;
+    height: auto;
+    transition: all 0.5s;
+    text-align: left;
+    padding: 10px;
+    border-color: #cccccc;
+
+    img {
+      float: left;
+      margin: 0 0.5em 0.5em 0;
+    }
+
+    h2 {
+      font-size: 24px;
+      line-height: 1.3em;
+      transition: all 0.5s;
+    }
+
+    .details {
+      display: inline;
+
+      &:before {
+        content: "";
+        clear: both;
+        display: block;
+      }
+    }
   }
 }
 
@@ -19,55 +53,24 @@ body {
   text-align: center;
   padding: 0;
   box-sizing: border-box;
-  cursor: pointer;
 
   img {
     width: 100px;
     height: 100px;
     border-radius: 50%;
   }
+
+  h2 {
+    font-size: 15px;
+    font-weight: normal;
+    margin-top: 0;
+  }
 }
 
-.node-topic .title {
-  font-size: 24px;
-  margin: 0 .5em 5em;
-  display: inline-block;
-}
-
-.node.active {
-  border: 2px solid #888888;
-  background: white;
-  border-radius: 4px;
-  width: 320px;
-  height: auto;
-  transition: all 0.5s;
-  text-align: left;
-  padding: 10px;
-  border-color: #cccccc;
-
-  img {
-    float: left;
-    margin: 0 0.5em 0.5em 0;
-  }
-
-  .title {
-    font-size: 24px;
-    line-height: 1.3em;
-    top: 0.5em;
-    position: relative;
-    transition: all 0.5s;
-    margin: 0 0.5em 1em;
-  }
-
-  .details {
-    display: inline;
-
-    &:before {
-      content: "";
-      clear: both;
-      display: block;
-    }
-  }
+.node-topic h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: #555555;
 }
 
 .chat {
@@ -81,10 +84,13 @@ body {
   top: -20px;
 }
 
-.node .chat:before {
-  content: "💬";
-  font-size: 28px;
-  cursor: pointer;
+.node:hover,
+.node.active {
+  .chat:before {
+    content: "💬";
+    font-size: 28px;
+    cursor: pointer;
+  }
 }
 
 .popup {
