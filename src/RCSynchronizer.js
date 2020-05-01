@@ -48,7 +48,7 @@ module.exports = ({ readModels, store, config }) => {
         username: 'username',
         bio: 'details',
       }
-      const changes = Object.keys(fields).filter(name => user[name] !== known[fields[name]]).map(name => ({[name]: user[name]}))
+      const changes = Object.keys(fields).filter(name => user[name] !== known[fields[name]]).map(name => ({[fields[name]]: user[name]}))
       if (changes.length) {
         await store.emit(events.userChanged, Object.assign({ id: user._id }, ...changes ))
       }
