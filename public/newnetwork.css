@@ -85,7 +85,7 @@ body {
   top: -20px;
 }
 
-.node-topic .chat:before {
+.node .chat:before {
   content: "💬";
   font-size: 28px;
   cursor: pointer;

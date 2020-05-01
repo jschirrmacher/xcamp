@@ -79,12 +79,12 @@ body {
 .node-topic .chat {
   right: -25px;
   top: -20px;
+}
 
-  &:before {
-    content: "💬";
-    font-size: 28px;
-    cursor: pointer;
-  }
+.node .chat:before {
+  content: "💬";
+  font-size: 28px;
+  cursor: pointer;
 }
 
 .popup {
