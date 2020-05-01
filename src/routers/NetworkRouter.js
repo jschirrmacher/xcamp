@@ -121,7 +121,7 @@ module.exports = (dependencies) => {
         type: 'topic',
         channel: '/channel/' + channel.name,
         name: channel.topic,
-        details: channel.details || 'Hier wurde bisher noch nichts eingetragen',
+        details: channel.details.trim() || 'Hier wurde bisher noch nichts eingetragen',
         links: { persons: readModels.subscriptions.getMembers(channel.id) },
       }
     }

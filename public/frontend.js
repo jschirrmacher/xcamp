@@ -22,7 +22,7 @@ d3.json('/network', (error, graph) => {
     throw error
   }
 
-  let activeId
+  let activeNode
   let allNodes
 
   const simulation = d3.forceSimulation(graph.nodes)
@@ -33,6 +33,7 @@ d3.json('/network', (error, graph) => {
     .force('gravityY', d3.forceY(window.innerHeight / 2).strength(gravityStrength))
     .force('collision', d3.forceCollide(collisionRadius))
     .on('tick', ticked)
+    .alphaDecay(0.1)
 
   //const links = graph.nodes.map(node => Object.values(node.links).map(l => ({source: node.id, dest: l}))).flat(2)
   // simulation.force('link')
@@ -45,9 +46,9 @@ d3.json('/network', (error, graph) => {
   const node = allNodes.enter()
     .append('div')
     .attr('class', d => 'node node-' + d.type)
-    .classed('active', d => d.id === activeId)
+    .classed('active', d => activeNode && d.id === activeNode.id)
     .merge(allNodes)
-    .on('click', d => activate(d.id))
+    .on('click', activate)
   
   allNodes.exit().remove()
 
@@ -68,23 +69,29 @@ d3.json('/network', (error, graph) => {
 
   function ticked() {
     node.attr('style', d => {
-      const width = d.id === activeId ? 320 : 100
-      const height = d.id === activeId ? 320 : 100
+      const width = activeNode && d.id === activeNode.id ? 320 : 100
+      const height = activeNode && d.id === activeNode.id ? 320 : 100
       return 'left: ' + Math.round(d.x - width / 2) + 'px; top: ' + Math.round(d.y - height / 2) + 'px;'
     })
   }
   
-  function activate(newId) {
-    activeId = newId
-    node.classed('active', d => d.id === newId)
+  function activate() {
+    if (activeNode) {
+      activeNode.fx = undefined
+      activeNode.fy = undefined
+    }
+    activeNode = this.__data__
+    node.classed('active', d => d.id === activeNode.id)
+    activeNode.fx = window.innerWidth / 2
+    activeNode.fy = window.innerHeight / 2
     simulation
-      .force('collision', d3.forceCollide(d => d.id === activeId ? 250 : collisionRadius))
+      .force('collision', d3.forceCollide(d => d.id === activeNode.id ? 250 : collisionRadius))
       .force('x', d3.forceX().strength(forceStrength).x(window.innerWidth / 2))
       .force('y', d3.forceY().strength(forceStrength).y(window.innerHeight / 2))
     simulation.alpha(1).restart()
   }
 
   function forceStrength(d) {
-    return d.id === activate ? 1 : 0.1
+    return d.id === activate ? 10 : 0.1
   }
 })
