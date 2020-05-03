@@ -18,7 +18,13 @@ module.exports = function ({ store, models }) {
   })
 
   store.on(userChanged, event => {
-    users[event.user.id] = {...users[event.user.id], ...event.user}
+    if (event.user.email) {
+      delete(byEmail[users[event.id].email])
+    }
+    Object.assign(users[event.user.id], event.user)
+    if (event.user.email) {
+      byEmail[event.user.email] = users[event.user.id]
+    }
   })
 
   return {

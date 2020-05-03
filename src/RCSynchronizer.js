@@ -14,6 +14,15 @@ module.exports = ({ readModels, store, config }) => {
     return content
   }
 
+  async function emitChanges(known, newValues, fields, event) {
+    const changes = Object.keys(fields)
+      .filter(name => (newValues[name] || '') !== known[fields[name]])
+      .map(name => ({[fields[name]]: newValues[name] || ''}))
+    if (changes.length) {
+      await store.emit(event, Object.assign({ id: known.id }, ...changes ))
+    }
+  }
+
   return async function update() {
     async function userAdded(rcUser) {
       await store.emit(events.userAdded, {
@@ -42,24 +51,21 @@ module.exports = ({ readModels, store, config }) => {
     }
 
     async function updateUser(user) {
-      const known = readModels.user.getById(user._id)
       const fields = {
         name: 'name',
         username: 'username',
         bio: 'details',
       }
-      const changes = Object.keys(fields).filter(name => user[name] !== known[fields[name]]).map(name => ({[fields[name]]: user[name]}))
-      if (changes.length) {
-        await store.emit(events.userChanged, Object.assign({ id: user._id }, ...changes ))
-      }
+      await emitChanges(readModels.user.getById(user._id), user, fields, events.userChanged)
     }
 
     async function updateChannel(channel) {
-      const currentTopic = readModels.topic.getById(channel._id)
-      const newDetails = (channel.announcement || '') + '\n' + (channel.description || '')
-      if (newDetails !== currentTopic.details) {
-        await store.emit(events.channelChanged, { id: channel._id, details: newDetails })
+      const fields = {
+        name: 'name',
+        topic: 'topic',
+        description: 'details',
       }
+      emitChanges(readModels.topic.getById(channel._id), channel, fields, events.channelChanged)
     }
 
     try {

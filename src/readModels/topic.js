@@ -15,7 +15,7 @@ module.exports = function ({ store, models }) {
       delete topics.byId[event.channelId]
     })
     .on(channelChanged, event => {
-      topics.byId[event.channel.id] = { ...topics.byId[event.channel.id], ...event.channel }
+      Object.assign(topics.byId[event.channel.id], event.channel)
     })
 
   return {
