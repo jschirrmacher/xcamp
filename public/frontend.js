@@ -3,18 +3,35 @@
 const gravityStrength = 0.1
 const collisionRadius = 100
 
-const chatPopup = document.getElementById('chat')
+const popup = document.querySelector('.popup')
 const chatFrame = document.querySelector('#chat iframe')
+const wikiFrame = document.querySelector('#wiki iframe')
 
-function showChat(node) {
+function showDetails(node) {
   document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
   chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')
-  chatPopup.classList.add('open')
+  wikiFrame.src = 'https://wiki.xcamp.co' + node.channel.replace('channel/', '').replace('direct/', 'user/')
+  popup.classList.add('open')
 }
-chatFrame.src = 'https://community.xcamp.co/home?layout=embedded'
-document.querySelector('#chat .close').addEventListener('click', () => chatPopup.classList.remove('open'))
+
+document.querySelector('.popup .close').addEventListener('click', () => popup.classList.remove('open'))
 window.addEventListener('message', function (e) {
   console.log(e.data.eventName, e.data.data)
+})
+
+document.querySelectorAll('.nav-link').forEach(el => {
+  el.pane = document.querySelector(el.getAttribute('href'))
+  el.addEventListener('click', event => {
+    const current = Array.from(event.target.parentNode.children).find(el => el.classList.contains('active'))
+    if (current) {
+      current.pane.classList.remove('active')
+      current.pane.classList.remove('show')
+      current.classList.remove('active')
+    }
+    event.target.pane.classList.add('active')
+    event.target.pane.classList.add('show')
+    event.target.classList.add('active')
+  })
 })
 
 d3.json('/network', (error, graph) => {
@@ -65,7 +82,7 @@ d3.json('/network', (error, graph) => {
 
   node.append('div')
     .attr('class', 'chat')
-    .on('click', d => showChat(d))
+    .on('click', d => showDetails(d))
 
   function ticked() {
     node.attr('style', d => {

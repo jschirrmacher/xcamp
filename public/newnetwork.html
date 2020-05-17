@@ -5,21 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>XCamp Network</title>
-    <link rel="stylesheet" type="text/css" href="newnetwork.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="newnetwork.css"/>
 </head>
 
 <body>
     <div id="root">
     </div>
 
-    <div id="chat" class="popup">
+    <div class="popup">
         <div>
-            <div>
-                <button class="icon close" title="Schließen">×</button>
-                <h2 class="title">XCamp Gespräch</h2>
+            <button class="icon close" title="Schließen">×</button>
+
+            <div class="nav nav-tabs">
+                <a class="nav-link active" href="#chat">Chat</a>
+                <a class="nav-link" href="#wiki">Wiki</a>
             </div>
-    
-            <iframe></iframe>
+
+            <div class="tab-content">
+                <div id="chat" class="tab-pane fade show active">
+                    <h2 class="title">XCamp Community</h2>
+            
+                    <iframe src="https://community.xcamp.co/home?layout=embedded"></iframe>
+                </div>
+
+                <div id="wiki" class="tab-pane fade">
+                    <iframe src="https://wiki.xcamp.co/"></iframe>
+                </div>
+            </div>
         </div>
     </div>
     
