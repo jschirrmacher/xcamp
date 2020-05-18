@@ -7,6 +7,11 @@ const popup = document.querySelector('.popup')
 const chatFrame = document.querySelector('#chat iframe')
 const wikiFrame = document.querySelector('#wiki iframe')
 
+chatFrame.addEventListener('load', () => {
+  document.body.classList.add('ready')
+})
+chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
+
 function showDetails(node) {
   document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
   chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')

@@ -3,6 +3,63 @@ body {
   font: 14px Helvetica, Arial, sans-serif;
 }
 
+#spinner {
+  display: inline-block;
+  position: absolute;
+  top: calc(50% - 40px);
+  left: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    border: 4px solid #000;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  &:after {
+    content: '';
+    animation-delay: -0.5s;
+  }
+
+  @keyframes lds-ripple {
+    0% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 72px;
+      height: 72px;
+      opacity: 0;
+    }
+  }
+}
+
+body.ready {  
+  #spinner {
+    display: none;
+  }
+
+  #root {
+    opacity: 1;
+  }
+}
+
+.link {
+  transform-origin: 0 100%;
+  height: 1px;
+  background: #888888;
+  position: absolute;
+}
+
 .node {
   position: absolute;
   cursor: pointer;
