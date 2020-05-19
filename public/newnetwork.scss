@@ -58,11 +58,14 @@ body.ready {
   height: 1px;
   background: #888888;
   position: absolute;
+  z-index: -1;
 }
 
 .node {
   position: absolute;
   cursor: pointer;
+  text-align: center;
+  background: white;
 
   .details {
     display: none;
@@ -102,12 +105,15 @@ body.ready {
   }
 }
 
+.node-topic {
+  width: 120px;
+  height: auto;
+}
+
 .node-person {
   border-radius: 50%;
   width: 100px;
   height: 100px;
-  background: white;
-  text-align: center;
   padding: 0;
   box-sizing: border-box;
 

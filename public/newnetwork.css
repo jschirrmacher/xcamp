@@ -77,11 +77,14 @@ body.ready #root {
   height: 1px;
   background: #888888;
   position: absolute;
+  z-index: -1;
 }
 
 .node {
   position: absolute;
   cursor: pointer;
+  text-align: center;
+  background: white;
 }
 
 .node .details {
@@ -123,12 +126,15 @@ body.ready #root {
   display: block;
 }
 
+.node-topic {
+  width: 120px;
+  height: auto;
+}
+
 .node-person {
   border-radius: 50%;
   width: 100px;
   height: 100px;
-  background: white;
-  text-align: center;
   padding: 0;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;

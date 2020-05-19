@@ -45,7 +45,6 @@ d3.json('/network', (error, graph) => {
   }
 
   let activeNode
-  let allNodes
 
   const simulation = d3.forceSimulation(graph.nodes)
     .force('link', d3.forceLink().id(function (d) { return d.id }))
@@ -54,14 +53,9 @@ d3.json('/network', (error, graph) => {
     .force('gravityX', d3.forceX(window.innerWidth / 2).strength(gravityStrength))
     .force('gravityY', d3.forceY(window.innerHeight / 2).strength(gravityStrength))
     .force('collision', d3.forceCollide(collisionRadius))
-    .on('tick', ticked)
     .alphaDecay(0.1)
 
-  //const links = graph.nodes.map(node => Object.values(node.links).map(l => ({source: node.id, dest: l}))).flat(2)
-  // simulation.force('link')
-  //  .links(links)
-
-  allNodes = d3.select('#root')
+  const allNodes = d3.select('#root')
     .selectAll('.node')
     .data(graph.nodes)
 
@@ -89,12 +83,55 @@ d3.json('/network', (error, graph) => {
     .attr('class', 'chat')
     .on('click', d => showDetails(d))
 
-  function ticked() {
-    node.attr('style', d => {
-      const width = activeNode && d.id === activeNode.id ? 320 : 100
-      const height = activeNode && d.id === activeNode.id ? 320 : 100
-      return 'left: ' + Math.round(d.x - width / 2) + 'px; top: ' + Math.round(d.y - height / 2) + 'px;'
-    })
+  update()
+
+  function update() {
+    node.classed('active', d => activeNode && d.id === activeNode.id)
+
+    const links = graph.nodes
+      .map(node => Object.values(node.links).flat().map(other => ({
+        source: node,
+        target: graph.nodes.find(n => n.id === other)
+      })))
+      .flat()
+
+    const filteredLinks = links.filter(l => activeNode && (l.source.id === activeNode.id || l.target.id === activeNode.id))
+    const allLinks = d3.select('#root')
+      .selectAll('.link')
+      .data(filteredLinks)
+
+    const link = allLinks.enter()
+      .append('div')
+      .attr('class', 'link')
+      .merge(allLinks)
+    allLinks.exit().remove()
+
+    simulation
+      .force('collision', d3.forceCollide(d => (activeNode && d.id === activeNode.id) ? 250 : collisionRadius))
+      .force('x', d3.forceX().strength(forceStrength).x(window.innerWidth / 2))
+      .force('y', d3.forceY().strength(forceStrength).y(window.innerHeight / 2))
+      .force('link', d3.forceLink().links(filteredLinks))
+      .on('tick', ticked)
+      .alpha(1).restart()
+
+    function forceStrength(d) {
+      return d.id === activate ? 10 : 0.1
+    }
+
+    function ticked() {
+      link.attr('style', d => {
+        const dx = d.target.x - d.source.x
+        const dy = d.target.y - d.source.y
+        var length = Math.sqrt(dx * dx + dy * dy)
+        var angle  = Math.atan2(dy, dx) * 180 / Math.PI
+        return 'left: ' + d.source.x + 'px; top: ' + d.source.y + 'px; width: ' + length + 'px; transform: rotate(' + angle + 'deg)'
+      })
+      node.attr('style', d => {
+        const width = activeNode && d.id === activeNode.id ? 320 : 100
+        const height = activeNode && d.id === activeNode.id ? 320 : 100
+        return 'left: ' + Math.round(d.x - width / 2) + 'px; top: ' + Math.round(d.y - height / 2) + 'px;'
+      })
+    }
   }
   
   function activate() {
@@ -103,17 +140,9 @@ d3.json('/network', (error, graph) => {
       activeNode.fy = undefined
     }
     activeNode = this.__data__
-    node.classed('active', d => d.id === activeNode.id)
     activeNode.fx = window.innerWidth / 2
     activeNode.fy = window.innerHeight / 2
-    simulation
-      .force('collision', d3.forceCollide(d => d.id === activeNode.id ? 250 : collisionRadius))
-      .force('x', d3.forceX().strength(forceStrength).x(window.innerWidth / 2))
-      .force('y', d3.forceY().strength(forceStrength).y(window.innerHeight / 2))
-    simulation.alpha(1).restart()
-  }
 
-  function forceStrength(d) {
-    return d.id === activate ? 10 : 0.1
+    update()
   }
 })
