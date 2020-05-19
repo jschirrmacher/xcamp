@@ -62,6 +62,7 @@ d3.json('/network', (error, graph) => {
   const node = allNodes.enter()
     .append('div')
     .attr('class', d => 'node node-' + d.type)
+    .attr('id', d => 'node-' + d.id)
     .classed('active', d => activeNode && d.id === activeNode.id)
     .merge(allNodes)
     .on('click', activate)
@@ -127,9 +128,8 @@ d3.json('/network', (error, graph) => {
         return 'left: ' + d.source.x + 'px; top: ' + d.source.y + 'px; width: ' + length + 'px; transform: rotate(' + angle + 'deg)'
       })
       node.attr('style', d => {
-        const width = activeNode && d.id === activeNode.id ? 320 : 100
-        const height = activeNode && d.id === activeNode.id ? 320 : 100
-        return 'left: ' + Math.round(d.x - width / 2) + 'px; top: ' + Math.round(d.y - height / 2) + 'px;'
+        const el = document.getElementById('node-' + d.id)
+        return 'left: ' + Math.round(d.x - el.clientWidth / 2) + 'px; top: ' + Math.round(d.y - el.clientHeight / 2) + 'px;'
       })
     }
   }
