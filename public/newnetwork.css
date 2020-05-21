@@ -86,8 +86,15 @@ body.ready #root {
   background: white;
 }
 
+.node h2, .node .details {
+  -webkit-transition: all 1s;
+  transition: all 1s;
+}
+
 .node .details {
-  display: none;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .node.active {
@@ -112,7 +119,9 @@ body.ready #root {
 }
 
 .node.active .details {
-  display: inline;
+  opacity: 1;
+  width: auto;
+  height: auto;
 }
 
 .node.active .details:before {

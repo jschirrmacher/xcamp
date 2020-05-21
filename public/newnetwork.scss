@@ -67,8 +67,14 @@ body.ready {
   text-align: center;
   background: white;
 
+  h2, .details {
+    transition: all 1s;
+  }
+  
   .details {
-    display: none;
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
 
   &.active {
@@ -92,7 +98,9 @@ body.ready {
     }
 
     .details {
-      display: inline;
+      opacity: 1;
+      width: auto;
+      height: auto;
 
       &:before {
         content: "";
