@@ -99,6 +99,10 @@ body.ready {
         clear: both;
         display: block;
       }
+
+      .btn-toolbar {
+        margin-top: 1em;
+      }
     }
   }
 }
@@ -134,24 +138,9 @@ body.ready {
   color: #555555;
 }
 
-.chat {
-  position: absolute;
-  top: -15px;
-  right: -15px;
-}
-
-.node-topic .chat {
+.node-topic .more {
   right: -25px;
   top: -20px;
-}
-
-.node:hover,
-.node.active {
-  .chat:before {
-    content: "💬";
-    font-size: 28px;
-    cursor: pointer;
-  }
 }
 
 .popup {

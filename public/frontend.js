@@ -12,7 +12,7 @@ chatFrame.addEventListener('load', () => {
 })
 chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
 
-function showDetails(node) {
+function showMore(node) {
   document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
   chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')
   wikiFrame.src = 'https://wiki.xcamp.co' + node.channel.replace('channel/', '').replace('direct/', 'user/')
@@ -75,10 +75,12 @@ d3.json('/network').then((graph) => {
   node.append('div')
     .attr('class', 'details')
     .text(d => d.details)
-
-  node.append('div')
-    .attr('class', 'chat')
-    .on('click', d => showDetails(d))
+    .append('div')
+    .attr('class', 'btn-toolbar')
+    .append('button')
+    .attr('class', 'btn btn-primary')
+    .text('Mehr Infos')
+    .on('click', d => showMore(d))
 
   update()
 
@@ -147,7 +149,7 @@ d3.json('/network').then((graph) => {
       activeNode.fy = undefined
     }
     activeNode = this.__data__
-    const transition = d3.select(activeNode).transition()
+    const transition = d3.select(activeNode).transition().duration(1000)
     transition.tween('center', centerTween(activeNode))
     update()
   }
