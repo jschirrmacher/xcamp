@@ -39,11 +39,7 @@ document.querySelectorAll('.nav-link').forEach(el => {
   })
 })
 
-d3.json('/network', (error, graph) => {
-  if (error) {
-    throw error
-  }
-
+d3.json('/network').then((graph) => {
   let activeNode
 
   const simulation = d3.forceSimulation(graph.nodes)
@@ -134,15 +130,25 @@ d3.json('/network', (error, graph) => {
     }
   }
   
+  function centerTween(node) {
+    return () => {
+      const ix = d3.interpolate(node.x, window.innerWidth / 2)
+      const iy = d3.interpolate(node.y, window.innerHeight / 2)
+      return t => {
+        node.fx = ix(t)
+        node.fy = iy(t)
+      }
+    }
+  }
+
   function activate() {
     if (activeNode) {
       activeNode.fx = undefined
       activeNode.fy = undefined
     }
     activeNode = this.__data__
-    activeNode.fx = window.innerWidth / 2
-    activeNode.fy = window.innerHeight / 2
-
+    const transition = d3.select(activeNode).transition()
+    transition.tween('center', centerTween(activeNode))
     update()
   }
 })

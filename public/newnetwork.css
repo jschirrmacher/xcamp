@@ -97,8 +97,6 @@ body.ready #root {
   border-radius: 4px;
   width: 320px;
   height: auto;
-  -webkit-transition: all 0.5s;
-  transition: all 0.5s;
   text-align: left;
   padding: 10px;
   border-color: #cccccc;
@@ -112,8 +110,6 @@ body.ready #root {
 .node.active h2 {
   font-size: 24px;
   line-height: 1.3em;
-  -webkit-transition: all 0.5s;
-  transition: all 0.5s;
 }
 
 .node.active .details {
