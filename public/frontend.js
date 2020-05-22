@@ -7,21 +7,37 @@ const popup = document.querySelector('.popup')
 const chatFrame = document.querySelector('#chat iframe')
 const wikiFrame = document.querySelector('#wiki iframe')
 
-chatFrame.addEventListener('load', () => {
-  document.body.classList.add('ready')
-})
-chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
+const channelQueue = []
+
+function handleChannelQueue() {
+  if (!channelQueue.length) {
+    return
+  }
+  if (document.querySelector('#chat').classList.contains('loaded')) {
+    chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: channelQueue.shift() }, '*')
+  } else {
+    setTimeout(handleChannelQueue, 1000)
+  }
+}
 
 function showMore(node, tabId) {
   document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
-  chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')
+  channelQueue.push(node.channel)
+  handleChannelQueue()
   wikiFrame.src = 'https://wiki.xcamp.co' + node.channel.replace('channel/', '').replace('direct/', 'user/')
   popup.classList.add('open')
   activateTab(document.querySelector('.nav-link[href="#' + tabId + '"]'))
 }
 
 document.querySelector('.popup .close').addEventListener('click', () => popup.classList.remove('open'))
+
+// chat frame
+chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
 window.addEventListener('message', function (e) {
+  if (e.data.eventName === 'startup' && e.data.data) {
+    document.body.classList.add('chat-connected')
+    document.querySelector('#chat').classList.add('loaded')
+  }
   console.log(e.data.eventName, e.data.data)
 })
 
@@ -83,16 +99,17 @@ d3.json('/network').then((graph) => {
     .attr('class', 'btn-toolbar')
 
   buttons.append('button')
-    .attr('class', 'btn')
-    .text('Diskutieren')
-    .on('click', d => showMore(d, 'chat'))
-
-  buttons.append('button')
-    .attr('class', 'btn')
+    .attr('class', 'btn btn-warning wiki')
     .text('Infos')
     .on('click', d => showMore(d, 'wiki'))
 
+  buttons.append('button')
+    .attr('class', 'btn btn-warning chat')
+    .text('Diskutieren')
+    .on('click', d => showMore(d, 'chat'))
+
   update()
+  document.body.classList.add('ready')
 
   function update() {
     node.classed('active', d => activeNode && d.id === activeNode.id)

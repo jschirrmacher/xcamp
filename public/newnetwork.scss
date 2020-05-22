@@ -3,7 +3,7 @@ body {
   font: 14px Helvetica, Arial, sans-serif;
 }
 
-#spinner {
+.spinner {
   display: inline-block;
   position: absolute;
   top: calc(50% - 40px);
@@ -44,7 +44,7 @@ body {
 }
 
 body.ready {  
-  #spinner {
+  .spinner {
     display: none;
   }
 
@@ -182,7 +182,7 @@ body.ready {
     .panel {
       display: none;
 
-      &.active {
+      &.active.loaded {
         display: block;
       }
     }
@@ -229,6 +229,22 @@ body.ready {
   .popup > div {
     margin: 0 auto;
   }
+}
+
+.btn-toolbar button {
+  margin-left: 10px;
+}
+
+.nav-link[href="#chat"],
+button.chat {
+  display: none;
+}
+
+body.chat-connected {
+  .nav-link[href="#chat"],
+  button.chat {
+    display: block;
+  }  
 }
 
 #wiki iframe {

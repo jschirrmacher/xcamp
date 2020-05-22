@@ -3,7 +3,7 @@ body {
   font: 14px Helvetica, Arial, sans-serif;
 }
 
-#spinner {
+.spinner {
   display: inline-block;
   position: absolute;
   top: calc(50% - 40px);
@@ -12,7 +12,7 @@ body {
   height: 80px;
 }
 
-#spinner:before {
+.spinner:before {
   content: '';
   position: absolute;
   border: 4px solid #000;
@@ -22,7 +22,7 @@ body {
           animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 
-#spinner:after {
+.spinner:after {
   content: '';
   -webkit-animation-delay: -0.5s;
           animation-delay: -0.5s;
@@ -62,7 +62,7 @@ body {
   }
 }
 
-body.ready #spinner {
+body.ready .spinner {
   display: none;
 }
 
@@ -207,7 +207,7 @@ body.ready #root {
   display: none;
 }
 
-.popup > div .panel.active {
+.popup > div .panel.active.loaded {
   display: block;
 }
 
@@ -258,6 +258,20 @@ body.ready #root {
   .popup > div {
     margin: 0 auto;
   }
+}
+
+.btn-toolbar button {
+  margin-left: 10px;
+}
+
+.nav-link[href="#chat"],
+button.chat {
+  display: none;
+}
+
+body.chat-connected .nav-link[href="#chat"],
+body.chat-connected button.chat {
+  display: block;
 }
 
 #wiki iframe {

@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="newnetwork.css"/>
 </head>
 
-<body>
-    <div id="spinner"></div>
+<body class="loading">
+    <div class="spinner"></div>
 
     <div id="root"></div>
 
@@ -22,18 +22,18 @@
             <button class="icon close" title="Schließen">×</button>
 
             <div class="nav nav-tabs">
-                <a class="nav-link active" href="#chat">Chat</a>
                 <a class="nav-link" href="#wiki">Wiki</a>
+                <a class="nav-link" href="#chat">Chat</a>
             </div>
 
             <div class="tab-content">
-                <div id="chat" class="tab-pane fade show active">
-                    <h2 class="title">XCamp Community</h2>
-            
+                <div id="wiki" class="tab-pane fade loaded">
                     <iframe></iframe>
                 </div>
 
-                <div id="wiki" class="tab-pane fade">
+                <div id="chat" class="tab-pane fade show">
+                    <h2 class="title">XCamp Community</h2>
+            
                     <iframe></iframe>
                 </div>
             </div>
