@@ -12,11 +12,12 @@ chatFrame.addEventListener('load', () => {
 })
 chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
 
-function showMore(node) {
+function showMore(node, tabId) {
   document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
   chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: node.channel }, '*')
   wikiFrame.src = 'https://wiki.xcamp.co' + node.channel.replace('channel/', '').replace('direct/', 'user/')
   popup.classList.add('open')
+  activateTab(document.querySelector('.nav-link[href="#' + tabId + '"]'))
 }
 
 document.querySelector('.popup .close').addEventListener('click', () => popup.classList.remove('open'))
@@ -24,19 +25,21 @@ window.addEventListener('message', function (e) {
   console.log(e.data.eventName, e.data.data)
 })
 
+function activateTab(tab) {
+  const current = Array.from(tab.parentNode.children).find(el => el.classList.contains('active'))
+  if (current) {
+    current.pane.classList.remove('active')
+    current.pane.classList.remove('show')
+    current.classList.remove('active')
+  }
+  tab.pane.classList.add('active')
+  tab.pane.classList.add('show')
+  tab.classList.add('active')
+}
+
 document.querySelectorAll('.nav-link').forEach(el => {
   el.pane = document.querySelector(el.getAttribute('href'))
-  el.addEventListener('click', event => {
-    const current = Array.from(event.target.parentNode.children).find(el => el.classList.contains('active'))
-    if (current) {
-      current.pane.classList.remove('active')
-      current.pane.classList.remove('show')
-      current.classList.remove('active')
-    }
-    event.target.pane.classList.add('active')
-    event.target.pane.classList.add('show')
-    event.target.classList.add('active')
-  })
+  el.addEventListener('click', event => activateTab(event.target))
 })
 
 d3.json('/network').then((graph) => {
@@ -72,15 +75,22 @@ d3.json('/network').then((graph) => {
   node.append('h2')
     .text(d => d.name)
 
-  node.append('div')
+  const details = node.append('div')
     .attr('class', 'details')
     .text(d => d.details)
-    .append('div')
+  
+  const buttons = details.append('div')
     .attr('class', 'btn-toolbar')
-    .append('button')
-    .attr('class', 'btn btn-primary')
-    .text('Mehr Infos')
-    .on('click', d => showMore(d))
+
+  buttons.append('button')
+    .attr('class', 'btn')
+    .text('Diskutieren')
+    .on('click', d => showMore(d, 'chat'))
+
+  buttons.append('button')
+    .attr('class', 'btn')
+    .text('Infos')
+    .on('click', d => showMore(d, 'wiki'))
 
   update()
 
