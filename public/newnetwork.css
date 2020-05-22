@@ -95,6 +95,7 @@ body.ready #root {
   opacity: 0;
   width: 0;
   height: 0;
+  overflow: hidden;
 }
 
 .node.active {
@@ -122,6 +123,7 @@ body.ready #root {
   opacity: 1;
   width: auto;
   height: auto;
+  overflow: auto;
 }
 
 .node.active .details:before {

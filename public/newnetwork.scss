@@ -70,11 +70,12 @@ body.ready {
   h2, .details {
     transition: all 1s;
   }
-  
+
   .details {
     opacity: 0;
     width: 0;
     height: 0;
+    overflow: hidden;
   }
 
   &.active {
@@ -101,6 +102,7 @@ body.ready {
       opacity: 1;
       width: auto;
       height: auto;
+      overflow: auto;
 
       &:before {
         content: "";
