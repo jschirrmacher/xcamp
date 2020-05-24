@@ -78,7 +78,7 @@ module.exports = (dependencies) => {
   mainRouter.use('/feed', nocache, routers.Feed)
   mainRouter.use('/', routers.Content)
 
-  mainRouter.use((req, res) => res.status(404).send('Not found'))
+  mainRouter.use((req, res) => res.status(404).redirect('/404'))
 
   return mainRouter
 }
