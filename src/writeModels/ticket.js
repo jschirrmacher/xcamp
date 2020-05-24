@@ -18,7 +18,7 @@ module.exports = (Model, mailSender, templateGenerator, Payment, mailChimp, rack
       await mailChimp.addSubscriber(person)
       await mailChimp.addTags(person, [config.eventName])
     } catch (error) {
-      throw new Error(error.content.detail)
+      throw new Error('Fehler beim Eintragen in den Newsletter: ' + error.content.detail)
     }
   }
 
