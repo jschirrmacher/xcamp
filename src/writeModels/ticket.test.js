@@ -11,13 +11,13 @@ const Model = {
   },
   Customer: {
     create(data) {
-      spy.push('Customer created')
+      spy.push('Customer created for person #' + data.personId)
       return {id: 4712, personId: data.personId}
     }
   },
   Invoice: {
     create(data, customer) {
-      spy.push('Invoice created')
+      spy.push('Invoice created for customer #' + customer.id)
       return {id: 4713, customer, payment: data.payment}
     }
   }
@@ -93,9 +93,19 @@ describe('Ticket model', () => {
       result.url.should.equal('https://paypal.com')
     })
 
+    it('should create a user', async () => {
+      await createTicket()
+      spy.should.containEql('Person created')
+    })
+
+    it('should create a customer', async () => {
+      await createTicket()
+      spy.should.containEql('Customer created for person #4711')
+    })
+
     it('should create an invoice', async () => {
       await createTicket()
-      spy.should.containEql('Invoice created')
+      spy.should.containEql('Invoice created for customer #4712')
     })
 
     it('should create a user', async () => {
@@ -112,7 +122,5 @@ describe('Ticket model', () => {
       await createTicket()
       spy.should.containEql('Added tags \'test-event\' to person #4711')
     })
-
-    it('should re-use existing users')
   })
 })
