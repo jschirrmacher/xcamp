@@ -39,8 +39,6 @@ describe('TicketRouter', () => {
       const result = await request(app).get('/abc')
       result.body.params.eventName.should.equal('abc')
     })
-
-    it('should ')
   })
 
   describe('ticket buy', () => {
