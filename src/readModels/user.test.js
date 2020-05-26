@@ -22,15 +22,6 @@ const testPerson = {
 }
 
 const models = {}
-models.person = require('./person')()
-models.network = {
-  getById(id) {
-    if (id === '0x4710') {
-      return testPerson
-    }
-    throw 'Not found'
-  }
-}
 models.user = require('./user')({ models, store })
 const { userAdded } = require('../events')({ models })
 
