@@ -1,28 +1,35 @@
 const fs = require('fs')
 const path = require('path')
-const shortid = require('shortid')
 
-module.exports = (store, readModels, config, rack) => {
+module.exports = (store, readModels, config, adapters) => {
+  const { userAdded } = require('../events')({ models: readModels })
+  const rocketChat = adapters.RocketChat
+
   async function getOrCreate(data) {
-    return readModels.person.getByEMail(data.email) || await create(data)
+    return readModels.user.getByEMail(data.email, false) || await create(data)
   }
 
   async function create(data) {
-    if (readModels.person.getByEMail(data.email)) {
+    if (readModels.user.getByEMail(data.email, false)) {
       throw 'A person with this email address already exist'
     }
     if (data.name && !data.firstName && !data.lastName) {
       [data.firstName, data.lastName] = data.name.split(/ (.*)/)
     }
     const person = {
-      firstName: data.firstName,
-      lastName: data.lastName,
       email: data.email,
-      id: shortid(),
-      access_code: rack()
+      name: data.firstName + ' ' + data.lastName,
+      username: data.email.replace('@', '_').toLowerCase(),
+      password: 'test123',
+      sendWelcomeEmail: true,
+      customFields: {
+        firstName: data.firstName,
+        lastName: data.lastName
+      }
     }
-    await store.add({type: 'person-created', person})
-    return readModels.person.getById(person.id)
+    const user = await rocketChat.createUser(person)
+    await store.emit(userAdded, user)
+    return readModels.user.getById(user.id)
   }
 
   async function update(id, newData, user = null) {

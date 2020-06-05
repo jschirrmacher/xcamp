@@ -6,7 +6,9 @@ module.exports = function ({ store, models }) {
 
   store.on(userAdded, event => {
     users[event.user.id] = event.user
-    byEmail[event.user.email] = event.user
+    if (event.user.email) {
+      byEmail[event.user.email] = event.user
+    }
     if (event.user.isAdmin) {
       adminIsDefined = true
     }
@@ -18,7 +20,7 @@ module.exports = function ({ store, models }) {
   })
 
   store.on(userChanged, event => {
-    if (event.user.email) {
+    if (event.user.email && byEmail[users[event.id]]) {
       delete(byEmail[users[event.id].email])
     }
     Object.assign(users[event.user.id], event.user)
@@ -44,9 +46,9 @@ module.exports = function ({ store, models }) {
       throw Error(`No user found with this access code`)
     },
 
-    getByEMail(email) {
+    getByEMail(email, throwIfNotFound = true) {
       const user = byEmail[email]
-      if (user) {
+      if (user || !throwIfNotFound) {
         return user
       }
       throw Error(`No user found with this e-mail address`)

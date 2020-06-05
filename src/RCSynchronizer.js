@@ -1,25 +1,18 @@
-module.exports = ({ readModels, store, config }) => {
+
+module.exports = ({ readModels, store, adapters }) => {
+  const rocketChat = adapters.RocketChat
   const events = require('./events')({ models: readModels })
 
-  async function getFromRC(path) {
-    const headers = {
-      'X-Auth-Token': config.chat.bot.token,
-      'X-User-Id': config.chat.bot.userId
-    }
-    const response = await fetch(config.chat.url + 'api' + path, { headers })
-    const content = response.headers.get('content-type').match(/json/) ? await response.json() : await response.text()
-    if (!response.ok || !content.success) {
-      throw { success: false, message: response.status + ' ' + response.statusText, content }
-    }
-    return content
-  }
-
   async function emitChanges(known, newValues, fields, event) {
-    const changes = Object.keys(fields)
-      .filter(name => (newValues[name] || '') !== known[fields[name]])
-      .map(name => ({[fields[name]]: newValues[name] || ''}))
-    if (changes.length) {
-      await store.emit(event, Object.assign({ id: known.id }, ...changes ))
+    try {
+      const changes = Object.keys(fields)
+        .filter(name => (newValues[name] || '') !== known[fields[name]])
+        .map(name => ({[fields[name]]: newValues[name] || ''}))
+      if (changes.length) {
+        await store.emit(event, Object.assign({ id: known.id }, ...changes ))
+      }
+    } catch (error) {
+      debugger
     }
   }
 
@@ -50,13 +43,15 @@ module.exports = ({ readModels, store, config }) => {
       await store.emit(events.channelRemoved, channelId)
     }
 
-    async function updateUser(user) {
+    async function updateUser(rcUser) {
+      rcUser.email = rcUser.emails[0] && rcUser.emails[0].address
       const fields = {
         name: 'name',
         username: 'username',
+        email: 'email',
         bio: 'details',
       }
-      await emitChanges(readModels.user.getById(user._id), user, fields, events.userChanged)
+      await emitChanges(readModels.user.getById(rcUser._id), rcUser, fields, events.userChanged)
     }
 
     async function updateChannel(channel) {
@@ -69,20 +64,20 @@ module.exports = ({ readModels, store, config }) => {
     }
 
     try {
-      const users = (await getFromRC('/v1/users.list')).users.filter(user => user.active && user.roles.includes('user'))
+      const users = (await rocketChat.listUsers()).filter(user => user.active && user.roles.includes('user'))
       const knownUsers = readModels.user.getAll()
       await Promise.all(users.filter(user => !knownUsers.some(known => known.id === user._id)).map(userAdded))
       await Promise.all(knownUsers.filter(known => !users.some(user => known.id === user._id)).map(userRemoved))
       await Promise.all(users.map(updateUser))
 
-      const channels = (await getFromRC('/v1/channels.list')).channels
+      const channels = await rocketChat.listChannels()
       const knownChannels = readModels.topic.getAll()
       await Promise.all(channels.filter(channel => !knownChannels.some(known => known.id === channel._id)).map(channelAdded))
       await Promise.all(knownChannels.filter(known => !channels.some(channel => known.id === channel._id)).map(channelRemoved))
       await Promise.all(channels.map(updateChannel))
 
       await Promise.all(channels.map(async channel => {
-        const memberIds = (await getFromRC('/v1/channels.members?roomId=' + channel._id)).members.map(member => member._id)
+        const memberIds = (await rocketChat.getMembersOfChannel(channel._id)).map(member => member._id)
         await Promise.all(memberIds.map(async userId => {
           if (!readModels.subscriptions.subscribed(channel._id, userId)) {
             await store.emit(events.subscriptionAdded, channel._id, userId)

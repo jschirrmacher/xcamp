@@ -3,15 +3,9 @@ require('should')
 
 const spy = []
 const Model = {
-  Person: {
-    getOrCreate() {
-      spy.push('Person created')
-      return {id: 4711}
-    }
-  },
   Customer: {
     create(data) {
-      spy.push('Customer created for person #' + data.personId)
+      spy.push('Customer created')
       return {id: 4712, personId: data.personId}
     }
   },
@@ -30,11 +24,11 @@ const Payment = {
   }
 }
 const mailChimp = {
-  async addSubscriber(person) {
-    spy.push(`Added person #${person.id} to MailChimp list`)
+  async addSubscriber() {
+    spy.push(`Added to MailChimp list`)
   },
-  async addTags(person, tagList) {
-    spy.push(`Added tags ${tagList.map(t => `'${t}'`).join(',')} to person #${person.id}`)
+  async addTags(data, tagList) {
+    spy.push(`Added tags ${tagList.map(t => `'${t}'`).join(',')}`)
   }
 }
 const rack = {}
@@ -93,14 +87,9 @@ describe('Ticket model', () => {
       result.url.should.equal('https://paypal.com')
     })
 
-    it('should create a user', async () => {
-      await createTicket()
-      spy.should.containEql('Person created')
-    })
-
     it('should create a customer', async () => {
       await createTicket()
-      spy.should.containEql('Customer created for person #4711')
+      spy.should.containEql('Customer created')
     })
 
     it('should create an invoice', async () => {
@@ -108,19 +97,14 @@ describe('Ticket model', () => {
       spy.should.containEql('Invoice created for customer #4712')
     })
 
-    it('should create a user', async () => {
-      await createTicket()
-      spy.should.containEql('Person created')
-    })
-
     it('should subscribe user to newsletter', async () => {
       await createTicket()
-      spy.should.containEql('Added person #4711 to MailChimp list')
+      spy.should.containEql('Added to MailChimp list')
     })
 
     it('should assign the current event as tag to MailChimp', async () => {
       await createTicket()
-      spy.should.containEql('Added tags \'test-event\' to person #4711')
+      spy.should.containEql('Added tags \'test-event\'')
     })
   })
 })
