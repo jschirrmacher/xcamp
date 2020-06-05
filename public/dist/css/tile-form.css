@@ -49,6 +49,16 @@ html, body {
   margin-bottom: 0;
 }
 
+.block {
+  display: block;
+  padding: 8px;
+}
+@media (min-width: 799px) {
+  .block {
+    padding: 15px;
+  }
+}
+
 #logo {
   position: absolute;
   left: 30px;
