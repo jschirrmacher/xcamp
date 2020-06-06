@@ -17,6 +17,10 @@ const gallery = () => {
     type: 'lang',
     regex: /%\s*([\w\s-]+):\s*(.*?)%/gs,
     replace: '<span class="$1">$2</span>'
+  }, {
+    type: 'lang',
+    regex: /:(\w+):/gs,
+    replace: '<span class="icon icon-$1"></span>'
   }]
 }
 
