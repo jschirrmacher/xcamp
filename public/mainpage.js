@@ -1,7 +1,7 @@
 fetch('blog/articles?num=3&tag=' + encodeURIComponent(location.pathname.replace(/.*\//, '')))
   .then(response => response.json())
   .then(blogData => blogData.map(generateBlogEntryView).join('\n'))
-  .then(blog => document.querySelector('#newest-blog-entries').innerHTML = '<ol>' + blog + '</ol>')
+  .then(blog => document.querySelector('#newest-blog-entries').innerHTML = blog)
 
 function generateBlogEntryView(entry) {
   return `

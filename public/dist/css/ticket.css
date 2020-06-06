@@ -620,15 +620,93 @@ body.logged-out .logged-in {
   display: none !important;
 }
 
-.three-boxes, .four-boxes {
+ul, ol {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0;
+}
+ul li, ol li {
+  padding: 5px 10px;
+}
+@media (min-width: 799px) {
+  ul li, ol li {
+    padding: 35px;
+    width: 33.3333%;
+  }
+}
+ul li:first-child:nth-last-child(1), ol li:first-child:nth-last-child(1) {
+  width: 100%;
+}
+
+@media (min-width: 799px) {
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}
+ul li {
+  border-radius: 3px;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  position: relative;
+}
+@media (min-width: 799px) {
+  ul li {
+    width: calc(33.3333% - 10px);
+  }
+  ul li:first-child:nth-last-child(2), ul li:first-child:nth-last-child(2) ~ li {
+    width: calc(50% - 10px);
+  }
+  ul li:first-child:nth-last-child(3), ul li:first-child:nth-last-child(3) ~ li {
+    width: calc(33.3333% - 10px);
+  }
+  ul li:first-child:nth-last-child(4), ul li:first-child:nth-last-child(4) ~ li {
+    width: calc(25% - 10px);
+  }
+}
+ul li.has-bottom-buttons {
+  padding-bottom: 5em;
+}
+ul li h3 {
+  margin: 1.3em 0;
+}
+ul li img {
+  max-width: 200px;
+}
+ul li a:not(.button) {
+  color: white;
+}
+
+@media (min-width: 799px) {
+  ol li {
+    padding: 35px;
+  }
+  ol li:first-child:nth-last-child(2), ol li:first-child:nth-last-child(2) ~ li {
+    width: 50%;
+  }
+  ol li:first-child:nth-last-child(3), ol li:first-child:nth-last-child(3) ~ li {
+    width: 33.3333%;
+  }
+  ol li:first-child:nth-last-child(4), ol li:first-child:nth-last-child(4) ~ li {
+    width: 25%;
+  }
+}
+
+.two-boxes,
+.three-boxes,
+.four-boxes {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
 }
-
+.two-boxes > div,
 .three-boxes > div,
 .four-boxes > div {
   margin-bottom: 1rem;
+  border-radius: 3px;
 }
 
 .checkmark:before {
@@ -642,9 +720,12 @@ body.logged-out .logged-in {
 }
 
 @media (min-width: 950px) {
+  .two-boxes > div {
+    width: calc(25% - 10px);
+  }
+
   .three-boxes > div {
     width: calc(33% - 10px);
-    border-radius: 3px;
   }
   .three-boxes > div.two-cols {
     width: calc(66% - 10px);
@@ -690,60 +771,6 @@ body.logged-out .logged-in {
 @media (min-width: 1100px) {
   #mainpage .container {
     padding-top: 8vw;
-  }
-}
-#mainpage ul, #mainpage ol {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-#mainpage ul li, #mainpage ol li {
-  padding: 5px 10px;
-}
-#mainpage ul {
-  padding: 0;
-}
-@media (min-width: 799px) {
-  #mainpage ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-}
-#mainpage ul li {
-  border-radius: 3px;
-  opacity: 0.9;
-  margin-bottom: 1rem;
-  position: relative;
-  padding: 10px 10px;
-}
-@media (min-width: 799px) {
-  #mainpage ul li {
-    padding: 35px;
-    width: calc(33% - 10px);
-  }
-}
-#mainpage ul li.has-bottom-buttons {
-  padding-bottom: 5em;
-}
-#mainpage ul li h3 {
-  margin: 1.3em 0;
-}
-#mainpage ul li img {
-  max-width: 200px;
-}
-#mainpage ul li a:not(.button) {
-  color: white;
-}
-#mainpage ol {
-  padding: 0;
-  background: white;
-}
-@media (min-width: 799px) {
-  #mainpage ol li {
-    width: calc(33.3333%);
-    padding: 35px;
   }
 }
 
@@ -809,20 +836,20 @@ body.logged-out .logged-in {
   padding: 0;
 }
 
-#newest-blog-entries ol {
+#newest-blog-entries {
   background: transparent;
   padding: 0;
 }
-#newest-blog-entries ol li {
+#newest-blog-entries li {
   background: white;
   padding-bottom: 10px;
   box-shadow: 5px 5px 5px lightgrey;
   border-radius: 3px;
 }
-#newest-blog-entries ol li .box {
+#newest-blog-entries li .box {
   padding: 0;
 }
-#newest-blog-entries ol li .img {
+#newest-blog-entries li .img {
   width: 100%;
   height: 240px;
   background-size: cover;

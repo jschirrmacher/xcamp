@@ -1,12 +1,108 @@
-.three-boxes, .four-boxes {
+ul, ol {
+  list-style: none;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  padding: 0;
+
+  li {
+    padding: 5px 10px;
+
+    @media (min-width: 799px) {
+      padding: 35px;
+      width: 33.3333%;
+    } 
+  }
+
+  li:first-child:nth-last-child(1) {
+    width: 100%;
+  }
 }
 
-.three-boxes > div,
-.four-boxes > div {
-  margin-bottom: 1rem;
+ul {
+  @media (min-width: 799px) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  li {
+    border-radius: 3px;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    position: relative;
+
+    @media (min-width: 799px) {
+      width: calc(33.3333% - 10px);
+
+      &:first-child:nth-last-child(2),
+      &:first-child:nth-last-child(2) ~ li {
+        width: calc(50% - 10px);
+      }
+      
+      &:first-child:nth-last-child(3),
+      &:first-child:nth-last-child(3) ~ li {
+        width: calc(33.3333% - 10px);
+      }
+      
+      &:first-child:nth-last-child(4),
+      &:first-child:nth-last-child(4) ~ li {
+        width: calc(25% - 10px);
+      }
+    }
+
+    &.has-bottom-buttons {
+      padding-bottom: 5em;
+    }
+
+    h3 {
+      margin: 1.3em 0;
+    }
+
+    img {
+      max-width: 200px;
+    }
+
+    a:not(.button) {
+      color: white;
+    }
+  }
+}
+
+ol {
+  @media (min-width: 799px) {      
+    li {
+      padding: 35px;
+  
+      &:first-child:nth-last-child(2),
+      &:first-child:nth-last-child(2) ~ li {
+        width: 50%;
+      }
+      
+      &:first-child:nth-last-child(3),
+      &:first-child:nth-last-child(3) ~ li {
+        width: 33.3333%;
+      }
+      
+      &:first-child:nth-last-child(4),
+      &:first-child:nth-last-child(4) ~ li {
+        width: 25%;
+      }
+    }
+  }
+}
+
+.two-boxes,
+.three-boxes,
+.four-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  & > div {
+    margin-bottom: 1rem;
+    border-radius: 3px;
+  }
 }
 
 .checkmark:before {
@@ -20,9 +116,11 @@
 }
 
 @media (min-width: 950px) {
+  .two-boxes > div {
+    width: calc(25% - 10px);
+  }
   .three-boxes > div {
     width: calc(33% - 10px);
-    border-radius: 3px;
 
     &.two-cols {
       width: calc(66% - 10px);
@@ -67,68 +165,6 @@
 
     @media (min-width: 1100px) {
       padding-top: 8vw;
-    }
-  }
-
-  ul, ol {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-
-    li {
-      padding: 5px 10px;
-    }
-  }
-
-  ul {
-    padding: 0;
-
-    @media (min-width: 799px) {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
-
-    li {
-      border-radius: 3px;
-      opacity: 0.9;
-      margin-bottom: 1rem;
-      position: relative;
-      padding: 10px 10px;
-
-      @media (min-width: 799px) {
-        padding: 35px;
-        width: calc(33% - 10px);
-      }
-  
-      &.has-bottom-buttons {
-        padding-bottom: 5em;
-      }
-
-      h3 {
-        margin: 1.3em 0;
-      }
-
-      img {
-        max-width: 200px;
-      }
-
-      a:not(.button) {
-        color: white;
-      }
-    }
-  }
-
-  ol {
-    padding: 0;
-    background: white;
-
-    @media (min-width: 799px) {      
-      li {
-        width: calc(33.3333%);
-        padding: 35px;
-      }
     }
   }
 }
@@ -204,26 +240,24 @@
 }
 
 #newest-blog-entries {
-  ol {
-    background: transparent;
-    padding: 0;
+  background: transparent;
+  padding: 0;
 
-    li {
-      background: white;
-      padding-bottom: 10px;
-      box-shadow: 5px 5px 5px lightgrey;
-      border-radius: 3px;
+  li {
+    background: white;
+    padding-bottom: 10px;
+    box-shadow: 5px 5px 5px lightgrey;
+    border-radius: 3px;
 
-      .box {
-        padding: 0;
-      }
+    .box {
+      padding: 0;
+    }
 
-      .img {
-        width: 100%;
-        height: 240px;
-        background-size: cover;
-        background-position: center;
-      }
+    .img {
+      width: 100%;
+      height: 240px;
+      background-size: cover;
+      background-position: center;
     }
   }
 }
