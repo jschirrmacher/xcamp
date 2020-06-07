@@ -21,6 +21,10 @@ const gallery = () => {
     type: 'lang',
     regex: /:(\w+):/gs,
     replace: '<span class="icon icon-$1"></span>'
+  }, {
+    type: 'output',
+    regex: /<p>%blocks%<\/p>/gs,
+    replace: '<span class="block-follows"></span>'
   }]
 }
 
