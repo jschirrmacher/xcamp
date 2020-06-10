@@ -1,3 +1,9 @@
+.block-follows::before {
+  content: '';
+  display: table;
+  clear: both;
+}
+
 .block-follows + ul,
 .block-follows + ol {
   list-style: none;
