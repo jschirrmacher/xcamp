@@ -24,6 +24,10 @@
 
     &.white {
       box-shadow: 5px 5px 5px lightgrey;
+
+      img {
+        border: 1px solid $grey
+      }
     }
   }
 
@@ -79,7 +83,7 @@
   }
 
   @media (min-width: 950px) {
-    margin-bottom: 0;
+    margin-bottom: -240px;
 
     h2, h3 {
       margin-left: 45px;
@@ -107,7 +111,7 @@
 
   li {
     border-radius: 3px;
-    opacity: 0.9;
+    opacity: .9;
     margin-bottom: 1rem;
     position: relative;
 

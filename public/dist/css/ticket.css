@@ -648,6 +648,11 @@ body.logged-out .logged-in {
 .block-follows + ol li.white {
   box-shadow: 5px 5px 5px lightgrey;
 }
+.hero-follows + ul li.white img,
+.block-follows + ul li.white img,
+.block-follows + ol li.white img {
+  border: 1px solid #efefef;
+}
 .hero-follows + ul li:first-child:nth-last-child(1),
 .block-follows + ul li:first-child:nth-last-child(1),
 .block-follows + ol li:first-child:nth-last-child(1) {
@@ -662,11 +667,6 @@ body.logged-out .logged-in {
 .block-follows + ul p img,
 .block-follows + ol p img {
   margin-bottom: 20px;
-}
-.hero-follows + ul h3,
-.block-follows + ul h3,
-.block-follows + ol h3 {
-  margin-top: 0.5em;
 }
 .hero-follows + ul .button,
 .block-follows + ul .button,
@@ -707,7 +707,7 @@ body.logged-out .logged-in {
 }
 @media (min-width: 950px) {
   #main .hero-follows + ul {
-    margin-bottom: 0;
+    margin-bottom: -240px;
   }
   #main .hero-follows + ul h2, #main .hero-follows + ul h3 {
     margin-left: 45px;
