@@ -29,6 +29,15 @@
   li:first-child:nth-last-child(1) {
     width: 100%;
   }
+
+  p {
+    min-height: 3em;
+  }
+
+  .button {
+    position: absolute;
+    bottom: 0;
+  }
 }
 
 #main .hero-follows + ul {

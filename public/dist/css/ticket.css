@@ -657,6 +657,17 @@ body.logged-out .logged-in {
 .block-follows + ol li:first-child:nth-last-child(1) {
   width: 100%;
 }
+.hero-follows + ul p,
+.block-follows + ul p,
+.block-follows + ol p {
+  min-height: 3em;
+}
+.hero-follows + ul .button,
+.block-follows + ul .button,
+.block-follows + ol .button {
+  position: absolute;
+  bottom: 0;
+}
 
 #main .hero-follows + ul {
   margin: 0 -10px;
