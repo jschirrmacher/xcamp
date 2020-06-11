@@ -676,15 +676,27 @@ body.logged-out .logged-in {
 #main .hero-follows + ul li p:first-of-type img {
   margin: 0;
 }
+#main .hero-follows + ul h2, #main .hero-follows + ul h3 {
+  padding: 0 15px;
+}
 @media (min-width: 600px) {
+  #main .hero-follows + ul {
+    margin-bottom: -120px;
+  }
   #main .hero-follows + ul h2, #main .hero-follows + ul h3 {
-    margin-left: 45px;
+    position: relative;
+    top: -120px;
   }
 }
 @media (min-width: 950px) {
+  #main .hero-follows + ul {
+    margin-bottom: 0;
+  }
   #main .hero-follows + ul h2, #main .hero-follows + ul h3 {
+    margin-left: 45px;
     position: absolute;
     color: white;
+    text-shadow: none;
   }
   #main .hero-follows + ul h2 {
     top: 22%;

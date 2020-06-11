@@ -51,16 +51,27 @@
     }
   }
 
+  h2, h3 {
+    padding: 0 15px;
+  }
+  
   @media (min-width: 600px) {
+    margin-bottom: -120px;
+
     h2, h3 {
-      margin-left: 45px;
+      position: relative;
+      top: -120px;
     }
   }
 
   @media (min-width: 950px) {
+    margin-bottom: 0;
+
     h2, h3 {
+      margin-left: 45px;
       position: absolute;
       color: white;
+      text-shadow: none;
     }
 
     h2 {
