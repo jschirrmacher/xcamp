@@ -32,30 +32,44 @@
 }
 
 #main .hero-follows + ul {
-  margin: -137px 0 -20px;
+  margin: 0 -10px;
+  position: relative;
+
+  @media (min-width: 950px) {
+    margin: -108px 0 0;
+  }
 
   li {
     padding: 0;
   }
 
-  li p:first-of-type img {
-    margin: 0;
+  li p:first-of-type {
+    margin: -1em 0 0;
 
+    img {
+      margin: 0;
+    }
   }
 
-  h2, h3 {
-    color: white;
-    margin-left: 35px;
+  @media (min-width: 600px) {
+    h2, h3 {
+      margin-left: 45px;
+    }
   }
 
-  h2 {
-    top: 190px;
-    position: absolute;
-  }
+  @media (min-width: 950px) {
+    h2, h3 {
+      position: absolute;
+      color: white;
+    }
 
-  h3 {
-    top: 270px;
-    position: absolute;
+    h2 {
+      top: 22%;
+    }
+
+    h3 {
+      top: 33%;
+    }
   }
 }
 
