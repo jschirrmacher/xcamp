@@ -707,7 +707,7 @@ body.logged-out .logged-in {
 }
 @media (min-width: 950px) {
   #main .hero-follows + ul {
-    margin-bottom: 0;
+    margin-bottom: -240px;
   }
   #main .hero-follows + ul h2, #main .hero-follows + ul h3 {
     margin-left: 45px;
