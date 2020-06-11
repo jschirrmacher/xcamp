@@ -4,6 +4,7 @@
   clear: both;
 }
 
+.hero-follows + ul,
 .block-follows + ul,
 .block-follows + ol {
   list-style: none;
@@ -19,10 +20,42 @@
       padding: 35px;
       width: 33.3333%;
     } 
+
+    &.white {
+      box-shadow: 5px 5px 5px lightgrey;
+    }
   }
 
   li:first-child:nth-last-child(1) {
     width: 100%;
+  }
+}
+
+#main .hero-follows + ul {
+  margin: -137px 0 -20px;
+
+  li {
+    padding: 0;
+  }
+
+  li p:first-of-type img {
+    margin: 0;
+
+  }
+
+  h2, h3 {
+    color: white;
+    margin-left: 35px;
+  }
+
+  h2 {
+    top: 190px;
+    position: absolute;
+  }
+
+  h3 {
+    top: 270px;
+    position: absolute;
   }
 }
 
@@ -64,10 +97,6 @@
 
     h3 {
       margin: 0 0 1.3em 0;
-    }
-
-    img {
-      max-width: 200px;
     }
   }
 }

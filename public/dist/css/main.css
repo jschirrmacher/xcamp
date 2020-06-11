@@ -134,6 +134,7 @@ html, body {
   margin: 0;
   padding: 0;
   font: 15px Martel, sans-serif;
+  background-color: #f5f5f5;
 }
 
 * {
@@ -624,6 +625,7 @@ body.logged-out .logged-in {
   clear: both;
 }
 
+.hero-follows + ul,
 .block-follows + ul,
 .block-follows + ol {
   list-style: none;
@@ -632,20 +634,50 @@ body.logged-out .logged-in {
   justify-content: space-between;
   padding: 0;
 }
+.hero-follows + ul li,
 .block-follows + ul li,
 .block-follows + ol li {
   padding: 5px 10px;
 }
 @media (min-width: 799px) {
-  .block-follows + ul li,
+  .hero-follows + ul li,
+.block-follows + ul li,
 .block-follows + ol li {
     padding: 35px;
     width: 33.3333%;
   }
 }
+.hero-follows + ul li.white,
+.block-follows + ul li.white,
+.block-follows + ol li.white {
+  box-shadow: 5px 5px 5px lightgrey;
+}
+.hero-follows + ul li:first-child:nth-last-child(1),
 .block-follows + ul li:first-child:nth-last-child(1),
 .block-follows + ol li:first-child:nth-last-child(1) {
   width: 100%;
+}
+
+#main .hero-follows + ul {
+  margin: -137px 0 -20px;
+}
+#main .hero-follows + ul li {
+  padding: 0;
+}
+#main .hero-follows + ul li p:first-of-type img {
+  margin: 0;
+}
+#main .hero-follows + ul h2, #main .hero-follows + ul h3 {
+  color: white;
+  margin-left: 35px;
+}
+#main .hero-follows + ul h2 {
+  top: 190px;
+  position: absolute;
+}
+#main .hero-follows + ul h3 {
+  top: 270px;
+  position: absolute;
 }
 
 @media (min-width: 799px) {
@@ -680,9 +712,6 @@ body.logged-out .logged-in {
 }
 .block-follows + ul li h3 {
   margin: 0 0 1.3em 0;
-}
-.block-follows + ul li img {
-  max-width: 200px;
 }
 
 @media (min-width: 799px) {

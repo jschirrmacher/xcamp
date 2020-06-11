@@ -25,6 +25,10 @@ const gallery = () => {
     type: 'output',
     regex: /<p>%blocks%<\/p>/gs,
     replace: '<span class="block-follows"></span>'
+  }, {
+    type: 'output',
+    regex: /<p>%hero%<\/p>/gs,
+    replace: '<span class="hero-follows"></span>'
   }]
 }
 
