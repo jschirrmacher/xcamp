@@ -638,6 +638,7 @@ body.logged-out .logged-in {
 .block-follows + ul li,
 .block-follows + ol li {
   padding: 5px 10px;
+  position: relative;
 }
 @media (min-width: 799px) {
   .hero-follows + ul li,
