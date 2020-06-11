@@ -253,11 +253,6 @@ html, body {
   color: white;
   margin-top: 8vw;
 }
-#main img {
-  float: left;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
 
 .title-inner {
   font-size: 18px;
@@ -661,7 +656,17 @@ body.logged-out .logged-in {
 .hero-follows + ul p,
 .block-follows + ul p,
 .block-follows + ol p {
-  min-height: 3em;
+  min-height: 2em;
+}
+.hero-follows + ul p img,
+.block-follows + ul p img,
+.block-follows + ol p img {
+  margin-bottom: 20px;
+}
+.hero-follows + ul h3,
+.block-follows + ul h3,
+.block-follows + ol h3 {
+  margin-top: 0.5em;
 }
 .hero-follows + ul .button,
 .block-follows + ul .button,
