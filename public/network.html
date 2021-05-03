@@ -30,11 +30,23 @@
     </div>
 </div>
 
-<div class="help">
+<div id="chat" class="popup">
     <div>
-        <button class="icon close" title="Schließen">×</button>
+        <div>
+            <button class="icon close" title="Schließen">×</button>
+            <h2 class="title">XCamp Gespräch</h2>
+        </div>
 
-        <h2>Informationen zum XCamp NetVis</h2>
+        <iframe></iframe>
+    </div>
+</div>
+
+<div class="help popup">
+    <div>
+        <div>
+            <button class="icon close" title="Schließen">×</button>
+            <h2>Informationen zum XCamp NetVis</h2>
+        </div>
 
         <p>
             Das XCamp nutzt NetVis, einer webbasierten Open Source Applikation zur Visualisierung von Sozialen
@@ -178,7 +190,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"
         integrity="sha256-qlku5J3WO/ehJpgXYoJWC2px3+bZquKChi4oIWrAKoI=" crossorigin="anonymous"></script>
 <script src="common.js"></script>
-<script src="netvis-frontend.js"></script>
+<script src="/js-netvis/dist/bundle.js"></script>
+<script type="module" src="netvis-frontend.js"></script>
 
 </body>
 </html>

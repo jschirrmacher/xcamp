@@ -14,3 +14,4 @@
 *.map
 .DS_Store
 /save
+/.sass-cache

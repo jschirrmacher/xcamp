@@ -11,58 +11,71 @@ module.exports = (dependencies) => {
     config
   } = dependencies
 
-  async function getTicketSalePage(code, type, isAdmin) {
+  function getEventName(path) {
+    return path.replace('/', '')
+  }
+
+  async function getTicketSalePage(code, type, isAdmin, eventPath) {
     const coupon = code && readModels.coupon.getByAccessCode(code)
     if (code && !coupon) {
       return templateGenerator.generate('invalid-coupon-code')
     }
+    if (!config.ticketSaleActive && !isAdmin) {
+      return templateGenerator.generate('no-tickets-available')
+    }
+    const eventName = eventPath.replace('/', '')
     const template = type === 'reduced' ? 'apply-to-reduced-ticket' : 'buy-ticket'
     const templateName = config.ticketSaleActive || isAdmin ? template : 'no-tickets-available'
     const categories = Object.keys(config.ticketCategories).map(c => `${c}: ${config.ticketCategories[c]}`).join(',')
     const ticketType = code ? coupon.category : ''
     const soldOut = config.ticketsSoldOut
     const notYet = !config.ticketsSoldOut
-    const data = {code, eventName: config.eventName, categories, ticketType, notYet, soldOut}
+    const data = {code, eventName, categories, ticketType, notYet, soldOut}
     return templateGenerator.generate(templateName, data)
   }
 
-  function getTicketFromAccessCode(accessCode) {
-    return readModels.invoice.getTicketByAccessCode(accessCode)
-  }
+  // function getTicketFromAccessCode(accessCode) {
+  //   return readModels.invoice.getTicketByAccessCode(accessCode)
+  // }
 
-  async function getTicketPage(access_code, mode) {
-    const ticket = getTicketFromAccessCode(access_code)
-    const invoice = readModels.invoice.getById(ticket.invoiceId)
-    return templateGenerator.generate('ticket', {
-      mode,
-      print: mode === 'print',
-      disabled: mode === 'print' ? 'disabled' : '',
-      access_code,
-      participant: ticket && ticket.participant,
-      paid: invoice.paid
-    })
-  }
+  // async function getTicketPage(access_code, mode) {
+  //   const ticket = getTicketFromAccessCode(access_code)
+  //   const invoice = readModels.invoice.getById(ticket.invoiceId)
+  //   return templateGenerator.generate('ticket', {
+  //     mode,
+  //     print: mode === 'print',
+  //     disabled: mode === 'print' ? 'disabled' : '',
+  //     access_code,
+  //     participant: ticket && ticket.participant,
+  //     paid: invoice.paid
+  //   })
+  // }
 
-  async function applyToReduced(person) {
-    const html = templateGenerator.generate('mail/application-mail', person)
-    const to = config['mail-recipients']['apply-to-reduced']
-    store.add({type: 'applied-to-reduced', person})
-    mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)
-    return templateGenerator.generate('applied-to-reduced')
+  // async function applyToReduced(person) {
+  //   const html = templateGenerator.generate('mail/application-mail', person)
+  //   const to = config['mail-recipients']['apply-to-reduced']
+  //   store.add({type: 'applied-to-reduced', person})
+  //   mailSender.send(to, `Bewerbung für ein vergünstigtes ${config.eventName} Ticket`, html)
+  //   return templateGenerator.generate('applied-to-reduced')
+  // }
+
+  function buyTicket(data, eventName) {
+    data.eventName = eventName
+    return Model.Ticket.buy(data)
   }
 
   const router = express.Router()
-  const redirect = true
-  const allowAnonymous = true
+  // const redirect = true
+  // const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getTicketSalePage(req.query.code, req.query.type, req.user && req.user.isAdmin), {type: 'send'}))
-  router.post('/', makeHandler(req => Model.Ticket.buy(req.body)))
-  router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
-  router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode)))
-  router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.params.accessCode, req.body, req.user)))
-  router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'show'), {type: 'send'}))
-  router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'print'), {type: 'send'}))
-  router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.params.accessCode)))
+  // router.post('/reduced', makeHandler(req => applyToReduced(req.body), {type: 'send'}))
+  router.post('/*', makeHandler(req => buyTicket(req.body, getEventName(req.path))))
+  // router.get('/:accessCode', auth.requireCodeOrAuth({redirect}), makeHandler(req => Model.Ticket.show(req.params.accessCode)))
+  // router.put('/:accessCode', auth.requireJWT(), makeHandler(req => Model.Ticket.setParticipant(req.params.accessCode, req.body, req.user)))
+  // router.get('/:accessCode/show', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'show'), {type: 'send'}))
+  // router.get('/:accessCode/print', auth.requireCodeOrAuth({redirect}), makeHandler(req => getTicketPage(req.params.accessCode, 'print'), {type: 'send'}))
+  // router.get('/:accessCode/checkin', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => Model.Ticket.checkin(req.params.accessCode)))
+  router.get('/*', makeHandler(req => getTicketSalePage(req.query.code, req.query.type, req.user && req.user.isAdmin, getEventName(req.path)), {type: 'send'}))
 
   return router
 }

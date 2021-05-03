@@ -1,0 +1,257 @@
+html,
+body {
+  font: 14px Helvetica, Arial, sans-serif;
+}
+
+.spinner {
+  display: inline-block;
+  position: absolute;
+  top: calc(50% - 40px);
+  left: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    border: 4px solid #000;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  &:after {
+    content: '';
+    animation-delay: -0.5s;
+  }
+
+  @keyframes lds-ripple {
+    0% {
+      top: 36px;
+      left: 36px;
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 72px;
+      height: 72px;
+      opacity: 0;
+    }
+  }
+}
+
+body.ready {  
+  .spinner {
+    display: none;
+  }
+
+  #root {
+    opacity: 1;
+  }
+}
+
+.link {
+  transform-origin: 0 100%;
+  height: 1px;
+  background: #888888;
+  position: absolute;
+  z-index: -1;
+}
+
+.node {
+  position: absolute;
+  cursor: pointer;
+  text-align: center;
+  background: white;
+
+  h2, .details {
+    transition: all 1s;
+  }
+
+  .details {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  &.active {
+    border: 2px solid #888888;
+    background: white;
+    border-radius: 4px;
+    width: 320px;
+    height: auto;
+    text-align: left;
+    padding: 10px;
+    border-color: #cccccc;
+
+    img {
+      float: left;
+      margin: 0 0.5em 0.5em 0;
+    }
+
+    h2 {
+      font-size: 24px;
+      line-height: 1.3em;
+    }
+
+    .details {
+      opacity: 1;
+      width: auto;
+      height: auto;
+      overflow: auto;
+
+      &:before {
+        content: "";
+        clear: both;
+        display: block;
+      }
+
+      .btn-toolbar {
+        margin-top: 1em;
+      }
+    }
+  }
+}
+
+.node-topic {
+  width: 120px;
+  height: auto;
+}
+
+.node-person {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  box-sizing: border-box;
+
+  img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: normal;
+    margin-top: 0;
+  }
+}
+
+.node-topic h2 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: #555555;
+}
+
+.node-topic .more {
+  right: -25px;
+  top: -20px;
+}
+
+.popup {
+  position: absolute;
+  opacity: 0;
+  top: -100%;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(128, 128, 128, 0.5);
+  transition: opacity 0.3s;
+  z-index: 9999;
+  padding: 2em 0;
+
+  &.open {
+    top: 0;
+    bottom: 0;
+    opacity: 1;
+  }
+
+  > div {
+    background: white;
+    transition: all 0.3s;
+    padding: 10px;
+    height: 100%;
+    position: relative;
+    max-width: 800px;
+
+    .panel {
+      display: none;
+
+      &.active.loaded {
+        display: block;
+      }
+    }
+
+    .close {
+      border: none;
+      position: absolute;
+      right: 0;
+      padding: 0.5em 1em;
+      font-size: 28px;
+      cursor: pointer;
+      opacity: 1;
+      background: white;
+    }
+
+    h2,
+    p {
+      padding: 15px 0;
+    }
+
+    .tab-content {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      height: 100%;
+
+      > div {
+        height: 100%;
+      }
+
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100% - 100px);
+        margin: 0 auto;
+        border: none;
+        flex: 1;
+      }
+    }
+  }
+}
+
+@media (min-width: 800px) {
+  .popup > div {
+    margin: 0 auto;
+  }
+}
+
+.btn-toolbar button {
+  margin-left: 10px;
+}
+
+.nav-link[href="#chat"],
+button.chat {
+  display: none;
+}
+
+body.chat-connected {
+  .nav-link[href="#chat"],
+  button.chat {
+    display: block;
+  }  
+}
+
+#wiki iframe {
+  margin-top: 2em;
+  height: calc(100% - 70px);
+
+  #document header {
+    display: none;
+  }
+}

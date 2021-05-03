@@ -9,8 +9,6 @@ module.exports = function ({store, config}) {
     .filter(name => name !== 'index')
     .forEach(requireReader)
 
-  store.replay()
-
   return models
 
   function requireReader(name) {
@@ -19,7 +17,9 @@ module.exports = function ({store, config}) {
       if (model.dependencies) {
         model.dependencies.forEach(requireReader)
       }
-      store.listen(model.handleEvent)
+      if (model.handleEvent) {
+        store.listen(model.handleEvent)
+      }
       models[name] = model
     }
   }

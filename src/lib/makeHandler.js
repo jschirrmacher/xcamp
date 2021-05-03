@@ -6,7 +6,7 @@ module.exports = ({auth, templateGenerator}) => {
         const result = await func(req)
         if (result && result.isRedirection) {
           if (result.user) {
-            auth.signIn({user: result.user}, res)
+            res.cookie('token', auth.signIn(result.user))
           }
           res.redirect(result.url)
         } else if (result && result.sendFile) {

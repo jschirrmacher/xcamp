@@ -16,30 +16,33 @@ module.exports = (Model, mailSender, templateGenerator, Payment, mailChimp, rack
   async function addSubscriber(person) {
     try {
       await mailChimp.addSubscriber(person)
+    } catch (error) {
+      throw new Error('Fehler beim Eintragen in den Newsletter: ' + error.content.detail)
+    }
+
+    try {
       await mailChimp.addTags(person, [config.eventName])
     } catch (error) {
-      throw new Error(error.content.detail)
+      // Tag might already be set to the person, so just ignore
     }
   }
 
   async function buy(data) {
     if (!data.tos_accepted) {
-      return Promise.reject({status: 403, message: 'You need to accept the terms of service'})
+      throw {status: 403, message: 'You need to accept the terms of service'}
     } else if (data.type !== 'corporate' && data.payment === 'invoice') {
-      return Promise.reject({status: 403, message: 'Reduced tickets are available only when paying immediately'})
+      throw {status: 403, message: 'Reduced tickets are available only when paying immediately'}
     }
 
     try {
       if (data.code) {
         assertCoupon(data.code, data.type)
       }
-      const person = await Model.Person.getOrCreate(data)
-      data.personId = person.id // eslint-disable-line require-atomic-updates
       data.ticketCount = +data.ticketCount // eslint-disable-line require-atomic-updates
       const customer = await Model.Customer.create(data)
       const invoice = await Model.Invoice.create(data, customer)
 
-      await addSubscriber(person)
+      await addSubscriber(data)
 
       if (data.code) {
         store.add({type: 'coupon-invalidated', code: data.code})
@@ -51,9 +54,9 @@ module.exports = (Model, mailSender, templateGenerator, Payment, mailChimp, rack
       } else {
         url = config.baseUrl + 'accounts/' + customer.access_code + '/info'
       }
-      return redirectTo(url, readModels.user.getById(customer.id))
+      return redirectTo(url)
     } catch (e) {
-      return Promise.reject({status: 500, message: '' + e})
+      throw {status: 500, message: '' + (e.message || e.toString())}
     }
   }
 

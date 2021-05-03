@@ -103,10 +103,38 @@ module.exports = (dependencies) => {
     return {links2create: [], links2delete: [], nodes2create: [], node}
   }
 
+  function getGraph(user) {
+    function prepareUser(user) {
+      return {
+        type: 'person',
+        ...user,
+        details: user.details || user.name + ' hat noch keine Angaben gemacht',
+        image: config.chat.url + 'avatar/' + user.username,
+        channel: '/direct/' + user.username,
+        links: { topics: readModels.subscriptions.getSubscriptions(user.id) },
+      }
+    }
+  
+    function prepareTopic(channel) {
+      return {
+        id: channel.id,
+        type: 'topic',
+        channel: '/channel/' + channel.name,
+        name: channel.topic,
+        details: channel.details || 'Hier wurde bisher noch nichts eingetragen',
+        links: { persons: readModels.subscriptions.getMembers(channel.id) },
+      }
+    }
+
+    const nodes = readModels.topic.getAll().map(prepareTopic)
+      .concat(readModels.user.getAll().map(prepareUser))
+    return { nodes, myNode: user && prepareUser(user) }
+  }
+
   const router = express.Router()
   const allowAnonymous = true
 
-  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => readModels.network.getGraph(req.user, config.eventName)))
+  router.get('/', auth.requireJWT({allowAnonymous}), makeHandler(req => getGraph(req.user)))
 
   router.put('/roots/:id', auth.requireJWT(), auth.requireAdmin(), makeHandler(req => updateById(req.params.id, req.body, req.user)))
 

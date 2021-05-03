@@ -27,7 +27,7 @@ class JsonStringify extends stream.Transform {
 }
 
 class EventStore {
-  constructor({basePath, logger}) {
+  constructor({ basePath, logger }) {
     this.logger = logger
     this.listeners = []
     if (!fs.existsSync(basePath)) {
@@ -45,7 +45,7 @@ class EventStore {
       this.logger.info(`Migrating data from ${eventsVersionNo} to ${versionNo}`)
       this.ready = this
         .migrate(basePath, eventsVersionNo, migrationFiles)
-        .then(() => fs.writeFileSync(versionFile, JSON.stringify({versionNo})))
+        .then(() => fs.writeFileSync(versionFile, JSON.stringify({ versionNo })))
         .then(() => this.logger.info('Migration successful'))
         .then(() => this.openChangeStream())
     } else {
@@ -55,7 +55,7 @@ class EventStore {
   }
 
   openChangeStream() {
-    this.changeStream = fs.createWriteStream(this.eventsFileName, {flags: 'a'})
+    this.changeStream = fs.createWriteStream(this.eventsFileName, { flags: 'a' })
   }
 
   migrate(basePath, fromVersion, migrationFiles) {
@@ -97,10 +97,19 @@ class EventStore {
     }
   }
 
+  on(type, func) {
+    this.listen((event) => {
+      if (event.type === type.name) {
+        func(event)
+      }
+    })
+    return this
+  }
+
   async replay() {
     await this.ready
     const self = this
-    fs.createReadStream(this.eventsFileName)
+    const stream = fs.createReadStream(this.eventsFileName)
       .pipe(es.split())
       .pipe(es.parse())
       .pipe(es.mapSync(event => {
@@ -113,13 +122,17 @@ class EventStore {
           self.logger.debug(error.stack)
         }
       }))
+
+    return new Promise(resolve => {
+      stream.on('end', resolve)
+    })
   }
 
   async add(event) {
     const self = this
     await this.ready
-    const {type, ...rest} = event
-    const completeEvent = {ts: new Date(), type, ...rest}
+    const { type, ...rest } = event
+    const completeEvent = { ts: new Date(), type, ...rest }
     this.changeStream.write(JSON.stringify(completeEvent) + '\n')
     this.listeners.forEach(listener => {
       try {
@@ -129,6 +142,11 @@ class EventStore {
         self.logger.debug(error.stack)
       }
     })
+  }
+
+  async emit(type, ...args) {
+    await this.ready
+    return this.add({ type: type.name, ...type.construct(...args) })
   }
 
   deleteAll() {

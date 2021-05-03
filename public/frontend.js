@@ -1,0 +1,183 @@
+/* global d3*/
+
+const gravityStrength = 0.1
+const collisionRadius = 100
+
+const popup = document.querySelector('.popup')
+const chatFrame = document.querySelector('#chat iframe')
+const wikiFrame = document.querySelector('#wiki iframe')
+
+const channelQueue = []
+
+function handleChannelQueue() {
+  if (!channelQueue.length) {
+    return
+  }
+  if (document.querySelector('#chat').classList.contains('loaded')) {
+    chatFrame.contentWindow.postMessage({ externalCommand: 'go', path: channelQueue.shift() }, '*')
+  } else {
+    setTimeout(handleChannelQueue, 1000)
+  }
+}
+
+function showMore(node, tabId) {
+  document.querySelector('#chat .title').innerText = 'Gespräch ' + (node.type === 'person' ? 'mit' : 'über') + ' ' + node.name
+  channelQueue.push(node.channel)
+  handleChannelQueue()
+  wikiFrame.src = 'https://wiki.xcamp.co' + node.channel.replace('channel/', '').replace('direct/', 'user/')
+  popup.classList.add('open')
+  activateTab(document.querySelector('.nav-link[href="#' + tabId + '"]'))
+}
+
+document.querySelector('.popup .close').addEventListener('click', () => popup.classList.remove('open'))
+
+// chat frame
+chatFrame.setAttribute('src', 'https://community.xcamp.co/home?layout=embedded')
+window.addEventListener('message', function (e) {
+  if (e.data.eventName === 'startup' && e.data.data) {
+    document.body.classList.add('chat-connected')
+    document.querySelector('#chat').classList.add('loaded')
+  }
+  console.log(e.data.eventName, e.data.data)
+})
+
+function activateTab(tab) {
+  const current = Array.from(tab.parentNode.children).find(el => el.classList.contains('active'))
+  if (current) {
+    current.pane.classList.remove('active')
+    current.pane.classList.remove('show')
+    current.classList.remove('active')
+  }
+  tab.pane.classList.add('active')
+  tab.pane.classList.add('show')
+  tab.classList.add('active')
+}
+
+document.querySelectorAll('.nav-link').forEach(el => {
+  el.pane = document.querySelector(el.getAttribute('href'))
+  el.addEventListener('click', event => activateTab(event.target))
+})
+
+d3.json('/network').then((graph) => {
+  let activeNode
+
+  const simulation = d3.forceSimulation(graph.nodes)
+    .force('link', d3.forceLink().id(function (d) { return d.id }))
+    .force('charge', d3.forceManyBody())
+    .force('center', d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2))
+    .force('gravityX', d3.forceX(window.innerWidth / 2).strength(gravityStrength))
+    .force('gravityY', d3.forceY(window.innerHeight / 2).strength(gravityStrength))
+    .force('collision', d3.forceCollide(collisionRadius))
+    .alphaDecay(0.1)
+
+  const allNodes = d3.select('#root')
+    .selectAll('.node')
+    .data(graph.nodes)
+
+  const node = allNodes.enter()
+    .append('div')
+    .attr('class', d => 'node node-' + d.type)
+    .attr('id', d => 'node-' + d.id)
+    .classed('active', d => activeNode && d.id === activeNode.id)
+    .merge(allNodes)
+    .on('click', activate)
+  
+  allNodes.exit().remove()
+
+  const persons = d3.select('#root').selectAll('.node-person')
+  persons.append('img')
+    .attr('src', d => d.image || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
+
+  node.append('h2')
+    .text(d => d.name)
+
+  const details = node.append('div')
+    .attr('class', 'details')
+    .text(d => d.details)
+  
+  const buttons = details.append('div')
+    .attr('class', 'btn-toolbar')
+
+  buttons.append('button')
+    .attr('class', 'btn btn-warning wiki')
+    .text('Infos')
+    .on('click', d => showMore(d, 'wiki'))
+
+  buttons.append('button')
+    .attr('class', 'btn btn-warning chat')
+    .text('Diskutieren')
+    .on('click', d => showMore(d, 'chat'))
+
+  update()
+  document.body.classList.add('ready')
+
+  function update() {
+    node.classed('active', d => activeNode && d.id === activeNode.id)
+
+    const links = graph.nodes
+      .map(node => Object.values(node.links).flat().map(other => ({
+        source: node,
+        target: graph.nodes.find(n => n.id === other)
+      })))
+      .flat()
+
+    const filteredLinks = links.filter(l => activeNode && (l.source.id === activeNode.id || l.target.id === activeNode.id))
+    const allLinks = d3.select('#root')
+      .selectAll('.link')
+      .data(filteredLinks)
+
+    const link = allLinks.enter()
+      .append('div')
+      .attr('class', 'link')
+      .merge(allLinks)
+    allLinks.exit().remove()
+
+    simulation
+      .force('collision', d3.forceCollide(d => (activeNode && d.id === activeNode.id) ? 250 : collisionRadius))
+      .force('x', d3.forceX().strength(forceStrength).x(window.innerWidth / 2))
+      .force('y', d3.forceY().strength(forceStrength).y(window.innerHeight / 2))
+      .force('link', d3.forceLink().links(filteredLinks))
+      .on('tick', ticked)
+      .alpha(1).restart()
+
+    function forceStrength(d) {
+      return d.id === activate ? 10 : 0.1
+    }
+
+    function ticked() {
+      link.attr('style', d => {
+        const dx = d.target.x - d.source.x
+        const dy = d.target.y - d.source.y
+        var length = Math.sqrt(dx * dx + dy * dy)
+        var angle  = Math.atan2(dy, dx) * 180 / Math.PI
+        return 'left: ' + d.source.x + 'px; top: ' + d.source.y + 'px; width: ' + length + 'px; transform: rotate(' + angle + 'deg)'
+      })
+      node.attr('style', d => {
+        const el = document.getElementById('node-' + d.id)
+        return 'left: ' + Math.round(d.x - el.clientWidth / 2) + 'px; top: ' + Math.round(d.y - el.clientHeight / 2) + 'px;'
+      })
+    }
+  }
+  
+  function centerTween(node) {
+    return () => {
+      const ix = d3.interpolate(node.x, window.innerWidth / 2)
+      const iy = d3.interpolate(node.y, window.innerHeight / 2)
+      return t => {
+        node.fx = ix(t)
+        node.fy = iy(t)
+      }
+    }
+  }
+
+  function activate() {
+    if (activeNode) {
+      activeNode.fx = undefined
+      activeNode.fy = undefined
+    }
+    activeNode = this.__data__
+    const transition = d3.select(activeNode).transition().duration(1000)
+    transition.tween('center', centerTween(activeNode))
+    update()
+  }
+})

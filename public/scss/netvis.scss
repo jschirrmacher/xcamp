@@ -229,14 +229,6 @@ svg {
       background-size: cover;
     }
 
-    button.icon.close {
-      float: right;
-      border: none;
-      background: transparent;
-      margin-top: 10px;
-      user-select: none;
-    }
-
     .label {
       display: none;
       font-size: 80%;
@@ -613,35 +605,16 @@ label[for="image-upload"] {
   margin: 10px 0;
 }
 
+button.icon.close {
+  float: right;
+  border: none;
+  background: transparent;
+  margin-top: 10px;
+  user-select: none;
+}
+
 .help {
-  position: absolute;
-  opacity: 0;
-  top: -100%;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  background-color: rgba(128,128,128,0.5);
-  transition: opacity 0.3s;
-
-  > div {
-    max-width: 50%;
-    margin: -100% auto 5em;
-    background: white;
-    padding: 1em 2em;
-    transition: all 0.3s;
-
-    .close {
-      float: right;
-      border: none;
-      background: transparent;
-    }
-  }
-
   &.open {
-    top: 0;
-    bottom: 0;
-    opacity: 1;
-
     > div {
       margin-top: 5em;
     }
@@ -684,5 +657,63 @@ label[for="image-upload"] {
 
   &.hidden_persons {
     display: block;
+  }
+}
+
+.popup {  
+  position: absolute;
+  opacity: 0;
+  top: -100%;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(128,128,128,0.5);
+  transition: opacity 0.3s;
+  z-index: 9999;
+  padding: 2em 0;
+
+  &.open {
+    top: 0;
+    bottom: 0;
+    opacity: 1;
+  }
+
+  > div {
+    background: white;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+
+    .close {
+      padding: .5em 1em;
+    }
+
+    h2, p {
+      padding: 15px;
+    }
+
+    @media (min-width: 800px) {
+      max-width: 800px;
+      margin: 0 auto;
+
+      h2, p {
+        padding: 0 30px;
+      }
+    }
+  }
+}
+
+#chat {
+  > div {
+    height: 100%;
+  }
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 90%;
+    margin: 0 auto;
+    border: none;
+    flex: 1;
   }
 }

@@ -55,5 +55,12 @@
     "secure": true,
     "debug": true,
     "newline": "unix"
+  },
+  "chat": {
+    "url": "https://community.xcamp.co",
+    "oauth": {
+      "client_id": "xxx",
+      "client_secret": "yyy"
+    }
   }
 }

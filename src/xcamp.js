@@ -1,5 +1,6 @@
 const nodeenv = process.env.NODE_ENV || 'develop'
 const isProduction = nodeenv === 'production'
+const host = process.env.BASEURL || 'http://localhost'
 const port = process.env.PORT || 8001
 
 const Logger = require('./Logger')
@@ -8,6 +9,7 @@ const logger = Logger.setupStandardLogger()
 const path = require('path')
 const fs = require('fs')
 const config = readConfigFile()
+const adapters = require('./adapters')({ config })
 
 global.fetch = require('node-fetch')
 const fetch = require('js-easy-fetch')()
@@ -30,10 +32,12 @@ const store = new EventStore({basePath: path.resolve('./store'), logger})
 const readModels = require('./readModels')({store, config})
 const NotificationSender = require('./NotificationSender')({mailSender, readModels, config})
 store.listen(NotificationSender.handleEvent)
+const synchronizer = require('./RCSynchronizer')({ readModels, store, adapters })
+store.replay().then(() => synchronizer())
 
 const mailChimp = require('./mailchimp')(config.mailChimp, config.eventName, fetch, store)
 const Payment = require('./PayPalAdapter')(fetch, store, readModels, config)
-const Model = require('./writeModels')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels})
+const Model = require('./writeModels')({store, rack, mailSender, Payment, mailChimp, templateGenerator, config, readModels, adapters})
 const auth = require('./auth')({app, readModels, store, config})
 const mainRouter = require('./routers')({express, auth, templateGenerator, mailSender, mailChimp, Model, Payment, store, config, readModels, fetch, logger})
 
@@ -41,7 +45,7 @@ Logger.attachToExpress(app, mainRouter)
 
 const server = app.listen(port, () => {
   const paymentType = config.paypal.useSandbox ? 'sandbox' : 'PayPal'
-  logger.info(`Running on port ${port} in ${nodeenv} mode with baseURL=${config.baseUrl} using ${paymentType}`)
+  logger.info(`Running on ${config.baseUrl} in ${nodeenv} mode using ${paymentType}`)
 })
 
 process.on('SIGTERM', () => {
@@ -63,7 +67,7 @@ function readConfigFile() {
   } else {
     config = require(configFile)
   }
-  config.baseUrl = process.env.BASEURL || '/'
+  config.baseUrl = host + ':' + port + '/'
   config.basePath = basePath
   config.isProduction = isProduction
   config.authSecret = process.env.AUTH_SECRET || (nodeenv === 'develop' && 'abcde')

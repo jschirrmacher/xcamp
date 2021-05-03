@@ -1,33 +1,24 @@
-module.exports = function () {
+module.exports = function ({ store, models }) {
+  const { channelAdded, channelRemoved, channelChanged } = require('../events')({ models })
   const topics = {
     byId: {},
     byName: {}
   }
 
+  store
+    .on(channelAdded, event => {
+      topics.byId[event.channel.id] = event.channel
+      topics.byName[event.channel.name.toLowerCase()] = event.channel
+    })
+    .on(channelRemoved, event => {
+      delete topics.byName[topics.byId[event.channelId].name]
+      delete topics.byId[event.channelId]
+    })
+    .on(channelChanged, event => {
+      Object.assign(topics.byId[event.channel.id], event.channel)
+    })
+
   return {
-    handleEvent(event, assert) {
-      switch (event.type) {
-        case 'node-created':
-          if (event.node.type === 'topic') {
-            assert(event.node.id, 'No node id found in event')
-            assert(event.node.name, 'No node name found in event')
-            assert(!topics.byId[event.node.id], 'Node id already exists')
-            topics.byId[event.node.id] = event.node
-            topics.byName[event.node.name.toLowerCase()] = event.node
-          }
-          break
-
-        case 'node-updated':
-          assert(event.node, 'No node found in event')
-          assert(event.node.id, 'No node id found in event')
-          if (topics.byId[event.node.id]) {
-            topics.byId[event.node.id] = Object.assign(topics.byId[event.node.id], event.node)
-          }
-          break
-
-      }
-    },
-
     getAll() {
       return Object.values(topics.byId)
     },

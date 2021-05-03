@@ -119,19 +119,6 @@ module.exports = function ({models}) {
       return nodes[id]
     },
 
-    async getGraph(user = null, eventName) {
-      const nodes = models.network.getAll()
-        .filter(node => ['person', 'topic', 'root'].includes(node.type))
-        .map(node => models.network.getPublicViewOfNode({...node}, user))
-        .map(node => {
-          if (node.type === 'root' && node.name === eventName) {
-            node.open = true
-          }
-          return node
-        })
-      return {nodes, myNode: user && user.personId}
-    },
-
     getPublicViewOfNode(node, user) {
       const fields = ['id', 'editable', 'details', 'name', 'image', 'type', 'links', 'description']
       node.shape = 'circle'

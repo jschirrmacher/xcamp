@@ -451,13 +451,6 @@ svg .node .cta text {
   background-position: center;
   background-size: cover;
 }
-.details .detailForm button.icon.close {
-  float: right;
-  border: none;
-  background: transparent;
-  margin-top: 10px;
-  user-select: none;
-}
 .details .detailForm .label {
   display: none;
   font-size: 80%;
@@ -775,33 +768,14 @@ label[for=image-upload] {
   margin: 10px 0;
 }
 
-.help {
-  position: absolute;
-  opacity: 0;
-  top: -100%;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  background-color: rgba(128, 128, 128, 0.5);
-  transition: opacity 0.3s;
-}
-.help > div {
-  max-width: 50%;
-  margin: -100% auto 5em;
-  background: white;
-  padding: 1em 2em;
-  transition: all 0.3s;
-}
-.help > div .close {
+button.icon.close {
   float: right;
   border: none;
   background: transparent;
+  margin-top: 10px;
+  user-select: none;
 }
-.help.open {
-  top: 0;
-  bottom: 0;
-  opacity: 1;
-}
+
 .help.open > div {
   margin-top: 5em;
 }
@@ -835,6 +809,57 @@ label[for=image-upload] {
 }
 .cta.hidden_persons {
   display: block;
+}
+
+.popup {
+  position: absolute;
+  opacity: 0;
+  top: -100%;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(128, 128, 128, 0.5);
+  transition: opacity 0.3s;
+  z-index: 9999;
+  padding: 2em 0;
+}
+.popup.open {
+  top: 0;
+  bottom: 0;
+  opacity: 1;
+}
+.popup > div {
+  background: white;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.popup > div .close {
+  padding: 0.5em 1em;
+}
+.popup > div h2, .popup > div p {
+  padding: 15px;
+}
+@media (min-width: 800px) {
+  .popup > div {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .popup > div h2, .popup > div p {
+    padding: 0 30px;
+  }
+}
+
+#chat > div {
+  height: 100%;
+}
+#chat iframe {
+  display: block;
+  width: 100%;
+  height: 90%;
+  margin: 0 auto;
+  border: none;
+  flex: 1;
 }
 
 /*# sourceMappingURL=netvis.css.map */

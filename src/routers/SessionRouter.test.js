@@ -62,7 +62,14 @@ const templateGenerator = {
     return {page, params}
   }
 }
-const config = {baseUrl: 'https://test.example.com/app'}
+const config = {
+  baseUrl: 'https://test.example.com/app',
+  chat: {
+    oauth: {
+      client_id: 'rc-client-id'
+    }
+  }
+}
 
 const router = require('./SessionRouter')({express, auth, makeHandler, templateGenerator, readModels, config})
 app.use('/session', router)
@@ -133,7 +140,7 @@ describe('SessionRouter', () => {
         .get('/session/123456/' + encodeURIComponent('/page/123'))
         .expect(200)
         .then(response => {
-          response.body.should.deepEqual({page: 'login-page', params: {url: '/page/123', accessCode: '123456'}})
+          response.body.should.containDeep({page: 'login-page', params: {url: '/page/123', accessCode: '123456'}})
         })
     })
   })
